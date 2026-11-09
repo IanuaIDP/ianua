@@ -23,7 +23,8 @@ permissions:
 env:
   CARGO_TERM_COLOR: always
   # One value for every job: Cargo fingerprints on this string, so a job with a
-  # different value could not reuse the shared cache.
+  # different value could not reuse the caches. Each kind of build keeps its own
+  # cache, kept even when a test fails, so the next run starts warm.
   RUSTFLAGS: "-D warnings"
   # The compile-time-checked queries resolve against the committed .sqlx data.
   # `sqlx-offline` proves that data still matches the schema.
@@ -78,7 +79,8 @@ jobs:
       - uses: actions/checkout@v5
       - uses: Swatinem/rust-cache@v2
         with:
-          shared-key: ci
+          shared-key: ci-sqlx
+          cache-on-failure: true
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - uses: taiki-e/install-action@v2
         with:
@@ -103,7 +105,8 @@ jobs:
       - uses: actions/checkout@v5
       - uses: Swatinem/rust-cache@v2
         with:
-          shared-key: ci
+          shared-key: ci-clippy
+          cache-on-failure: true
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - run: cargo clippy --all-targets --all-features -- -D warnings
 
@@ -115,6 +118,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: ci-audit
+          cache-on-failure: true
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - run: cargo run --release -p ianua-audit -- check
 
@@ -137,8 +141,10 @@ jobs:
         run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
       - uses: Swatinem/rust-cache@v2
         with:
-          shared-key: ci
+          shared-key: ci-test
+          cache-on-failure: true
           save-if: ${{ github.ref == 'refs/heads/main' }}
+      - uses: rui314/setup-mold@v1
       - uses: taiki-e/install-action@v2
         with:
           tool: nextest
@@ -163,8 +169,10 @@ jobs:
         run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
       - uses: Swatinem/rust-cache@v2
         with:
-          shared-key: ci
+          shared-key: ci-test
+          cache-on-failure: true
           save-if: ${{ github.ref == 'refs/heads/main' }}
+      - uses: rui314/setup-mold@v1
       - uses: taiki-e/install-action@v2
         with:
           tool: nextest
