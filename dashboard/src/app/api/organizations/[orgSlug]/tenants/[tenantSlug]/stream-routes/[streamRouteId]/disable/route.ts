@@ -1,0 +1,10 @@
+import { proxyStreamRouteDetailRequest, type StreamRouteDetailRouteContext } from '../proxy';
+
+export async function POST(request: Request, routeContext: StreamRouteDetailRouteContext) {
+  return proxyStreamRouteDetailRequest({
+    actionPath: 'disable',
+    method: 'POST',
+    request,
+    routeContext,
+  });
+}
