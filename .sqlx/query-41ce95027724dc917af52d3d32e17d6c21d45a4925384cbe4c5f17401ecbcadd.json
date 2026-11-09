@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every tenant in this database holding assertion keys but none active\n-- made at or after the cutoff: its signing key is old, or nothing signs.\n-- For the sweep that rotates assertion keys by age.\nSELECT DISTINCT held.tenant_id AS \"tenant_id!\"\nFROM assertion_keys held\nWHERE NOT EXISTS (\n    SELECT 1 FROM assertion_keys fresh\n    WHERE fresh.tenant_id = held.tenant_id\n      AND fresh.status = 'active'\n      AND fresh.created_at >= $1\n)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id!",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "41ce95027724dc917af52d3d32e17d6c21d45a4925384cbe4c5f17401ecbcadd"
+}

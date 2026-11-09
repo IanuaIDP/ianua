@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Holds a token for a poll stream of the tenant until its receiver\n-- acknowledges it. The stream is looked up within the tenant, so a stream\n-- of another tenant holds nothing, and a token held already is held once.\nINSERT INTO signal_poll_events (tenant_id, stream_id, jti, token)\nSELECT streams.tenant_id, streams.id, $3::uuid, $4::text\nFROM signal_streams streams\nWHERE streams.tenant_id = $1 AND streams.id = $2\nON CONFLICT (tenant_id, stream_id, jti) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f644419cf2cc79e808aad83645077a43a9cc9abd919dd971e7eb1d84cdfa82a0"
+}

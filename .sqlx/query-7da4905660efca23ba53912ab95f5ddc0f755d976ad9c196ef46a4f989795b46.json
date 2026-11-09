@@ -1,0 +1,71 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The erasure request of a tenant with the given id.\nSELECT id, user_id, reason, status, completed_at, requested_at, scheduled_at,\n       cancel_token_hash, sent_to\nFROM erasure_requests\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "reason",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "completed_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "requested_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "scheduled_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "cancel_token_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "sent_to",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "7da4905660efca23ba53912ab95f5ddc0f755d976ad9c196ef46a4f989795b46"
+}

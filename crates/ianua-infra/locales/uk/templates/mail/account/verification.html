@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Підтвердьте адресу електронної пошти{% endblock %}
+{% block preheader %}Підтвердьте адресу електронної пошти, щоб завершити налаштування облікового запису.{% endblock %}
+{% block headline %}Підтвердьте адресу електронної пошти{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("користувачу")) }}
+  {% call c.para(pad=8) %}Для вас створено обліковий запис у <strong>{{ tenant_name | default("вашій організації") }}</strong> на {{ c.brand() }}. Перш ніж увійти, підтвердьте адресу електронної пошти.{% endcall %}
+  {{ c.cta(action_url, "Підтвердити адресу") }}
+  {% call c.para(pad=0) %}Строк дії цього посилання: {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Якщо ви не очікували цього листа, проігноруйте його.{% endcall %}
+{% endblock %}

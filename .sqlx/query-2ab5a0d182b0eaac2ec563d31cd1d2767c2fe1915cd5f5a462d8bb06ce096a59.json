@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a group of linked accounts: a new one is added; a known one has\n-- nothing that changes, since its organization, address and creation time\n-- are fixed. A new group under an address another group holds is refused\n-- by the unique key.\nINSERT INTO org_linked_identities (id, organization_id, email, created_at)\nVALUES ($1, $2, $3, $4)\nON CONFLICT (id) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2ab5a0d182b0eaac2ec563d31cd1d2767c2fe1915cd5f5a462d8bb06ce096a59"
+}

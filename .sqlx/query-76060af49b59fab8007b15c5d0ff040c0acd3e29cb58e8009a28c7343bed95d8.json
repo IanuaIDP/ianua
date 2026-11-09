@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every role given straight to someone in a tenant, oldest first.\nSELECT role_id, principal_kind, principal_id, assigned_by, assigned_at, expires_at\nFROM role_assignments\nWHERE tenant_id = $1\nORDER BY assigned_at, role_id, principal_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "role_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "principal_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "principal_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "assigned_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "assigned_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "76060af49b59fab8007b15c5d0ff040c0acd3e29cb58e8009a28c7343bed95d8"
+}

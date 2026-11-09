@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps, at the given moment, the counts read from the tenants with a\n-- database of their own, in one statement, for those that are not\n-- archived or deleted.\nINSERT INTO tenant_metric_snapshots (tenant_id, captured_at, users_count, active_sessions_count)\nSELECT counted.tenant_id, $1, counted.users_count, counted.active_sessions_count\nFROM UNNEST($2::uuid[], $3::bigint[], $4::bigint[])\n    AS counted (tenant_id, users_count, active_sessions_count)\nJOIN tenants t ON t.id = counted.tenant_id\nWHERE t.status NOT IN ('archived', 'deleted')\nON CONFLICT (tenant_id, captured_at) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "UuidArray",
+        "Int8Array",
+        "Int8Array"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "99163fbe6f4e2e64da5d0b723c5465a654dd53cb0acf0cd714b632b44ab40132"
+}

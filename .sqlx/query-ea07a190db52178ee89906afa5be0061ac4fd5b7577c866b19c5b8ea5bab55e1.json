@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many sandboxes a tenant holds against its plan, each once whatever\n-- its versions, archived ones among them.\nSELECT count(*) AS \"count!\"\nFROM sandboxes\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "ea07a190db52178ee89906afa5be0061ac4fd5b7577c866b19c5b8ea5bab55e1"
+}

@@ -1,0 +1,10 @@
+{{ user_name | default("ご利用者") }}様
+
+{{ user_email | default("このメールの宛先") }}で、IANUAの{{ organization_name | default("組織") }}に招待されています。パスワードを設定し、アカウントを有効化して利用を開始してください：
+{{ action_url }}
+
+この招待の有効期間は{{ expires_at }}です。
+
+心当たりがない場合は、このメールを無視してください。
+
+IANUA

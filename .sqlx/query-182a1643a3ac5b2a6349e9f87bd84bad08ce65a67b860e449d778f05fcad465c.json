@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The tenants still provisioning, made before the cut-off, whose setup\n-- never began, or stands running unchanged since the cut-off, the oldest\n-- first. A setup that failed waits for an operator and is not one.\nSELECT t.id\nFROM tenants t\nLEFT JOIN tenant_setups s ON s.tenant_id = t.id\nWHERE t.status = 'provisioning' AND t.created_at < $1\n  AND (s.tenant_id IS NULL\n       OR (s.failed_step IS NULL AND NOT s.planned <@ s.done AND s.updated_at < $1))\nORDER BY t.created_at, t.id\nLIMIT $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "182a1643a3ac5b2a6349e9f87bd84bad08ce65a67b860e449d778f05fcad465c"
+}

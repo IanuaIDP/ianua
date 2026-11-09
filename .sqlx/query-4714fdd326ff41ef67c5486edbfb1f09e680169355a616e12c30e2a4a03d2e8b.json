@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes one role from the requested principal batch, preserving tenant scope.\nDELETE FROM role_assignments\nWHERE tenant_id = $1 AND role_id = $2\n  AND (principal_kind, principal_id) IN (\n      SELECT wanted.kind, wanted.id\n      FROM UNNEST($3::text[], $4::uuid[]) AS wanted(kind, id)\n  )\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "TextArray",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4714fdd326ff41ef67c5486edbfb1f09e680169355a616e12c30e2a4a03d2e8b"
+}

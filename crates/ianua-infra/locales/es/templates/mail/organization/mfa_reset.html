@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Se ha restablecido su segundo factor{% endblock %}
+{% block preheader %}Un propietario de {{ organization_name | default("su organización") }} restableció su segundo factor.{% endblock %}
+{% block headline %}Se ha restablecido su segundo factor{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para() %}Un propietario de <strong>{{ organization_name | default("su organización") }}</strong> restableció el segundo factor de su cuenta {{ c.brand() }} y se cerraron todas sus sesiones. Inicie sesión de nuevo con su contraseña y configure un segundo factor nuevo.{% endcall %}
+  {% call c.para(pad=32) %}Si no lo solicitó, avise de inmediato a un propietario de su organización.{% endcall %}
+{% endblock %}

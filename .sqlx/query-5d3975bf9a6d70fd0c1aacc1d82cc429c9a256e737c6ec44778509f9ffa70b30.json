@@ -1,0 +1,66 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The sign-in request a tenant holds under the given id, if it arrived\n-- after the given time and so may still be answered.\nSELECT id, binding, signature_algorithm, signature, signed_query, message, relay_state,\n       arrived_at\nFROM held_saml_sign_ins\nWHERE tenant_id = $1 AND id = $2 AND arrived_at > $3\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "binding",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "signature_algorithm",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "signature",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "signed_query",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "message",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "relay_state",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "arrived_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "5d3975bf9a6d70fd0c1aacc1d82cc429c9a256e737c6ec44778509f9ffa70b30"
+}

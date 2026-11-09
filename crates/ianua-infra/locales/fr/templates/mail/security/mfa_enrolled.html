@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Connexion en deux étapes activée{% endblock %}
+{% block preheader %}Un second facteur a été ajouté à votre compte.{% endblock %}
+{% block headline %}Connexion en deux étapes activée{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("cher utilisateur")) }}
+  {% call c.para() %}Un second facteur a été ajouté à votre compte dans <strong>{{ tenant_name | default("votre organisation") }}</strong>. Il vous sera désormais demandé lors de la connexion.{% endcall %}
+  {% call c.para(pad=32) %}Si vous n’avez pas fait cela, prévenez immédiatement votre administrateur : quelqu’un d’autre a peut-être accédé à votre compte.{% endcall %}
+{% endblock %}

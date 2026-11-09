@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Remove expired proofs left behind by interrupted issuances.\nDELETE FROM platform_dns_proofs WHERE expires_at <= now()\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "d98c6401f874762474012f54dafd3af6cfde89b7f600a1204e6c44b86f08f62a"
+}

@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Writes every record one import of a tenant was sent, in one statement,\n-- each on the line it stood on.\nINSERT INTO user_import_records\n    (tenant_id, import_id, line, email, display_name, given_name, family_name,\n     preferred_username, picture, phone_number, external_id, department,\n     manager_id, employee_number, password_hash)\nSELECT $1, $2, sent.line, sent.email, sent.display_name, sent.given_name,\n       sent.family_name, sent.preferred_username, sent.picture, sent.phone_number,\n       sent.external_id, sent.department, sent.manager_id, sent.employee_number,\n       sent.password_hash\nFROM UNNEST($3::integer[], $4::text[], $5::text[], $6::text[], $7::text[], $8::text[],\n            $9::text[], $10::text[], $11::text[], $12::text[], $13::uuid[], $14::text[],\n            $15::text[])\n    AS sent (line, email, display_name, given_name, family_name, preferred_username,\n             picture, phone_number, external_id, department, manager_id,\n             employee_number, password_hash)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int4Array",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "UuidArray",
+        "TextArray",
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fc228b0451bb9adcd010bb3ee18ddbfd8736523d5615a69a47241f111f0f8644"
+}

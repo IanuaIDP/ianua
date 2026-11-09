@@ -1,0 +1,7 @@
+Bonjour,
+
+L’adresse e-mail de votre compte IANUA a été remplacée par {{ user_email }}.
+
+Si vous n’êtes pas à l’origine de ce changement, prévenez immédiatement votre administrateur.
+
+IANUA

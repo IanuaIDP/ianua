@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Save the issued pair only while its tenant, consent and lease remain current.\nUPDATE platform_certificates p\nSET certificate_id = $1, certificate_pem = $4, private_key = $5, issued_at = $6, expires_at = $7,\n    attempt_id = NULL, lease_until = NULL, next_attempt = now() + interval '1 day'\nFROM tenants t\nWHERE p.attempt_id = $1 AND p.tenant_id = $2 AND p.root = $3 AND p.lease_until > now()\n    AND t.id = p.tenant_id AND t.status IN ('active', 'provisioning')\n    AND (NOT p.readable OR t.readable_address)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "151392037fd2b76fdbba53ff5c00708f7fe77f88f4dc05fa142f387bc4d04ff3"
+}

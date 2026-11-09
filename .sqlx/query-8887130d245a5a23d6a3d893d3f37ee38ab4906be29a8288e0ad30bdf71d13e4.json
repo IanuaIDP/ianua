@@ -1,0 +1,70 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The identity provider of the given organization, if it has one.\nSELECT id, organization_id, name, saml, oidc, email_trust, assurance_trust,\n       status, created_at\nFROM org_identity_providers\nWHERE organization_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "saml",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "oidc",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 5,
+        "name": "email_trust",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "assurance_trust",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "8887130d245a5a23d6a3d893d3f37ee38ab4906be29a8288e0ad30bdf71d13e4"
+}

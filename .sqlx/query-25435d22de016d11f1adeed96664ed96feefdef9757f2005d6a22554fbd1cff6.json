@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Withdraws the links of one group to every tenant but the given ones.\nDELETE FROM org_linked_identity_links\nWHERE linked_identity_id = $1 AND tenant_id <> ALL($2)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "25435d22de016d11f1adeed96664ed96feefdef9757f2005d6a22554fbd1cff6"
+}

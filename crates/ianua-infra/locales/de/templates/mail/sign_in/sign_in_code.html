@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ihr Anmeldecode{% endblock %}
+{% block preheader %}Geben Sie diesen Code ein, um die Anmeldung fortzusetzen.{% endblock %}
+{% block headline %}Ihr Anmeldecode{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("")) }}
+  {% call c.para(pad=8) %}Geben Sie diesen Code ein, um die Anmeldung bei <strong>{{ tenant_name | default("Ihrem Konto") }}</strong> fortzusetzen:{% endcall %}
+  {{ c.code(one_time_code) }}
+  {% call c.para(pad=0) %}Der Code läuft in {{ expires_at }} ab.{% endcall %}
+  {% call c.para(pad=32) %}Wenn Sie sich gerade nicht anmelden, kennt möglicherweise jemand Ihr Passwort. Ändern Sie es und geben Sie diesen Code an niemanden weiter.{% endcall %}
+{% endblock %}

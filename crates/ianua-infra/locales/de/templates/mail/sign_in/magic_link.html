@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ihr Anmeldelink{% endblock %}
+{% block preheader %}Melden Sie sich über diesen Link bei Ihrem Konto an.{% endblock %}
+{% block headline %}Bei {{ tenant_name | default("Ihrem Konto") }} anmelden{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("")) }}
+  {% call c.para(pad=8) %}Klicken Sie zum Anmelden auf die Schaltfläche unten. Ein Passwort ist nicht erforderlich.{% endcall %}
+  {{ c.cta(action_url, "Anmelden") }}
+  {% call c.para(pad=0) %}Dieser Link läuft in {{ expires_at }} ab.{% endcall %}
+  {% call c.para(pad=32) %}Wenn Sie dies nicht angefordert haben, können Sie diese E-Mail ignorieren.{% endcall %}
+{% endblock %}

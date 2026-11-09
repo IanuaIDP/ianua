@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}新しいデバイスが信頼済みになりました{% endblock %}
+{% block preheader %}アカウントに信頼済みデバイスが追加されました。{% endblock %}
+{% block headline %}新しいデバイスが信頼済みになりました{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para() %}{% if device_name is defined %}<strong>{{ device_name }}</strong>{% else %}新しいデバイス{% endif %}が、<strong>{{ tenant_name | default("所属組織") }}</strong>のアカウントの信頼済みデバイスに追加されました{% if ip_address is defined %}。送信元は{{ ip_address }}です{% endif %}。信頼済みデバイスではサインインの第2ステップを省略できます。{% endcall %}
+  {% call c.para(pad=32) %}このデバイスに心当たりがない場合は、アカウント設定から削除し、パスワードを変更してください。{% endcall %}
+{% endblock %}

@@ -1,0 +1,25 @@
+{{- if and .Values.nats.enabled .Values.nats.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "ianua.fullname" . }}-nats
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: nats
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "ianua.selectorLabels" (dict "root" . "component" "nats") | nindent 6 }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        {{- range list "server" "worker" "zero" "egress" "install" "first-operator" "demo" }}
+        - podSelector:
+            matchLabels:
+              {{- include "ianua.selectorLabels" (dict "root" $ "component" .) | nindent 14 }}
+        {{- end }}
+      ports:
+        - port: 4222
+        - port: 8222
+{{- end }}

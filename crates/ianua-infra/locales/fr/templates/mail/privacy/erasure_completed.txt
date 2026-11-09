@@ -1,0 +1,5 @@
+Bonjour {{ user_name | default("cher utilisateur") }},
+
+Vos données dans {{ tenant_name | default("votre organisation") }} ont été supprimées définitivement, comme demandé. Cette opération est irréversible.
+
+IANUA

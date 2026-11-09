@@ -1,0 +1,22 @@
+apiVersion: v2
+name: ianua
+description: Ianua identity provider — control plane (API + worker) and zero-trust data-plane gateway.
+type: application
+version: 0.1.0
+# Container image tag used when `image.tag` is unset. Pin to an immutable
+# tag (a commit SHA) in production rather than `latest`.
+appVersion: "latest"
+home: https://github.com/IanuaIDP/ianua
+sources:
+  - https://github.com/IanuaIDP/ianua
+maintainers:
+  - name: Ianua
+# Vendored into charts/ (helm dependency update) so a plain `helm upgrade` from
+# the repository still works — Helm refuses a chart whose dependency is
+# missing, even one switched off.
+dependencies:
+  - name: traefik
+    alias: edge
+    version: "41.6.1"
+    repository: https://traefik.github.io/charts
+    condition: edge.enabled

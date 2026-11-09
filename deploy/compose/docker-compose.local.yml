@@ -1,0 +1,52 @@
+# A backend for developing the dashboard on this machine: no Traefik, no
+# containerized dashboard, no public certificates, and mail caught locally.
+#
+#   docker compose -p ianua-local --env-file .env.local \
+#     -f docker-compose.yml -f docker-compose.local.yml up -d ianua zero mailpit
+#
+# The API answers on 127.0.0.1:8080, the gateway on 127.0.0.1:8443 and caught
+# mail on http://127.0.0.1:8025. Run the dashboard with `npm run dev` and
+# API_URL=http://127.0.0.1:8080/api/v1 in dashboard/.env.local.
+
+x-local-address: &local-address
+  APP_ENV: development
+  APP_BASE_URL: https://app.localhost:3000
+  EMAIL_LOGO_URL: https://app.localhost:3000/email-logo.png
+  CORS_ORIGIN: http://app.localhost:3000
+  WEBAUTHN_RP_ID: app.localhost
+  PLATFORM_HOSTS: platform.ianua.test
+  WEBAUTHN_RP_ORIGIN: http://app.localhost:3000
+  ACME_DIRECTORY_URL: ""
+  ACME_CONTACT_EMAIL: ""
+  SMTP_HOST: mailpit
+  SMTP_PORT: "1025"
+  SMTP_TLS: none
+
+services:
+  traefik:
+    profiles: [not-local]
+
+  dashboard:
+    profiles: [not-local]
+
+  mailpit:
+    image: axllent/mailpit:v1.21.8
+    ports:
+      - "127.0.0.1:8025:8025"
+    networks: [ianua]
+
+  install:
+    environment: *local-address
+
+  ianua:
+    environment: *local-address
+    ports:
+      - "127.0.0.1:8080:3000"
+
+  zero:
+    environment:
+      APP_ENV: development
+      APP_BASE_URL: https://app.localhost:3000
+      ACME_DIRECTORY_URL: ""
+    ports:
+      - "127.0.0.1:8443:8443"

@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The tenants whose id follows the given one, in id order.\nSELECT id\nFROM tenants\nWHERE id > $1\nORDER BY id\nLIMIT $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "e3ebf2274d61ead84cc4a82a69fc307ed5840703171ba783a7830d8e5d2c12b2"
+}

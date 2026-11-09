@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a tenant's latest algorithm migration: the first is added, a later\n-- step of it takes the new values, and one planned after the last finished\n-- replaces that one whole. A migration planned while another still runs\n-- writes nothing, so the caller can refuse it.\nINSERT INTO algorithm_migrations AS kept\n    (tenant_id, source_algorithm, target_algorithm, source_kid, status, target_kid,\n     created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nON CONFLICT (tenant_id) DO UPDATE SET\n    source_algorithm = EXCLUDED.source_algorithm,\n    target_algorithm = EXCLUDED.target_algorithm,\n    source_kid = EXCLUDED.source_kid,\n    status = EXCLUDED.status,\n    target_kid = EXCLUDED.target_kid,\n    created_at = EXCLUDED.created_at,\n    updated_at = EXCLUDED.updated_at\nWHERE kept.status IN ('completed', 'rolled_back', 'cancelled')\n   OR (kept.created_at = EXCLUDED.created_at AND kept.source_kid = EXCLUDED.source_kid)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "573bd769a73d2a9aea06d806132f6f888222d7d2e4a9c552b3041f1a12a716e2"
+}

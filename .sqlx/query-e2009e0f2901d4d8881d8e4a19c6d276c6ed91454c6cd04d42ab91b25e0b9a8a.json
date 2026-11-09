@@ -1,0 +1,67 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The grant in force at the given moment letting an operator act as one\n-- user of one tenant: not revoked and not yet run out. Of two, the one\n-- running longest.\nSELECT id, operator_id, tenant_id, user_id, reason, expires_at, revoked_at, created_at\nFROM impersonation_grants\nWHERE operator_id = $1 AND tenant_id = $2 AND user_id = $3\n  AND revoked_at IS NULL AND expires_at > $4\nORDER BY expires_at DESC, id\nLIMIT 1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "operator_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "reason",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "revoked_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "e2009e0f2901d4d8881d8e4a19c6d276c6ed91454c6cd04d42ab91b25e0b9a8a"
+}

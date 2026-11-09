@@ -1,0 +1,6 @@
+-- Revokes, at the given time, every active token of one tenant whose grant
+-- was given in one session. A token rotated or revoked already keeps its
+-- time.
+UPDATE oauth_refresh_tokens
+SET state = 'revoked', ended_at = $3
+WHERE tenant_id = $1 AND session_id = $2 AND state = 'active'

@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Route counts for a batch of pipelines, scoped to their tenant.\nSELECT pipeline_id, count(*) AS \"count!\"\nFROM routes\nWHERE tenant_id = $1 AND pipeline_id = ANY($2::uuid[])\nGROUP BY pipeline_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "pipeline_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "65317ec32333f1c8cb7efb34fd9d5e9b79c44ae4dae0d394dd7dc846c3eb88e0"
+}

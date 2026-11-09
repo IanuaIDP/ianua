@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps the record of what a connection's mapping gave an account of a\n-- tenant; one kept already stays, its roles and groups written beside it.\nINSERT INTO mapped_holdings (tenant_id, connection_id, user_id)\nVALUES ($1, $2, $3)\nON CONFLICT (tenant_id, connection_id, user_id) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e85b9931a2d3b8aae1951cd786784378b5bfc8468eb2a394fa3298e1e0c51fe9"
+}

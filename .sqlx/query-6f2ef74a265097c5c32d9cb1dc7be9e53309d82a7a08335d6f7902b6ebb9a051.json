@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an organization member's or operator's address change, replacing\n-- any earlier one of the same person whole: a new change is asked for at\n-- its own time. A change keeps its cancel link for life, so a row with the\n-- same cancel link is the same change, and once confirmed or cancelled it\n-- takes nothing new: of a confirmation and a cancellation read together,\n-- or two confirmations, only the first is kept.\nINSERT INTO org_email_changes\n    (principal_id, from_email, new_email, token_hash, cancel_token_hash,\n     state, settled_at, created_at, expires_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\nON CONFLICT (principal_id) DO UPDATE SET\n    from_email = EXCLUDED.from_email,\n    new_email = EXCLUDED.new_email,\n    token_hash = EXCLUDED.token_hash,\n    cancel_token_hash = EXCLUDED.cancel_token_hash,\n    state = EXCLUDED.state,\n    settled_at = EXCLUDED.settled_at,\n    created_at = EXCLUDED.created_at,\n    expires_at = EXCLUDED.expires_at\nWHERE org_email_changes.state = 'waiting'\n    OR org_email_changes.cancel_token_hash <> EXCLUDED.cancel_token_hash\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6f2ef74a265097c5c32d9cb1dc7be9e53309d82a7a08335d6f7902b6ebb9a051"
+}

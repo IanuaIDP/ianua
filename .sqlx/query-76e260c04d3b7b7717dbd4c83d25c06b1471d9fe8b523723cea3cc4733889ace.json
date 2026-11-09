@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many notifications of an operator's inbox are not yet read.\nSELECT count(*) AS \"count!\"\nFROM platform_notifications\nWHERE operator_id = $1 AND NOT read\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "76e260c04d3b7b7717dbd4c83d25c06b1471d9fe8b523723cea3cc4733889ace"
+}

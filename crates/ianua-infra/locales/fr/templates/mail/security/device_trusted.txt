@@ -1,0 +1,7 @@
+Bonjour {{ user_name | default("cher utilisateur") }},
+
+{% if device_name is defined %}{{ device_name }}{% else %}Un nouvel appareil{% endif %} a été ajouté aux appareils de confiance de votre compte dans {{ tenant_name | default("votre organisation") }}{% if ip_address is defined %}, depuis {{ ip_address }}{% endif %}. Un appareil de confiance peut passer la seconde étape de connexion.
+
+Si vous ne reconnaissez pas cet appareil, supprimez-le dans les paramètres de votre compte et changez votre mot de passe.
+
+IANUA

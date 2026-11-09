@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Adds a tenant's audit records to its chain in one statement, each with\n-- its place, the link before it and its own hash. A record is only ever\n-- added, never written again.\nINSERT INTO audit_records\n    (tenant_id, id, seq, organization_id, actor, actor_kind, actor_id, event_type, target_id,\n     ip_address, user_agent, payload, acted_through, through_operator_id, through_admin_id,\n     as_user_id, support_impersonation_id, occurred_at, prev_hash, entry_hash,\n     through_execution_id)\nSELECT $1, added.id, added.seq, added.organization_id, added.actor, added.actor_kind,\n       added.actor_id, added.event_type, added.target_id, added.ip_address, added.user_agent,\n       added.payload, added.acted_through, added.through_operator_id, added.through_admin_id,\n       added.as_user_id, added.support_impersonation_id, added.occurred_at, added.prev_hash,\n       added.entry_hash, added.through_execution_id\nFROM UNNEST($2::uuid[], $3::bigint[], $4::uuid[], $5::text[], $6::text[], $7::uuid[],\n            $8::text[], $9::text[], $10::text[], $11::text[], $12::jsonb[], $13::text[],\n            $14::uuid[], $15::uuid[], $16::uuid[], $17::uuid[], $18::timestamptz[],\n            $19::bytea[], $20::bytea[], $21::uuid[])\n    AS added (id, seq, organization_id, actor, actor_kind, actor_id, event_type, target_id,\n              ip_address, user_agent, payload, acted_through, through_operator_id,\n              through_admin_id, as_user_id, support_impersonation_id, occurred_at, prev_hash,\n              entry_hash, through_execution_id)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray",
+        "Int8Array",
+        "UuidArray",
+        "TextArray",
+        "TextArray",
+        "UuidArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "JsonbArray",
+        "TextArray",
+        "UuidArray",
+        "UuidArray",
+        "UuidArray",
+        "UuidArray",
+        "TimestamptzArray",
+        "ByteaArray",
+        "ByteaArray",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "119814074fc7f970a45c428553a03650c826dd0c5dbeb24a5757fe6f0cbc2f45"
+}

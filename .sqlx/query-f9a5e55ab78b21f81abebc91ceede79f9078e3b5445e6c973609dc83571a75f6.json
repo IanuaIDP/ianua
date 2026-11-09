@@ -1,0 +1,71 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The address change one user of one tenant asked for, if any.\nSELECT user_id AS principal_id, from_email, new_email, token_hash, cancel_token_hash,\n       state, settled_at, created_at, expires_at\nFROM email_changes\nWHERE tenant_id = $1 AND user_id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "principal_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "from_email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "new_email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "token_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "cancel_token_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "state",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "settled_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "f9a5e55ab78b21f81abebc91ceede79f9078e3b5445e6c973609dc83571a75f6"
+}

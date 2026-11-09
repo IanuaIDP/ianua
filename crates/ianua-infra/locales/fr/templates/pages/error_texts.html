@@ -1,0 +1,39 @@
+{#-
+  What an error page tells a person, by the kind of trouble, imported as
+  `e`: a title, and one line of what to do. A kind not listed here fails
+  the render, so no page goes out without its words.
+-#}
+
+{#- The page's title for `kind`. -#}
+{% macro title(kind) -%}
+{%- set titles = {
+  "unauthenticated": "Connectez-vous pour continuer",
+  "forbidden": "Vous n’avez pas accès",
+  "not_found": "Page introuvable",
+  "content_too_large": "Requête trop volumineuse",
+  "too_many_requests": "Trop de requêtes",
+  "misdirected_request": "Adresse incorrecte pour cette connexion",
+  "bad_gateway": "L’application ne répond pas",
+  "gateway_timeout": "L’application a mis trop de temps à répondre",
+  "unavailable": "Temporairement indisponible",
+  "bad_request": "La requête présente un problème"
+} -%}
+{{ titles[kind] }}
+{%- endmacro %}
+
+{#- What the person can do about `kind`. -#}
+{% macro advice(kind) -%}
+{%- set lines = {
+  "unauthenticated": "Vous devez vous connecter avant de pouvoir ouvrir cette page. Connectez-vous, puis ouvrez-la à nouveau.",
+  "forbidden": "Votre compte n’est pas autorisé à ouvrir cette page. Si vous pensez que vous devriez y avoir accès, contactez votre administrateur en lui donnant la référence ci-dessous.",
+  "not_found": "Il n’y a rien ici. Vérifiez l’adresse ou revenez à la page précédente.",
+  "content_too_large": "Les données envoyées dépassent la taille acceptée par cette application. Réessayez avec moins de données.",
+  "too_many_requests": "Vous avez envoyé beaucoup de requêtes en peu de temps. Attendez une minute, puis réessayez.",
+  "misdirected_request": "Cette connexion a été établie pour une autre adresse. Fermez l’onglet et ouvrez à nouveau l’adresse.",
+  "bad_gateway": "L’application derrière cette adresse est inaccessible. Réessayez dans quelques minutes.",
+  "gateway_timeout": "L’application derrière cette adresse n’a pas répondu à temps. Réessayez dans quelques minutes.",
+  "unavailable": "Cette adresse ne peut pas recevoir de requêtes pour le moment. Réessayez dans quelques minutes.",
+  "bad_request": "La requête n’a pas pu être lue. Revenez en arrière, vérifiez votre saisie et réessayez."
+} -%}
+{{ lines[kind] }}
+{%- endmacro %}

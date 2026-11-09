@@ -1,0 +1,8 @@
+Hallo{% if user_name is defined and user_name %} {{ user_name | default("") }}{% endif %}!
+
+Es wurde gerade versucht, sich mit dieser Adresse bei IANUA zu registrieren. Für sie besteht bereits ein Konto. Wenn Sie das waren, melden Sie sich stattdessen an:
+{{ action_url }}
+
+Wenn Sie Ihr Passwort vergessen haben, können Sie es auf der Anmeldeseite zurücksetzen. Wenn Sie das nicht waren, können Sie diese E-Mail ignorieren: Es wurde nichts geändert.
+
+IANUA

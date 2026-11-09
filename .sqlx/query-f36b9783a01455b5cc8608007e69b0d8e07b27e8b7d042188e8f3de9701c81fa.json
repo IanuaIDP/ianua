@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Delay only the failed lease belonging to this tenant and address.\nUPDATE platform_certificates SET attempt_id = NULL, lease_until = NULL,\n    next_attempt = now() + interval '30 minutes'\nWHERE attempt_id = $1 AND tenant_id = $2 AND root = $3\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f36b9783a01455b5cc8608007e69b0d8e07b27e8b7d042188e8f3de9701c81fa"
+}

@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Whether one tenant holds a memory whose waiting period is over at $2.\nSELECT EXISTS (\n    SELECT 1 FROM memories\n    WHERE tenant_id = $1 AND status = 'deletion_requested' AND deleted_after <= $2\n) AS \"due!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "due!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "04c6e02f71d9be169b268e4eb92b131a5951d998b18ecf365e1399a67c27beb6"
+}

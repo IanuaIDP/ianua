@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Settles a passkey ceremony of a tenant at the given time, only if\n-- nothing settled it before: a row changed means this call settled it.\nUPDATE passkey_ceremonies\nSET consumed_at = $3\nWHERE tenant_id = $1 AND id = $2 AND consumed_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "59f3f58842b24c0e89796b421909ecefeabc4aac9d15a573e0edb7be16ab42c1"
+}

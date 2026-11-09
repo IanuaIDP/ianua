@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a break-glass grant: a new one is added, a known one of the same\n-- tenant and user takes its revocation. What it grants, to whom, why, who\n-- approved it and when it ends never change. A revoked grant takes nothing\n-- new, so a save of a copy read before the revocation never makes it live\n-- again or moves the time it was revoked.\nINSERT INTO break_glass_grants\n    (id, tenant_id, user_id, grantee_person, system_permissions, custom_permissions, reason,\n     approver_kind, approver_id, approver_person, expires_at, revoked_at, created_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)\nON CONFLICT (id) DO UPDATE SET\n    revoked_at = EXCLUDED.revoked_at\nWHERE break_glass_grants.tenant_id = EXCLUDED.tenant_id\n    AND break_glass_grants.user_id = EXCLUDED.user_id\n    AND break_glass_grants.revoked_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "TextArray",
+        "TextArray",
+        "Text",
+        "Text",
+        "Uuid",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f09b32e6d63ae0058e7cb874922df716abca4363fb752694fbe8f99b0e23a3fd"
+}

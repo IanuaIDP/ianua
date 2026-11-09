@@ -1,0 +1,91 @@
+# cargo-deny configuration — supply-chain policy: known-vulnerable and
+# unmaintained dependencies, license allow-list, dependency source pinning.
+#
+# Run locally with `cargo deny check`. CI runs the same check on every PR.
+
+[graph]
+all-features = true
+
+[advisories]
+# Deny any dependency with a known RustSec security advisory. Yanked
+# crates and unmaintained ones are warnings, not hard failures — they're
+# worth seeing but shouldn't block a PR that has nothing to do with them.
+version = 2
+yanked = "deny"
+ignore = [
+    # rsa: Marvin Attack (timing side-channel in RSA decryption). No fix
+    # is available upstream as of this writing — the RustCrypto team has
+    # not shipped a constant-time implementation. Used for JWT/webauthn
+    # RSA support; revisit when a patched version ships.
+    "RUSTSEC-2023-0071",
+    # rustls-pemfile: archived upstream, no further releases. Migrating
+    # means moving every call site to rustls-pki-types' `PemObject`
+    # trait — a real code change, not a version bump. Tracked as a
+    # follow-up, not blocking this pass.
+    "RUSTSEC-2025-0134",
+    # paste: unmaintained proc-macro, but stable/frozen and widely used
+    # as a transitive dependency with no drop-in replacement. Not a
+    # vulnerability — just no longer actively developed.
+    "RUSTSEC-2024-0436",
+    # crypto-bigint 0.5: timing issues fixed only in 0.7. It comes through
+    # elliptic-curve 0.13 for p256, and no stable p256 uses a fixed version
+    # yet. Revisit when one ships.
+    "RUSTSEC-2026-0387",
+    # unsafe-libyaml: unmaintained, no vulnerability. It comes through
+    # serde_yaml in kube-client and reads only our own cluster settings.
+    "RUSTSEC-2024-0449",
+    # zip 3: only utoipa-swagger-ui still needs it, in its build script, to
+    # unpack the Swagger UI archive it ships. Nothing untrusted reaches it,
+    # and our own use of zip is on a fixed version.
+    "RUSTSEC-2026-0367",
+    "RUSTSEC-2026-0368",
+    "RUSTSEC-2026-0369",
+    "RUSTSEC-2026-0429",
+]
+
+[licenses]
+version = 2
+# Allow-list of licenses compatible with this proprietary codebase.
+# Anything not listed here fails CI — a new transitive dependency
+# introducing an unreviewed license is exactly the kind of thing this
+# check exists to catch before it merges.
+allow = [
+    "MIT",
+    "MIT-0",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "MPL-2.0",
+    "Zlib",
+    "Unicode-3.0",
+    "Unicode-DFS-2016",
+    "CC0-1.0",
+    "0BSD",
+    "OpenSSL",
+    # Mozilla's bundled root CA certificate data (webpki-roots /
+    # webpki-root-certs) — a data license for the cert bundle itself,
+    # not code; standard for anything doing TLS in Rust.
+    "CDLA-Permissive-2.0",
+    # This workspace's own crates, under the LICENSE file at the root.
+    "LicenseRef-Ianua-Source-Use-1.0",
+]
+confidence-threshold = 0.8
+
+[bans]
+multiple-versions = "warn"
+# Every workspace member depends on its siblings via bare `path = "../x"`
+# with no version requirement — normal for an internal, never-published
+# workspace. A wildcard on an *external* crate would still be a real
+# risk; workspace path deps aren't what this lint is for.
+wildcards = "allow"
+# Crates known to be a maintenance/security trap or that duplicate a
+# vetted dependency already in the tree. Empty for now — populate as
+# real cases come up rather than guessing at ones that don't apply here.
+deny = []
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]

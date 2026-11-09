@@ -1,0 +1,119 @@
+{{- if .Values.codeSandboxes.enabled }}
+{{- $namespace := include "ianua.codeSandboxNamespace" . }}
+---
+{{- /*
+The namespace code runs in, holding nothing else. The restricted pod
+security level refuses any pod that runs as root, keeps a capability, can
+gain privileges or skips the runtime's system-call filter, whoever made it.
+*/}}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ $namespace }}
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: code-sandbox
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+{{- /*
+Nothing reaches a code pod and a code pod reaches nothing: no ianua port, no
+internet, no cloud metadata endpoint and no DNS, since lookups can carry data
+out. The worker hands a pod its files through the Kubernetes API, which this
+policy does not touch.
+*/}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: no-traffic
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: code-sandbox
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress: []
+  egress: []
+---
+{{- /*
+Every worker's runs together: a worker holds a few at once, and this bounds
+them all, so a burst of code steps queues instead of filling the nodes.
+*/}}
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: code-runs
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: code-sandbox
+spec:
+  hard:
+    pods: {{ .Values.codeSandboxes.quota.pods | quote }}
+    limits.cpu: {{ .Values.codeSandboxes.quota.cpu | quote }}
+    limits.memory: {{ .Values.codeSandboxes.quota.memory | quote }}
+    limits.ephemeral-storage: {{ .Values.codeSandboxes.quota.ephemeralStorage | quote }}
+---
+{{- /*
+The worker's own identity while it runs code, so the API servers, which share
+the deployment's default account, are never given pods.
+*/}}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "ianua.fullname" . }}-worker
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+imagePullSecrets:
+  - name: {{ include "ianua.imagePullSecretName" . }}
+---
+{{- /*
+What the worker may do, in the code namespace alone: make a run's pod, read
+how it goes, hand it its files and delete it. Nothing in any other namespace,
+and no service or role anywhere. With companies' own images on, it may also
+make the pull secret a run's image is pulled with, hand it to the run's pod
+and remove one a stopped worker left; it reads no other secret's value.
+*/}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: code-runner
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: code-sandbox
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["create", "get", "list", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["pods/attach"]
+    verbs: ["create", "get"]
+  {{- if .Values.codeSandboxes.ownImages.enabled }}
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create", "list", "patch", "delete"]
+  {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: code-runner
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: code-sandbox
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: code-runner
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "ianua.fullname" . }}-worker
+    namespace: {{ .Release.Namespace }}
+{{- end }}

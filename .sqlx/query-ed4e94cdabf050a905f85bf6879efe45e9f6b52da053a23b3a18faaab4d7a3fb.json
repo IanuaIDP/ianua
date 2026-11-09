@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Writes when one tenant's device last polled and its interval, leaving\n-- where the authorization stands as stored, so a poll never undoes an\n-- approval that landed meanwhile.\nUPDATE oauth_device_authorizations\nSET last_polled_at = $3, interval_secs = $4\nWHERE tenant_id = $1 AND device_code_hash = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Timestamptz",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ed4e94cdabf050a905f85bf6879efe45e9f6b52da053a23b3a18faaab4d7a3fb"
+}

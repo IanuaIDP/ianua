@@ -1,0 +1,11 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Your data was deleted{% endblock %}
+{% block preheader %}Your deletion request is done.{% endblock %}
+{% block headline %}Your data was deleted{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("there")) }}
+  {% call c.para(pad=32) %}Your data in <strong>{{ tenant_name | default("your organization") }}</strong> was deleted for good, as you asked. This cannot be undone.{% endcall %}
+{% endblock %}

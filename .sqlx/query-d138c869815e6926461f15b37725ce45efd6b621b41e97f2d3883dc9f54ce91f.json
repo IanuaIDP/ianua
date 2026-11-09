@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The last record of the stretch at the start of the tenant's chain that\n-- happened before the cutoff: the records up to the first one kept, so\n-- those left still link one to the next.\nSELECT r.seq, r.entry_hash\nFROM audit_records r\nWHERE r.tenant_id = $1\n  AND r.seq < coalesce(\n      (SELECT min(k.seq) FROM audit_records k WHERE k.tenant_id = $1 AND k.occurred_at >= $2),\n      9223372036854775807\n  )\nORDER BY r.seq DESC\nLIMIT 1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "seq",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "entry_hash",
+        "type_info": "Bytea"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "d138c869815e6926461f15b37725ce45efd6b621b41e97f2d3883dc9f54ce91f"
+}

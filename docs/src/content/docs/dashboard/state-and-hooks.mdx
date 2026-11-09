@@ -1,0 +1,128 @@
+---
+title: State and hooks
+description: Where the dashboard keeps state, how it caches server data, and every custom hook.
+sidebar:
+  order: 5
+---
+
+## Where state lives
+
+| What                                        | Where                                                 | Notes                                                                                                                                                               |
+| ------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Data from the API: lists, details, settings | React Query                                           | Each component calls `useQuery` or `useMutation` with a service from `@/lib/api`. One retry, data fresh for 60 seconds, no refetch when the window gets focus back. |
+| Who is signed in                            | `useAuthStore` (Zustand, saved)                       | Kept in `localStorage`, so it survives a reload.                                                                                                                    |
+| The organization                            | `useOrganizationStore` (Zustand, saved)               | The organization's record, for headers and settings.                                                                                                                |
+| Whether the sidebar is open                 | `useAppStore` (Zustand)                               | Not saved.                                                                                                                                                          |
+| Which group of a section sidebar is open    | `useSectionSidebarStore` (Zustand)                    | Kept per sidebar, by its `ariaLabel`.                                                                                                                               |
+| Forms                                       | React Hook Form with the Zod schemas in `src/schemas` |                                                                                                                                                                     |
+| A table's page and sort                     | `useTableQueryState`                                  | Kept in the component.                                                                                                                                              |
+| Toasts                                      | The `NotificationProvider` context                    | `useNotification().showNotification(...)`.                                                                                                                          |
+
+## Stores
+
+The stores live in `src/store`.
+
+| Store                    | File                                                         | Holds                                                                                                                                                                                                                                                                                                                                                      |
+| ------------------------ | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `useAuthStore`           | `auth-store.ts`                                              | `user` (id, name, email, and the organization's and tenant's slugs and names), `accessToken`, `access` (the organization role and each tenant's roles and permissions, `null` in a tenant session), `isAuthenticated` and `isHydrated`. Its actions are `login`, `setTokens`, `setAccess`, `updateUser`, `logout` and `hydrate`. Saved under `ianua-auth`. |
+| `useOrganizationStore`   | `organization-store.ts`                                      | The current organization, with `setOrganization` and `clearOrganization`. Saved under `ianua-organization`.                                                                                                                                                                                                                                                |
+| `useAppStore`            | `app-store.ts`                                               | `isSidebarOpen`, `setSidebarOpen` and `toggleSidebar`.                                                                                                                                                                                                                                                                                                     |
+| `useSectionSidebarStore` | `section-sidebar-store.ts`                                   | `expandedGroupByKey` and `setExpandedGroup`.                                                                                                                                                                                                                                                                                                               |
+| `useWorkingCopy`         | `components/dashboard/workflows/builder/use-working-copy.ts` | The one open workflow draft: the working copy, what the server holds, undo and redo, the selection and how saving stands. Not saved in the store; what is not saved yet goes to `sessionStorage`.                                                                                                                                                          |
+
+## Hooks
+
+The hooks live in `src/hooks`, in folders by topic.
+
+### Signing in
+
+These are in `hooks/auth`.
+
+| Hook                                                                         | What it does                                                                                                                                                 |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `useLogin`                                                                   | Signs a team member or a tenant user in with a password, and sends the device fingerprint. It says whether a second factor must be checked or set up first.  |
+| `useLogout`                                                                  | Ends the session and goes back to the matching sign-in page.                                                                                                 |
+| `useOrgAccess`                                                               | What an organization session may do: `role`, `isOwner`, `tenants`, `hasPermission(tenantSlug, permission)`, and `refresh()`, which reads `/me/access` again. |
+| `useVerifyOrganizationMfa`, `useVerifyTenantMfa`                             | Send a second-factor code and finish the sign-in.                                                                                                            |
+| `useOrgPasswordPolicy`, `useTenantPasswordPolicy` (`use-password-policy.ts`) | Load the password rules, for the live hints and for generating a password.                                                                                   |
+| `useAuthValidationMessages`, `usePasswordRequirementsHint`                   | The sign-in forms' error messages and the sentence describing the password rules, in the current language. The schema builders use them.                     |
+| `usePasskeySupport`                                                          | Whether this browser can use passkeys. If it cannot, passkey buttons are hidden, not turned off.                                                             |
+| `usePasskeyLogin`, `useTenantPasskeyLogin`                                   | The "Sign in with a passkey" button: start, the browser's prompt, then confirm.                                                                              |
+| `usePasskeyAutofill`, `useTenantPasskeyAutofill`                             | Offer saved passkeys from the email field, as the browser fills it in.                                                                                       |
+| `useApplyPasskeyLogin`, `useApplyTenantPasskeyLogin`                         | The shared last step of a sign-in: keep the session and load the person. A mailed link and single sign-on use it too.                                        |
+| `usePasskeyRegistration`, `useTenantPasskeyRegistration`                     | "Add passkey": the browser's prompt, then a name for it.                                                                                                     |
+| `useTenantSignInOptions`                                                     | What a tenant's sign-in page offers: passkey, mailed link, single sign-on.                                                                                   |
+| `useTenantSignUpOpen`                                                        | Whether a tenant takes self sign-ups.                                                                                                                        |
+| `useSignupOpen`                                                              | Whether this installation takes new organizations (`GET /signup`). It is false until known. Self-hosted installations do not.                                |
+
+### Language
+
+These are in `hooks/i18n`.
+
+| Hook                   | What it does                                                                                                                                                                                                                                     |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `useChangeLanguage`    | Switches the language. It sets the cookie, saves the choice on the signed-in person's profile, then reloads every query, so text worded when it was fetched (dates, "N/A") follows. If saving fails, a toast says so and the new language stays. |
+| `useDayPickerLocale`   | The calendar's own words for the current language, handed to `DayPicker`.                                                                                                                                                                        |
+| `useNavLabels`         | The visible text of a navigation item or group. Items keep their English `label` as an id, and the text is looked up in `dashboard.nav`. A label with no message is shown as it is.                                                              |
+| `useFieldError`        | The text of a form field's error. Schemas name messages `validation.<key>`, and the form components translate them here. Any other message, such as one from the API, is shown as it came.                                                       |
+| `useValidationText`    | The same lookup as `useFieldError`, as a function, for errors shown outside a form. A message may carry values: `validation.key?name=value`.                                                                                                     |
+| `useLooseTranslations` | Translates a key built while the page runs, such as a status or an action's name. Ask `has` first, and fall back to the plain name.                                                                                                              |
+
+### Wording of dashboard screens
+
+These are in `hooks/dashboard`. Each gives a screen its choices and dialog text in the current language.
+
+| Hook                                                          | What it does                                                                                                                    |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `useAuthConfigOptions`                                        | The choices of the sign-in settings: ways in, second-factor rules, assurance and risk levels.                                   |
+| `useCloudOptions`                                             | Where data lives and the cloud choices: the kind of hosting and its hint, isolation, and regions with their country translated. |
+| `usePolicyOptions`                                            | The policy rule editor's choices: conditions, actions, risk levels, assurance levels.                                           |
+| `useDataClassLevelOptions`                                    | How sensitive data is, from Public to Restricted, as choices.                                                                   |
+| `useStreamOptions`                                            | How signals are delivered and which kinds there are, with their labels.                                                         |
+| `useStreamActionModalContent`                                 | The confirm dialogs for pausing, resuming, turning off and deleting a signal stream.                                            |
+| `useServiceOptions`                                           | The service form's choices (discovery, sticky sessions, sign-in on the app's own host) with their labels.                       |
+| `useRouteOptions`                                             | A route's policy and path-rewrite choices, and how they read in the table.                                                      |
+| `useStreamRouteOptions`                                       | The TCP and UDP route protocols and policies, with labels and hints.                                                            |
+| `usePipelineOptions`                                          | Pipeline stage names and descriptions, and the add-stage form's choices.                                                        |
+| `usePipelineActionModalContent`, `useStageActionModalContent` | The confirm dialogs of pipeline and stage actions.                                                                              |
+| `useAgentText`                                                | How an agent's owner and re-attestation interval read, and the dialogs of an agent's lifecycle.                                 |
+| `useRunText`                                                  | The confirm dialogs of run and approval actions.                                                                                |
+| `useToolOptions`                                              | A tool's action classes as choices, with their labels.                                                                          |
+| `useCredentialText`                                           | Credential choices (expiry, re-attestation interval, attestation methods) and the revoke dialog.                                |
+| `useFlowText`                                                 | The confirm dialogs of flow actions.                                                                                            |
+| `useDelegationText`                                           | Delegation choices (lifetime, depth, presets), how permissions read, and the summary of what was granted.                       |
+
+### Tenants
+
+These are in `hooks/tenants`.
+
+| Hook                                                                                                                  | What it does                                                                                                                                                                                                                                                                                                    |
+| --------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `useTenantRouteParams`                                                                                                | `orgSlug`, `tenantSlug` and `isTenantView` for the current address, at either way into a tenant.                                                                                                                                                                                                                |
+| `useTenantPermissions`                                                                                                | `canView(resource)`, `hasPermission(resource, action)`, `isLoading` and `permissionSet` for the current tenant. A tenant user's come from `GET .../me`, a Member's from `access.tenants[].permissions`, and an Owner may do everything. See [Sessions and permissions](/ianua/dashboard/auth-and-permissions/). |
+| `useTenantSessionMove`                                                                                                | Moves an organization session to the tenant being opened through `switch-tenant`, and answers whether that is under way, so the tenant's screens wait for the new session.                                                                                                                                      |
+| `useTenantHeaderInfo`                                                                                                 | The tenant's name and status for the breadcrumbs. It reads the metrics if allowed, otherwise the tenant list or the access list.                                                                                                                                                                                |
+| `useTenantMetrics`                                                                                                    | A tenant's numbers over a period.                                                                                                                                                                                                                                                                               |
+| `useTenantLifecycleActions`                                                                                           | Suspend, restore, archive and delete a tenant, with the dialog's state.                                                                                                                                                                                                                                         |
+| `useTenantSectionNavigation`                                                                                          | Moves between sections in the organization's view of a tenant.                                                                                                                                                                                                                                                  |
+| `useAgentRouteParams`, `useDomainRouteParams`, `useFlowRouteParams`, `usePipelineRouteParams`, `useStreamRouteParams` | Read the id of the agent, domain, flow, pipeline or stream from the address, with the tenant's.                                                                                                                                                                                                                 |
+
+### Overview
+
+These are in `hooks/overview`.
+
+| Hook               | What it does                                    |
+| ------------------ | ----------------------------------------------- |
+| `useOrgMetrics`    | The organization's numbers over a period.       |
+| `useOrgActivity`   | The data for the activity calendar.             |
+| `useMetricsWindow` | Whether the overview pages show days or months. |
+
+### Others
+
+| Hook                            | File                                           | What it does                                                                                                                                                                                                          |
+| ------------------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `useTableQueryState`            | `hooks/dashboard/use-table-query-state.ts`     | A table's page, rows per page, sort field and direction, and the cursor of each page reached, with `after` for the page on screen. Changing the sort or the page size goes back to page 1 and drops the kept cursors. |
+| `useDragReorder`, `reorderById` | `hooks/dashboard/use-drag-reorder.ts`          | Drag rows to reorder them, such as pipeline stages and flow steps. `reorderById` applies a move to a list.                                                                                                            |
+| `useActiveLandingSection`       | `hooks/landing/use-active-landing-section.ts`  | Which landing section is on screen, so the header can mark it.                                                                                                                                                        |
+| `useActiveHelpSection`          | `hooks/help-center/use-active-help-section.ts` | Which part of an article is on screen, for its contents list.                                                                                                                                                         |
+| `useResendCooldown`             | `hooks/use-resend-cooldown.ts`                 | A resend-email button with a countdown and error handling.                                                                                                                                                            |

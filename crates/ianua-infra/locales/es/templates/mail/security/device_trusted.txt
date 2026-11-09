@@ -1,0 +1,7 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+{% if device_name is defined %}{{ device_name }}{% else %}Un dispositivo nuevo{% endif %} se añadió a los dispositivos de confianza de su cuenta en {{ tenant_name | default("su organización") }}{% if ip_address is defined %}, desde {{ ip_address }}{% endif %}. Un dispositivo de confianza puede omitir el segundo paso de inicio de sesión.
+
+Si no reconoce este dispositivo, elimínelo en los ajustes de su cuenta y cambie su contraseña.
+
+IANUA

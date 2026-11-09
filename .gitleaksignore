@@ -1,0 +1,8 @@
+# Findings gitleaks reports that are no secrets, each with its reason.
+
+# A test signs a token with a key it draws itself; the variable is named
+# `token`, nothing in it is a credential.
+crates/ianua-infra/src/crypto/tokens/oauth.rs:generic-api-key:176
+
+# RFC 6238's published test seed, written in base32 in a TOTP test.
+crates/ianua-infra/src/crypto/totp.rs:generic-api-key:177

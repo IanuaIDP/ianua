@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The given number of a user's latest retired password hashes, newest\n-- first.\nSELECT password_hash\nFROM password_history\nWHERE tenant_id = $1 AND user_id = $2\nORDER BY recorded_at DESC\nLIMIT $3\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "password_hash",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "4fb80681af9b88fbb42ed3602699a8aabdb31c25b4cf914f1fe13fb3e6df5b01"
+}

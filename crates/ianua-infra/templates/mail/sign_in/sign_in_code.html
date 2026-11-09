@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Your sign-in code{% endblock %}
+{% block preheader %}Type this code to go on signing in.{% endblock %}
+{% block headline %}Your sign-in code{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("there")) }}
+  {% call c.para(pad=8) %}Type this code to go on signing in to <strong>{{ tenant_name | default("your account") }}</strong>:{% endcall %}
+  {{ c.code(one_time_code) }}
+  {% call c.para(pad=0) %}It stops working in {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}If you are not signing in, someone may know your password. Change it, and do not give this code to anyone.{% endcall %}
+{% endblock %}

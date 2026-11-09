@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a route: a new one is added, a known one of the same tenant takes\n-- the new values. Its tenant and creation time never change.\nINSERT INTO routes\n    (id, tenant_id, name, path_pattern, methods, service_id, policy, hosts,\n     conditions, pipeline_id, path_rewrite, status, priority, data_class,\n     action_class, reach, parameter_rules, workflow_use, attack_mode_until,\n     created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)\nON CONFLICT (id) DO UPDATE SET\n    name = EXCLUDED.name,\n    path_pattern = EXCLUDED.path_pattern,\n    methods = EXCLUDED.methods,\n    service_id = EXCLUDED.service_id,\n    policy = EXCLUDED.policy,\n    hosts = EXCLUDED.hosts,\n    conditions = EXCLUDED.conditions,\n    pipeline_id = EXCLUDED.pipeline_id,\n    path_rewrite = EXCLUDED.path_rewrite,\n    status = EXCLUDED.status,\n    priority = EXCLUDED.priority,\n    data_class = EXCLUDED.data_class,\n    action_class = EXCLUDED.action_class,\n    reach = EXCLUDED.reach,\n    parameter_rules = EXCLUDED.parameter_rules,\n    workflow_use = EXCLUDED.workflow_use,\n    attack_mode_until = EXCLUDED.attack_mode_until,\n    updated_at = EXCLUDED.updated_at\nWHERE routes.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "TextArray",
+        "Uuid",
+        "Jsonb",
+        "TextArray",
+        "Jsonb",
+        "Uuid",
+        "Jsonb",
+        "Text",
+        "Int4",
+        "Text",
+        "Text",
+        "Text",
+        "Jsonb",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6d19faed7e1c14e820c5583011354b2dc0ee007f3dd4ef0a56a567afa398ff39"
+}

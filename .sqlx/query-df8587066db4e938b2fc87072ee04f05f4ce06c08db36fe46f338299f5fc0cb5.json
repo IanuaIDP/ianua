@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many roles of a tenant hold a permission of their own naming the\n-- given resource type key.\nSELECT count(*) AS \"count!\"\nFROM roles r\nWHERE r.tenant_id = $1\n  AND EXISTS (\n      SELECT 1\n      FROM unnest(r.custom_permissions) AS held (permission)\n      WHERE split_part(held.permission, ':', 1) = $2\n  )\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "df8587066db4e938b2fc87072ee04f05f4ce06c08db36fe46f338299f5fc0cb5"
+}

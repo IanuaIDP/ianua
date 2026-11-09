@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The tenant API key, not expired and not paused, kept as a digest, with\n-- its tenant, for a bearer whose tenant is not known yet. Two answers mean\n-- a broken digest and are refused by the caller.\nSELECT id, tenant_id\nFROM api_keys\nWHERE key_hash = $1 AND (expires_at IS NULL OR expires_at > $2) AND paused_at IS NULL\nLIMIT 2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "41c9ecd7c8ad3461f1b74c1b661bc4ee8bcde7b5511d3767e3c930f52b50fdb2"
+}

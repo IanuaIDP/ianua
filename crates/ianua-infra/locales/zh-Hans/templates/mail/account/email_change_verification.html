@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}验证您的新邮箱地址{% endblock %}
+{% block preheader %}请验证新邮箱地址以完成更改。{% endblock %}
+{% block headline %}验证您的新邮箱地址{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("用户")) }}
+  {% call c.para() %}有人申请将您的 {{ c.brand() }} 账户邮箱更改为 <strong>{{ user_email }}</strong>。{% endcall %}
+  {% call c.para(pad=8) %}请验证此地址以完成更改。{% endcall %}
+  {{ c.cta(action_url, "验证新邮箱") }}
+  {% call c.para(pad=0) %}此链接将在 {{ expires_at }} 后过期。{% endcall %}
+  {% call c.para(pad=32) %}如果您未提出此申请，可以忽略此邮件。{% endcall %}
+{% endblock %}

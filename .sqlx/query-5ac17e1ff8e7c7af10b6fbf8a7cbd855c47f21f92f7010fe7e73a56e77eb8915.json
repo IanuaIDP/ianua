@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The agents holding a relation on one named resource of a tenant\n-- through a delegation neither revoked nor expired at the given time,\n-- the oldest delegation first.\nSELECT d.delegate_id, r.relation\nFROM delegation_resources r\nJOIN agent_delegations d ON d.tenant_id = r.tenant_id AND d.id = r.delegation_id\nWHERE r.tenant_id = $1 AND r.resource_ref = $2 AND d.status = 'active' AND d.expires_at > $3\nORDER BY d.issued_at, d.id, r.relation\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "delegate_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "relation",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "5ac17e1ff8e7c7af10b6fbf8a7cbd855c47f21f92f7010fe7e73a56e77eb8915"
+}

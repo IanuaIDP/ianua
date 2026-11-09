@@ -1,0 +1,7 @@
+Bonjour {{ user_name | default("cher utilisateur") }},
+
+Un nouveau jeu de codes de récupération a été créé pour votre compte dans {{ tenant_name | default("votre organisation") }}{% if remaining_codes is defined %}. Nombre de codes inutilisés : {{ remaining_codes }}{% endif %}. Vos anciens codes ne fonctionnent plus.
+
+Conservez ces codes en lieu sûr : chacun permet une connexion unique si vous perdez votre second facteur. Si vous n’avez pas fait cela, prévenez votre administrateur.
+
+IANUA

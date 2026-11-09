@@ -1,0 +1,10 @@
+Bonjour {{ user_name | default("cher utilisateur") }},
+
+Merci de vous être inscrit à IANUA. Il ne reste qu’une étape pour créer {{ organization_name | default("votre organisation") }}. Confirmez votre adresse e-mail pour terminer :
+{{ action_url }}
+
+Ce lien expire dans {{ expires_at }}.
+
+Si vous ne vous êtes pas inscrit, vous pouvez ignorer cet e-mail.
+
+IANUA

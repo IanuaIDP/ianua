@@ -1,0 +1,10 @@
+Hi {{ user_name | default("there") }},
+
+Your request to delete your data from {{ tenant_name | default("your organization") }} was received{% if erasure_date is defined %}. Deletion begins on {{ erasure_date }}{% endif %}.
+{% if action_url is defined %}
+If you change your mind before then, you can cancel it here:
+{{ action_url }}
+{% endif %}
+If you did not ask for this, tell your administrator straight away.
+
+IANUA

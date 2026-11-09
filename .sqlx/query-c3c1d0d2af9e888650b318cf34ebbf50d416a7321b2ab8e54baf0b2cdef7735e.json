@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Forgets up to a page of the deliveries noted before a moment, oldest\n-- first, in whichever tenants the statement may see.\nDELETE FROM workflow_service_deliveries\nWHERE (tenant_id, subscription_id, delivery) IN (\n    SELECT tenant_id, subscription_id, delivery FROM workflow_service_deliveries\n    WHERE noted_at < $1\n    ORDER BY noted_at\n    LIMIT $2\n)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c3c1d0d2af9e888650b318cf34ebbf50d416a7321b2ab8e54baf0b2cdef7735e"
+}

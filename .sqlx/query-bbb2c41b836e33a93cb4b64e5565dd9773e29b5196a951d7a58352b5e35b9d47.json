@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes the tenant's audit stream with the given id.\nDELETE FROM audit_streams\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "bbb2c41b836e33a93cb4b64e5565dd9773e29b5196a951d7a58352b5e35b9d47"
+}

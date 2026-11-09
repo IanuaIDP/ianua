@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% import "sign_in/parts.html" as p %}
+
+{% block title %}Inicie sesión en {{ workspace }}{% endblock %}
+
+{% block content %}
+      <h1>Le damos la bienvenida de nuevo</h1>
+      <p class="subtitle">Inicie sesión en {{ workspace }} para continuar</p>
+      {{ p.note(note, {}) }}
+      <form method="post" action="{{ form_path }}">
+        {{ p.field("email", "Dirección de correo", "email", "username") }}
+        {{ p.field("password", "Contraseña", "password", "current-password") }}
+        {{ p.return_to(return_to) }}
+        {{ p.submit("Iniciar sesión") }}
+      </form>
+      {%- for choice in single_sign_on %}
+      <p class="footer"><a href="{{ choice.href }}">Continuar con {{ choice.name }}</a></p>
+      {%- endfor %}
+      {%- if passkey_path and passkey_script_path %}
+      <p class="footer"><button type="button" id="passkey" data-address="{{ passkey_path }}"{% if return_to %} data-return-to="{{ return_to }}"{% endif %} hidden>Iniciar sesión con una clave de acceso</button></p>
+      <script src="{{ passkey_script_path }}" defer></script>
+      {%- endif %}
+      {%- if forgot_password_path %}
+      {{ p.link("¿Olvidó su contraseña?", forgot_password_path, "Restablecerla") }}
+      {%- endif %}
+      {%- if sign_up_path %}
+      {{ p.link("¿Es nuevo aquí?", sign_up_path, "Crear una cuenta") }}
+      {%- endif %}
+{% endblock %}

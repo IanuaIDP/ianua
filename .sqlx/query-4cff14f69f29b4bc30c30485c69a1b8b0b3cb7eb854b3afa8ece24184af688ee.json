@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes a user of the tenant for good; what belongs to them goes with\n-- them by cascade.\nDELETE FROM users\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4cff14f69f29b4bc30c30485c69a1b8b0b3cb7eb854b3afa8ece24184af688ee"
+}

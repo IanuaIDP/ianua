@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps one page of a loop's items a person opened. The same page of the\n-- same opening opened again keeps the first time it was opened.\nINSERT INTO workflow_approval_pages\n    (tenant_id, execution_id, step, person, opening, first_item, item_count, opened_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nON CONFLICT (tenant_id, execution_id, step, person, opening, first_item, item_count)\n    DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Int4",
+        "Int4",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "bffe755ea6ff2155a6f648ed727044003794f15015df0ec1e3749229df7d488b"
+}

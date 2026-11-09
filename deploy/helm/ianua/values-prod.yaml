@@ -1,0 +1,161 @@
+# Production config for LKE — applied by the CI deploy job on every push to main.
+#
+# Non-secret configuration only. Secrets (HMAC, encryption key, Mailgun key) live
+# in the cluster and are preserved by `helm upgrade --reuse-values`; never put
+# them here. Edit this file and push to change production config.
+
+# Images come from the self-hosted registry, not GHCR.
+#
+# The chart composes refs as {registry}/{repository}/{name}:{tag}, so keeping
+# the `ianuaidp` path component means this is a values change with no template
+# edits — CI pushes to 127.0.0.1:5000/ianuaidp/ianua-server and the cluster
+# pulls registry.ianua.io/ianuaidp/ianua-server. Same blobs.
+#
+# TRADEOFF, deliberately accepted: the cluster now depends on the build machine
+# being reachable in order to pull. Running pods are unaffected — tags are
+# immutable SHAs and pullPolicy is IfNotPresent, so nothing re-pulls what it
+# already has. What breaks while that machine is down:
+#
+#   1. New deploys of the RollingUpdate components (server, worker, zero,
+#      redis). These are SAFE: replicas is 1 and maxUnavailable is 25%, which
+#      floors to zero pods, so the old pod keeps serving and the rollout simply
+#      stalls. (ianua-front is NOT in this chart — it is a separate release
+#      from the frontend repo, still on GHCR with the ianua-ghcr secret, and
+#      unaffected by anything here.)
+#
+#   2. The hook Jobs (migrate, and install or first-operator when on). A Job
+#      whose image cannot be pulled holds the upgrade until --timeout, which
+#      then fails; the running pods are untouched.
+#
+#   3. Any pod starting on a node with a cold image cache — node replacement or
+#      a pool upgrade. Have the builder up before upgrading a node pool.
+#
+# The registry keeps 7 days of tags plus the 10 most recent, so rollback
+# targets older than a week may no longer exist. Check before rolling back far.
+image:
+  registry: registry.ianua.io
+  repository: ianuaidp
+
+imagePullSecret:
+  create: false
+  # Created out of band, holding the pull-only `k8s` account:
+  #   kubectl create secret docker-registry regcred -n ianua \
+  #     --docker-server=registry.ianua.io --docker-username=k8s --docker-password=...
+  # That account cannot push, so a leak of this secret cannot poison an image.
+  existingSecret: regcred
+
+# ── Everything enters through Traefik ────────────────────
+#
+# One cloud balancer instead of four. Each Service below is ClusterIP and
+# Traefik decides where a connection goes, by the hostname in the TLS
+# handshake — see templates/traefik-routes.yaml for why they are all TCP
+# routers rather than Ingresses.
+traefik:
+  enabled: true
+
+server:
+  service:
+    type: ClusterIP
+  ingress:
+    enabled: false
+
+zero:
+  service:
+    type: ClusterIP
+    # 443, because zero now terminates TLS itself rather than receiving plain
+    # HTTP from something in front. It has to: a tenant's certificate is
+    # chosen from the handshake, so the handshake has to reach it.
+    port: 443
+  tls:
+    # The certificate served when no tenant's domain matches. Deliberately not
+    # a real one — an unknown hostname arriving here should fail in the
+    # browser, not be answered with somebody else's name on it.
+    secretName: ianua-zero-default-tls
+
+postgresql:
+  enabled: true
+
+# ── Certificates for tenant domains ──────────────────────
+#
+# Production Let's Encrypt, not staging: a staging certificate is trusted by
+# nothing, so the tenant's browser still shows a warning and the whole exercise
+# proves only that the code runs.
+#
+# Leaving directoryUrl empty is not an outage, but the server then signs the
+# certificates itself, and browsers refuse those.
+acme:
+  # Production, not staging. A staging certificate is signed by an authority no
+  # browser trusts, so the tenant still sees a warning and the exercise proves
+  # only that the code runs.
+  #
+  # Two paths reach here, and both work through the single entrance:
+  #
+  #   self-managed → HTTP-01. The challenge arrives on :80, is redirected to
+  #     :443, passes through Traefik to zero, and zero answers it from the same
+  #     row the solver wrote. Let's Encrypt follows that redirect and ignores
+  #     the certificate on the far side of it, which it has to — the whole
+  #     point of the request is that there is not a valid one yet.
+  #
+  #   delegated → DNS-01. The proof is written into a zone we serve ourselves,
+  #     so nothing outside this deployment has to be asked to publish anything.
+  #     It is also the only path that can prove a wildcard.
+  directoryUrl: "https://acme-v02.api.letsencrypt.org/directory"
+  # Where the authority writes about expiry and revocation. Change it to a role
+  # address once one exists — this is the account contact, not a per-tenant one.
+  contactEmail: "legal@ianua.io"
+  # Where a tenant's traffic is sent — Traefik, which passes it through to
+  # zero still encrypted so zero can pick that tenant's certificate.
+  #
+  # This is the address we write into the A record of every delegated zone,
+  # and the one we hand to a tenant whose domain is a zone apex, where DNS
+  # forbids a CNAME. Setting it is also the second of the two conditions for
+  # offering delegation at all — with it empty, every domain silently stayed
+  # self-managed no matter what else was configured.
+  proxyAddress: "172.235.171.174"
+
+# ── Feeding the nameservers ──────────────────────────────
+#
+# The Secret already exists in the cluster (ianua-grpc-pki), holding the server
+# half of the PKI. Turning enabled on creates a common NodeBalancer, ~$10/mo,
+# and nothing else changes until the two hosts are up and dialling it.
+#
+# loadBalancerIP must be reserved and static before this goes true: the
+# nameservers name it by hand in /etc/ianua/dns.env, and nothing up there
+# notices when it changes — the zones simply stop being updated.
+grpc:
+  enabled: true
+  tls:
+    existingSecret: ianua-grpc-pki
+  service:
+    # Traefik carries :50051 through to here, passed through so the client
+    # certificate survives to the code that checks it.
+    #
+    # The source restriction went with the balancer it belonged to. It was
+    # never what made this safe — the listener demands a certificate from our
+    # own authority regardless — and the entrance is now shared with traffic
+    # that has to stay open to everyone.
+    type: ClusterIP
+
+config:
+  # Traefik's pod range. It is the only thing that speaks to the API now, and
+  # it forwards the connection at the TCP layer — so the X-Forwarded-For the
+  # server reads is the one the CDN wrote, and believing it requires trusting
+  # the peer that delivered it.
+  #
+  # A range, not an address: a pod takes a new address on every rollout, and a
+  # pinned one would stop matching without anything failing. The symptom would
+  # be every client recorded as the ingress — one address in the audit log, one
+  # bucket in the rate limiter, and the risk engine scoring the cluster.
+  trustedProxies: "10.2.0.0/16"
+  # The frontend, at the apex. File links and logos are made under it, and
+  # its /api/v1 pass-through carries them to the API.
+  appBaseUrl: https://ianua.io
+  webauthn:
+    # The frontend (where passkey ceremonies run) is served from the apex.
+    # rpId stays ianua.io (its chart default), covering the apex and subdomains.
+    rpOrigin: https://ianua.io
+  # Swagger UI at /api/v1/docs.
+  apiDocs: true
+  # "*" allows any browser origin during development; restrict to a single
+  # origin (e.g. https://app.ianua.io) before public launch.
+  corsOrigin: "*"

@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Verify your email address{% endblock %}
+{% block preheader %}Verify your email address to create your organization.{% endblock %}
+{% block headline %}Welcome to IANUA{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("there")) }}
+  {% call c.para() %}Thanks for signing up for {{ c.brand() }}.{% endcall %}
+  {% call c.para(pad=8) %}You are one step away from creating <strong>{{ organization_name | default("your organization") }}</strong>. Verify your email address to finish.{% endcall %}
+  {{ c.cta(action_url, "Verify email") }}
+  {% call c.para(pad=0) %}This link expires in {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}If you did not sign up, you can ignore this email.{% endcall %}
+{% endblock %}

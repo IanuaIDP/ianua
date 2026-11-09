@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Nouveaux codes de récupération créés{% endblock %}
+{% block preheader %}Un nouveau jeu de codes de récupération a été créé pour votre compte.{% endblock %}
+{% block headline %}Nouveaux codes de récupération créés{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("cher utilisateur")) }}
+  {% call c.para() %}Un nouveau jeu de codes de récupération a été créé pour votre compte dans <strong>{{ tenant_name | default("votre organisation") }}</strong>{% if remaining_codes is defined %}. Nombre de codes inutilisés : <strong>{{ remaining_codes }}</strong>{% endif %}. Vos anciens codes ne fonctionnent plus.{% endcall %}
+  {% call c.para(pad=32) %}Conservez ces codes en lieu sûr : chacun permet une connexion unique si vous perdez votre second facteur. Si vous n’avez pas fait cela, prévenez votre administrateur.{% endcall %}
+{% endblock %}

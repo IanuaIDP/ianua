@@ -1,0 +1,36 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The holders of one role of a tenant with the given ids: who was given it\n-- straight, with their kind, and the groups carrying it.\nSELECT kind AS \"kind!\", principal_kind, holder_id AS \"holder_id!\"\nFROM role_holders\nWHERE tenant_id = $1 AND role_id = $2 AND holder_id = ANY($3)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "kind!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "principal_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "holder_id!",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "4e4b8172e9c61ff590844740df2b3cad7ee7c024e6620622ffc9b75c2cac7fbd"
+}

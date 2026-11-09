@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The clones still copying that started before the cut-off, the oldest\n-- first.\nSELECT id, tenant_id\nFROM tenant_clones\nWHERE state = 'copying' AND started_at < $1\nORDER BY started_at, id\nLIMIT $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "5d3076993469a043a3876f764a47079cde8a6d0f000165be00eb86626ec664a5"
+}

@@ -1,0 +1,83 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- One registration of one tenant, by the id its address names.\nSELECT id, workflow_id, version, trigger, secret_sealed, status, remote, lapses_at, label,\n    created_at, updated_at\nFROM workflow_service_subscriptions\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "workflow_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "version",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "trigger",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "secret_sealed",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "remote",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "lapses_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "label",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "0c231dd51195f147e398d6f84a5abc27f9a3f55fb9a02a04fb4095f2ad8af67b"
+}

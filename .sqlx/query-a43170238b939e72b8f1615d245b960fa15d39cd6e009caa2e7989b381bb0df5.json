@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many API keys a tenant holds against its plan. A revoked key is\n-- deleted, so every row is one in force or waiting for the expiry sweep.\nSELECT count(*) AS \"count!\"\nFROM api_keys\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "a43170238b939e72b8f1615d245b960fa15d39cd6e009caa2e7989b381bb0df5"
+}

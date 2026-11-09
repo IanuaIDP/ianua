@@ -1,0 +1,9 @@
+Bonjour {{ user_name | default("cher utilisateur") }},
+
+La copie de vos données dans {{ tenant_name | default("votre organisation") }} que vous avez demandée est prête.
+
+Connectez-vous à votre compte et ouvrez vos paramètres de confidentialité pour la télécharger. Le téléchargement est possible jusqu’au {{ expires_at }}.
+
+Cet e-mail ne contient aucun lien de téléchargement. Si vous n’avez pas demandé de copie, prévenez votre administrateur.
+
+IANUA

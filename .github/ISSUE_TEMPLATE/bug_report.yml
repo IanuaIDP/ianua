@@ -1,0 +1,70 @@
+name: Bug report
+description: Something in ianua doesn't work as expected.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please do **not** report security vulnerabilities here; see "Report a vulnerability" in the issue chooser instead.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - API and sign-in
+        - Gateway and routing
+        - Agents and workflows
+        - Dashboard
+        - Deployment (Helm, Docker Compose)
+        - Docs
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you saw, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Sign in as …
+        2. Call or open …
+        3. See …
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The ianua version or commit, and how it is installed (Helm, Docker Compose, from source).
+  - type: dropdown
+    id: session
+    attributes:
+      label: Session type
+      description: For sign-in and dashboard problems.
+      options:
+        - Organization session
+        - Tenant session
+        - Both
+        - Not signed in
+        - Not relevant
+  - type: input
+    id: role
+    attributes:
+      label: Role
+      description: The organization role (Owner, Admin, Member, Billing, Viewer) or the tenant role you used.
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      description: For dashboard problems.
+  - type: textarea
+    id: extra
+    attributes:
+      label: Logs, screenshots, console errors or failing requests
+      description: Remove tokens, cookies, keys and personal data before pasting.

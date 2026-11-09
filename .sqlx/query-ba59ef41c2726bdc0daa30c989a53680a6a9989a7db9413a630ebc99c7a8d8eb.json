@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many approvals one person gave in a tenant since a time: the ones\n-- that granted a request, and the first of two. A denial is not one.\nSELECT (\n    SELECT count(*)\n    FROM agent_approvals\n    WHERE tenant_id = $1 AND decided_by_kind = $2 AND decided_by_id = $3 AND decided_at >= $4\n      AND status IN ('approved', 'consumed')\n) + (\n    SELECT count(*)\n    FROM agent_approvals\n    WHERE tenant_id = $1 AND first_by_kind = $2 AND first_by_id = $3 AND first_at >= $4\n) AS \"signed!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "signed!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "ba59ef41c2726bdc0daa30c989a53680a6a9989a7db9413a630ebc99c7a8d8eb"
+}

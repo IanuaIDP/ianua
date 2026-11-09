@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Bestätigen Sie Ihre E-Mail-Adresse{% endblock %}
+{% block preheader %}Bestätigen Sie Ihre E-Mail-Adresse, um Ihre Organisation zu erstellen.{% endblock %}
+{% block headline %}Willkommen bei IANUA{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("")) }}
+  {% call c.para() %}Vielen Dank für Ihre Registrierung bei {{ c.brand() }}.{% endcall %}
+  {% call c.para(pad=8) %}Bis zur Erstellung von <strong>{{ organization_name | default("Ihrer Organisation") }}</strong> fehlt nur noch ein Schritt. Bestätigen Sie dazu Ihre E-Mail-Adresse.{% endcall %}
+  {{ c.cta(action_url, "E-Mail-Adresse bestätigen") }}
+  {% call c.para(pad=0) %}Dieser Link läuft in {{ expires_at }} ab.{% endcall %}
+  {% call c.para(pad=32) %}Wenn Sie sich nicht registriert haben, können Sie diese E-Mail ignorieren.{% endcall %}
+{% endblock %}

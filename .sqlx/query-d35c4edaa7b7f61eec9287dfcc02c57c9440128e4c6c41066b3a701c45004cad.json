@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Adds a notification to an operator's inbox; adding it again changes\n-- nothing.\nINSERT INTO platform_notifications (\n    id, operator_id, event_type, category, severity, title, body, resource_id, reach, read,\n    created_at\n)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\nON CONFLICT (id) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Int2",
+        "Text",
+        "Text",
+        "Uuid",
+        "Text",
+        "Bool",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d35c4edaa7b7f61eec9287dfcc02c57c9440128e4c6c41066b3a701c45004cad"
+}

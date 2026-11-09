@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Forgets a tenant's sent logout requests whose answer stopped being\n-- taken by the given time.\nDELETE FROM sent_logout_requests\nWHERE tenant_id = $1 AND expires_at <= $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "39f73c85748947b7320a672a402814fd9c54354b40d3536f87af396f9007e4a7"
+}

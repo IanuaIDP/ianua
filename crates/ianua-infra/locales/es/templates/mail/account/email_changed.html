@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Su dirección de correo ha cambiado{% endblock %}
+{% block preheader %}La dirección de correo de su cuenta ha cambiado.{% endblock %}
+{% block headline %}Su dirección de correo ha cambiado{% endblock %}
+
+{% block content %}
+  {{ c.greeting("estimado usuario") }}
+  {% call c.para() %}La dirección de correo de su cuenta {{ c.brand() }} se ha cambiado a <strong>{{ user_email }}</strong>.{% endcall %}
+  {% call c.para(pad=32) %}Si no hizo este cambio, avise a su administrador de inmediato.{% endcall %}
+{% endblock %}

@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Notes one delivery to one registration, unless it was noted already; a\n-- row is written only the first time.\nINSERT INTO workflow_service_deliveries (tenant_id, subscription_id, delivery, noted_at)\nVALUES ($1, $2, $3, $4)\nON CONFLICT (tenant_id, subscription_id, delivery) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "507e45febf97859abdb6c27e6eff1ffaf171f8072f362031fb5214ecff0e67da"
+}

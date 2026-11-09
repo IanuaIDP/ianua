@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many channels an organization posts notifications to against its\n-- plan, paused ones too.\nSELECT count(*) AS \"count!\"\nFROM org_notification_destinations\nWHERE organization_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "7750f880facb57d0fd7f8ff76df637e9de263cdf69f6462f29ae706c59af78fc"
+}

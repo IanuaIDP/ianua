@@ -1,0 +1,36 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every claim on a name that overlaps one, whichever tenant holds it: the\n-- name itself and the names above it, by their keys, and the names below\n-- it, whose keys run between the two bounds.\nSELECT hostname, tenant_id, domain_id\nFROM domain_claims\nWHERE overlap_key = ANY($1) OR (overlap_key > $2 AND overlap_key < $3)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "hostname",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "domain_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "TextArray",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "62088b3df639463c0cfe5a0d082a468b62935f072d0c3227ad5ce4c08ef578c7"
+}

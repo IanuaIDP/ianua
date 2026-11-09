@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Your copy of your data is ready{% endblock %}
+{% block preheader %}Sign in to download the copy of your data.{% endblock %}
+{% block headline %}Your copy of your data is ready{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("there")) }}
+  {% call c.para() %}The copy of your data in <strong>{{ tenant_name | default("your organization") }}</strong> that you asked for is ready.{% endcall %}
+  {% call c.para() %}Sign in to your account and open your privacy settings to download it. You can download it until {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}This email holds no download link. If you did not ask for a copy, tell your administrator.{% endcall %}
+{% endblock %}

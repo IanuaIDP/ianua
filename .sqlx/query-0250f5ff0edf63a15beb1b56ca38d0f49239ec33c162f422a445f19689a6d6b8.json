@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Forgets every SAML app a session of a tenant signed in to.\nDELETE FROM saml_app_sessions\nWHERE tenant_id = $1 AND session_id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "0250f5ff0edf63a15beb1b56ca38d0f49239ec33c162f422a445f19689a6d6b8"
+}

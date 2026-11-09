@@ -1,0 +1,39 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Counts one try on a webhook subscription of a tenant and keeps the try,\n-- in one statement. Only the failure streak and what goes with it change,\n-- each from the row as it stands when locked, so two tries at once both\n-- count and an edit made meanwhile is kept.\n--\n-- A success ends the streak and is the last delivery. A failure adds one\n-- to the streak, and switches an active subscription off when the streak\n-- reaches the limit. Either way the subscription changes now. Answers the\n-- subscription's id and whether this try switched it off, or nothing when\n-- the subscription is gone.\nWITH held AS (\n    SELECT id, status\n    FROM webhook_subscriptions\n    WHERE tenant_id = $1 AND id = $2\n    FOR UPDATE\n),\ncounted AS (\n    UPDATE webhook_subscriptions subscription\n    SET consecutive_failures = CASE WHEN $8::text = 'success' THEN 0\n                                    ELSE subscription.consecutive_failures + 1 END,\n        last_delivered_at = CASE WHEN $8::text = 'success' THEN $3::timestamptz\n                                 ELSE subscription.last_delivered_at END,\n        status = CASE WHEN $8::text <> 'success' AND held.status = 'active'\n                           AND subscription.consecutive_failures + 1 >= $4::bigint\n                      THEN 'disabled'\n                      ELSE subscription.status END,\n        updated_at = $3::timestamptz\n    FROM held\n    WHERE subscription.tenant_id = $1 AND subscription.id = held.id\n    RETURNING subscription.id, held.status = 'active' AND subscription.status = 'disabled'\n        AS switched_off\n),\nkept AS (\n    INSERT INTO webhook_deliveries\n        (id, tenant_id, subscription_id, message_id, event_type, status, response_code,\n         duration_ms, attempt_number, attempted_at)\n    SELECT $5::uuid, $1::uuid, counted.id, $6::uuid, $7::text, $8::text, $9::integer,\n           $10::bigint, $11::smallint, $12::timestamptz\n    FROM counted\n)\nSELECT counted.id AS \"id!\", counted.switched_off AS \"switched_off!\"\nFROM counted\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "switched_off!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Timestamptz",
+        "Int8",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Int4",
+        "Int8",
+        "Int2",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "89dfd0cb7a887caebf9004b7bb6377e3aee1501a2ec4c48ff16c19801da0f3bb"
+}

@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}დაადასტურეთ ელფოსტის მისამართი{% endblock %}
+{% block preheader %}ანგარიშის მომზადების დასასრულებლად დაადასტურეთ ელფოსტის მისამართი.{% endblock %}
+{% block headline %}დაადასტურეთ ელფოსტის მისამართი{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para(pad=8) %}თქვენთვის შეიქმნა {{ c.brand() }} ანგარიში <strong>{{ tenant_name | default("თქვენი ორგანიზაცია") }}</strong>-ში. შესვლამდე დაადასტურეთ ელფოსტის მისამართი.{% endcall %}
+  {{ c.cta(action_url, "ელფოსტის დადასტურება") }}
+  {% call c.para(pad=0) %}ამ ბმულს ვადა გაუვა {{ expires_at }}-ში.{% endcall %}
+  {% call c.para(pad=32) %}თუ ამ წერილს არ ელოდით, შეგიძლიათ უგულებელყოთ.{% endcall %}
+{% endblock %}

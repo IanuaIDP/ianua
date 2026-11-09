@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a group: a new one is added, a known one takes the new values. Its\n-- tenant, origin and creation time never change.\nINSERT INTO groups (id, tenant_id, name, origin, parent_id, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nON CONFLICT (id) DO UPDATE SET\n    name = EXCLUDED.name,\n    parent_id = EXCLUDED.parent_id,\n    updated_at = EXCLUDED.updated_at\nWHERE groups.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a049baf94b3cb2afb9924d2d3d45aa5cff9fa95a1efd84865ee1861fbaf23662"
+}

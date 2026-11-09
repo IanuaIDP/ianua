@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many private network connectors a tenant holds against its plan:\n-- every one not revoked, since a revoked connector never works again.\nSELECT count(*) AS \"count!\"\nFROM connectors\nWHERE tenant_id = $1 AND status <> 'revoked'\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "d0870c807baa02ed4cb653d79a726e002c4416702a4d67874340a3dc6f434745"
+}

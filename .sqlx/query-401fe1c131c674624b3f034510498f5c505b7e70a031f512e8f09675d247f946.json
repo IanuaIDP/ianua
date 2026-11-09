@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps how jobs ended, each while it is still running at the attempt it\n-- was claimed at; a job another worker took since is left alone. Each is\n-- matched on its tenant as well as its id.\nUPDATE scheduled_jobs AS j\nSET status = ended.status, run_at = ended.run_at, error = ended.error, leased_until = NULL\nFROM unnest($1::uuid[], $2::uuid[], $3::integer[], $4::text[], $5::timestamptz[], $6::text[])\n    AS ended (id, tenant_id, attempt, status, run_at, error)\nWHERE j.id = ended.id AND j.tenant_id IS NOT DISTINCT FROM ended.tenant_id\n  AND j.status = 'running' AND j.attempt = ended.attempt\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "UuidArray",
+        "Int4Array",
+        "TextArray",
+        "TimestamptzArray",
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "401fe1c131c674624b3f034510498f5c505b7e70a031f512e8f09675d247f946"
+}

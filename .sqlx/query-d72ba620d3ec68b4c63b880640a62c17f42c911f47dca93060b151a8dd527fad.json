@@ -1,0 +1,89 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The access token of one tenant whose hash is the given one.\nSELECT token_hash, client_id, user_id, scopes, audience_client_id, audience_stream_route_id,\n       delegation, binding, binding_thumbprint, created_at, expires_at, revoked_at\nFROM oauth_access_tokens\nWHERE tenant_id = $1 AND token_hash = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "token_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "client_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "scopes",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 4,
+        "name": "audience_client_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "audience_stream_route_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "delegation",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 7,
+        "name": "binding",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "binding_thumbprint",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 11,
+        "name": "revoked_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "d72ba620d3ec68b4c63b880640a62c17f42c911f47dca93060b151a8dd527fad"
+}

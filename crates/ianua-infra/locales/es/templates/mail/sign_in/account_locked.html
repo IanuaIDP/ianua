@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Su cuenta se ha bloqueado{% endblock %}
+{% block preheader %}Su cuenta se bloqueó tras varios intentos fallidos de inicio de sesión.{% endblock %}
+{% block headline %}Su cuenta se ha bloqueado{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para() %}Su cuenta en <strong>{{ tenant_name | default("su organización") }}</strong> se bloqueó tras demasiados intentos fallidos de inicio de sesión{% if ip_address is defined %} desde <strong>{{ ip_address }}</strong>{% endif %}.{% endcall %}
+  {% call c.para(pad=32) %}Si fue usted, espere a que termine el bloqueo y vuelva a intentarlo, o pida a su administrador que lo desbloquee antes. Si no fue usted, cambie la contraseña en cuanto pueda iniciar sesión.{% endcall %}
+{% endblock %}

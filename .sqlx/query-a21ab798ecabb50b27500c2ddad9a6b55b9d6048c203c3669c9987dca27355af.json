@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The link the tenant's next audit record is chained to, read under the\n-- tenant's chain lock: its newest record, the anchor a purge left, or the\n-- genesis link of 32 zero bytes at record 0.\nSELECT link.seq AS \"seq!\", link.entry_hash AS \"entry_hash!\"\nFROM (\n    (SELECT r.seq, r.entry_hash FROM audit_records r\n     WHERE r.tenant_id = $1 ORDER BY r.seq DESC LIMIT 1)\n    UNION ALL\n    (SELECT a.seq, a.entry_hash FROM audit_chain_anchors a WHERE a.tenant_id = $1)\n    UNION ALL\n    (SELECT 0::bigint, decode(repeat('00', 32), 'hex'))\n) AS link\nORDER BY link.seq DESC\nLIMIT 1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "seq!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "entry_hash!",
+        "type_info": "Bytea"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "a21ab798ecabb50b27500c2ddad9a6b55b9d6048c203c3669c9987dca27355af"
+}

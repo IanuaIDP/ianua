@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many users of a tenant hold, under one attribute, a text or a list\n-- item longer than the given number of characters.\nSELECT count(*) AS \"count!\"\nFROM user_metadata\nWHERE tenant_id = $1 AND namespace = $2 AND key = $3\n  AND (\n      char_length(value_text) > $4\n      OR EXISTS (\n          SELECT 1 FROM UNNEST(value_array) AS item (word)\n          WHERE char_length(item.word) > $4\n      )\n  )\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "a53ed8337451188b969d61aaf72f179396d80d1c663709be2ce7e0f41b88c84c"
+}

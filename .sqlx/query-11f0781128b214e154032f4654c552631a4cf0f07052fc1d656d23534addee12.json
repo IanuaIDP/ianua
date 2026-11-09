@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an organization's connection to one cloud: a new one is added with\n-- the external id it was begun with, a known one takes its new standing.\n-- Its organization, cloud, external id and when it was begun never change.\nINSERT INTO org_cloud_accounts\n    (organization_id, provider, external_id_sealed, state, credential_sealed, checked_at,\n     verified_identity, failure_reason, bound_identity, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\nON CONFLICT (organization_id, provider) DO UPDATE SET\n    state = EXCLUDED.state,\n    credential_sealed = EXCLUDED.credential_sealed,\n    checked_at = EXCLUDED.checked_at,\n    verified_identity = EXCLUDED.verified_identity,\n    failure_reason = EXCLUDED.failure_reason,\n    bound_identity = EXCLUDED.bound_identity,\n    updated_at = EXCLUDED.updated_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "11f0781128b214e154032f4654c552631a4cf0f07052fc1d656d23534addee12"
+}

@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}セッションが停止されました{% endblock %}
+{% block preheader %}アカウントを保護するため、セッションが停止されました。{% endblock %}
+{% block headline %}セッションが停止されました{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para() %}<strong>{{ tenant_name | default("所属組織") }}</strong>のアカウントのセッションが、通常とは異なると思われる操作の後に停止されました{% if ip_address is defined %}。送信元は{{ ip_address }}です{% endif %}。{% endcall %}
+  {% call c.para(pad=32) %}ご自身の操作であれば、再度サインインして続けてください。心当たりがない場合は、今すぐパスワードを変更し、有効なセッションを確認してください。{% endcall %}
+{% endblock %}

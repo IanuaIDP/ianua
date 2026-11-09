@@ -1,0 +1,88 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every active signal stream of a tenant, oldest first, without the\n-- subjects they list: a signal fans out to all of them in one pass.\nSELECT id, endpoint, endpoint_challenge, delivery_method, authorization_sealed,\n       receiver_key_hash, signal_types, default_subjects, status, consecutive_failures,\n       created_at, updated_at\nFROM signal_streams\nWHERE tenant_id = $1 AND status = 'active'\nORDER BY created_at, id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "endpoint",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "endpoint_challenge",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "delivery_method",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "authorization_sealed",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "receiver_key_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "signal_types",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 7,
+        "name": "default_subjects",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "consecutive_failures",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 10,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 11,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "086b0b8fdc904c2c2941c763e674cabc6755b5d33ae9a55f7690a3130b052128"
+}

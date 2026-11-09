@@ -1,0 +1,22 @@
+[package]
+name = "ianua-integration-mailgun"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Workflow steps for Mailgun email, delivery events, suppressions and mailing lists, through an account's API key"
+
+[lints]
+workspace = true
+
+[dependencies]
+ianua-domain = { workspace = true }
+ianua-integration = { workspace = true }
+async-trait = { workspace = true }
+serde_json = { workspace = true }
+ianua-workspace-hack = { version = "0.1", path = "../../crates/ianua-workspace-hack" }
+
+[dev-dependencies]
+ianua-integration = { workspace = true, features = ["test-support"] }
+tokio = { workspace = true }
+wiremock = { workspace = true }

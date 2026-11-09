@@ -1,0 +1,62 @@
+// Measures every page at 1440 and 390 px and stores, per page, the number of lines of each
+// text element plus any sideways overflow, in localStorage key `measure-<lang>` of the
+// app origin. Run it once per language (switch with the sidebar globe), then diff the two
+// keys with the snippet in SKILL.md.
+//
+// Run with the Playwright MCP tool browser_run_code_unsafe, filename = this file.
+// The file must stay one function expression WITHOUT a trailing semicolon.
+// Edit `T` (a tenant slug that exists) and `routes` for the app you test.
+async (page) => {
+  const base = 'http://localhost:3000';
+  const T = '/tenants/production';
+  const routes = [
+    '/overview', '/tenants', '/team', '/settings?tab=General', '/settings?tab=Audit%20Log', '/notifications', '/help-center',
+    T + '/overview', T + '/users', T + '/roles', T + '/groups', T + '/permissions', T + '/domains', T + '/connections',
+    T + '/api-keys', T + '/oauth-clients', T + '/services', T + '/routes', T + '/streams', T + '/pipelines', T + '/agents',
+    T + '/flows', T + '/tools', T + '/model-providers', T + '/crypto/keys', T + '/crypto/migration', T + '/crypto/jwks',
+    T + '/policy', T + '/settings/general', T + '/settings/sign-in', T + '/settings/mtls', T + '/settings/classification',
+    T + '/settings/danger-zone', T + '/notifications', T + '/services/create', T + '/routes/create', T + '/stream-routes/create', T + '/flows/create',
+  ];
+  const widths = [1440, 390];
+  const out = {};
+  for (const w of widths) {
+    await page.setViewportSize({ width: w, height: 900 });
+    for (const r of routes) {
+      try {
+        await page.goto(base + r, { waitUntil: 'domcontentloaded' });
+        await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
+        await page.waitForTimeout(800);
+        const m = await page.evaluate(() => {
+          const main = document.querySelector('main') || document.body;
+          const lines = [];
+          const walker = main.querySelectorAll('h1,h2,h3,h4,p,span,button,a,th,td,label,li,div');
+          for (const el of walker) {
+            if (el.children.length && [...el.childNodes].every((n) => n.nodeType !== 3 || !n.textContent.trim())) continue;
+            const t = (el.textContent || '').trim();
+            if (!t) continue;
+            const r = el.getBoundingClientRect();
+            if (!r.width || !r.height) continue;
+            const lh = parseFloat(getComputedStyle(el).lineHeight) || 16;
+            lines.push({ n: Math.round(r.height / lh), h: Math.round(r.height), clip: el.scrollWidth > el.clientWidth + 1 && getComputedStyle(el).overflow !== 'visible' ? 1 : 0 });
+          }
+          return {
+            docW: document.documentElement.scrollWidth, winW: window.innerWidth,
+            docH: document.documentElement.scrollHeight,
+            count: lines.length,
+            lines: lines.map((l) => l.n).join(''),
+            clips: lines.filter((l) => l.clip).length,
+            title: (document.querySelector('h1') || {}).textContent,
+          };
+        });
+        out[w + ' ' + r] = m;
+      } catch (e) {
+        out[w + ' ' + r] = { err: String(e).slice(0, 80) };
+      }
+    }
+  }
+  await page.goto(base + '/overview');
+  await page.waitForTimeout(3500);
+  const lang = await page.evaluate(() => document.documentElement.lang);
+  await page.evaluate(([l, o]) => localStorage.setItem('measure-' + l, o), [lang, JSON.stringify(out)]);
+  return { lang, pages: Object.keys(out).length, overflow: Object.entries(out).filter(([, v]) => v.docW > v.winW).map(([k]) => k), errs: Object.entries(out).filter(([, v]) => v.err).map(([k, v]) => k + ' ' + v.err) };
+}

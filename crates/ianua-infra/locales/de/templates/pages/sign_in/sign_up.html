@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% import "sign_in/parts.html" as p %}
+
+{% block title %}Konto bei {{ workspace }} erstellen{% endblock %}
+
+{% block content %}
+      <h1>Erstellen Sie Ihr Konto</h1>
+      <p class="subtitle">Treten Sie {{ workspace }} bei. Wir senden Ihnen per E-Mail einen Link zur Bestätigung Ihrer Adresse.</p>
+      {{ p.note(note, {
+        "not_allowed": "Dieser Mandant nimmt keine Registrierungen an.",
+        "invalid": "Prüfen Sie Ihre Eingaben. Das Passwort ist möglicherweise zu kurz oder zu häufig verwendet."
+      }) }}
+      <form method="post" action="{{ form_path }}">
+        {{ p.field("display_name", "Ihr Name", "text", "name") }}
+        {{ p.field("email", "E-Mail-Adresse", "email", "email") }}
+        {{ p.field("password", "Passwort", "password", "new-password") }}
+        {{ p.submit("Konto erstellen") }}
+      </form>
+      {{ p.link("Bereits ein Konto?", log_in_path, "Anmelden") }}
+{% endblock %}

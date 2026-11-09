@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The provider names of a tenant's federation connections with the given ids, for the audit trail to name them by.\nSELECT id, provider_name AS name\nFROM federation_connections\nWHERE tenant_id = $1 AND id = ANY($2)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "ea0cf7ea5ceb6d8349a9091a562d54eef973ce296f2f88678e6f3257ee1c6e9b"
+}

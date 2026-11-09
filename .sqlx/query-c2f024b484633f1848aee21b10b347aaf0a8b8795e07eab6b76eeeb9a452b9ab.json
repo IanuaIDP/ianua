@@ -1,0 +1,180 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The consumer of a tenant signing in with tokens of the given issuer and\n-- subject: the one using them now, or else the one whose replaced\n-- credential they were.\nSELECT id, name, description, credential_kind, key_prefix, key_hash, cert_fingerprint,\n       jwt_issuer, jwt_subject, jwks_uri, credential_expires_at, previous_kind,\n       previous_key_prefix, previous_key_hash, previous_cert_fingerprint, previous_jwt_issuer,\n       previous_jwt_subject, previous_jwks_uri, previous_expires_at, previous_until,\n       quota_requests, quota_period, status, clearance, created_by, created_at, updated_at\nFROM consumers\nWHERE tenant_id = $1\n  AND (current_credential = 'jwt_bearer' || chr(31) || $2 || chr(31) || $3\n       OR previous_credential = 'jwt_bearer' || chr(31) || $2 || chr(31) || $3)\nORDER BY current_credential IS DISTINCT FROM 'jwt_bearer' || chr(31) || $2 || chr(31) || $3, id\nLIMIT 1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "credential_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "key_prefix",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "key_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "cert_fingerprint",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "jwt_issuer",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "jwt_subject",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "jwks_uri",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "credential_expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 11,
+        "name": "previous_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "previous_key_prefix",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 13,
+        "name": "previous_key_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 14,
+        "name": "previous_cert_fingerprint",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 15,
+        "name": "previous_jwt_issuer",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 16,
+        "name": "previous_jwt_subject",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 17,
+        "name": "previous_jwks_uri",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 18,
+        "name": "previous_expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 19,
+        "name": "previous_until",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 20,
+        "name": "quota_requests",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 21,
+        "name": "quota_period",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 22,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 23,
+        "name": "clearance",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 24,
+        "name": "created_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 25,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 26,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "c2f024b484633f1848aee21b10b347aaf0a8b8795e07eab6b76eeeb9a452b9ab"
+}

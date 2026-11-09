@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% import "sign_in/parts.html" as p %}
+
+{% block title %}შედით {{ workspace }}-ში{% endblock %}
+
+{% block content %}
+      <h1>კეთილი იყოს თქვენი დაბრუნება</h1>
+      <p class="subtitle">გასაგრძელებლად შედით {{ workspace }}-ში</p>
+      {{ p.note(note, {}) }}
+      <form method="post" action="{{ form_path }}">
+        {{ p.field("email", "ელფოსტის მისამართი", "email", "username") }}
+        {{ p.field("password", "პაროლი", "password", "current-password") }}
+        {{ p.return_to(return_to) }}
+        {{ p.submit("შესვლა") }}
+      </form>
+      {%- for choice in single_sign_on %}
+      <p class="footer"><a href="{{ choice.href }}">გაგრძელება {{ choice.name }}-ით</a></p>
+      {%- endfor %}
+      {%- if passkey_path and passkey_script_path %}
+      <p class="footer"><button type="button" id="passkey" data-address="{{ passkey_path }}"{% if return_to %} data-return-to="{{ return_to }}"{% endif %} hidden>წვდომის გასაღებით შესვლა</button></p>
+      <script src="{{ passkey_script_path }}" defer></script>
+      {%- endif %}
+      {%- if forgot_password_path %}
+      {{ p.link("პაროლი დაგავიწყდათ?", forgot_password_path, "აღდგენა") }}
+      {%- endif %}
+      {%- if sign_up_path %}
+      {{ p.link("პირველად ხართ აქ?", sign_up_path, "ანგარიშის შექმნა") }}
+      {%- endif %}
+{% endblock %}

@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a tenant's break-glass policy: a first one is added, a known one\n-- takes what users may give themselves now and when that changed.\nINSERT INTO break_glass_policies (tenant_id, self_service_system, self_service_custom, updated_at)\nVALUES ($1, $2, $3, $4)\nON CONFLICT (tenant_id) DO UPDATE SET\n    self_service_system = EXCLUDED.self_service_system,\n    self_service_custom = EXCLUDED.self_service_custom,\n    updated_at = EXCLUDED.updated_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "TextArray",
+        "TextArray",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5195a6b485dddb9a8ea6d26ef6ac859b1dbe13caaff8b3425efa6abdc7f0a135"
+}

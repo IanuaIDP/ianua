@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Sie haben bereits ein Konto{% endblock %}
+{% block preheader %}Für diese Adresse gibt es bereits ein IANUA-Konto.{% endblock %}
+{% block headline %}Sie haben bereits ein Konto{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("")) }}
+  {% call c.para(pad=8) %}Es wurde gerade versucht, sich mit dieser Adresse bei {{ c.brand() }} zu registrieren. Für sie besteht bereits ein Konto. Wenn Sie das waren, melden Sie sich stattdessen an.{% endcall %}
+  {{ c.cta(action_url, "Anmelden") }}
+  {% call c.para(pad=32) %}Wenn Sie Ihr Passwort vergessen haben, können Sie es auf der Anmeldeseite zurücksetzen. Wenn Sie das nicht waren, können Sie diese E-Mail ignorieren: Es wurde nichts geändert.{% endcall %}
+{% endblock %}

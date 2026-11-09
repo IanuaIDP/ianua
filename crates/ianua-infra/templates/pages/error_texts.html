@@ -1,0 +1,39 @@
+{#-
+  What an error page tells a person, by the kind of trouble, imported as
+  `e`: a title, and one line of what to do. A kind not listed here fails
+  the render, so no page goes out without its words.
+-#}
+
+{#- The page's title for `kind`. -#}
+{% macro title(kind) -%}
+{%- set titles = {
+  "unauthenticated": "Sign in to continue",
+  "forbidden": "You do not have access",
+  "not_found": "Page not found",
+  "content_too_large": "Request too large",
+  "too_many_requests": "Too many requests",
+  "misdirected_request": "Wrong address for this connection",
+  "bad_gateway": "The app is not answering",
+  "gateway_timeout": "The app took too long to answer",
+  "unavailable": "Temporarily unavailable",
+  "bad_request": "Something is wrong with the request"
+} -%}
+{{ titles[kind] }}
+{%- endmacro %}
+
+{#- What the person can do about `kind`. -#}
+{% macro advice(kind) -%}
+{%- set lines = {
+  "unauthenticated": "You need to sign in before you can open this page. Sign in, then open it again.",
+  "forbidden": "Your account is not allowed to open this page. If you think it should be, ask your administrator and give them the reference below.",
+  "not_found": "Nothing is here. Check the address, or go back to the page you came from.",
+  "content_too_large": "What you sent is larger than this app accepts. Try again with less.",
+  "too_many_requests": "You sent a lot of requests in a short time. Wait a minute, then try again.",
+  "misdirected_request": "This connection was made for another address. Close the tab and open the address again.",
+  "bad_gateway": "The app behind this address could not be reached. Try again in a few minutes.",
+  "gateway_timeout": "The app behind this address did not answer in time. Try again in a few minutes.",
+  "unavailable": "This address cannot take requests right now. Try again in a few minutes.",
+  "bad_request": "The request could not be read. Go back, check what you entered, and try again."
+} -%}
+{{ lines[kind] }}
+{%- endmacro %}

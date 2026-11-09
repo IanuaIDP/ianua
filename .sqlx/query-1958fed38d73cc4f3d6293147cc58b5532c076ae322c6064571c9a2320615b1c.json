@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Adds a registry just allowed. A host is on a tenant's list once, so a\n-- second allowing of it is refused by its constraint.\nINSERT INTO image_registries\n    (id, tenant_id, host, login, username, password, allowed_by, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Jsonb",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "1958fed38d73cc4f3d6293147cc58b5532c076ae322c6064571c9a2320615b1c"
+}

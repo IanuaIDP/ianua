@@ -1,0 +1,59 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The role of a tenant with the given name.\nSELECT id, name, system_permissions, custom_permissions, is_default, created_at, updated_at\nFROM roles\nWHERE tenant_id = $1 AND name = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "system_permissions",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 3,
+        "name": "custom_permissions",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 4,
+        "name": "is_default",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "27bbfc36daa9368e0b13c880dd21660c10a4d557ac99d6cd82425e1e89f6d60d"
+}

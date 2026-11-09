@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The link of one purpose most recently issued to a member, used or not.\nSELECT token_hash, org_user_id, sent_to, created_at, expires_at, consumed_at\nFROM org_tokens\nWHERE org_user_id = $1 AND purpose = $2\nORDER BY created_at DESC, token_hash DESC\nLIMIT 1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "token_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "org_user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "sent_to",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "consumed_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "6789bd1bccf506fb44bee1ac83220bc02988a95931a2f333f0e0270f2075008a"
+}

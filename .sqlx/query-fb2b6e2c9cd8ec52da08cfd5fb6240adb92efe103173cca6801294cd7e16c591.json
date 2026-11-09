@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The public half of every signing key of a tenant that is not revoked,\n-- newest first, for the gateway, whose role reads no private key.\nSELECT kid, algorithm, public_key, status, rotated_at, expires_at, created_at\nFROM signing_keys\nWHERE tenant_id = $1 AND status <> 'revoked'\nORDER BY created_at DESC, kid DESC\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "kid",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "algorithm",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "public_key",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "rotated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "fb2b6e2c9cd8ec52da08cfd5fb6240adb92efe103173cca6801294cd7e16c591"
+}

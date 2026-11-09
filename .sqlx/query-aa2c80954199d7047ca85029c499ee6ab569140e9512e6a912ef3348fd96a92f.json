@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Marks one tenant's device authorization redeemed, only while it is still\n-- approved and unexpired at the given time: of two polls arriving\n-- together, only one changes the row.\nUPDATE oauth_device_authorizations\nSET status = 'redeemed'\nWHERE tenant_id = $1 AND device_code_hash = $2 AND status = 'approved' AND expires_at > $3\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "aa2c80954199d7047ca85029c499ee6ab569140e9512e6a912ef3348fd96a92f"
+}

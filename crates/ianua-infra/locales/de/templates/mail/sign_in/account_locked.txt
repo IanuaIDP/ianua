@@ -1,0 +1,7 @@
+Hallo{% if user_name is defined and user_name %} {{ user_name | default("") }}{% endif %}!
+
+Ihr Konto bei {{ tenant_name | default("Ihrer Organisation") }} wurde nach zu vielen fehlgeschlagenen Anmeldeversuchen gesperrt{% if ip_address is defined %}, die von {{ ip_address }} kamen{% endif %}.
+
+Wenn Sie das waren, warten Sie auf das Ende der Sperre und versuchen Sie es erneut oder bitten Sie Ihren Administrator um eine frühere Entsperrung. Wenn Sie das nicht waren, ändern Sie Ihr Passwort, sobald Sie sich anmelden können.
+
+IANUA

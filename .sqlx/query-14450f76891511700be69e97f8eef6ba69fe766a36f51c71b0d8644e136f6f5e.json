@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Forgets the provider session behind a session of a tenant.\nDELETE FROM provider_sessions\nWHERE tenant_id = $1 AND session_id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "14450f76891511700be69e97f8eef6ba69fe766a36f51c71b0d8644e136f6f5e"
+}

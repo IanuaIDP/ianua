@@ -1,0 +1,77 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The tenant's audit stream with the given id.\nSELECT id, name, destination, events, state, state_since, failures, pause_reason, created_at,\n       updated_at\nFROM audit_streams\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "destination",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 3,
+        "name": "events",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 4,
+        "name": "state",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "state_since",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "failures",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "pause_reason",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "773f17117b9619173266b28a5cd0d71b9a1fb8ba1a53f3cb19e7954903bed2b8"
+}

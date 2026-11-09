@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a channel between agents: a new one is added, a known one of the\n-- same tenant takes when it was closed. What it carries, between whom, who\n-- opened it and for how long never change.\nINSERT INTO agent_channels\n    (id, tenant_id, sender_id, receiver_id, scope_kind, scope_value, max_class, opened_by_kind,\n     opened_by_id, opened_at, expires_at, closed_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)\nON CONFLICT (id) DO UPDATE SET\n    closed_at = EXCLUDED.closed_at\nWHERE agent_channels.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a269b8df784e40af64b51a6acf7f2da78de9c1393c257beff312010b7750ceea"
+}

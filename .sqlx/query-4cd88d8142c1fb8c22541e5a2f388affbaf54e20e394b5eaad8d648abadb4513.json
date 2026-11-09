@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The names of a tenant's consumers with the given ids, for the audit trail to name them by.\nSELECT id, name\nFROM consumers\nWHERE tenant_id = $1 AND id = ANY($2)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "4cd88d8142c1fb8c22541e5a2f388affbaf54e20e394b5eaad8d648abadb4513"
+}

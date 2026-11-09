@@ -1,0 +1,7 @@
+{{ notice_title }}
+
+{{ notice_body | default(notice_title) }}
+
+Sie erhalten diese E-Mail, weil Sie den E-Mail-Versand für Benachrichtigungen dieser Art gewählt haben. Sie können dies in Ihren Benachrichtigungseinstellungen ändern.
+
+IANUA

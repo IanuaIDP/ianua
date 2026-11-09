@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes a model provider of the tenant for good. The runs that reasoned\n-- with it keep its id as history.\nDELETE FROM agent_model_providers\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4bb10259451346320d0b46947ff48b0d1aca7bc34e841c1799e62f7fb9ec9d0f"
+}

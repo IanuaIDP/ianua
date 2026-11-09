@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many agent runs a tenant has in flight against its plan: running,\n-- waiting for an approval, or paused by a person, since a paused run goes\n-- back to running with no check of its own.\nSELECT count(*) AS \"count!\"\nFROM agent_runs\nWHERE tenant_id = $1 AND status IN ('running', 'awaiting_approval', 'paused')\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "94fbb0c0476fa6f9defcdc129df54be9a1105c930ff1ed41ba77f182a0890040"
+}

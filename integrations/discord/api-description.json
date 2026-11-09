@@ -1,0 +1,383 @@
+{
+  "endpoints": {
+    "delete /channels/{channel_id}/messages/{message_id}": {
+      "answer": [],
+      "body": [],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "204"
+      ]
+    },
+    "get /channels/{channel_id}/messages": {
+      "answer": [
+        "activity",
+        "actor",
+        "application",
+        "application_id",
+        "attachments",
+        "author",
+        "call",
+        "channel_id",
+        "components",
+        "content",
+        "edited_timestamp",
+        "embeds",
+        "flags",
+        "id",
+        "interaction",
+        "interaction_metadata",
+        "lobby_member",
+        "mention_channels",
+        "mention_everyone",
+        "mention_roles",
+        "mentions",
+        "message_reference",
+        "message_snapshots",
+        "nonce",
+        "pinned",
+        "poll",
+        "position",
+        "purchase_notification",
+        "reactions",
+        "referenced_message",
+        "resolved",
+        "role_subscription_data",
+        "shared_client_theme",
+        "sticker_items",
+        "stickers",
+        "thread",
+        "timestamp",
+        "tts",
+        "type",
+        "webhook_id"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "after": false,
+        "around": false,
+        "before": false,
+        "limit": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /guilds/{guild_id}/channels": {
+      "answer": [
+        "application_id",
+        "applied_tags",
+        "available_tags",
+        "bitrate",
+        "default_auto_archive_duration",
+        "default_forum_layout",
+        "default_reaction_emoji",
+        "default_sort_order",
+        "default_tag_setting",
+        "default_thread_rate_limit_per_user",
+        "flags",
+        "guild_id",
+        "icon",
+        "id",
+        "last_message_id",
+        "last_pin_timestamp",
+        "managed",
+        "member",
+        "member_count",
+        "message_count",
+        "name",
+        "nsfw",
+        "owner_id",
+        "parent_id",
+        "permission_overwrites",
+        "permissions",
+        "position",
+        "rate_limit_per_user",
+        "recipients",
+        "rtc_region",
+        "thread_metadata",
+        "topic",
+        "total_message_sent",
+        "type",
+        "user_limit",
+        "video_quality_mode"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /guilds/{guild_id}/roles": {
+      "answer": [
+        "color",
+        "colors",
+        "flags",
+        "hoist",
+        "icon",
+        "id",
+        "managed",
+        "mentionable",
+        "name",
+        "permissions",
+        "position",
+        "tags",
+        "unicode_emoji"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /users/@me/guilds": {
+      "answer": [
+        "approximate_member_count",
+        "approximate_presence_count",
+        "banner",
+        "features",
+        "icon",
+        "id",
+        "name",
+        "owner",
+        "permissions"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "after": false,
+        "before": false,
+        "limit": false,
+        "shard": false,
+        "with_counts": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "patch /channels/{channel_id}/messages/{message_id}": {
+      "answer": [
+        "activity",
+        "actor",
+        "application",
+        "application_id",
+        "attachments",
+        "author",
+        "call",
+        "channel_id",
+        "components",
+        "content",
+        "edited_timestamp",
+        "embeds",
+        "flags",
+        "id",
+        "interaction",
+        "interaction_metadata",
+        "lobby_member",
+        "mention_channels",
+        "mention_everyone",
+        "mention_roles",
+        "mentions",
+        "message_reference",
+        "message_snapshots",
+        "nonce",
+        "pinned",
+        "poll",
+        "position",
+        "purchase_notification",
+        "reactions",
+        "referenced_message",
+        "resolved",
+        "role_subscription_data",
+        "shared_client_theme",
+        "sticker_items",
+        "stickers",
+        "thread",
+        "timestamp",
+        "tts",
+        "type",
+        "webhook_id"
+      ],
+      "body": [
+        "allowed_mentions",
+        "attachments",
+        "components",
+        "content",
+        "embeds",
+        "files[0]",
+        "files[1]",
+        "files[2]",
+        "files[3]",
+        "files[4]",
+        "files[5]",
+        "files[6]",
+        "files[7]",
+        "files[8]",
+        "files[9]",
+        "flags",
+        "sticker_ids"
+      ],
+      "body_paths": [
+        "allowed_mentions",
+        "allowed_mentions.parse",
+        "allowed_mentions.parse.*",
+        "allowed_mentions.replied_user",
+        "allowed_mentions.roles",
+        "allowed_mentions.users"
+      ],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /channels/{channel_id}/messages": {
+      "answer": [
+        "activity",
+        "actor",
+        "application",
+        "application_id",
+        "attachments",
+        "author",
+        "call",
+        "channel_id",
+        "components",
+        "content",
+        "edited_timestamp",
+        "embeds",
+        "flags",
+        "id",
+        "interaction",
+        "interaction_metadata",
+        "lobby_member",
+        "mention_channels",
+        "mention_everyone",
+        "mention_roles",
+        "mentions",
+        "message_reference",
+        "message_snapshots",
+        "nonce",
+        "pinned",
+        "poll",
+        "position",
+        "purchase_notification",
+        "reactions",
+        "referenced_message",
+        "resolved",
+        "role_subscription_data",
+        "shared_client_theme",
+        "sticker_items",
+        "stickers",
+        "thread",
+        "timestamp",
+        "tts",
+        "type",
+        "webhook_id"
+      ],
+      "body": [
+        "allowed_mentions",
+        "attachments",
+        "components",
+        "content",
+        "embeds",
+        "enforce_nonce",
+        "files[0]",
+        "files[1]",
+        "files[2]",
+        "files[3]",
+        "files[4]",
+        "files[5]",
+        "files[6]",
+        "files[7]",
+        "files[8]",
+        "files[9]",
+        "flags",
+        "message_reference",
+        "nonce",
+        "poll",
+        "shared_client_theme",
+        "sticker_ids",
+        "tts"
+      ],
+      "body_paths": [
+        "allowed_mentions",
+        "allowed_mentions.parse",
+        "allowed_mentions.parse.*",
+        "allowed_mentions.replied_user",
+        "allowed_mentions.roles",
+        "allowed_mentions.users",
+        "message_reference",
+        "message_reference.channel_id",
+        "message_reference.fail_if_not_exists",
+        "message_reference.guild_id",
+        "message_reference.message_id",
+        "message_reference.type",
+        "message_reference.type.*"
+      ],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /channels/{channel_id}/messages/{message_id}/threads": {
+      "answer": [
+        "applied_tags",
+        "bitrate",
+        "flags",
+        "guild_id",
+        "id",
+        "last_message_id",
+        "last_pin_timestamp",
+        "member",
+        "member_count",
+        "message_count",
+        "name",
+        "owner_id",
+        "parent_id",
+        "permissions",
+        "rate_limit_per_user",
+        "rtc_region",
+        "thread_metadata",
+        "total_message_sent",
+        "type",
+        "user_limit",
+        "video_quality_mode"
+      ],
+      "body": [
+        "auto_archive_duration",
+        "name",
+        "rate_limit_per_user"
+      ],
+      "body_required": [
+        "name"
+      ],
+      "query": {},
+      "statuses": [
+        "201"
+      ]
+    },
+    "put /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me": {
+      "answer": [],
+      "body": [],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "204"
+      ]
+    },
+    "put /guilds/{guild_id}/members/{user_id}/roles/{role_id}": {
+      "answer": [],
+      "body": [],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "204"
+      ]
+    }
+  },
+  "version": "10"
+}

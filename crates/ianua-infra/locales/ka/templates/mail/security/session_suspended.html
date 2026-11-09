@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}სესია შეწყდა{% endblock %}
+{% block preheader %}თქვენი ანგარიშის სესია მის დასაცავად შეწყდა.{% endblock %}
+{% block headline %}სესია შეწყდა{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para() %}თქვენი ანგარიშის სესია <strong>{{ tenant_name | default("თქვენი ორგანიზაცია") }}</strong>-ში შეწყდა უჩვეულოდ მიჩნეული აქტივობის შემდეგ{% if ip_address is defined %}, მისამართიდან {{ ip_address }}{% endif %}.{% endcall %}
+  {% call c.para(pad=32) %}თუ ეს თქვენ იყავით, გასაგრძელებლად ხელახლა შედით. თუ არა, ახლავე შეცვალეთ პაროლი და გადაამოწმეთ აქტიური სესიები.{% endcall %}
+{% endblock %}

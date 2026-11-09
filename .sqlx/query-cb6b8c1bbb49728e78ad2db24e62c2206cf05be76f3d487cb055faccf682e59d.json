@@ -1,0 +1,149 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The users of a tenant with the given ids.\nSELECT id, email, display_name, status, email_verified, locale, timezone,\n       given_name, family_name, preferred_username, picture, phone_number,\n       external_id, department, manager_id, employee_number,\n       created_at, updated_at, last_login_at, joined_at, credentials_changed_at,\n       route_vouches\nFROM users\nWHERE tenant_id = $1 AND id = ANY($2)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "display_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "email_verified",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "locale",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "timezone",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "given_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "family_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "preferred_username",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "picture",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "phone_number",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "external_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 13,
+        "name": "department",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 14,
+        "name": "manager_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 15,
+        "name": "employee_number",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 16,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 17,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 18,
+        "name": "last_login_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 19,
+        "name": "joined_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 20,
+        "name": "credentials_changed_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 21,
+        "name": "route_vouches",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "cb6b8c1bbb49728e78ad2db24e62c2206cf05be76f3d487cb055faccf682e59d"
+}

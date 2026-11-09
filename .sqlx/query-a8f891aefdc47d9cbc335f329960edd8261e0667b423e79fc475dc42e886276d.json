@@ -1,0 +1,138 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- A stretch of a tenant's chain after the given place, oldest first, with\n-- every column its hash covers.\nSELECT id, seq, organization_id, actor, actor_kind, actor_id, event_type, target_id,\n       ip_address, user_agent, payload, acted_through, through_operator_id, through_admin_id,\n       as_user_id, support_impersonation_id, through_execution_id, occurred_at, prev_hash,\n       entry_hash\nFROM audit_records\nWHERE tenant_id = $1 AND seq > $2\nORDER BY seq\nLIMIT $3\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "seq",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "actor",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "actor_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "actor_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "event_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "target_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "ip_address",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "user_agent",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "payload",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 11,
+        "name": "acted_through",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "through_operator_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 13,
+        "name": "through_admin_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 14,
+        "name": "as_user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 15,
+        "name": "support_impersonation_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 16,
+        "name": "through_execution_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 17,
+        "name": "occurred_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 18,
+        "name": "prev_hash",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 19,
+        "name": "entry_hash",
+        "type_info": "Bytea"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "a8f891aefdc47d9cbc335f329960edd8261e0667b423e79fc475dc42e886276d"
+}

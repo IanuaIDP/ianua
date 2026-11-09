@@ -1,0 +1,273 @@
+[workspace]
+resolver = "2"
+# The previous infra crate, kept to read from while the new one is built.
+exclude = ["legacy"]
+members = ["crates/ianua-domain", "crates/ianua-app", "crates/ianua-api", "crates/ianua-assembly", "crates/ianua-infra", "crates/ianua-boot", "crates/ianua-server", "crates/ianua-scenarios", "crates/ianua-workspace-hack", "crates/ianua-zero", "crates/ianua-runner", "crates/ianua-egress", "crates/ianua-connector", "crates/ianua-dns", "crates/ianua-proto", "crates/ianua-grpc", "crates/ianua-macros", "crates/ianua-ldap", "crates/ianua-audit", "crates/ianua-schema", "crates/ianua-translate", "integrations/core", "integrations/github", "integrations/slack", "integrations/jira", "integrations/azure-devops", "integrations/mailgun", "integrations/twilio", "integrations/google-calendar", "integrations/gitlab", "integrations/linear", "integrations/asana", "integrations/trello", "integrations/clickup", "integrations/teams", "integrations/discord", "integrations/pagerduty", "integrations/google-sheets", "integrations/gmail", "integrations/notion", "integrations/airtable", "integrations/hubspot", "integrations/stripe", "integrations/salesforce", "integrations/telegram", "integrations/postgres", "integrations/mysql", "integrations/redis", "integrations/mongodb"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.99"
+license = "LicenseRef-Ianua-Source-Use-1.0"
+
+# The shape every crate keeps: short functions with few inputs, no crash
+# shortcuts outside tests, nothing public that need not be, and the plain
+# forms of borrowing, closures and early returns. Limits are in clippy.toml.
+[workspace.lints.rust]
+unreachable_pub = "warn"
+
+[workspace.lints.clippy]
+# The 30-line function limit is set in each library and program root for
+# its code only, as `cfg_attr(not(test), warn(clippy::too_many_lines))`:
+# a test tells its whole story in one place, however long.
+too_many_arguments = "warn"
+unwrap_used = "warn"
+expect_used = "warn"
+redundant_else = "warn"
+needless_pass_by_value = "warn"
+redundant_closure_for_method_calls = "warn"
+manual_let_else = "warn"
+unnecessary_wraps = "warn"
+
+# Keep only line tables (not full debug info) in dev/test builds. Backtraces
+# still show file:line, but target/ is far smaller and compiling + linking the
+# workspace's test binaries is faster — full debuginfo dominated both.
+[profile.dev]
+debug = "line-tables-only"
+
+# Compile the pure-Rust crypto crates optimized even in dev/test builds.
+#
+# RSA-2048 keygen (rsa + num-bigint-dig) and argon2id (argon2 + blake2) are
+# 10-50x slower unoptimized, which dominated e2e provisioning tests. Only these
+# crates are optimized — a blanket `package."*"` bloats target/ past the CI
+# runner's disk. Workspace crates stay at the default dev opt-level.
+# `profile.test` inherits these settings.
+[profile.dev.package.rsa]
+opt-level = 3
+
+[profile.dev.package.num-bigint-dig]
+opt-level = 3
+
+[profile.dev.package.crypto-bigint]
+opt-level = 3
+
+[profile.dev.package.argon2]
+opt-level = 3
+
+[profile.dev.package.blake2]
+opt-level = 3
+
+[profile.dev.package.sha2]
+opt-level = 3
+
+[workspace.dependencies]
+uuid = { version = "1", features = ["v5", "v7", "serde"] }
+time = { version = "0.3", features = ["serde", "serde-human-readable"] }
+ipnet = "2"
+thiserror = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# Defaults off: they fetch remote `$ref`s over HTTP, and a tenant's schema must
+# never make the platform reach out anywhere.
+jsonschema = { version = "0.58", default-features = false }
+# The OpenID Connect relying party. Its own HTTP client is left out: every
+# call goes through the platform's screened client.
+openidconnect = { version = "4", default-features = false }
+# A maintained fork of the archived `serde_yaml`, same API.
+serde_norway = "0.9"
+base64 = "0.22"
+async-trait = "0.1.92"
+
+proptest = "1"
+trybuild = "1"
+regex = "1"
+# The domain's conventions test reads its source as Rust, with line numbers.
+syn = { version = "2", features = ["full", "visit"] }
+proc-macro2 = { version = "1", features = ["span-locations"] }
+
+utoipa = { version = "5", features = ["axum_extras", "uuid", "time"] }
+utoipa-swagger-ui = { version = "9", features = ["axum"] }
+utoipa-scalar = { version = "0.3", features = ["axum"] }
+
+# Infrastructure
+sqlx = { version = "0.8", features = ["runtime-tokio", "tls-rustls", "postgres", "uuid", "time", "json"] }
+redis = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
+prometheus = { version = "0.13", default-features = false }
+async-graphql-parser = "7"
+opentelemetry = { version = "0.32", default-features = false, features = ["trace"] }
+opentelemetry_sdk = { version = "0.32", default-features = false, features = ["trace", "rt-tokio"] }
+opentelemetry-otlp = { version = "0.32", default-features = false, features = ["trace", "http-proto", "reqwest-client"] }
+argon2 = "0.5"
+# Imported password hashes in the formats other identity providers keep,
+# checked once at the first sign-in and then replaced with Argon2id.
+bcrypt = "0.17"
+scrypt = { version = "0.11", default-features = false, features = ["simple"] }
+pbkdf2 = { version = "0.12", default-features = false, features = ["simple"] }
+# RSA-OAEP decryption in constant time, for sealed SAML assertions: the `rsa`
+# crate's decryption carries the open Marvin timing advisory.
+aws-lc-rs = "1"
+totp-rs = { version = "5", features = ["gen_secret", "otpauth"] }
+hkdf = "0.12"
+hmac = "0.12"
+tempfile = "3"
+zeroize = { version = "1", features = ["zeroize_derive"] }
+subtle = "2"
+sha1 = "0.10"
+sha2 = "0.10"
+md-5 = "0.10"
+aes = "0.8"
+aes-gcm = "0.10"
+cbc = { version = "0.1", features = ["alloc"] }
+rand = "0.8"
+ed25519-dalek = { version = "2", features = ["rand_core", "pem", "pkcs8"] }
+x25519-dalek = { version = "2", features = ["static_secrets", "zeroize"] }
+rsa = { version = "0.9", features = ["pem"] }
+p256 = { version = "0.13", features = ["ecdsa", "pem"] }
+p384 = { version = "0.13", features = ["ecdsa", "pem"] }
+maxminddb = "0.27"
+webauthn-rs = { version = "0.5", features = [
+    "danger-allow-state-serialisation",
+    "conditional-ui",
+] }
+webauthn-rs-proto = "0.5"
+url = "2"
+psl = "2"
+percent-encoding = "2"
+minijinja = { version = "2", default-features = false, features = ["builtins", "serde", "macros", "multi_template"] }
+fluent-syntax = "0.12"
+fluent-bundle = "0.16"
+unic-langid = "0.9"
+lettre = { version = "0.11", default-features = false, features = ["tokio1-rustls-tls", "smtp-transport", "builder"] }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json"] }
+tokio = { version = "1", features = ["full"] }
+tokio-util = "0.7"
+async-nats = "0.48"
+nkeys = { version = "0.4", features = ["xkeys"] }
+data-encoding = "2"
+dotenvy = "0.15"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+sentry = { version = "0.48", default-features = false, features = ["backtrace", "contexts", "panic", "reqwest", "rustls"] }
+sentry-tracing = "0.48"
+
+hyper = { version = "1", features = ["http1", "http2", "server", "client"] }
+hyper-util = { version = "0.1", features = ["tokio", "http1", "http2", "server-auto", "client-legacy"] }
+http-body-util = "0.1"
+http = "1"
+
+axum = { version = "0.8", features = ["json", "query", "form", "ws", "multipart"] }
+tower = { version = "0.5", features = ["util", "limit"] }
+tower-http = { version = "0.6", features = ["catch-panic", "cors", "trace", "request-id", "timeout", "limit", "set-header"] }
+tower-service = "0.3"
+
+quick-xml = { version = "0.41", features = ["serialize"] }
+roxmltree = "0.21.1"
+x509-cert = { version = "0.2", features = ["pem"] }
+der = { version = "0.7", features = ["pem"] }
+spki = "0.7"
+signature = "2"
+
+rcgen = "0.14"
+
+bytes = "1"
+flate2 = "1"
+# A sandbox's npm packages come as gzipped tar files and its Python wheels
+# as zip files; the bundle is written as a gzipped tar.
+tar = { version = "0.4", default-features = false }
+zip = { version = "9", default-features = false, features = ["deflate-flate2"] }
+
+arc-swap = "1"
+async-stream = "0.3"
+
+# The worker's code runs on Kubernetes: one pod per run in the sandboxes'
+# namespace, its files streamed in through the pod's attached input. `ring`
+# keeps rustls on the one provider the rest of the workspace installs.
+kube = { version = "1", default-features = false, features = ["client", "rustls-tls", "ring", "ws"] }
+k8s-openapi = { version = "0.25", default-features = false, features = ["v1_33"] }
+
+# gRPC. `tls-ring` pins the same provider the rest of the workspace installs;
+# the default would pull aws-lc-rs alongside it and rustls refuses to guess
+# between two, panicking at the first handshake rather than at startup.
+tonic = { version = "0.14", default-features = false, features = ["router", "transport", "codegen", "tls-ring"] }
+tonic-prost = "0.14"
+prost = "0.14"
+tonic-prost-build = "0.14"
+protoc-bin-vendored = "3"
+# Wire format only. Default features are `std` alone — no crypto backend, so
+# nothing here competes with the `ring` provider the rest of the workspace
+# installs for rustls.
+hickory-proto = { version = "0.26", default-features = false, features = ["std"] }
+hickory-resolver = { version = "0.26", default-features = false, features = ["system-config", "tokio"] }
+dashmap = "6"
+tokio-rustls = "0.26"
+rustls-pemfile = "2"
+wasmtime = "49.0.2"
+hyper-rustls = { version = "0.27", features = ["http1", "http2", "ring", "webpki-tokio"] }
+webpki-roots = "0.26"
+tokio-tungstenite = "0.26"
+futures-util = "0.3"
+testcontainers = "0.27"
+testcontainers-modules = { version = "0.15", features = ["postgres"] }
+wiremock = "0.6"
+# Time zones for a schedule's local time: the zone rules are bundled, so a
+# tenant's timezone means the same on every node.
+jiff = { version = "0.2", features = ["tzdb-bundle-always"] }
+# Certificates from an ACME authority, with the same `ring` provider the rest
+# of the workspace installs for rustls.
+instant-acme = { version = "0.8.5", default-features = false, features = ["ring", "hyper-rustls"] }
+# The Protected data Postgres steps' client, spoken over a stream the
+# platform opened through the gateway: no runtime of its own, no TLS
+# backend, so it never dials anything itself.
+tokio-postgres = { version = "0.7", default-features = false, features = ["with-serde_json-1", "with-uuid-1", "with-time-0_3"] }
+# The Protected data MySQL and MongoDB steps' clients, dialling only the
+# one-time loopback door a call opens into its gateway tunnel. MySQL starts
+# TLS inside its own protocol, over rustls; MongoDB's TLS is laid over the
+# tunnel by the integrations' SDK, so its client never turns its own on
+# (the driver refuses to build without one TLS library, so rustls is named).
+mysql_async = { version = "0.34", default-features = false, features = ["minimal-rust", "rustls-tls"] }
+mongodb = { version = "3", default-features = false, features = ["compat-3-3-0", "bson-3", "rustls-tls"] }
+# MongoDB's document types, version 3: version 2 turns on serde_json's
+# ordered maps for every crate in the build, which changes the key order of
+# workflow data and form bodies everywhere.
+bson = { version = "3", features = ["serde_json-1"] }
+
+ianua-domain = { path = "crates/ianua-domain" }
+ianua-app = { path = "crates/ianua-app" }
+ianua-integration = { path = "integrations/core" }
+ianua-integration-github = { path = "integrations/github" }
+ianua-integration-slack = { path = "integrations/slack" }
+ianua-integration-jira = { path = "integrations/jira" }
+ianua-integration-azure-devops = { path = "integrations/azure-devops" }
+ianua-integration-mailgun = { path = "integrations/mailgun" }
+ianua-integration-twilio = { path = "integrations/twilio" }
+ianua-integration-google-calendar = { path = "integrations/google-calendar" }
+ianua-integration-gitlab = { path = "integrations/gitlab" }
+ianua-integration-linear = { path = "integrations/linear" }
+ianua-integration-asana = { path = "integrations/asana" }
+ianua-integration-trello = { path = "integrations/trello" }
+ianua-integration-clickup = { path = "integrations/clickup" }
+ianua-integration-teams = { path = "integrations/teams" }
+ianua-integration-discord = { path = "integrations/discord" }
+ianua-integration-pagerduty = { path = "integrations/pagerduty" }
+ianua-integration-google-sheets = { path = "integrations/google-sheets" }
+ianua-integration-gmail = { path = "integrations/gmail" }
+ianua-integration-notion = { path = "integrations/notion" }
+ianua-integration-airtable = { path = "integrations/airtable" }
+ianua-integration-hubspot = { path = "integrations/hubspot" }
+ianua-integration-stripe = { path = "integrations/stripe" }
+ianua-integration-salesforce = { path = "integrations/salesforce" }
+ianua-integration-telegram = { path = "integrations/telegram" }
+ianua-integration-postgres = { path = "integrations/postgres" }
+ianua-integration-mysql = { path = "integrations/mysql" }
+ianua-integration-redis = { path = "integrations/redis" }
+ianua-integration-mongodb = { path = "integrations/mongodb" }
+ianua-api = { path = "crates/ianua-api" }
+ianua-assembly = { path = "crates/ianua-assembly" }
+ianua-infra = { path = "crates/ianua-infra" }
+ianua-boot = { path = "crates/ianua-boot" }
+ianua-server = { path = "crates/ianua-server" }
+ianua-zero = { path = "crates/ianua-zero" }
+ianua-dns = { path = "crates/ianua-dns" }
+ianua-proto = { path = "crates/ianua-proto" }
+ianua-grpc = { path = "crates/ianua-grpc" }
+ianua-ldap = { path = "crates/ianua-ldap" }

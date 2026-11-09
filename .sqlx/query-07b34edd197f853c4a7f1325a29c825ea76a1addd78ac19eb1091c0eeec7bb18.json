@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The mailed link of the given purpose with the given digest.\nSELECT token_hash, org_user_id, sent_to, created_at, expires_at, consumed_at\nFROM org_tokens\nWHERE token_hash = $1 AND purpose = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "token_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "org_user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "sent_to",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "consumed_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "07b34edd197f853c4a7f1325a29c825ea76a1addd78ac19eb1091c0eeec7bb18"
+}

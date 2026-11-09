@@ -1,0 +1,5 @@
+您好，{{ user_name | default("用户") }}：
+
+您在 {{ tenant_name | default("您的组织") }} 的数据已按申请永久删除。此操作无法撤销。
+
+IANUA

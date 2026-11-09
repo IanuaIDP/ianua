@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Une session a été arrêtée{% endblock %}
+{% block preheader %}Une session de votre compte a été arrêtée pour le protéger.{% endblock %}
+{% block headline %}Une session a été arrêtée{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("cher utilisateur")) }}
+  {% call c.para() %}Une session de votre compte dans <strong>{{ tenant_name | default("votre organisation") }}</strong> a été arrêtée après une activité jugée inhabituelle{% if ip_address is defined %}, depuis {{ ip_address }}{% endif %}.{% endcall %}
+  {% call c.para(pad=32) %}Si c’était vous, reconnectez-vous pour continuer. Sinon, changez votre mot de passe maintenant et examinez vos sessions actives.{% endcall %}
+{% endblock %}

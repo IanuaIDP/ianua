@@ -1,0 +1,107 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The subscriptions of a tenant with the given ids.\nSELECT id, topic_name, consumer_id, consumer_group, delivery_mode, push_url, push_secret_sealed,\n       previous_secret_sealed, previous_secret_until, ack_deadline_seconds, max_deliveries,\n       filter, status, created_at, updated_at\nFROM topic_subscriptions\nWHERE tenant_id = $1 AND id = ANY($2)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "topic_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "consumer_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "consumer_group",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "delivery_mode",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "push_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "push_secret_sealed",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "previous_secret_sealed",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "previous_secret_until",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "ack_deadline_seconds",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 10,
+        "name": "max_deliveries",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 11,
+        "name": "filter",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 13,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 14,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "042439135d97594822ed2e2eae29ebef384515eed5b78ea192f7de261279f511"
+}

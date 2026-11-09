@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}メールアドレスを確認してください{% endblock %}
+{% block preheader %}組織を作成するには、メールアドレスを確認してください。{% endblock %}
+{% block headline %}IANUAへようこそ{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para() %}{{ c.brand() }}へのご登録ありがとうございます。{% endcall %}
+  {% call c.para(pad=8) %}<strong>{{ organization_name | default("組織") }}</strong>の作成まで、あと1ステップです。メールアドレスを確認して完了してください。{% endcall %}
+  {{ c.cta(action_url, "メールアドレスを確認") }}
+  {% call c.para(pad=0) %}このリンクの有効期間は{{ expires_at }}です。{% endcall %}
+  {% call c.para(pad=32) %}登録に心当たりがない場合は、このメールを無視してください。{% endcall %}
+{% endblock %}

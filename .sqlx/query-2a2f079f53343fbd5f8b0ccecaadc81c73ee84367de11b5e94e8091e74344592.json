@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Admits a request of one agent of a tenant to data of the given rank if\n-- the agent's mark does not exceed it, raising the mark to that rank in\n-- the same statement, and reads the mark back when it was admitted. An\n-- agent with no mark has touched nothing, so it is admitted.\nINSERT INTO agent_exposure (tenant_id, agent_id, level)\nVALUES ($1, $2, $3)\nON CONFLICT (tenant_id, agent_id) DO UPDATE SET level = EXCLUDED.level\nWHERE agent_exposure.level <= EXCLUDED.level\nRETURNING level\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "level",
+        "type_info": "Int2"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int2"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "2a2f079f53343fbd5f8b0ccecaadc81c73ee84367de11b5e94e8091e74344592"
+}

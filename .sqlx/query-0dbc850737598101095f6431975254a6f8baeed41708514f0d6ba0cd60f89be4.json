@@ -1,0 +1,60 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Hands out the sign-in kept under the given key and forgets it in the same\n-- step, so an answer is used once. A sign-in whose time ran out by the\n-- given time is not handed out.\nDELETE FROM org_sso_requests\nWHERE key_kind = $1 AND key_hash = sha256(convert_to($2, 'UTF8')) AND lapses_at > $3\nRETURNING organization_id, connection_id, binding_hash, tenant_slug, nonce,\n          pkce_verifier, redirect_uri\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "connection_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "binding_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "tenant_slug",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "nonce",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "pkce_verifier",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "redirect_uri",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "0dbc850737598101095f6431975254a6f8baeed41708514f0d6ba0cd60f89be4"
+}

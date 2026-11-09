@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a refresh token of one tenant: the first of a new family, or the\n-- one that replaces a rotated token.\nINSERT INTO oauth_refresh_tokens\n    (tenant_id, token_hash, family_id, client_id, user_id, scopes, session_id, binding,\n     binding_thumbprint, issued_at, expires_at, family_expires_at, state, ended_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "TextArray",
+        "Uuid",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "66e7a99afe69511b9dd5db9570a1eb3ef777fd52654331854918bc13887d2717"
+}

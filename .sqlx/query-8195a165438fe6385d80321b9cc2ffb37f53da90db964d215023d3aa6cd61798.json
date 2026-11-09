@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes a tenant's evaluations that ended before the cutoff, a batch at a\n-- time; evaluations still running are kept, however old.\nDELETE FROM evaluations\nWHERE id IN (\n    SELECT id\n    FROM evaluations\n    WHERE tenant_id = $1 AND state <> 'running' AND updated_at < $2\n    ORDER BY updated_at\n    LIMIT $3\n)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8195a165438fe6385d80321b9cc2ffb37f53da90db964d215023d3aa6cd61798"
+}

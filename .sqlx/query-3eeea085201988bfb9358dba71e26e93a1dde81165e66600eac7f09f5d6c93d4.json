@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every directory service account of a tenant, by name.\nSELECT id, name, secret_hash, access, base_dns, status, created_at, secret_changed_at\nFROM directory_service_accounts\nWHERE tenant_id = $1\nORDER BY name\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "secret_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "access",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "base_dns",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 5,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "secret_changed_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "3eeea085201988bfb9358dba71e26e93a1dde81165e66600eac7f09f5d6c93d4"
+}

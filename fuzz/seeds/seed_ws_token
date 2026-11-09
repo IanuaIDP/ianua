@@ -1,0 +1,5 @@
+GET /api/v1/organizations/acme/ws/notifications?token=aaaaaaaaaaaaaaaa
+upgrade: websocket
+connection: Upgrade
+sec-websocket-version: 13
+sec-websocket-key: not-a-real-key

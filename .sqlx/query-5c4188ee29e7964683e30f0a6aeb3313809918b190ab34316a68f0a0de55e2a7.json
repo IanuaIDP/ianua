@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Drops a registry taken off one tenant's list.\nDELETE FROM image_registries\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5c4188ee29e7964683e30f0a6aeb3313809918b190ab34316a68f0a0de55e2a7"
+}

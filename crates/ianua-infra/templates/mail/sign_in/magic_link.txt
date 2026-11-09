@@ -1,0 +1,10 @@
+Hi {{ user_name | default("there") }},
+
+Sign in to {{ tenant_name | default("your account") }} with this link. No password needed:
+{{ action_url }}
+
+This link expires in {{ expires_at }}.
+
+If you did not ask for this, you can ignore this email.
+
+IANUA

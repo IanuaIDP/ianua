@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes one route of one tenant.\nDELETE FROM routes\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b96586ade259b78389b9c4b719bfb9f99f3f549a43f9f5b4d78dab074032cff8"
+}

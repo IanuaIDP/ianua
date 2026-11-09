@@ -1,0 +1,6 @@
+Hallo{% if user_name is defined and user_name %} {{ user_name | default("") }}{% endif %}!
+
+{{ organization_name | default("Ihre Organisation") }} wurde erstellt und Ihr Konto ist einsatzbereit. Melden Sie sich hier an:
+{{ action_url }}
+
+IANUA

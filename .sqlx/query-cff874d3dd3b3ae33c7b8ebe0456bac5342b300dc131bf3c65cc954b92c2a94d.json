@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Moves a registration kept waiting to what its service answered, and how\n-- its events reach the platform. Its secret is left as it stands, since the\n-- service may have handed over its own while the call was open.\nUPDATE workflow_service_subscriptions SET\n    status = $3,\n    remote = $4,\n    lapses_at = $5,\n    route_key = $6,\n    updated_at = $7\nWHERE tenant_id = $1 AND id = $2 AND status = 'registering'\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "cff874d3dd3b3ae33c7b8ebe0456bac5342b300dc131bf3c65cc954b92c2a94d"
+}

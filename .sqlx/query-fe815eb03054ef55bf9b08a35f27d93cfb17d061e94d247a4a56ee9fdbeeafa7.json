@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes the challenges that ran out by the given moment.\nDELETE FROM acme_challenges\nWHERE expires_at <= $1\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fe815eb03054ef55bf9b08a35f27d93cfb17d061e94d247a4a56ee9fdbeeafa7"
+}

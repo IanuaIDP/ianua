@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Whether one tenant, read from the database of its own it lives in,\n-- holds no assertion key at all.\nSELECT NOT EXISTS (SELECT 1 FROM assertion_keys WHERE tenant_id = $1) AS \"none!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "none!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "19241d57c48bf8f2c85718602bf2261eda1b9e28f3bac43c7f4aec1e96550aaa"
+}

@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a tenant's branding: made the first time, every part replaced\n-- after.\nINSERT INTO tenant_branding\n    (tenant_id, logo_url, primary_color, background_color, css_source, css_rendered,\n     email_from_name, email_from_address)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nON CONFLICT (tenant_id) DO UPDATE SET\n    logo_url = EXCLUDED.logo_url,\n    primary_color = EXCLUDED.primary_color,\n    background_color = EXCLUDED.background_color,\n    css_source = EXCLUDED.css_source,\n    css_rendered = EXCLUDED.css_rendered,\n    email_from_name = EXCLUDED.email_from_name,\n    email_from_address = EXCLUDED.email_from_address\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "17e04c2e4415c503be3e16623765077bbff37b1aabba07140f860d583c135a94"
+}

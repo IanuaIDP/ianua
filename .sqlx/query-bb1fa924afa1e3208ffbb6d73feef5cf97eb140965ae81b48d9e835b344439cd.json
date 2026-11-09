@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps one version of a tenant's access policy, inserting it or replacing\n-- the row with its number. What it was started from never changes.\nINSERT INTO policy_versions\n    (tenant_id, version, status, based_on, based_on_version, default_action, rules,\n     submitted_by_kind, submitted_by_id, submitted_by_person)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\nON CONFLICT (tenant_id, version) DO UPDATE SET\n    status = EXCLUDED.status,\n    default_action = EXCLUDED.default_action,\n    rules = EXCLUDED.rules,\n    submitted_by_kind = EXCLUDED.submitted_by_kind,\n    submitted_by_id = EXCLUDED.submitted_by_id,\n    submitted_by_person = EXCLUDED.submitted_by_person\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int4",
+        "Text",
+        "Text",
+        "Int4",
+        "Jsonb",
+        "Jsonb",
+        "Text",
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "bb1fa924afa1e3208ffbb6d73feef5cf97eb140965ae81b48d9e835b344439cd"
+}

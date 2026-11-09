@@ -1,0 +1,33 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Saves a change to one version already kept. Who drafted it and when it\n-- was drafted never change.\nUPDATE workflow_versions SET\n    name = $4,\n    graph = $5,\n    trigger_kind = $6,\n    trigger_schedule = $7,\n    trigger_event = $8,\n    trigger_service = $9,\n    run_limit_secs = $10,\n    status = $11,\n    edited_by = $12,\n    authors = $13,\n    published_by = $14,\n    hold = $15,\n    updated_at = $16,\n    description = $17,\n    layout = $18,\n    failure_alert = $19,\n    trigger_change = $20\nWHERE tenant_id = $1 AND workflow_id = $2 AND version = $3\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int4",
+        "Text",
+        "Jsonb",
+        "Text",
+        "Text",
+        "Text",
+        "Jsonb",
+        "Int4",
+        "Text",
+        "Jsonb",
+        "Jsonb",
+        "Jsonb",
+        "Jsonb",
+        "Timestamptz",
+        "Text",
+        "Jsonb",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "49bb4f24efe75ff19e962f3ce5dcf07c5d5fca75b3bc25c0bfd0c7720fdb9f26"
+}

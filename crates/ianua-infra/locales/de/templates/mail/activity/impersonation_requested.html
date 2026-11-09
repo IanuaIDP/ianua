@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ein Administrator möchte in Ihrem Namen handeln{% endblock %}
+{% block preheader %}Melden Sie sich an und stimmen Sie der Anfrage zu oder lehnen Sie sie ab.{% endblock %}
+{% block headline %}Ein Administrator möchte in Ihrem Namen handeln{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("")) }}
+  {% call c.para() %}<strong>{{ requester_name | default("Ein Administrator") }}</strong> bei <strong>{{ tenant_name | default("Ihrer Organisation") }}</strong> möchte in Ihrem Namen handeln, um Ihnen mit Ihrem Konto zu helfen.{% endcall %}
+  {% if reason is defined %}{% call c.para() %}Begründung: {{ reason }}{% endcall %}{% endif %}
+  {% call c.para() %}Melden Sie sich an, um zuzustimmen oder abzulehnen. Die Anfrage läuft in {{ expires_at }} ab.{% endcall %}
+  {% call c.para(pad=32) %}Ohne Ihre Zustimmung geschieht nichts. Wenn Sie dies nicht erwartet haben, lehnen Sie die Anfrage ab und informieren Sie Ihren Administrator.{% endcall %}
+{% endblock %}

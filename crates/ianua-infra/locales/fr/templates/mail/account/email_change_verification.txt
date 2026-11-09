@@ -1,0 +1,10 @@
+Bonjour {{ user_name | default("cher utilisateur") }},
+
+Une demande de changement de l’adresse de votre compte IANUA vers {{ user_email }} a été faite. Pour terminer, confirmez cette adresse :
+{{ action_url }}
+
+Ce lien expire dans {{ expires_at }}.
+
+Si vous n’avez pas fait cette demande, vous pouvez ignorer cet e-mail.
+
+IANUA

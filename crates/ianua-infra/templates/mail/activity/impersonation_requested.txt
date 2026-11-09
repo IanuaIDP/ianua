@@ -1,0 +1,11 @@
+Hi {{ user_name | default("there") }},
+
+{{ requester_name | default("An administrator") }} of {{ tenant_name | default("your organization") }} asks to act as you, to help with your account.
+{% if reason is defined %}
+Their reason: {{ reason }}
+{% endif %}
+Sign in to your account to approve or decline. The request lapses in {{ expires_at }}.
+
+Nothing happens unless you approve it. If you did not expect this, decline it and tell your administrator.
+
+IANUA

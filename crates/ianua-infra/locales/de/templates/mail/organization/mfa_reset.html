@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ihr zweiter Faktor wurde zurückgesetzt{% endblock %}
+{% block preheader %}Ein Eigentümer von {{ organization_name | default("Ihrer Organisation") }} hat Ihren zweiten Faktor zurückgesetzt.{% endblock %}
+{% block headline %}Ihr zweiter Faktor wurde zurückgesetzt{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("")) }}
+  {% call c.para() %}Ein Eigentümer von <strong>{{ organization_name | default("Ihrer Organisation") }}</strong> hat den zweiten Faktor Ihres {{ c.brand() }}-Kontos zurückgesetzt und Sie wurden überall abgemeldet. Melden Sie sich erneut mit Ihrem Passwort an und richten Sie einen neuen zweiten Faktor ein.{% endcall %}
+  {% call c.para(pad=32) %}Wenn Sie dies nicht angefordert haben, informieren Sie umgehend einen Eigentümer Ihrer Organisation.{% endcall %}
+{% endblock %}

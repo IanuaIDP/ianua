@@ -1,0 +1,65 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Hands out the logout request a tenant sent under the given ID and\n-- forgets it in the same step, so its answer is taken once. Whether the\n-- answer came in time is the request's own rule, so a late one is handed\n-- out too.\nDELETE FROM sent_logout_requests\nWHERE tenant_id = $1 AND id = $2\nRETURNING id, peer, destination, name_id_format, name_id, session_index, sent_at,\n          expires_at\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "peer",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "destination",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "name_id_format",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "name_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "session_index",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "sent_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "3aa3589ae4cab0476e0d10b5ea8c153c88e49940aa63b2137a1fd34173c1df6b"
+}

@@ -1,0 +1,70 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every version of a tenant's access policy, by its number.\nSELECT version, status, based_on, based_on_version, default_action, rules,\n       submitted_by_kind, submitted_by_id, submitted_by_person\nFROM policy_versions\nWHERE tenant_id = $1\nORDER BY version\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "version",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "based_on",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "based_on_version",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "default_action",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 5,
+        "name": "rules",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 6,
+        "name": "submitted_by_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "submitted_by_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "submitted_by_person",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "64dde00ed61be5f5b1dabb4ce916c1b17352b54f22852463047c6c3e185c2391"
+}

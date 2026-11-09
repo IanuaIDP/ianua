@@ -1,0 +1,5 @@
+POST /api/v1/organizations/acme/tenants/acme-tenant/agents
+content-type: application/json
+authorization: Bearer token
+
+{"name":"builder","description":"A build agent"}

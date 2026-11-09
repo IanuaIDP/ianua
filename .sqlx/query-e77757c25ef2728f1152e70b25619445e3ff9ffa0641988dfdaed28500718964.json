@@ -1,0 +1,101 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The topic of a tenant that services publish to under the given name.\nSELECT id, name, topic_name, description, schema_definition, retention_kind, retention_amount,\n       status, created_by_kind, created_by_id, created_by_person, data_class, created_at,\n       updated_at\nFROM topics\nWHERE tenant_id = $1 AND topic_name = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "topic_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "schema_definition",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "retention_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "retention_amount",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "created_by_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_by_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 10,
+        "name": "created_by_person",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "data_class",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 13,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "e77757c25ef2728f1152e70b25619445e3ff9ffa0641988dfdaed28500718964"
+}

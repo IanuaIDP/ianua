@@ -1,0 +1,60 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The roles of a tenant given straight to one principal.\nSELECT r.id, r.name, r.system_permissions, r.custom_permissions, r.is_default,\n       r.created_at, r.updated_at\nFROM roles r\nWHERE r.tenant_id = $1\n  AND r.id IN (\n      SELECT a.role_id\n      FROM role_assignments a\n      WHERE a.tenant_id = $1 AND a.principal_kind = $2 AND a.principal_id = $3\n  )\nORDER BY r.created_at, r.id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "system_permissions",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 3,
+        "name": "custom_permissions",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 4,
+        "name": "is_default",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "4f515eb6900b3b0b0aef8b22e23b5756a2a720dddebbd3a0ceb200ad956eff35"
+}

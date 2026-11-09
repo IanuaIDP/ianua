@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The live registrations of one integration that its app's events name by\n-- one key, in whichever tenants the read may see.\nSELECT tenant_id, id\nFROM workflow_service_subscriptions\nWHERE integration = $1 AND route_key = $2 AND status = 'live'\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "1311586f3325bb63af79a8ea877b3fc7bfe59ecdc269b576c1349398eca7098b"
+}

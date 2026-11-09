@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Replaces the hash of a user's password with a new hash of the same\n-- password, keeping who set it and when, only while the stored hash is\n-- still the one the sign-in proved: a password changed meanwhile is never\n-- put back.\nUPDATE user_passwords\nSET password_hash = $4\nWHERE tenant_id = $1 AND user_id = $2 AND password_hash = $3\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c40562b7b4347ed607967fd00738867bb49595d2f54f27efde0acc9eccce1c0b"
+}

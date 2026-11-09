@@ -1,0 +1,39 @@
+---
+title: API keys and OAuth clients
+description: Give scripts and apps their own way to reach a tenant.
+sidebar:
+  order: 1
+---
+
+## API keys
+
+An API key is for a script or a job. Open **API keys** and choose **Create**. Its full value is shown once.
+
+![The Create API key form](../../../../assets/guides/api-keys/create.png)
+
+The **...** menu offers **Pause**, which stops the key until you **Resume** it, and **Revoke**, which ends it for good.
+
+![The Pause window](../../../../assets/guides/api-keys/pause.png)
+
+![The Revoke window](../../../../assets/guides/api-keys/revoke.png)
+
+## OAuth clients
+
+An OAuth client is an app that signs people in through this tenant.
+
+1. Open **OAuth Clients** and choose **Create Client**.
+2. Fill in its name and redirect URLs, one HTTPS URL per line.
+3. Copy the credentials it shows. They are not shown again.
+
+![The Create OAuth client form](../../../../assets/guides/oauth-clients/create.png)
+
+The **...** menu offers:
+
+- **Edit** for its details.
+- **Rotate secret**. The current secret stops working immediately, and apps using it fail until you give them the new one.
+
+  ![The Rotate secret window](../../../../assets/guides/oauth-clients/rotate.png)
+
+- **Revoke**. The client can no longer sign in or issue new tokens. This cannot be undone.
+
+  ![The Revoke window](../../../../assets/guides/oauth-clients/revoke.png)

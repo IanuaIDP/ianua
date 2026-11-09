@@ -1,0 +1,21 @@
+error[E0277]: the trait bound `EnrolmentProof: RecentProof` is not satisfied
+  --> tests/compile_fail/enrolment_proof_moves_an_address.rs:14:64
+   |
+14 |     let _ = PendingEmailChange::create(account.into(), params, &proof);
+   |             --------------------------                         ^^^^^^ the trait `RecentProof` is not implemented for `EnrolmentProof`
+   |             |
+   |             required by a bound introduced by this call
+   |
+help: the trait `RecentProof` is implemented for `ianua_domain::domains::authentication::sessions::fresh_sign_in::FreshSignIn`
+  --> src/domains/authentication/sessions/fresh_sign_in.rs
+   |
+   | impl RecentProof for FreshSignIn {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+note: required by a bound in `PendingEmailChange::create`
+  --> src/domains/identity/account/email_change.rs
+   |
+   |     pub fn create(
+   |            ------ required by a bound in this associated function
+...
+   |         proof: &impl RecentProof,
+   |                      ^^^^^^^^^^^ required by this bound in `PendingEmailChange::create`

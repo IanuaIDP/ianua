@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ваш запит на видалення отримано{% endblock %}
+{% block preheader %}Ваш запит на видалення даних отримано.{% endblock %}
+{% block headline %}Ваш запит на видалення отримано{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("користувачу")) }}
+  {% call c.para() %}Ваш запит на видалення даних із <strong>{{ tenant_name | default("вашої організації") }}</strong> отримано{% if erasure_date is defined %}. Видалення розпочнеться <strong>{{ erasure_date }}</strong>{% endif %}.{% endcall %}
+  {% if action_url is defined %}{% call c.para(pad=8) %}Якщо ви передумаєте до початку видалення, скасуйте запит.{% endcall %}{{ c.cta(action_url, "Скасувати видалення") }}{% endif %}
+  {% call c.para(pad=32) %}Якщо ви не надсилали цей запит, негайно повідомте адміністратора.{% endcall %}
+{% endblock %}

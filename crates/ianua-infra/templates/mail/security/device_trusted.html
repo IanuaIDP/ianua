@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}A new device is trusted{% endblock %}
+{% block preheader %}A device was added to the trusted devices of your account.{% endblock %}
+{% block headline %}A new device is trusted{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("there")) }}
+  {% call c.para() %}{% if device_name is defined %}<strong>{{ device_name }}</strong>{% else %}A new device{% endif %} was added to the trusted devices of your account in <strong>{{ tenant_name | default("your organization") }}</strong>{% if ip_address is defined %}, from {{ ip_address }}{% endif %}. A trusted device can skip the second step of signing in.{% endcall %}
+  {% call c.para(pad=32) %}If you do not know this device, remove it in your account settings and change your password.{% endcall %}
+{% endblock %}

@@ -1,0 +1,6 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+Se ha creado una cuenta para usted en {{ organization_name | default("su organización") }} en IANUA. Todo está listo. Inicie sesión aquí:
+{{ action_url }}
+
+IANUA

@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many workflows a tenant holds against its plan, each once whatever\n-- its versions.\nSELECT count(*) AS \"count!\"\nFROM workflows\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "56bf108627b953f6867532bd202f222fb473321c935d106e71e26d62cc028c38"
+}

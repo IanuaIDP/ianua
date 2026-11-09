@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an uploaded module under its digest. The same bytes uploaded\n-- again keep the row already there.\nINSERT INTO wasm_modules (tenant_id, module_ref, bytecode, uploaded_at)\nVALUES ($1, $2, $3, $4)\nON CONFLICT (tenant_id, module_ref) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Bytea",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "58418feef2315679467f888362079a6df20edc5549c580f3fda89d3179ebc4d8"
+}

@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}您的邮箱地址已更改{% endblock %}
+{% block preheader %}您的账户邮箱地址已更改。{% endblock %}
+{% block headline %}您的邮箱地址已更改{% endblock %}
+
+{% block content %}
+  {{ c.greeting("用户") }}
+  {% call c.para() %}您的 {{ c.brand() }} 账户邮箱地址已更改为 <strong>{{ user_email }}</strong>。{% endcall %}
+  {% call c.para(pad=32) %}如果此更改并非由您进行，请立即告知管理员。{% endcall %}
+{% endblock %}

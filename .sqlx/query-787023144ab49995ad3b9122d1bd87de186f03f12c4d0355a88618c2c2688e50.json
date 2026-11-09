@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Releases the port one stream route of one tenant claims.\nDELETE FROM stream_route_ports\nWHERE tenant_id = $1 AND stream_route_id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "787023144ab49995ad3b9122d1bd87de186f03f12c4d0355a88618c2c2688e50"
+}

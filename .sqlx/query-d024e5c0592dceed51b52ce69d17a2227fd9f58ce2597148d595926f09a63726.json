@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Whether an organization already has the given slug.\nSELECT EXISTS (SELECT 1 FROM organizations WHERE slug = $1) AS \"taken!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "taken!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "d024e5c0592dceed51b52ce69d17a2227fd9f58ce2597148d595926f09a63726"
+}

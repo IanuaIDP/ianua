@@ -1,0 +1,7 @@
+Hi {{ user_name | default("there") }},
+
+Your account in {{ tenant_name | default("your organization") }} was locked after too many failed sign-in attempts{% if ip_address is defined %} from {{ ip_address }}{% endif %}.
+
+If this was you, wait for the lock to end and try again, or ask your administrator to unlock it sooner. If it was not you, change your password once you can sign in.
+
+IANUA

@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an authorization code: a new one is added, a known one of the same\n-- tenant takes when it was used. What it was issued for never changes, and\n-- a use is never undone.\nINSERT INTO oauth_codes\n    (tenant_id, code_hash, client_id, user_id, redirect_uri, scopes, code_challenge,\n     code_challenge_method, nonce, session_id, auth_method, second_factor,\n     authenticated_at, created_at, expires_at, consumed_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)\nON CONFLICT (tenant_id, code_hash) DO UPDATE SET\n    consumed_at = coalesce(oauth_codes.consumed_at, EXCLUDED.consumed_at)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "TextArray",
+        "Text",
+        "Text",
+        "Text",
+        "Uuid",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "0080ad33a16f5c50fdd358f228f6f33a399787aa41a064cef6465de91cdc889f"
+}

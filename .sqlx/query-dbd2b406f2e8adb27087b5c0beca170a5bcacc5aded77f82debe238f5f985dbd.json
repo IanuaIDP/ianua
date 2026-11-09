@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a workflow's sample cases: the first set is added, a later save\n-- takes its cases, gate, editor and when it changed. When it was first\n-- made never changes.\nINSERT INTO evaluation_sets\n    (tenant_id, workflow_id, cases, publish_gate, edited_by, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nON CONFLICT (tenant_id, workflow_id) DO UPDATE SET\n    cases = EXCLUDED.cases,\n    publish_gate = EXCLUDED.publish_gate,\n    edited_by = EXCLUDED.edited_by,\n    updated_at = EXCLUDED.updated_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Jsonb",
+        "Text",
+        "Jsonb",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "dbd2b406f2e8adb27087b5c0beca170a5bcacc5aded77f82debe238f5f985dbd"
+}

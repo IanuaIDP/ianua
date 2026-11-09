@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Hemos recibido su solicitud de eliminación{% endblock %}
+{% block preheader %}Se ha recibido su solicitud de eliminar sus datos.{% endblock %}
+{% block headline %}Hemos recibido su solicitud de eliminación{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para() %}Se ha recibido su solicitud de eliminar sus datos de <strong>{{ tenant_name | default("su organización") }}</strong>{% if erasure_date is defined %}. La eliminación comenzará el <strong>{{ erasure_date }}</strong>{% endif %}.{% endcall %}
+  {% if action_url is defined %}{% call c.para(pad=8) %}Si cambia de opinión antes de esa fecha, puede cancelar la solicitud.{% endcall %}{{ c.cta(action_url, "Cancelar eliminación") }}{% endif %}
+  {% call c.para(pad=32) %}Si no lo solicitó, avise a su administrador de inmediato.{% endcall %}
+{% endblock %}

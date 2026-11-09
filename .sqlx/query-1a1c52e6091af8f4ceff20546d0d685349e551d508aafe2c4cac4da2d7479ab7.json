@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The SCIM endpoint of a tenant.\nSELECT bearer_token_hash, enabled, default_role_id, auto_activate, deactivate_on_remove,\n       last_sync_at, created_at\nFROM scim_endpoints\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "bearer_token_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "enabled",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 2,
+        "name": "default_role_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "auto_activate",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
+        "name": "deactivate_on_remove",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "last_sync_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "1a1c52e6091af8f4ceff20546d0d685349e551d508aafe2c4cac4da2d7479ab7"
+}

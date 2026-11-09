@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Saves a change to one registration already kept: where it stands and the\n-- service's side of it. What it registers for, its secret and how its\n-- events reach the platform never change.\nUPDATE workflow_service_subscriptions SET\n    status = $3,\n    remote = $4,\n    lapses_at = $5,\n    updated_at = $6\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "7c43162636eeebc443913b17faeee7b6d651ca02a15253c9c28a29f7cc6f7349"
+}

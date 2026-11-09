@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps one text of a memory with its vector, written as pgvector reads a\n-- vector from text.\nINSERT INTO memory_entries (id, tenant_id, memory_id, text, embedding, exposure, created_at)\nVALUES ($1, $2, $3, $4, $5::text::vector, $6, $7)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "dd360823dca5d22597d9fcf5e934981dd4d0aa35450e8dac74b3de82c5d34b84"
+}

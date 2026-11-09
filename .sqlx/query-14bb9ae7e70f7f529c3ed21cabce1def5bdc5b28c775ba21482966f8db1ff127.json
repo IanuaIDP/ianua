@@ -1,0 +1,54 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Hands out the OIDC sign-in of a tenant kept under the given state and\n-- forgets it in the same step, so a state is used once. A sign-in whose\n-- time ran out by the given time is not handed out.\nDELETE FROM oidc_flows\nWHERE tenant_id = $1 AND state_hash = sha256(convert_to($2, 'UTF8')) AND lapses_at > $3\nRETURNING connection_id, nonce, sealed_pkce_verifier, redirect_uri, binding_hash,\n          dashboard_hash\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "connection_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "nonce",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "sealed_pkce_verifier",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "redirect_uri",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "binding_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "dashboard_hash",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "14bb9ae7e70f7f529c3ed21cabce1def5bdc5b28c775ba21482966f8db1ff127"
+}

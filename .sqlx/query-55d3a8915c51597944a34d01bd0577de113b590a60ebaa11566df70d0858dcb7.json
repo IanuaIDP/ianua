@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Drops the pushed requests of one tenant that expired by the given time:\n-- no browser can use one any more.\nDELETE FROM oauth_pushed_requests\nWHERE tenant_id = $1 AND expires_at <= $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "55d3a8915c51597944a34d01bd0577de113b590a60ebaa11566df70d0858dcb7"
+}

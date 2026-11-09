@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="fr" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <meta name="supported-color-schemes" content="light" />
+    <title>{% block title %}IANUA{% endblock %}</title>
+    <style>
+      body,
+      table,
+      td,
+      a {
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+      }
+      table,
+      img {
+        -ms-interpolation-mode: bicubic;
+        border: 0;
+        outline: none;
+        text-decoration: none;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100% !important;
+        height: 100% !important;
+        background-color: #efefef;
+      }
+      a {
+        text-decoration: none;
+      }
+      @media only screen and (max-width: 600px) {
+        .email-container {
+          width: 100% !important;
+        }
+        .fluid-padding {
+          padding-left: 24px !important;
+          padding-right: 24px !important;
+        }
+      }
+    </style>
+  </head>
+  <body style="margin: 0; padding: 0; background-color: #efefef; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+    <div style="display: none; max-height: 0; overflow: hidden">{% block preheader %}{% endblock %}</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #efefef">
+      <tr>
+        <td align="center" style="padding: 40px 16px">
+          <table role="presentation" class="email-container" width="600" cellpadding="0" cellspacing="0" border="0" style="width: 600px; max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e4e4e4;">
+            <tr>
+              <td class="fluid-padding" style="background-color: #0a0b06; padding: 36px 40px 32px 40px; border-radius: 16px 16px 0 0;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="padding-bottom: 24px">
+                      <img src="{{ logo_url }}" width="96" alt="IANUA" style="display: block; height: auto; border: 0" />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <h1 style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 24px; line-height: 1.35; font-weight: 700; color: #ffffff;">{% block headline %}{% endblock %}</h1>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td class="fluid-padding" style="background-color: #ffffff; padding: 36px 40px 12px 40px">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                  {% block content %}{% endblock %}
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="background-color: #0a0b06; padding: 18px 24px; border-radius: 0 0 16px 16px">
+                <p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; color: #6b6c68;">&copy; {{ year }} IANUA</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

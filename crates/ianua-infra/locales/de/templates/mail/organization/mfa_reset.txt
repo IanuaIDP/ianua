@@ -1,0 +1,7 @@
+Hallo{% if user_name is defined and user_name %} {{ user_name | default("") }}{% endif %}!
+
+Ein Eigentümer von {{ organization_name | default("Ihrer Organisation") }} hat den zweiten Faktor Ihres IANUA-Kontos zurückgesetzt und Sie wurden überall abgemeldet. Melden Sie sich erneut mit Ihrem Passwort an und richten Sie einen neuen zweiten Faktor ein.
+
+Wenn Sie dies nicht angefordert haben, informieren Sie umgehend einen Eigentümer Ihrer Organisation.
+
+IANUA

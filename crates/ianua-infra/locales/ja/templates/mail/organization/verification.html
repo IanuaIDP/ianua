@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}メールアドレスを確認してください{% endblock %}
+{% block preheader %}アカウントの設定を完了するには、メールアドレスを確認してください。{% endblock %}
+{% block headline %}メールアドレスを確認してください{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para(pad=8) %}{{ c.brand() }}の<strong>{{ organization_name | default("所属組織") }}</strong>にアカウントが作成されました。サインインする前に、メールアドレスを確認してください。{% endcall %}
+  {{ c.cta(action_url, "メールアドレスを確認") }}
+  {% call c.para(pad=0) %}このリンクの有効期間は{{ expires_at }}です。{% endcall %}
+  {% call c.para(pad=32) %}このメールに心当たりがない場合は、無視してください。{% endcall %}
+{% endblock %}

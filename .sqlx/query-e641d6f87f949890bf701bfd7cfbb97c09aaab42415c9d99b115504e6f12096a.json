@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Withdraw obsolete roots and roots whose tenant is no longer serving them.\nDELETE FROM platform_certificates p\nWHERE NOT (p.root = ANY($1::text[])) OR NOT EXISTS (\n    SELECT 1 FROM tenants t WHERE t.id = p.tenant_id\n    AND t.status IN ('active', 'provisioning') AND (NOT p.readable OR t.readable_address)\n)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e641d6f87f949890bf701bfd7cfbb97c09aaab42415c9d99b115504e6f12096a"
+}

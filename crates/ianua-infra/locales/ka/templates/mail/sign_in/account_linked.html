@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}თქვენი ანგარიში მიება: {{ provider_name | default("შესვლის მომწოდებელი") }}{% endblock %}
+{% block preheader %}შესვლის მომწოდებელს ახლა თქვენი შესვლის უზრუნველყოფა შეუძლია.{% endblock %}
+{% block headline %}თქვენი ანგარიში მიება{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para() %}თქვენს ანგარიშში <strong>{{ tenant_name | default("თქვენი ორგანიზაცია") }}</strong>-ში პირველად შევიდნენ მომწოდებლით <strong>{{ provider_name | default("შესვლის მომწოდებელი") }}</strong>{% if ip_address is defined %}, მისამართიდან {{ ip_address }}{% endif %}. ამიერიდან ამ მომწოდებელს თქვენი შესვლის უზრუნველყოფა შეუძლია.{% endcall %}
+  {% call c.para(pad=32) %}თუ ეს თქვენ არ ყოფილხართ, დაუყოვნებლივ აცნობეთ ადმინისტრატორს.{% endcall %}
+{% endblock %}

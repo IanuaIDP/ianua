@@ -1,0 +1,33 @@
+---
+title: Billing
+description: The payment provider that holds organizations' payment methods and the notices it posts back, or none on a deployment that bills nobody.
+sidebar:
+  order: 18
+---
+
+`src/billing/` holds the payment provider: `StripePaymentProvider`, or `NoPaymentProvider` on a deployment that bills nobody, such as one organization's own installation.
+
+```mermaid
+flowchart LR
+    M([Member adds a card]):::ok --> CO[Checkout session<br/>setup mode]:::step
+    CO --> ST[(Stripe)]:::ask
+    ST -- signed notice --> N[Notice check<br/>signature and time]:::step
+    N --> OK([Payment method saved]):::ok
+
+    classDef ok stroke-width:1.5px
+    classDef ask stroke-width:1.5px
+    classDef step stroke-width:1.25px
+```
+
+## Stripe
+
+- **Nothing is charged at checkout.** A checkout is a Stripe Checkout session in setup mode, so the member saves a card or a mandate and nothing is charged.
+- **The organization travels in metadata.** The organization's id goes into the session's and the setup intent's metadata, and comes back in the event that reports the saved method; the invoices the platform raises carry it the same way.
+- **Notices are checked first.** A notice is read only after its `Stripe-Signature` verifies: an HMAC-SHA256 of the moment it was signed and the body, under the endpoint's signing secret, compared in constant time, and refused when it was signed too long ago or too far ahead.
+- **Three events are acted on**, each carrying the organization in the metadata of the object it is about, which the platform wrote there. Every other event is ignored.
+
+The settings are `STRIPE_*`, listed in the [configuration reference](/ianua/reference/configuration/). The key and the signing secret come together or not at all.
+
+## No provider
+
+With no provider set up, nothing is billed: every checkout is refused with `409`, and no notice is ever read, since no signing secret exists to check one against.

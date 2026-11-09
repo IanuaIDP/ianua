@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}You already have an account{% endblock %}
+{% block preheader %}This address already has an IANUA account.{% endblock %}
+{% block headline %}You already have an account{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("there")) }}
+  {% call c.para(pad=8) %}Someone just asked to sign up for {{ c.brand() }} with this address, which already has an account. If it was you, sign in instead.{% endcall %}
+  {{ c.cta(action_url, "Sign in") }}
+  {% call c.para(pad=32) %}If you forgot your password, you can reset it from the sign-in page. If it was not you, you can ignore this email: nothing changed.{% endcall %}
+{% endblock %}

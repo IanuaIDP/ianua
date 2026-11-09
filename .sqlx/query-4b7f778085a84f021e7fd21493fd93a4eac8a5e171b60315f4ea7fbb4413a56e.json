@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Queues a tenant's newly added audit records for the message bus, each\n-- with the depth of the workflow chain whose work raised it.\nINSERT INTO event_outbox (tenant_id, record_id, queued_at, chain_depth)\nSELECT $1, queued.id, now(), queued.chain_depth\nFROM UNNEST($2::uuid[], $3::smallint[]) AS queued (id, chain_depth)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray",
+        "Int2Array"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4b7f778085a84f021e7fd21493fd93a4eac8a5e171b60315f4ea7fbb4413a56e"
+}

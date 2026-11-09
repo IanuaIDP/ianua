@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% import "sign_in/parts.html" as p %}
+
+{% block title %}Увійдіть до {{ workspace }}{% endblock %}
+
+{% block content %}
+      <h1>З поверненням</h1>
+      <p class="subtitle">Увійдіть до {{ workspace }}, щоб продовжити</p>
+      {{ p.note(note, {}) }}
+      <form method="post" action="{{ form_path }}">
+        {{ p.field("email", "Адреса електронної пошти", "email", "username") }}
+        {{ p.field("password", "Пароль", "password", "current-password") }}
+        {{ p.return_to(return_to) }}
+        {{ p.submit("Увійти") }}
+      </form>
+      {%- for choice in single_sign_on %}
+      <p class="footer"><a href="{{ choice.href }}">Продовжити через {{ choice.name }}</a></p>
+      {%- endfor %}
+      {%- if passkey_path and passkey_script_path %}
+      <p class="footer"><button type="button" id="passkey" data-address="{{ passkey_path }}"{% if return_to %} data-return-to="{{ return_to }}"{% endif %} hidden>Увійти з ключем доступу</button></p>
+      <script src="{{ passkey_script_path }}" defer></script>
+      {%- endif %}
+      {%- if forgot_password_path %}
+      {{ p.link("Забули пароль?", forgot_password_path, "Скинути пароль") }}
+      {%- endif %}
+      {%- if sign_up_path %}
+      {{ p.link("Уперше тут?", sign_up_path, "Створити обліковий запис") }}
+      {%- endif %}
+{% endblock %}

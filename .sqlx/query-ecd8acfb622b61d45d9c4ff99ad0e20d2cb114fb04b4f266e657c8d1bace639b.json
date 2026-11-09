@@ -1,0 +1,59 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- A person's LDAP client certificates in a tenant, in the order they were\n-- issued.\nSELECT id, user_id, fingerprint, device_label, issued_at, expires_at, revoked_at\nFROM ldap_certificates\nWHERE tenant_id = $1 AND user_id = $2\nORDER BY issued_at, id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "fingerprint",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "device_label",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "issued_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "revoked_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "ecd8acfb622b61d45d9c4ff99ad0e20d2cb114fb04b4f266e657c8d1bace639b"
+}

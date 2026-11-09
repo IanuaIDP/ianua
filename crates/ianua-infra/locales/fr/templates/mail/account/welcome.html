@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Bienvenue chez {{ tenant_name | default("IANUA") }}{% endblock %}
+{% block preheader %}Votre compte est prêt. Connectez-vous pour commencer.{% endblock %}
+{% block headline %}Bienvenue chez {{ tenant_name | default("IANUA") }}{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("cher utilisateur")) }}
+  {% call c.para(pad=8) %}Un compte a été créé pour vous dans <strong>{{ tenant_name | default("votre organisation") }}</strong> sur {{ c.brand() }}{% if role_name is defined %} avec le rôle <strong>{{ role_name }}</strong>{% endif %}. Tout est prêt.{% endcall %}
+  {{ c.cta(action_url, "Se connecter") }}
+{% endblock %}

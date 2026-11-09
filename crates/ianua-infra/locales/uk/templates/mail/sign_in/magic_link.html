@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ваше посилання для входу{% endblock %}
+{% block preheader %}Скористайтеся цим посиланням для входу в обліковий запис.{% endblock %}
+{% block headline %}Увійдіть до {{ tenant_name | default("свого облікового запису") }}{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("користувачу")) }}
+  {% call c.para(pad=8) %}Натисніть кнопку нижче, щоб увійти. Пароль не потрібен.{% endcall %}
+  {{ c.cta(action_url, "Увійти") }}
+  {% call c.para(pad=0) %}Строк дії цього посилання: {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Якщо ви не надсилали цей запит, проігноруйте цей лист.{% endcall %}
+{% endblock %}

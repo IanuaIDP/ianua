@@ -1,0 +1,7 @@
+{{ user_name | default("ご利用者") }}様
+
+{% if device_name is defined %}{{ device_name }}{% else %}新しいデバイス{% endif %}が、{{ tenant_name | default("所属組織") }}のアカウントの信頼済みデバイスに追加されました{% if ip_address is defined %}。送信元は{{ ip_address }}です{% endif %}。信頼済みデバイスではサインインの第2ステップを省略できます。
+
+このデバイスに心当たりがない場合は、アカウント設定から削除し、パスワードを変更してください。
+
+IANUA

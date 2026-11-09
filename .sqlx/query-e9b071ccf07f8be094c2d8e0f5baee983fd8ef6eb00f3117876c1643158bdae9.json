@@ -1,0 +1,95 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The dead jobs of a tenant, or of no tenant, under a key, locked so the\n-- job that did their work marks them superseded once.\nSELECT id, tenant_id AS \"tenant_id?\", job_type, job_key, key_hold, payload, run_at, attempt,\n       max_attempts, status, error, created_at, last_attempted_at\nFROM scheduled_jobs\nWHERE tenant_id IS NOT DISTINCT FROM $1 AND job_key = $2 AND status = 'dead'\nFOR UPDATE\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "tenant_id?",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "job_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "job_key",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "key_hold",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "payload",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "run_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "attempt",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "max_attempts",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "error",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 12,
+        "name": "last_attempted_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "e9b071ccf07f8be094c2d8e0f5baee983fd8ef6eb00f3117876c1643158bdae9"
+}

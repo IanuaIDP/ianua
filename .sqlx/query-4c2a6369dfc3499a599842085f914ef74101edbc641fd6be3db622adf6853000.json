@@ -1,0 +1,33 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Writes when, from where and from which countries one tenant's API key\n-- was last used, only while it is still kept and still remembers $6, the\n-- countries this use read, leaving every other column as stored. Says\n-- whether the write landed and whether the key is still kept: a use\n-- racing another that noted a new country first writes nothing, so the\n-- country is noted once.\nWITH written AS (\n    UPDATE api_keys\n    SET last_used_at = $3, last_used_ip = $4, seen_countries = $5\n    WHERE tenant_id = $1 AND id = $2 AND seen_countries = $6\n    RETURNING id\n)\nSELECT\n    EXISTS (SELECT 1 FROM written) AS \"written!\",\n    EXISTS (SELECT 1 FROM api_keys WHERE tenant_id = $1 AND id = $2) AS \"kept!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "written!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 1,
+        "name": "kept!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Timestamptz",
+        "Text",
+        "TextArray",
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "4c2a6369dfc3499a599842085f914ef74101edbc641fd6be3db622adf6853000"
+}

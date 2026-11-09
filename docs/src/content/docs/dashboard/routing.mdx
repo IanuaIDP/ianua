@@ -1,0 +1,101 @@
+---
+title: Pages and routes
+description: Every dashboard address, the two ways into a tenant, and which component draws each page.
+sidebar:
+  order: 2
+---
+
+The dashboard uses the Next.js App Router, so each folder under `dashboard/src/app` is a part of an address. A folder name in brackets, such as `(public)`, only groups files and layouts. It never shows in the address.
+
+```text
+src/app
+├── layout.tsx                 Root layout: fonts, global CSS, AppProviders (React Query and toasts)
+├── (public)                   No session needed
+│   ├── (landing)              /                         The landing page
+│   ├── (legal)                /privacy-policy, /terms-of-use
+│   ├── (help-center)          /help-center/[[...slug]]  The Help Center
+│   └── (auth)                 Sign-in, sign-up and emailed-link pages
+├── (dashboard)                A session is needed; DashboardLayout wraps it all
+│   ├── overview, team, settings, notifications, tenants ...   Organization pages
+│   ├── tenants/[tenantSlug]/...                               A tenant, seen by the organization's team
+│   └── organizations/[orgSlug]/tenants/[tenantSlug]/...       A tenant, seen by its own users
+└── api                        The proxy to the platform API (see API layer)
+```
+
+## Public pages
+
+Anyone can open these, signed in or not.
+
+| Address                                                                                                       | What it is                                                                                                                                                                          |
+| ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`                                                                                                           | The landing page (`components/landing`).                                                                                                                                            |
+| `/privacy-policy`, `/terms-of-use`                                                                            | The legal pages. Their text is in `constants/legal.ts`.                                                                                                                             |
+| `/help-center`, `/help-center/{category}/{article}[/{sub-article}]`                                           | The Help Center. The path picks an article from `constants/help-center.ts`.                                                                                                         |
+| `/login`                                                                                                      | Sign-in for the organization's team.                                                                                                                                                |
+| `/sign-up`, `/sign-up/check-email`                                                                            | Create an organization. The link shows only when the installation takes sign-ups, and self-hosted ones do not. The "check your email" page shows only right after a sign-up.        |
+| `/verify-email`                                                                                               | Confirms an address from a mailed link.                                                                                                                                             |
+| `/accept-invite`                                                                                              | Accepts an invitation to an organization or a tenant, and sets a password if one is needed.                                                                                         |
+| `/forgot-password`, `/reset-password`                                                                         | Asks for and finishes a password reset for a team member.                                                                                                                           |
+| `/confirm-email-change`                                                                                       | Confirms a changed address.                                                                                                                                                         |
+| `/magic-link`                                                                                                 | Finishes a tenant user's sign-in from a mailed link (`MagicLinkCompletion`).                                                                                                        |
+| `/confirm-sign-in`                                                                                            | Finishes a sign-in that waits for a mailed confirmation, in the browser that began it (`SignInConfirmation`).                                                                       |
+| `/organizations/{org}/tenants/{tenant}/login`                                                                 | A tenant's own sign-in page: password, passkey, mailed link, single sign-on, and a sign-up link.                                                                                    |
+| `/organizations/{org}/tenants/{tenant}/sign-up`                                                               | A tenant's self sign-up.                                                                                                                                                            |
+| `/organizations/{org}/tenants/{tenant}/forgot-password`                                                       | Asks for a tenant user's password reset.                                                                                                                                            |
+| `/organizations/{org}/tenants/{tenant}/sso`                                                                   | Where single sign-on comes back (`SsoCompletion`). With `?sso=failed` it returns to sign-in with an error.                                                                          |
+| `/login/sso`, `/login/sso/oidc`, `/login/sso/saml`                                                            | The organization's single sign-on: start, then where the identity provider answers (`OrgSsoCompletion`). Register the last two with the provider.                                   |
+| `/organizations/{org}/tenants/{tenant}/saml/sso`, `.../saml/apps/{id}/sign-in`                                | Answers an app's SAML sign-in and posts it back (`SamlBrowserStep`), signing Pat in first.                                                                                          |
+| `/organizations/{org}/tenants/{tenant}/saml/slo`, `.../federation/connections/{id}/saml/slo`                  | Answers a SAML logout request from an app or an identity provider.                                                                                                                  |
+| `/organizations/{org}/tenants/{tenant}/oauth/authorize`                                                       | OAuth consent for an app signing in through the platform (`OAuthConsent`).                                                                                                          |
+| `/organizations/{org}/tenants/{tenant}/oauth/logout`                                                          | OAuth sign-out an app asked for (`OAuthLogout`).                                                                                                                                    |
+| `/organizations/{org}/tenants/{tenant}/workflows/runs/{run}/approvals/{step}`                                 | The page a chat message's Approve and Deny buttons open (`WorkflowApproval`). An organization member's session moves into the tenant first.                                         |
+| `/integrations/connected`                                                                                     | Where a service sends the browser back after signing in to connect an account (`IntegrationConnected`). It has no tenant in the address, so the tenant comes from `sessionStorage`. |
+| `/organization-suspended`, `/organization-closed`, `/tenant-suspended`, `/tenant-archived`, `/tenant-deleted` | Status pages for an organization or tenant that cannot be used.                                                                                                                     |
+
+## Organization pages
+
+Ann, who runs the organization, sees these after she signs in.
+
+| Address             | Page                                                     |
+| ------------------- | -------------------------------------------------------- |
+| `/overview`         | The organization's numbers and recent activity.          |
+| `/team`             | The team members (`components/dashboard/team`).          |
+| `/tenants`          | The tenant list (`components/dashboard/tenants`).        |
+| `/settings?tab=...` | Organization settings (`components/dashboard/settings`). |
+| `/notifications`    | The organization's notifications.                        |
+
+## Tenant pages
+
+Every tenant screen exists at two addresses. Ann reaches a tenant from the organization. Pat, a user of that tenant, signs in to the tenant itself. Both see the same components: most `page.tsx` files are one line that re-exports a shared page.
+
+| Address starts with                         | Who uses it                           | Sidebar                                                                                    |
+| ------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `/tenants/{tenant}/...`                     | The organization's Owners and Members | The main sidebar stays collapsed, and the page draws `TenantSidebar variant="management"`. |
+| `/organizations/{org}/tenants/{tenant}/...` | The tenant's own users                | The main `Sidebar` shows the tenant's navigation.                                          |
+
+These sections exist at both addresses:
+
+- `overview` (Ann's view uses plain `/tenants/{tenant}`)
+- `users`, `groups`, `roles`, `permissions`, `policy`
+- `domains`, `domains/{domainId}`, `connections`
+- `api-keys`, `oauth-clients`, `streams`, `streams/{streamId}`
+- `services`, `services/create`, `services/{serviceId}/edit`
+- `routes`, `routes/create`, `routes/{routeId}/edit`
+- `stream-routes/create`, `stream-routes/{streamRouteId}/edit`
+- `pipelines`, `pipelines/{pipelineId}`
+- `crypto`, with the tabs `keys`, `migration` and `jwks`
+- `agents`, and `agents/{agentId}` with the tabs `overview`, `delegations`, `approvals`, `activity`, `runs` and `credentials`
+- `flows`, `flows/create`, `flows/{flowId}`, `tools`, `model-providers`
+- `sandboxes`, `sandboxes/{sandboxId}`, `sandboxes/registries`, `memories`, `memories/{memoryId}`
+- `workflows` (`?tab=runs`, `?tab=risks`), `workflows/create`, `workflows/{workflowId}` (`?version=` opens an older version, `?run=` colours a run on it, both read only), `workflows/runs/{runId}`, `workflows/{workflowId}/runs`, `workflows/{workflowId}/evaluations`, `connected-accounts`
+- `workflows/runs/{runId}/approvals/{step}` under `/tenants/{tenant}` sends the person to the one approval page under `/organizations/{org}/tenants/{tenant}`
+- `notifications`, `settings`
+
+The settings tabs differ:
+
+- In Ann's view: `general`, `sign-in`, `mtls`, `classification` and `danger-zone`.
+- In Pat's view: `general`, `account`, `security`, `sign-in`, `mtls` and `classification`. `general` holds the Danger zone too, and needs a `TenantSettings` permission to open.
+
+`/organizations/{org}/tenants/{tenant}` opens that tenant's Overview, and `/tenants/{tenant}/overview` does the same in Ann's view.
+
+Links to these pages are built with the helpers in `src/utils/dashboard-routes.ts`, such as `getTenantPath`, `getTenantManagementPath` and `getTenantScopedPath`. The sidebar's item lists are in `src/utils/dashboard-nav.ts`.

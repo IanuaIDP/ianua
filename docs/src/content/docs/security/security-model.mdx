@@ -1,0 +1,214 @@
+---
+title: Security model
+description: What ianua promises about who gets in, what they can do and what is kept, where in the code each promise is kept, and what it does not protect against.
+sidebar:
+  order: 1
+---
+
+ianua lets a request through only when it can show who is asking and that they may do this, and it records every answer it gives. This page lists the promises that follow from that, gives a small example of each, and says where in the code each one is kept. The last section says what ianua does not protect you from.
+
+The other pages go deeper into each part. [How it works](/ianua/start/how-it-works/) follows one request through the gateway, and [The gateway](/ianua/architecture/gateway/) shows the checks in code.
+
+:::note
+The server, the gateway and the storage code (`ianua-server`, `ianua-zero` and `ianua-infra`) are being rebuilt on top of the new application layer. Where this page points into those crates, it points at their code as it is today.
+:::
+
+## Nothing gets through by default
+
+A request reaches your app only when every check has said yes. A check that says no, fails, or takes too long ends the request there. Nothing "fails open" to keep traffic flowing.
+
+**For example.** Sam's tenant has a route to the billing app, but the pipeline on it was paused while Sam edited it. Every request on that route is refused until the pipeline is active again, even requests from admins.
+
+The same holds when a pipeline has no Identity or Policy stage, when a stage cannot do its job (it has no key to sign with, say), when the tenant's policy cannot be read (`503`), and when the checks take longer than 10 seconds. A hostname no tenant owns and a path no route matches both get `404`, and nothing about any tenant is revealed.
+
+The API works the same way. An endpoint that needs a caller answers `401` to a request with no session or key, or with one it does not know. A use case that cannot finish its checks, or cannot write the audit record for what it did, fails the request instead of carrying on.
+
+**Where it is kept.** The pipeline runner in `ianua-zero` (`src/stages/dispatcher.rs` for the tenant's policy) and the pipeline rules in the domain's routing and proxy contexts. In the API, `ianua-api/src/error/mod.rs` maps every refusal to its status.
+
+## Signing in and permission are separate checks
+
+Finding out who is calling and deciding what they may do are two steps, with two separate stages. A valid sign-in on its own allows nothing.
+
+**For example.** Mallory has a valid account in Sam's tenant, so the Identity stage knows who she is. The refunds route needs the "give refunds" permission, which none of her roles grant. The Policy stage refuses her, however valid her session is.
+
+**Where it is kept.** The Identity and Policy stages in `ianua-zero`, and in the domain, where every action that changes something asks for a proof of what the person holds, not just for who they are.
+
+## What a request says is never taken at its word
+
+ianua does not believe what a request claims about the caller. It works the answer out from what it has stored.
+
+**For example.** Mallory gets hold of a token Sam was issued last month, when Sam was still an admin. Sam has since been moved to a plain user role. The token's signature is fine, but the gateway reads Sam's roles as they are now, so the token can do only what a plain user can.
+
+This shows up in several places:
+
+- **Tokens.** A token is refused unless it is signed with one of the tenant's own keys, using `RS256`, `ES256` or `EdDSA`. The key decides how the signature is checked, never the token, so `alg: none` and shared-secret tricks never work. It must not be expired, must name the app it was issued for, and must come from the tenant's issuer where one is set.
+- **Rights.** What a person may do is read from their roles when they act, not from what a token says they had.
+- **Headers.** The gateway deletes every header a client could use to pretend to be someone, such as `X-Forwarded-User` or `X-Ianua-User-Id`, before it adds its own. Your app learns who the caller is from `X-Ianua-Assertion`, a short-lived token the gateway signs, so a client that sends `X-User-Id: alice` gets nowhere.
+- **Credentials.** The token or cookie the caller came with is removed before the request is forwarded, so your app never holds a credential it could replay.
+
+**Where it is kept.** `ianua-zero/src/stages/identity.rs` for tokens and the caller's rights, the proxy context in the domain for the headers. In the domain, the proofs an action asks for can only be made from stored records, and tests over the source fail the build if a proof is made anywhere else.
+
+## A stolen token alone is not enough
+
+An OAuth access token can be bound to a key the client holds (DPoP). Such a token works only with a fresh proof, signed by that key, for this method and this address.
+
+**For example.** Mallory copies a bound access token out of a log. She sends it without a proof, and it is refused. She also captured one proof, but it was made for another address, and it has been used once already, so it is refused too.
+
+- A proof must be made for the request's method and address, no older than 60 seconds and at most 5 seconds ahead of the server's clock.
+- Each proof is taken once. The same proof sent again is refused.
+- A token bound to a key is refused when the request proves nothing, or proves another key.
+- The OAuth discovery document does not offer tokens bound to a client certificate, since no client certificate reaches the API.
+- An agent's bound task token is bound to the key the agent signed in with to mint it, never to another key it holds, and stops working once that key is revoked.
+
+**Where it is kept.** `ianua-app/src/use_cases/oauth/sender.rs` checks and records each proof, and `ianua-app/src/use_cases/oauth/flows/resolve_access_token.rs` holds the token to its key. For an agent's task token, `ianua-domain/src/domains/agents/authority/delegation/token_key.rs` says which key it is bound to, `ianua-app/src/use_cases/proxy/credentials/agent.rs` holds the gateway's request to that key, and `ianua-infra/queries/agent_delegations/status.sql` reads whether the key was revoked.
+
+## A SAML sign-in request is answered once, and is not backdated
+
+When ianua is the SAML identity provider for an app, the app's sign-in request is kept on the server when it arrives, under an id of its own. The sign-in page only carries that id.
+
+**For example.** An app asks for a fresh sign-in. Mallory holds Sam's session from an hour ago and tries to answer the request with it, claiming the request arrived earlier. The server knows when the request really arrived, so a sign-in older than that is refused. Once the request is answered, it is gone, and a second answer is refused.
+
+- A held request waits at most 10 minutes. After that, or once it is answered, the answer is `410`, "start again at the app".
+- A request that asks for a fresh sign-in is refused for a session that signed in before the request arrived.
+
+**Where it is kept.** `ianua-app/src/use_cases/federation/idp/receive_sign_in.rs` holds the request, and `build_saml_response.rs` next to it answers it once.
+
+## Live streams narrow when a right is lost
+
+A notification stream checks again, while it is open, what its reader may still see.
+
+**For example.** Sam watches the notifications feed in the dashboard. An admin takes away his right to see one kind of notification. The stream stops showing it. Once Sam may no longer read the feed at all, it closes.
+
+A stream only ever narrows: a right given back later does not widen it. If the check itself fails, the stream closes.
+
+**Where it is kept.** `ianua-api/src/ws.rs` asks the app again at a fixed interval, and before it sends a message when the last check is older than that. `StreamNarrowing` in `ianua-app/src/use_cases/notifications/inbox/open_stream.rs` narrows the stream.
+
+## A person always hears what happens to their own account
+
+Notifications show only to someone who may see their kind. The one exception is the person an event is about, for what changes how safe their own account is: a lock, a switch-off, a password, passkey or factor change or reset, a revoked session, a role given or taken away, someone acting as them.
+
+**For example.** Carol may see nothing in her tenant. An admin locks her out and resets her factors. Carol is told all the same: the notice waits in her feed, shows there whatever she holds, and is mailed to her proved address though she never asked for mail. She still sees nothing about anyone else's account.
+
+- The notice cannot be switched off, so whoever took over an account cannot mute it before changing the account.
+- Mail goes only to an address that was proved to be the person's.
+- It covers their own account only, whether the change was made inside the tenant or from the organization.
+
+**Where it is kept.** `NotificationReach` in `ianua-domain/src/domains/notifications/reach.rs` is the rule. The fan-out in `ianua-app/src/use_cases/notifications/delivery/people.rs` tells the person, and the feed and its live stream show the notice by `Notification::shows_to`.
+
+## Relying parties hear when access should end
+
+Every app that trusts a tenant's sign-ins may register a signal stream, and is told at once when a session ends, a credential changes or is compromised, an account is locked, switched off or deleted, or what someone holds changes. It does not wait for a token to run out.
+
+**For example.** An admin removes Mallory's role in the middle of an incident. The payroll app, which holds a token from her sign-in an hour ago, is sent a signal listing every permission she holds now, and stops trusting the old token's claims.
+
+- A signal is about the account an event happened to, never about the admin who acted.
+- A stream asking only for the broad kind still hears the precise one: a session revoked because its token was stolen reaches a stream for revoked sessions.
+- Each stream is re-read before each try, and sent the signal only if it still takes it.
+
+**Where it is kept.** `ianua-app/src/services/signals/user.rs` reads what an event means, and the planner in `ianua-app/src/use_cases/signals/delivery/plan.rs` queues one job per stream. See [Signals](/ianua/domain-contexts/signals/).
+
+## Exporting the audit log needs its own right
+
+Reading the audit log a page at a time and taking all of it in one file are separate rights. A tenant needs `idp:audit_log:export`, an organization `org:audit_log:export`. Downloading a finished export needs the same right as asking for it, and reaching every tenant whose records the file holds.
+
+A member reads an organization's log only as far as they reach: its own records and those of their tenants. A viewer, who reaches no tenant, reads the organization's own records alone.
+
+**For example.** Sam reads the audit log to answer support tickets. His key leaks. Whoever holds it may page through the log, but asking for every record at once is refused.
+
+**Where it is kept.** The authorities hand out the proof an export needs only to a holder of the export right: `TenantAuthority::audit_log_export`, `OrgControl::audit_log_export` and, for operators, `OperatorAuthority::audit_log_export`.
+
+## Receiver addresses don't reveal tenants
+
+A signal receiver's addresses take no session: the receiver proves itself with its stream's challenge or key.
+
+**For example.** Mallory, who holds neither, tries tenant names on these addresses to learn which tenants exist and which are closed. A tenant that does not exist, a closed one, and a wrong key all get the same `401`.
+
+**Where it is kept.** `ianua-api/src/extractors/signals.rs`.
+
+## Metrics stay inside
+
+The API's Prometheus metrics are served only on its internal listener, which no ingress routes to. The public listener has no `/metrics` route. They describe how the process runs, never what any tenant holds.
+
+**Where it is kept.** `build_internal` in `ianua-api/src/router.rs`, and `internal_routes` in `ianua-api/src/routes/runtime.rs`.
+
+## Tenants stay apart
+
+One tenant's users, keys, routes and records are never visible to another tenant.
+
+**For example.** Sam runs two tenants, staging and production. A bug in a new list screen forgets to say which tenant it is for. The screen shows nothing, instead of production users appearing in staging.
+
+Two things keep tenants apart:
+
+- **In the code**, a call that reads or writes one tenant's data names the tenant it is for, and that tenant can only come from somewhere trusted: the tenant the request was resolved to, a verified credential, or background work that says so.
+- **In the database**, every tenant table has a row-level security policy, forced so it binds the tables' owner too. A connection sees only the rows of the tenant it was handed out for. One that names no tenant sees no tenant rows at all.
+
+The database policy only binds an ordinary role. So the platform signs in as three roles kept apart: the app's own, which owns nothing; the database owner, which migrates and is held only by the worker and the one-off commands; and the audit purge's. At startup the server refuses two of them being one, and checks that the app's role can neither change nor remove an audit record, which a superuser always can. In production it refuses to start if it can. In development, or with `AUDIT_REQUIRE_SEALED` turned off, it starts and logs a warning.
+
+**Where it is kept.** `ianua-app/src/tenancy.rs` for the code side, `ianua-infra/src/postgres/foundation/security.rs` and migration `0001_row_security.sql` for the database, and the startup checks in `ianua-boot/src/foundation/database.rs` and `ianua-server/src/platform/databases.rs`.
+
+## An agent reaches its runner and nothing else
+
+An agent's sandbox reaches its own runner and nothing more. It can't reach another agent, the gateway or the API around its runner, the database, the cache or the bus, the internet, or the cloud metadata address. It can't look a name up either, since a lookup can carry data out. The runner reaches only the gateway's runner entry and the API, by address, also with no lookups. So two agents can only pass anything to each other through the platform, and every road through it leaves a record: each request through the gateway, each token the agent is given, each attestation, and each message it sends or reads.
+
+**For example.** Pat's agent and Ann's agent run in the same cluster. Pat's agent tries to open a connection to Ann's agent, to the database and to a server on the internet, and to look up a name. Each try gets no answer. Its requests through its runner still work, and each one is in the audit log.
+
+**Where it is kept.** The chart's network rules in `deploy/helm/ianua/templates/agent-sandbox-networkpolicy.yaml`. The scenario in `ianua-scenarios/tests/operations/keep_boundaries/agent_network.rs` applies those rules on a real cluster and tries every road out. A pod no rule holds back first proves each try could succeed.
+
+## Secrets are never kept or shown as they are
+
+Passwords, keys and tokens are stored in a form that can't be turned back into the secret, or encrypted when they must be read again.
+
+**For example.** Someone steals a copy of Sam's database. They find hashes where the passwords and API keys were, and encrypted values where the signing keys and second-factor secrets were. None of it can be used as it is.
+
+- **Passwords** are hashed with Argon2id. Only one hash runs per CPU at a time, so a flood of sign-in attempts can't use up every core and all the memory.
+- **API keys, client secrets, refresh tokens, authorization codes, recovery codes, sent codes and the other bearer secrets** are stored as a keyed hash: HMAC-SHA256 under a key derived from `HMAC_SECRET` for that kind alone, so a hash copied from one table matches nothing in another, and a six-digit code can't be found by trying every one. The secret itself is shown once, when it is made.
+- **Emailed links** are long random values, stored as a hash.
+- **Secrets that must be read again**, such as signing keys and authenticator secrets, are encrypted with AES-256-GCM under `ENCRYPTION_KEY`. Each encrypted value names the key it was sealed under, and a fresh random nonce is drawn for every one.
+- **Codes and links** sent for sign-in, verification or a second factor work once and expire.
+- **Logs and errors** never contain tokens, cookies or session ids. Secret values print as hidden in logs and debug output.
+
+**Where it is kept.** `ianua-infra/src/crypto/` and `ianua-infra/src/adapters/hashing.rs`, and the secret and token types in the domain.
+
+## Every decision is recorded, and the record can't be changed quietly
+
+Each change writes an audit record, and each request through the gateway writes a structured log entry: who, what, the outcome and a correlation id.
+
+**For example.** An auditor asks who changed the refunds role last quarter. Sam's audit log shows each change, who made it and when. If someone had deleted or edited one of those records afterwards, the chain of records would no longer check out.
+
+- **A change and its record go together.** The record is written in the same database transaction as the change. If the record can't be written, the change does not happen.
+- **Records are chained.** Each tenant's records form a chain in which every record's hash covers the one before it, so a removed or altered record shows.
+- **The log can be sealed.** Migrations can run as a separate role that owns the audit log, so the role the platform runs as can add records but not switch off the protections. In production the server refuses to start unless the log is sealed this way (`AUDIT_REQUIRE_SEALED`, see [Configuration](/ianua/reference/configuration/)).
+
+**Where it is kept.** The audit context in the domain, and `ianua-infra/src/event_dispatcher.rs` for writing records with their change.
+
+## Nothing waits for ever
+
+Every call the gateway makes to your apps has a time limit, so one slow app can't hold everything up.
+
+**For example.** The app behind one of Sam's routes hangs. Requests to it time out after the time set on its service, and the gateway's circuit breaker stops sending it traffic for a while. Every other route keeps working.
+
+The gateway does not read request bodies into memory to decide on them. It decides on the method, path, headers and credentials, and streams the body through. Every address it connects to is checked against the networks the operator allowed, after the name is resolved, so a route can't be pointed at an internal address.
+
+**Where it is kept.** `ianua-zero/src/forwarding/` for timeouts, health checks and the circuit breaker, and the upstream network rules in the domain's security module.
+
+## A flood of guesses can't wear a server down
+
+Checking a password costs real work on purpose, so stolen passwords are slow to try. That also makes the check something a flood can aim at. ianua refuses or challenges a flood before it hashes anything, with the cheapest checks first.
+
+**For example.** Mallory tries a list of stolen passwords against Sam's tenant from 50,000 addresses, a few tries each, under every per-address limit. Each wrong guess still counts against the tenant as a whole. Once the tenant's count reaches its threshold, her next tries from devices nobody trusted are refused with `challenge_required` before any password is checked. Sam, on the laptop he trusted, signs in as usual.
+
+- **A cap per server.** Each server runs only so many password hashes at once. Every step that hashes or checks a password takes a place first. When none is free it answers `429` with `Retry-After`, and nothing is hashed. There is no way around the cap.
+- **A count per tenant and per organization.** Wrong passwords and unknown addresses are counted across the whole tenant, or the organization. Refusals from the cap or the challenge are not counted, so they can't raise the count either.
+- **Deny by default.** With no challenge provider set up, a device nobody trusted is refused while the count is high. If the count can't be read, ianua treats it as high. A challenge provider that can't be reached fails the proof.
+- **The same answer for every address.** The challenge is asked for before any password is checked, and the answer is the same whether or not the address has an account, so it says nothing about which accounts exist.
+
+**Where it is kept.** The pressure and challenge rules in `ianua-domain/src/domains/authentication/risk_engine/` (`pressure.rs` and `challenge.rs`), the check in `ianua-app/src/services/authentication/flood_gate.rs`, and the cap in `ianua-app/src/services/authentication/password_hashing.rs`.
+
+## What ianua does not protect you from
+
+- **Someone in charge of your database server.** A database superuser can read and change any row, past every policy. Keep that account away from the platform, and run the platform as an ordinary role, as the startup check asks.
+- **An app that can be reached without the gateway.** The gateway only protects traffic that goes through it. If your app also listens on an address callers can reach directly, they can skip every check. Keep the app on a private network, and have it check the signature on `X-Ianua-Assertion`.
+- **A leaked platform key.** Anyone with `HMAC_SECRET` or `ENCRYPTION_KEY` can check stolen hashes or decrypt stored secrets, and anyone with `EVENT_SIGNING_SECRET` can forge events and audit chain seals. Keep them in your secret store, never in the repository.
+- **Agents sharing a machine.** Agents on the same machine share its CPU caches and memory. Two agents working together could signal slowly through them by timing, with no network at all. Agents run under gVisor, which keeps them off the machine's own kernel, but timing still leaks. To close it, label and taint machines for agents alone and set `agentSandboxes.nodeSelector` and `agentSandboxes.tolerations`. An agent that must share nothing with any other can name machines of its own in its own entry.
+- **A cluster that doesn't enforce network rules.** The agents' isolation is the cluster's network rules. A cluster whose network plugin ignores them leaves every agent free to reach everything. Check that yours enforces them before running agents.
+- **A development setup used for real.** `APP_ENV=development` turns production checks into warnings. Never run real users on it.

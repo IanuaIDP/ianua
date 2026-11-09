@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% import "error_texts.html" as e %}
+
+{% block title %}{{ status }} {{ e.title(kind) }}{% if look.name %} | {{ look.name }}{% endif %}{% endblock %}
+
+{% block content %}
+      <p class="status">Error {{ status }}</p>
+      <h1>{{ e.title(kind) }}</h1>
+      <p class="subtitle">{{ e.advice(kind) }}</p>
+      <p class="reference">Referencia: <code>{{ reference }}</code></p>
+{% endblock %}

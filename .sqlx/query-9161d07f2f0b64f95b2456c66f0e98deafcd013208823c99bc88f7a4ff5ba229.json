@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a tenant: a new one is added, a known one takes the new values. Its\n-- organization and creation time never change.\nINSERT INTO tenants\n    (id, organization_id, slug, display_name, primary_domain, contact_email,\n     status, held, archived_at, compliance, auth_config, mtls, timezone, locale,\n     residency, customer_cloud, environment, created_at, updated_at, platform_label, readable_address)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)\nON CONFLICT (id) DO UPDATE SET\n    slug = EXCLUDED.slug,\n    display_name = EXCLUDED.display_name,\n    primary_domain = EXCLUDED.primary_domain,\n    contact_email = EXCLUDED.contact_email,\n    status = EXCLUDED.status,\n    held = EXCLUDED.held,\n    archived_at = EXCLUDED.archived_at,\n    compliance = EXCLUDED.compliance,\n    auth_config = EXCLUDED.auth_config,\n    mtls = EXCLUDED.mtls,\n    timezone = EXCLUDED.timezone,\n    locale = EXCLUDED.locale,\n    residency = EXCLUDED.residency,\n    customer_cloud = EXCLUDED.customer_cloud,\n    environment = EXCLUDED.environment,\n    readable_address = EXCLUDED.readable_address,\n    updated_at = EXCLUDED.updated_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Bool",
+        "Timestamptz",
+        "Jsonb",
+        "Jsonb",
+        "Jsonb",
+        "Text",
+        "Text",
+        "Jsonb",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Text",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9161d07f2f0b64f95b2456c66f0e98deafcd013208823c99bc88f7a4ff5ba229"
+}

@@ -1,0 +1,32 @@
+{{- if .Values.server.networkPolicy.enabled }}
+# The server's public port takes traffic from anywhere; its relay port,
+# where the gateway relays apps' sign-in requests, only from the gateway.
+# The relay asks the gateway's certificate and seal as well, so this is a
+# third wall: a compromised pod elsewhere in the cluster cannot even reach
+# it. Needs a CNI that enforces NetworkPolicy.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "ianua.fullname" . }}-server
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: server
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "ianua.selectorLabels" (dict "root" . "component" "server") | nindent 6 }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - port: {{ .Values.server.port }}
+        {{- if .Values.grpc.enabled }}
+        - port: {{ .Values.grpc.port }}
+        {{- end }}
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "ianua.selectorLabels" (dict "root" . "component" "zero") | nindent 14 }}
+      ports:
+        - port: {{ .Values.server.relayPort }}
+{{- end }}

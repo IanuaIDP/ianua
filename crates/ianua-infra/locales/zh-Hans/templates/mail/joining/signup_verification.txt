@@ -1,0 +1,10 @@
+您好，{{ user_name | default("用户") }}：
+
+感谢您注册 IANUA。距离创建 {{ organization_name | default("您的组织") }} 仅差一步。请验证邮箱地址以完成注册：
+{{ action_url }}
+
+此链接将在 {{ expires_at }} 后过期。
+
+如果您没有注册，可以忽略此邮件。
+
+IANUA

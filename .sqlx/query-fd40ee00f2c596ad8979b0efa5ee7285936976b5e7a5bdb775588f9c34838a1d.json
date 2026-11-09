@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps one value of a user of a tenant: a new key is added, a held one\n-- takes the new value, in the one column its type keeps it in.\nINSERT INTO user_metadata\n    (tenant_id, user_id, namespace, key, value_type, value_text, value_int,\n     value_float, value_bool, value_array)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\nON CONFLICT (tenant_id, user_id, namespace, key) DO UPDATE SET\n    value_type = EXCLUDED.value_type,\n    value_text = EXCLUDED.value_text,\n    value_int = EXCLUDED.value_int,\n    value_float = EXCLUDED.value_float,\n    value_bool = EXCLUDED.value_bool,\n    value_array = EXCLUDED.value_array\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Int8",
+        "Float8",
+        "Bool",
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fd40ee00f2c596ad8979b0efa5ee7285936976b5e7a5bdb775588f9c34838a1d"
+}

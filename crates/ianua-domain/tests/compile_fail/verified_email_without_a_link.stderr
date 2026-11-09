@@ -1,0 +1,10 @@
+error[E0624]: associated function `proven` is private
+ --> tests/compile_fail/verified_email_without_a_link.rs:9:36
+  |
+9 |     let _verified = VerifiedEmail::proven(email);
+  |                                    ^^^^^^ private associated function
+  |
+ ::: src/domains/identity/account/verified_email.rs
+  |
+  |     pub(crate) fn proven(email: Email) -> Self {
+  |     ------------------------------------------ private associated function defined here

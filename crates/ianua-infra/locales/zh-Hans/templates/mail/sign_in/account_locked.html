@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}您的账户已锁定{% endblock %}
+{% block preheader %}您的账户因登录失败而被锁定。{% endblock %}
+{% block headline %}您的账户已锁定{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("用户")) }}
+  {% call c.para() %}您在 <strong>{{ tenant_name | default("您的组织") }}</strong> 的账户因登录失败次数过多而被锁定{% if ip_address is defined %}，尝试来自 <strong>{{ ip_address }}</strong>{% endif %}。{% endcall %}
+  {% call c.para(pad=32) %}如果是您本人操作，请等待锁定解除后重试，或联系管理员提前解锁。如果不是您本人操作，请在能够登录后立即更改密码。{% endcall %}
+{% endblock %}

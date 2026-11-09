@@ -1,0 +1,42 @@
+name: Agent scenarios on a local model
+
+# The agent scenarios reasoning with a small open model instead of the
+# scripted one, started by hand. Separate from CI, which runs every scenario
+# against the scripted model and needs no model server.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: scenarios-local-model
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-D warnings"
+  SQLX_OFFLINE: "true"
+
+jobs:
+  agents-local-model:
+    name: Agent scenarios (local model)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Free disk space
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: ci
+          save-if: false
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: nextest
+      - name: Pre-pull Postgres image
+        run: docker pull pgvector/pgvector:pg16
+      # The setup script starts the model server and pulls the model, then
+      # exports IANUA_SCENARIO_MODEL=local.
+      - name: Run the agent scenarios on the local model
+        run: cargo nextest run -p ianua-scenarios --test agents --profile scenarios-local-model
+        timeout-minutes: 60

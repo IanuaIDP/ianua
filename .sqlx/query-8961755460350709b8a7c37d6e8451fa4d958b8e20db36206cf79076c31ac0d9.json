@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many webhook subscriptions a tenant holds against its plan, paused\n-- and disabled ones too.\nSELECT count(*) AS \"count!\"\nFROM webhook_subscriptions\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "8961755460350709b8a7c37d6e8451fa4d958b8e20db36206cf79076c31ac0d9"
+}

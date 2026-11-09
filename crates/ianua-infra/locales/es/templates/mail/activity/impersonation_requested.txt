@@ -1,0 +1,11 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+{{ requester_name | default("Un administrador") }} de {{ tenant_name | default("su organización") }} solicita actuar en su nombre para ayudarle con su cuenta.
+{% if reason is defined %}
+Motivo: {{ reason }}
+{% endif %}
+Inicie sesión en su cuenta para aprobar o rechazar. La solicitud caduca en {{ expires_at }}.
+
+No ocurrirá nada sin su aprobación. Si no esperaba esta solicitud, rechácela y avise a su administrador.
+
+IANUA

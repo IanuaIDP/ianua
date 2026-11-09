@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes one raised view of an operation's risk, of one tenant.\nDELETE FROM operation_risk_overrides\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "525695528be66d6ebfdf006509fa959a3bba23ff5bdbdd59eea209f668beb97f"
+}

@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}新しいメールアドレスを確認してください{% endblock %}
+{% block preheader %}変更を完了するには、新しいアドレスを確認してください。{% endblock %}
+{% block headline %}新しいメールアドレスを確認してください{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para() %}{{ c.brand() }}アカウントのメールアドレスを<strong>{{ user_email }}</strong>へ変更する申請がありました。{% endcall %}
+  {% call c.para(pad=8) %}変更を完了するには、このアドレスを確認してください。{% endcall %}
+  {{ c.cta(action_url, "新しいアドレスを確認") }}
+  {% call c.para(pad=0) %}このリンクの有効期間は{{ expires_at }}です。{% endcall %}
+  {% call c.para(pad=32) %}この申請に心当たりがない場合は、このメールを無視してください。{% endcall %}
+{% endblock %}

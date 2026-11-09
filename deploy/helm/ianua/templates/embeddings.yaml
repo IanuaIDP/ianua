@@ -1,0 +1,103 @@
+{{- if .Values.embeddings.enabled }}
+# The platform's own embedding server: Hugging Face's
+# text-embeddings-inference, serving one small model on CPU through OpenAI's
+# embeddings API. It fills the memories of a tenant that brings no
+# embedding model of its own. Only the API and the worker reach it.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ianua.fullname" . }}-embeddings
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: embeddings
+spec:
+  selector:
+    {{- include "ianua.selectorLabels" (dict "root" . "component" "embeddings") | nindent 4 }}
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ianua.fullname" . }}-embeddings
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: embeddings
+spec:
+  replicas: {{ .Values.embeddings.replicas }}
+  selector:
+    matchLabels:
+      {{- include "ianua.selectorLabels" (dict "root" . "component" "embeddings") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "ianua.selectorLabels" (dict "root" . "component" "embeddings") | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: embeddings
+          image: {{ .Values.embeddings.image }}
+          args:
+            - --model-id
+            - {{ .Values.embeddings.model | quote }}
+            - --port
+            - "8080"
+          env:
+            - name: HF_HOME
+              value: /data
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 120
+            periodSeconds: 30
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.embeddings.resources | nindent 12 }}
+          volumeMounts:
+            - name: models
+              mountPath: /data
+      volumes:
+        - name: models
+          emptyDir: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "ianua.fullname" . }}-embeddings
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: embeddings
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "ianua.selectorLabels" (dict "root" . "component" "embeddings") | nindent 6 }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        {{- range list "server" "worker" }}
+        - podSelector:
+            matchLabels:
+              {{- include "ianua.selectorLabels" (dict "root" $ "component" .) | nindent 14 }}
+        {{- end }}
+      ports:
+        - port: 8080
+{{- end }}

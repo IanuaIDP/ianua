@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ваш код для входу{% endblock %}
+{% block preheader %}Введіть цей код, щоб продовжити вхід.{% endblock %}
+{% block headline %}Ваш код для входу{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("користувачу")) }}
+  {% call c.para(pad=8) %}Введіть цей код, щоб продовжити вхід до <strong>{{ tenant_name | default("свого облікового запису") }}</strong>:{% endcall %}
+  {{ c.code(one_time_code) }}
+  {% call c.para(pad=0) %}Строк дії коду: {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Якщо ви не намагаєтеся ввійти, хтось може знати ваш пароль. Змініть його й нікому не повідомляйте цей код.{% endcall %}
+{% endblock %}

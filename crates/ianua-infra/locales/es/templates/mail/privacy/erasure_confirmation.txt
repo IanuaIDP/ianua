@@ -1,0 +1,10 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+Se ha recibido su solicitud de eliminar sus datos de {{ tenant_name | default("su organización") }}{% if erasure_date is defined %}. La eliminación comenzará el {{ erasure_date }}{% endif %}.
+{% if action_url is defined %}
+Si cambia de opinión antes de esa fecha, puede cancelar la solicitud aquí:
+{{ action_url }}
+{% endif %}
+Si no lo solicitó, avise a su administrador de inmediato.
+
+IANUA

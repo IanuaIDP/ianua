@@ -1,0 +1,10 @@
+-- What every tenant table's row-level security policy asks, written out in
+-- each policy rather than kept in a function: the row is the tenant's the
+-- running transaction was given, or the transaction was opened for platform
+-- work that spans tenants.
+--
+--     (tenant_id = NULLIF(current_setting('app.current_tenant_id', true), '')::uuid
+--      OR current_setting('app.platform_scope', true) = 'on')
+--
+-- Both settings are set per transaction by the unit of work
+-- (postgres/foundation/security.rs) and lapse with it.

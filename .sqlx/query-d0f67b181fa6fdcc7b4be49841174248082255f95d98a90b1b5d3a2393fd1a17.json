@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Records that a tenant lives in its schema from now on.\nINSERT INTO tenant_databases (tenant_id, schema_name, registered_at)\nVALUES ($1, $2, $3)\nON CONFLICT (tenant_id) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d0f67b181fa6fdcc7b4be49841174248082255f95d98a90b1b5d3a2393fd1a17"
+}

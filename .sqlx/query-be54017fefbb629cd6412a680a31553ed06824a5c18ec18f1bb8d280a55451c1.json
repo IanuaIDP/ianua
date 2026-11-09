@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many requests of a tenant wait for a decision under one delegation,\n-- while their time to decide has not run out.\nSELECT count(*) AS \"open!\"\nFROM agent_approvals\nWHERE tenant_id = $1 AND delegation_id = $2 AND status = 'pending' AND $3 < expires_at\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "open!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "be54017fefbb629cd6412a680a31553ed06824a5c18ec18f1bb8d280a55451c1"
+}

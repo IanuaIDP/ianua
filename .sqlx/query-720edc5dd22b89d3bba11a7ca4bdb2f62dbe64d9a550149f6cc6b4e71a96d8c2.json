@@ -1,0 +1,77 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The import of a tenant with the given id, without its records, with how\n-- many it was sent.\nSELECT id, started_by, status, ended_at, total, done, imported, refused_lines,\n       refused_reasons, created_at\nFROM user_imports\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "started_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 2,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "ended_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "total",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "done",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 6,
+        "name": "imported",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "refused_lines",
+        "type_info": "Int4Array"
+      },
+      {
+        "ordinal": 8,
+        "name": "refused_reasons",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "720edc5dd22b89d3bba11a7ca4bdb2f62dbe64d9a550149f6cc6b4e71a96d8c2"
+}

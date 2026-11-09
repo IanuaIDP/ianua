@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- A tenant's algorithm migration, while it has not finished.\nSELECT source_algorithm, target_algorithm, source_kid, status, target_kid, created_at,\n       updated_at\nFROM algorithm_migrations\nWHERE tenant_id = $1 AND status IN ('planned', 'in_progress', 'validating')\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "source_algorithm",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "target_algorithm",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "source_kid",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "target_kid",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "6f27d0c281cfcfe9143e41365307b84089123154c47338409611ee14c5f66aac"
+}

@@ -1,0 +1,7 @@
+Hi {{ user_name | default("there") }},
+
+An owner of {{ organization_name | default("your organization") }} reset the second factor of your IANUA account, and you were signed out everywhere. Sign in again with your password and set up a new second factor.
+
+If you did not ask for this, tell an owner of your organization straight away.
+
+IANUA

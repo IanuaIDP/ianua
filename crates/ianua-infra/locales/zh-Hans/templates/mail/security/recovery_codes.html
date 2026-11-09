@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}已生成新的恢复码{% endblock %}
+{% block preheader %}已为您的账户生成一组新的恢复码。{% endblock %}
+{% block headline %}已生成新的恢复码{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("用户")) }}
+  {% call c.para() %}已为您在 <strong>{{ tenant_name | default("您的组织") }}</strong> 的账户生成一组新的恢复码{% if remaining_codes is defined %}。未使用的恢复码数量为 <strong>{{ remaining_codes }}</strong>{% endif %}。此前的恢复码已失效。{% endcall %}
+  {% call c.para(pad=32) %}请将恢复码保存在安全的位置：如果丢失第二验证因素，每个恢复码可用于登录一次。如果不是您本人操作，请告知管理员。{% endcall %}
+{% endblock %}

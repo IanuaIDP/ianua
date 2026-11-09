@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Willkommen bei {{ organization_name | default("IANUA") }}{% endblock %}
+{% block preheader %}Ihr Konto ist bereit. Melden Sie sich an, um loszulegen.{% endblock %}
+{% block headline %}Willkommen bei {{ organization_name | default("IANUA") }}{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("")) }}
+  {% call c.para(pad=8) %}Für Sie wurde bei <strong>{{ organization_name | default("Ihrer Organisation") }}</strong> auf {{ c.brand() }} ein Konto erstellt. Alles ist bereit.{% endcall %}
+  {{ c.cta(action_url, "Anmelden") }}
+{% endblock %}

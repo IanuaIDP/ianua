@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Forgets the sign-ins whose time to be answered ran out by the given time.\nDELETE FROM org_sso_requests\nWHERE lapses_at <= $1\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "83c7ddba8f4e8da9042df588f41f663d855b688dc37769d818873e18b9ccd825"
+}

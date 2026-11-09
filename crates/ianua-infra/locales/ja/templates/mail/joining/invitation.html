@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}{{ tenant_name | default("チーム") }}への参加に招待されています{% endblock %}
+{% block preheader %}IANUAの{{ tenant_name | default("チーム") }}に招待されています。{% endblock %}
+{% block headline %}{{ tenant_name | default("チーム") }}への参加に招待されています{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para() %}{{ user_email | default("このメールの宛先") }}で、{{ c.brand() }}の<strong>{{ tenant_name | default("チーム") }}</strong>に招待されています{% if role_name is defined %}。ロールは<strong>{{ role_name }}</strong>です{% endif %}。{% endcall %}
+  {% call c.para(pad=8) %}パスワードを設定し、アカウントを有効化して利用を開始してください。{% endcall %}
+  {{ c.cta(action_url, "招待を受ける") }}
+  {% call c.para(pad=0) %}この招待の有効期間は{{ expires_at }}です。{% endcall %}
+  {% call c.para(pad=32) %}心当たりがない場合は、このメールを無視してください。{% endcall %}
+{% endblock %}

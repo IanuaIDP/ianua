@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a registration made just now, and how its service's events reach\n-- the platform.\nINSERT INTO workflow_service_subscriptions\n    (id, tenant_id, workflow_id, version, integration, trigger, secret_sealed, status, remote,\n     lapses_at, route_key, label, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Int4",
+        "Text",
+        "Jsonb",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "eb0c9c453cddc86f5cfb5e100be8a889efe43237059051250e1f74a19154a132"
+}

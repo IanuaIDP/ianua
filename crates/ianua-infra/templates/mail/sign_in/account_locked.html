@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Your account was locked{% endblock %}
+{% block preheader %}Your account was locked after failed sign-in attempts.{% endblock %}
+{% block headline %}Your account was locked{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("there")) }}
+  {% call c.para() %}Your account in <strong>{{ tenant_name | default("your organization") }}</strong> was locked after too many failed sign-in attempts{% if ip_address is defined %} from <strong>{{ ip_address }}</strong>{% endif %}.{% endcall %}
+  {% call c.para(pad=32) %}If this was you, wait for the lock to end and try again, or ask your administrator to unlock it sooner. If it was not you, change your password once you can sign in.{% endcall %}
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Вашу адресу електронної пошти змінено{% endblock %}
+{% block preheader %}Адресу електронної пошти вашого облікового запису змінено.{% endblock %}
+{% block headline %}Вашу адресу електронної пошти змінено{% endblock %}
+
+{% block content %}
+  {{ c.greeting("користувачу") }}
+  {% call c.para() %}Адресу електронної пошти вашого облікового запису {{ c.brand() }} змінено на <strong>{{ user_email }}</strong>.{% endcall %}
+  {% call c.para(pad=32) %}Якщо ви не вносили цю зміну, негайно повідомте адміністратора.{% endcall %}
+{% endblock %}

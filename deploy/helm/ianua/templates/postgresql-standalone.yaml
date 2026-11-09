@@ -1,0 +1,137 @@
+{{- if and .Values.postgresql.enabled (eq .Values.postgresql.provider "standalone") }}
+{{/*
+One plain Postgres, for an installation that wants to start with nothing
+installed beforehand.
+
+Its connection Secret has the name and `uri` key CloudNativePG would have
+created, so everything that reads the database finds it the same way whichever
+provider runs it. Passwords are generated once and read back on upgrade: a new
+one would no longer match the one the data directory was initialised with.
+
+Two logins. `username`/`password` is the superuser the container initialises
+with; only the migrate job holds it (`superuserUri`). `uri` is the ordinary
+runtime role the platform serves traffic as, which the migrate job creates on
+first install: row-level security confines it to one tenant at a time, and it
+cannot touch the sealed audit log.
+*/}}
+{{- $name := printf "%s-pg" (include "ianua.fullname" .) }}
+{{- $secret := printf "%s-app" $name }}
+{{- $password := include "ianua.keptSecret" (dict
+    "root" .
+    "secret" $secret
+    "key" "password"
+    "given" ""
+    "generated" (randAlphaNum 32)
+) }}
+{{- $appPassword := include "ianua.keptSecret" (dict
+    "root" .
+    "secret" $secret
+    "key" "appPassword"
+    "given" ""
+    "generated" (randAlphaNum 32)
+) }}
+{{- $db := .Values.postgresql.database }}
+{{- $user := .Values.postgresql.owner }}
+{{- $appUser := .Values.postgresql.runtimeRole }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $secret }}
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgresql
+type: Opaque
+stringData:
+  username: {{ $user | quote }}
+  password: {{ $password | quote }}
+  superuserUri: {{ printf "postgres://%s:%s@%s:5432/%s" $user $password $name $db | quote }}
+  appUsername: {{ $appUser | quote }}
+  appPassword: {{ $appPassword | quote }}
+  uri: {{ printf "postgres://%s:%s@%s:5432/%s" $appUser $appPassword $name $db | quote }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgresql
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "ianua.selectorLabels" (dict "root" . "component" "postgresql") | nindent 4 }}
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgresql
+spec:
+  serviceName: {{ $name }}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "ianua.selectorLabels" (dict "root" . "component" "postgresql") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "ianua.selectorLabels" (dict "root" . "component" "postgresql") | nindent 8 }}
+    spec:
+      # The image's own postgres user, not the application's: the data
+      # directory must belong to the user the server runs as.
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 70
+        fsGroup: 70
+      containers:
+        - name: postgres
+          image: {{ .Values.postgresql.standaloneImage }}
+          env:
+            - name: POSTGRES_DB
+              value: {{ $db | quote }}
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secret }}
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secret }}
+                  key: password
+            # A subdirectory, because a fresh volume's root holds lost+found
+            # and initdb refuses a directory that is not empty.
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - name: postgres
+              containerPort: 5432
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", {{ $user | quote }}, "-d", {{ $db | quote }}]
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", {{ $user | quote }}, "-d", {{ $db | quote }}]
+            periodSeconds: 15
+            failureThreshold: 6
+          resources:
+            {{- toYaml .Values.postgresql.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: {{ .Values.postgresql.storage }}
+{{- end }}

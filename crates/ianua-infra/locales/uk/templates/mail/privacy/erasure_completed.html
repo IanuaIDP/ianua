@@ -1,0 +1,11 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ваші дані видалено{% endblock %}
+{% block preheader %}Ваш запит на видалення виконано.{% endblock %}
+{% block headline %}Ваші дані видалено{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("користувачу")) }}
+  {% call c.para(pad=32) %}Ваші дані в <strong>{{ tenant_name | default("вашій організації") }}</strong> остаточно видалено за вашим запитом. Цю дію неможливо скасувати.{% endcall %}
+{% endblock %}

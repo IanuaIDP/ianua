@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}დაადასტურეთ ახალი ელფოსტის მისამართი{% endblock %}
+{% block preheader %}ცვლილების დასასრულებლად დაადასტურეთ ახალი მისამართი.{% endblock %}
+{% block headline %}დაადასტურეთ ახალი ელფოსტის მისამართი{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para() %}მოთხოვნილია თქვენი {{ c.brand() }} ანგარიშის მისამართის <strong>{{ user_email }}</strong>-ზე შეცვლა.{% endcall %}
+  {% call c.para(pad=8) %}ცვლილების დასასრულებლად დაადასტურეთ ეს მისამართი.{% endcall %}
+  {{ c.cta(action_url, "ახალი მისამართის დადასტურება") }}
+  {% call c.para(pad=0) %}ამ ბმულს ვადა გაუვა {{ expires_at }}-ში.{% endcall %}
+  {% call c.para(pad=32) %}თუ ეს თქვენ არ მოგითხოვიათ, შეგიძლიათ ეს წერილი უგულებელყოთ.{% endcall %}
+{% endblock %}

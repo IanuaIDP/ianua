@@ -1,0 +1,7 @@
+Bonjour {{ user_name | default("cher utilisateur") }},
+
+Votre compte dans {{ tenant_name | default("votre organisation") }} a été verrouillé après un trop grand nombre de tentatives de connexion échouées{% if ip_address is defined %} depuis {{ ip_address }}{% endif %}.
+
+Si c’était vous, attendez la fin du verrouillage avant de réessayer, ou demandez à votre administrateur de le lever plus tôt. Sinon, changez votre mot de passe dès que vous pourrez vous connecter.
+
+IANUA

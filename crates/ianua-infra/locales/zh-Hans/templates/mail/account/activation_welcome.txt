@@ -1,0 +1,6 @@
+您好，{{ user_name | default("用户") }}：
+
+您在 {{ tenant_name | default(organization_name | default("您的组织")) }} 的账户已设置完成，可以使用。请在此登录：
+{{ action_url }}
+
+IANUA

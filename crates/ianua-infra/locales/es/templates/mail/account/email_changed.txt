@@ -1,0 +1,7 @@
+Hola:
+
+La dirección de correo de su cuenta IANUA se ha cambiado a {{ user_email }}.
+
+Si no hizo este cambio, avise a su administrador de inmediato.
+
+IANUA

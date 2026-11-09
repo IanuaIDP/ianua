@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}თქვენი წაშლის მოთხოვნა მიღებულია{% endblock %}
+{% block preheader %}თქვენი მონაცემების წაშლის მოთხოვნა მიღებულია.{% endblock %}
+{% block headline %}თქვენი წაშლის მოთხოვნა მიღებულია{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para() %}თქვენი მოთხოვნა მონაცემების წაშლაზე <strong>{{ tenant_name | default("თქვენი ორგანიზაცია") }}</strong>-დან მიღებულია{% if erasure_date is defined %}. წაშლა დაიწყება <strong>{{ erasure_date }}</strong>{% endif %}.{% endcall %}
+  {% if action_url is defined %}{% call c.para(pad=8) %}თუ მანამდე გადაიფიქრებთ, მოთხოვნის გაუქმება შეგიძლიათ.{% endcall %}{{ c.cta(action_url, "წაშლის გაუქმება") }}{% endif %}
+  {% call c.para(pad=32) %}თუ ეს თქვენ არ მოგითხოვიათ, დაუყოვნებლივ აცნობეთ ადმინისტრატორს.{% endcall %}
+{% endblock %}

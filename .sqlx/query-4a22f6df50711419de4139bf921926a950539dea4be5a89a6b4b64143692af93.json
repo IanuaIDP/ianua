@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes a tenant's declaration of the given namespace and key.\nDELETE FROM user_attribute_definitions\nWHERE tenant_id = $1 AND namespace = $2 AND key = $3\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4a22f6df50711419de4139bf921926a950539dea4be5a89a6b4b64143692af93"
+}

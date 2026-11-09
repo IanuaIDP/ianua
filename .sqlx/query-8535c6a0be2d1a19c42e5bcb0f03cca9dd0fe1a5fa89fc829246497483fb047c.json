@@ -1,0 +1,61 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every role of a tenant one principal holds: given straight to them, or,\n-- for a tenant user, carried by a group they are in or a group above one,\n-- each role once. A grant or a membership whose time ran out at the given\n-- moment confers nothing, though the sweep has not removed it yet.\nWITH RECURSIVE held_groups (id) AS (\n    SELECT m.group_id\n    FROM group_memberships m\n    WHERE m.tenant_id = $1 AND $2 = 'user'\n      AND m.principal_kind = 'user' AND m.principal_id = $3\n      AND (m.expires_at IS NULL OR m.expires_at > $4)\n    UNION\n    SELECT g.parent_id\n    FROM groups g\n    JOIN held_groups h ON g.id = h.id\n    WHERE g.tenant_id = $1 AND g.parent_id IS NOT NULL\n)\nSELECT r.id, r.name, r.system_permissions, r.custom_permissions, r.is_default,\n       r.created_at, r.updated_at\nFROM roles r\nWHERE r.tenant_id = $1\n  AND (\n      r.id IN (\n          SELECT a.role_id\n          FROM role_assignments a\n          WHERE a.tenant_id = $1 AND a.principal_kind = $2 AND a.principal_id = $3\n            AND (a.expires_at IS NULL OR a.expires_at > $4)\n      )\n      OR r.id IN (\n          SELECT gr.role_id\n          FROM group_roles gr\n          WHERE gr.tenant_id = $1 AND gr.group_id IN (SELECT id FROM held_groups)\n      )\n  )\nORDER BY r.created_at, r.id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "system_permissions",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 3,
+        "name": "custom_permissions",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 4,
+        "name": "is_default",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "8535c6a0be2d1a19c42e5bcb0f03cca9dd0fe1a5fa89fc829246497483fb047c"
+}

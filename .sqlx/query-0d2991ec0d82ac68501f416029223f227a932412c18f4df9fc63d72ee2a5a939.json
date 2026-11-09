@@ -1,0 +1,77 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The registrations proving a requested batch of names for one tenant.\nSELECT tenant_id, id, domain, connection, verification_status, verified_at, failed_at,\n       dns_challenge_token, tls_status, created_at\nFROM registered_domains\nWHERE tenant_id = $1 AND domain = ANY($2::text[])\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "domain",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "connection",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "verification_status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "verified_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "failed_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "dns_challenge_token",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "tls_status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "0d2991ec0d82ac68501f416029223f227a932412c18f4df9fc63d72ee2a5a939"
+}

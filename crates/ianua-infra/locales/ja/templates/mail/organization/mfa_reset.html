@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}第2要素がリセットされました{% endblock %}
+{% block preheader %}{{ organization_name | default("所属組織") }}の所有者が、第2要素をリセットしました。{% endblock %}
+{% block headline %}第2要素がリセットされました{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para() %}<strong>{{ organization_name | default("所属組織") }}</strong>の所有者が、{{ c.brand() }}アカウントの第2要素をリセットし、すべてのセッションからサインアウトされました。パスワードで再度サインインし、新しい第2要素を設定してください。{% endcall %}
+  {% call c.para(pad=32) %}申請に心当たりがない場合は、直ちに組織の所有者に連絡してください。{% endcall %}
+{% endblock %}

@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Revokes a delegation of a tenant and every one that loses its authority\n-- with it, at the given time, in one statement, and reads back only those\n-- this changed: one already revoked is left alone and not named.\nWITH RECURSIVE reached (id) AS (\n    SELECT $2::uuid\n    UNION\n    SELECT edge.derived\n    FROM reached\n    CROSS JOIN LATERAL (\n        SELECT child.id AS derived\n        FROM agent_delegations child\n        WHERE child.tenant_id = $1 AND child.parent_id = reached.id\n        UNION ALL\n        SELECT minted.delegation_id\n        FROM delegation_sources minted\n        WHERE minted.tenant_id = $1 AND minted.source_id = reached.id\n        UNION ALL\n        SELECT derived.delegation_id\n        FROM delegation_provenance derived\n        WHERE derived.tenant_id = $1 AND derived.source_id = reached.id\n    ) AS edge\n)\nUPDATE agent_delegations d\nSET status = 'revoked', updated_at = GREATEST($3, d.updated_at)\nWHERE d.tenant_id = $1 AND d.status = 'active' AND d.id IN (SELECT reached.id FROM reached)\nRETURNING d.id, d.delegate_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "delegate_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "e3327257b82bd0d3d71e14987ae5a1f5d381e0c7f26aa5e66d9fe0adfae22a3c"
+}

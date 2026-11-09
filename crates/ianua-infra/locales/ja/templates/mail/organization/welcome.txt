@@ -1,0 +1,6 @@
+{{ user_name | default("ご利用者") }}様
+
+IANUAの{{ organization_name | default("所属組織") }}にアカウントが作成されました。準備ができました。こちらからサインインしてください：
+{{ action_url }}
+
+IANUA

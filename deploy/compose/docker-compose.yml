@@ -1,0 +1,640 @@
+# Ianua, self-hosted on one machine.
+#
+#   cp .env.example .env     # then fill it in
+#   docker compose up -d
+#
+# The `install` service makes the one organization from the INSTALL_*
+# settings, then exits; it prints a one-time setup token that confirms the
+# owner's address (`docker compose logs install`). The owner then signs in at
+# https://$IANUA_DASHBOARD_HOST. See README.md.
+#
+# Everything reaches the machine through Traefik on :80 and :443:
+#
+#   dashboard host  -> the web dashboard       (TLS ends at Traefik)
+#                      and its /api/v1 -> the API, for file links and logos
+#   api host        -> the Ianua API           (TLS ends at Traefik)
+#   any other host  -> zero, still encrypted   (zero holds each domain's certificate)
+#   :80 ACME paths  -> zero's challenge port   (so certificates can be issued)
+
+name: ianua
+
+x-restart: &restart
+  restart: unless-stopped
+
+x-hardening: &hardening
+  read_only: true
+  tmpfs:
+    - /tmp
+  security_opt:
+    - no-new-privileges:true
+
+# What the server reads, for the `ianua` service and the one-off `install`.
+x-ianua-env: &ianua-env
+  APP_ENV: production
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  HOST: 0.0.0.0
+  PORT: "3000"
+  # The internal listener: the probes and the metrics. Traefik never routes
+  # to it.
+  INTERNAL_PORT: "3001"
+  # The relay listener zero asks over mutual TLS, at API_INTERNAL_URL.
+  # Traefik never routes to it.
+  RELAY_PORT: "3002"
+
+  DEPLOYMENT: self_hosted
+  TRUSTED_DOMAINS: ${TRUSTED_DOMAINS:-}
+  # Read by zero too; both must agree or a route accepted here is refused there.
+  UPSTREAM_NETWORKS: ${UPSTREAM_NETWORKS:-10.0.0.0/8,172.16.0.0/12,192.168.0.0/16}
+
+  # Three roles. The app's owns nothing, and row-level security confines it
+  # to one tenant at a time. The audit purge's is the only one that may remove
+  # audit records. The superuser is the owner: it migrates on every start,
+  # makes the other two roles with these passwords, and seals the audit log
+  # away from the app's.
+  DATABASE_URL: postgres://ianua_app:${APP_DATABASE_PASSWORD:?set APP_DATABASE_PASSWORD in .env}@postgres:5432/ianua
+  MIGRATION_DATABASE_URL: postgres://ianua:${POSTGRES_PASSWORD}@postgres:5432/ianua
+  AUDIT_PURGE_DATABASE_URL: postgres://ianua_audit_purge:${AUDIT_PURGE_DATABASE_PASSWORD:?set AUDIT_PURGE_DATABASE_PASSWORD in .env}@postgres:5432/ianua
+  # The data plane's role, which zero and the egress gateway sign in as.
+  # The migrations make it with this password and its narrow grants.
+  GATEWAY_DATABASE_URL: postgres://ianua_gateway:${GATEWAY_DATABASE_PASSWORD:?set GATEWAY_DATABASE_PASSWORD in .env}@postgres:5432/ianua
+  # The bus and the cache zero shares with the server.
+  BUS_URL: nats://nats:4222
+  CACHE_URL: redis://redis:6379
+  HMAC_SECRET: ${HMAC_SECRET:?set HMAC_SECRET in .env}
+  ENCRYPTION_KEY: ${ENCRYPTION_KEY:?set ENCRYPTION_KEY in .env}
+  # The control plane's own key. Given to this service only, never to zero.
+  EVENT_SIGNING_SECRET: ${EVENT_SIGNING_SECRET:?set EVENT_SIGNING_SECRET in .env}
+  # Data exports, audit log exports and tenants' logos.
+  FILES_DIR: /var/lib/ianua/files
+  # Memory. The platform's own embedding server, started with
+  # `--profile memory` (set EMBEDDING_URL=http://embeddings:8080/v1 and
+  # EMBEDDING_MODEL to the model it serves), or one run elsewhere; empty for
+  # none. A vector server speaking Qdrant's API in place of pgvector,
+  # empty for pgvector.
+  EMBEDDING_URL: ${EMBEDDING_URL:-}
+  EMBEDDING_MODEL: ${EMBEDDING_MODEL:-}
+  VECTOR_STORE_URL: ${VECTOR_STORE_URL:-}
+  VECTOR_STORE_API_KEY: ${VECTOR_STORE_API_KEY:-}
+
+  # File links and logos are made under this address, at /api/v1/files/...;
+  # Traefik sends the dashboard host's /api/v1 to the API.
+  APP_BASE_URL: https://${IANUA_DASHBOARD_HOST}
+  EMAIL_LOGO_URL: https://${IANUA_API_HOST}/email-logo.png
+  CORS_ORIGIN: https://${IANUA_DASHBOARD_HOST}
+  WEBAUTHN_RP_ID: ${IANUA_DASHBOARD_HOST}
+  WEBAUTHN_RP_ORIGIN: https://${IANUA_DASHBOARD_HOST}
+  TRUSTED_PROXIES: 172.30.0.2
+
+  PROXY_BASE_DOMAIN: ${IANUA_APPS_DOMAIN:?set IANUA_APPS_DOMAIN in .env}
+  PLATFORM_ADDRESSING: ${PLATFORM_ADDRESSING:-off}
+  PLATFORM_WILDCARD_TLS: ${PLATFORM_WILDCARD_TLS:-false}
+  PLATFORM_HOSTS: ${IANUA_DASHBOARD_HOST},${IANUA_API_HOST},${IANUA_CONNECTOR_HOST},${PLATFORM_HOSTS:-}
+  DNS_NAMESERVERS: ${DNS_NAMESERVERS:-}
+  PROXY_PUBLIC_ADDRESS: ${PUBLIC_IP:-}
+  ACME_DIRECTORY_URL: ${ACME_DIRECTORY_URL:-https://acme-v02.api.letsencrypt.org/directory}
+  ACME_CONTACT_EMAIL: ${ACME_EMAIL}
+
+  EMAIL_PROVIDER: smtp
+  EMAIL_FROM: ${EMAIL_FROM:?set EMAIL_FROM in .env}
+  EMAIL_FROM_NAME: ${EMAIL_FROM_NAME:-Ianua}
+  SMTP_HOST: ${SMTP_HOST:?set SMTP_HOST in .env}
+  SMTP_PORT: ${SMTP_PORT:-587}
+  SMTP_TLS: ${SMTP_TLS:-starttls}
+  # Both or neither.
+  SMTP_USERNAME: ${SMTP_USERNAME:-}
+  SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+
+x-ianua-image: &ianua-image
+  image: ${IANUA_IMAGE_REGISTRY:-ghcr.io/ianuaidp}/ianua-server:${IANUA_VERSION:-latest}
+  build:
+    context: ../..
+    dockerfile: docker/Dockerfile
+    target: server
+    args:
+      # A self-hosted install provisions nothing in anyone's cloud.
+      CLOUD_CLIS: none
+
+networks:
+  ianua:
+    ipam:
+      config:
+        # Fixed so the API can be told which address is Traefik's, and trust
+        # the client address Traefik forwards only from there. Every other
+        # container is given an address from the upper half, so none can
+        # take Traefik's before it starts.
+        - subnet: 172.30.0.0/24
+          ip_range: 172.30.0.128/25
+  # Only with `--profile code`: the network code containers that may reach
+  # their allowed hosts join. It reaches nothing but the network filter:
+  # no other service, and no route out.
+  sandbox-egress:
+    name: ianua-sandbox-egress
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.31.0.0/24
+  # The network filter's own way out, shared with no other service.
+  sandbox-outbound:
+
+volumes:
+  postgres:
+  nats:
+  redis:
+  embeddings:
+  files:
+  letsencrypt:
+  zero-certs:
+  # The connector authority's certificate and the gateway's connector
+  # listener certificate and key, and, apart, the authority's key, which only
+  # the API reads.
+  connector-pki:
+  connector-ca-key:
+  connector-state:
+  # The internal links' certificates, the server's and the gateway's.
+  internal-pki-server:
+  internal-pki-zero:
+  # The sandbox gate's socket, shared by the gate and the server alone.
+  sandbox-gate:
+
+services:
+  traefik:
+    <<: *restart
+    image: traefik:v3.1
+    command:
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --providers.file.filename=/etc/traefik/dynamic.yml
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:?set ACME_EMAIL in .env}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.letsencrypt.acme.caserver=${ACME_DIRECTORY_URL:-https://acme-v02.api.letsencrypt.org/directory}
+      # TLS-ALPN on :443, because :80 belongs to zero's challenges.
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      - --log.level=${TRAEFIK_LOG_LEVEL:-WARN}
+    environment:
+      IANUA_DASHBOARD_HOST: ${IANUA_DASHBOARD_HOST:?set IANUA_DASHBOARD_HOST in .env}
+      IANUA_API_HOST: ${IANUA_API_HOST:?set IANUA_API_HOST in .env}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - letsencrypt:/letsencrypt
+    networks:
+      ianua:
+        ipv4_address: 172.30.0.2
+    depends_on:
+      - dashboard
+      - ianua
+      - zero
+
+  postgres:
+    <<: *restart
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_DB: ianua
+      POSTGRES_USER: ianua
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks: [ianua]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ianua"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  nats:
+    <<: *restart
+    image: nats:2.11-alpine
+    command: ["--jetstream", "--store_dir", "/data"]
+    volumes:
+      - nats:/data
+    networks: [ianua]
+
+  # The platform's own embedding server for memories, with
+  # `--profile memory`: Hugging Face's text-embeddings-inference serving one
+  # small model on CPU through OpenAI's embeddings API. It downloads the
+  # model on its first start into its volume.
+  embeddings:
+    <<: *restart
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.7
+    profiles: [memory]
+    command: ["--model-id", "${EMBEDDING_MODEL:-BAAI/bge-small-en-v1.5}", "--port", "8080"]
+    environment:
+      HF_HOME: /data
+    volumes:
+      - embeddings:/data
+    networks: [ianua]
+
+  redis:
+    <<: *restart
+    image: redis:8-alpine
+    # Append-only, so the shared counts and spent sign-in puzzles survive a
+    # restart.
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis:/data
+    networks: [ianua]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # `ianua install`, once per `up`: brings the schema up to date, makes the
+  # organization, its first tenant and its owner, prints the setup token and
+  # exits. Once an organization exists it changes nothing and says so. The
+  # INSTALL_* settings go to this service alone: every other command refuses
+  # them, so the owner's first password never stays in the server's
+  # environment.
+  install:
+    <<: [*ianua-image, *hardening]
+    command: ["install"]
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_started
+    environment:
+      <<: *ianua-env
+      INSTALL_ORGANIZATION_NAME: ${INSTALL_ORGANIZATION_NAME:?set INSTALL_ORGANIZATION_NAME in .env}
+      INSTALL_TENANT_NAME: ${INSTALL_TENANT_NAME:-Main}
+      INSTALL_OWNER_EMAIL: ${INSTALL_OWNER_EMAIL:?set INSTALL_OWNER_EMAIL in .env}
+      INSTALL_OWNER_NAME: ${INSTALL_OWNER_NAME:-Owner}
+      INSTALL_OWNER_PASSWORD: ${INSTALL_OWNER_PASSWORD:?set INSTALL_OWNER_PASSWORD in .env}
+    networks: [ianua]
+
+  # `ianua serve` with MODE=all: the API, the LDAP directory when it is set
+  # up, and the worker, in one process.
+  ianua:
+    <<: [*restart, *hardening, *ianua-image]
+    depends_on:
+      install:
+        condition: service_completed_successfully
+      connector-pki:
+        condition: service_completed_successfully
+      internal-pki:
+        condition: service_completed_successfully
+    environment:
+      <<: *ianua-env
+      MODE: all
+      # The relay listener's certificate, and the worker's for calling
+      # zero's workflow listener, both of the internal authority.
+      RELAY_CA_FILE: /run/internal-pki/ca-cert.pem
+      RELAY_TLS_CERT_FILE: /run/internal-pki/relay-listener-cert.pem
+      RELAY_TLS_KEY_FILE: /run/internal-pki/relay-listener-key.pem
+      GATEWAY_WORKFLOW_URL: https://zero:8083
+      GATEWAY_WORKFLOW_CA_FILE: /run/internal-pki/ca-cert.pem
+      GATEWAY_WORKFLOW_CLIENT_CERT_FILE: /run/internal-pki/worker-cert.pem
+      GATEWAY_WORKFLOW_CLIENT_KEY_FILE: /run/internal-pki/worker-key.pem
+      # Signs the certificates connectors hold their links with.
+      CONNECTOR_CA_CERT_FILE: /run/connector-pki/connector-ca-cert.pem
+      CONNECTOR_CA_KEY_FILE: /run/connector-ca-key/connector-ca-key.pem
+      # Workflows' code steps run through the sandbox gate when this names
+      # its socket, /run/ianua-sandbox/gate.sock with `--profile code`.
+      SANDBOX_GATE_SOCKET: ${SANDBOX_GATE_SOCKET:-}
+      # Code reaches the hosts its version names through the network
+      # filter when both are set: 172.31.0.2:3128 and the filter's key.
+      SANDBOX_PROXY_ADDRESS: ${SANDBOX_PROXY_ADDRESS:-}
+      SANDBOX_PROXY_KEY: ${SANDBOX_PROXY_KEY:-}
+      # Companies' own images as code steps, scanned before they first run
+      # by the scanner command; with none, no company image runs.
+      SANDBOX_OWN_IMAGES: ${SANDBOX_OWN_IMAGES:-false}
+      IMAGE_SCAN_COMMAND: ${IMAGE_SCAN_COMMAND:-}
+    volumes:
+      - files:/var/lib/ianua/files
+      - connector-pki:/run/connector-pki:ro
+      - connector-ca-key:/run/connector-ca-key:ro
+      - internal-pki-server:/run/internal-pki:ro
+      - sandbox-gate:/run/ianua-sandbox
+    networks: [ianua]
+
+  # Only with `--profile code`: the one service holding Docker's socket. It
+  # starts nothing but locked-down code containers the server asks for over
+  # its own socket, under gVisor (`runsc`, installed on this machine), so
+  # the server never holds Docker itself. It reaches no network.
+  sandbox-gate:
+    <<: [*restart, *hardening, *ianua-image]
+    profiles: [code]
+    command: ["sandbox-gate"]
+    # Root with no capabilities: enough to open Docker's socket, which root
+    # owns, and nothing more.
+    user: "0:0"
+    cap_drop: [ALL]
+    network_mode: none
+    environment:
+      APP_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      SANDBOX_GATE_SOCKET: /run/ianua-sandbox/gate.sock
+      SANDBOX_CONTAINER_RUNTIME: ${SANDBOX_CONTAINER_RUNTIME:-runsc}
+      # A run whose version names hosts joins this network, which reaches
+      # only the network filter.
+      SANDBOX_GATE_PROXY_NETWORK: ianua-sandbox-egress
+      # The registries the gate pulls companies' own images from,
+      # comma-separated; empty takes none.
+      SANDBOX_GATE_TENANT_REGISTRIES: ${SANDBOX_GATE_TENANT_REGISTRIES:-}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - sandbox-gate:/run/ianua-sandbox
+
+  # Only with `--profile code`: the network filter. Code reaches the hosts
+  # its version names through it, over encrypted connections to port 443,
+  # and never a private address. It shares no network with the other
+  # services.
+  sandbox-proxy:
+    <<: [*restart, *hardening, *ianua-image]
+    profiles: [code]
+    command: ["sandbox-proxy"]
+    cap_drop: [ALL]
+    environment:
+      APP_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      # Required: the filter refuses to start without it.
+      SANDBOX_PROXY_KEY: ${SANDBOX_PROXY_KEY:-}
+    networks:
+      sandbox-outbound: {}
+      sandbox-egress:
+        ipv4_address: 172.31.0.2
+
+  # The connector authority and the gateway's connector listener
+  # certificate, made once. The listener is named `zero` for a connector on
+  # this machine's network and IANUA_CONNECTOR_HOST for one elsewhere. The
+  # authority's key is moved to a volume only the API mounts.
+  connector-pki:
+    <<: *ianua-image
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        [ -f /pki/connector-ca-cert.pem ] && exit 0
+        ianua connector-pki --listener-names "zero,$${IANUA_CONNECTOR_HOST}" --out /tmp/pki || exit 1
+        mv /tmp/pki/connector-ca-key.pem /ca-key/connector-ca-key.pem
+        mv /tmp/pki/connector-ca-cert.pem /tmp/pki/connector-listener-cert.pem \
+          /tmp/pki/connector-listener-key.pem /pki/
+        chmod 0644 /pki/connector-listener-key.pem /ca-key/connector-ca-key.pem
+    environment:
+      IANUA_CONNECTOR_HOST: ${IANUA_CONNECTOR_HOST:-connect.example.com}
+    user: root
+    volumes:
+      - connector-pki:/pki
+      - connector-ca-key:/ca-key
+    networks: [ianua]
+
+  # The internal links' certificates, made once: the server's relay listener
+  # and the gateway calling it, the gateway's workflow listener and the
+  # worker calling it, and the gateway's runner listener. Each side's
+  # volume holds only its own keys, and the authority's key is thrown away,
+  # so nothing here can make another certificate the listeners would take.
+  # Remove both volumes to make new ones.
+  internal-pki:
+    <<: *ianua-image
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        [ -f /server/ca-cert.pem ] && exit 0
+        ianua internal-pki --gateway-name zero --api-name ianua --out /tmp/pki || exit 1
+        cp /tmp/pki/ca-cert.pem /server/
+        cp /tmp/pki/ca-cert.pem /zero/
+        mv /tmp/pki/relay-listener-cert.pem /tmp/pki/relay-listener-key.pem \
+          /tmp/pki/worker-cert.pem /tmp/pki/worker-key.pem /server/
+        mv /tmp/pki/workflow-listener-cert.pem /tmp/pki/workflow-listener-key.pem \
+          /tmp/pki/runner-listener-cert.pem /tmp/pki/runner-listener-key.pem \
+          /tmp/pki/gateway-cert.pem /tmp/pki/gateway-key.pem /zero/
+        rm -rf /tmp/pki
+        chmod 0644 /server/* /zero/*
+    user: root
+    volumes:
+      - internal-pki-server:/server
+      - internal-pki-zero:/zero
+    network_mode: none
+
+  # A throwaway platform certificate for zero, made once.
+  #
+  # zero serves it for IANUA_APPS_DOMAIN and every name one label under it,
+  # where tenants' platform subdomains live, and for no other name. Replace
+  # it with a real wildcard certificate for *.IANUA_APPS_DOMAIN.
+  zero-cert:
+    image: alpine:3.20
+    command:
+      - sh
+      - -c
+      - |
+        [ -f /certs/default.crt ] && exit 0
+        apk add --no-cache openssl >/dev/null
+        openssl req -x509 -newkey rsa:2048 -nodes -days 3650 \
+          -subj "/CN=$${IANUA_APPS_DOMAIN}" \
+          -keyout /certs/default.key -out /certs/default.crt
+        chmod 0644 /certs/default.crt /certs/default.key
+    environment:
+      IANUA_APPS_DOMAIN: ${IANUA_APPS_DOMAIN}
+    volumes:
+      - zero-certs:/certs
+    networks: [ianua]
+
+  zero:
+    <<: [*restart, *hardening]
+    image: ${IANUA_IMAGE_REGISTRY:-ghcr.io/ianuaidp}/ianua-zero:${IANUA_VERSION:-latest}
+    build:
+      context: ../..
+      dockerfile: docker/Dockerfile
+      target: zero
+    depends_on:
+      zero-cert:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      ianua:
+        condition: service_started
+      connector-pki:
+        condition: service_completed_successfully
+      internal-pki:
+        condition: service_completed_successfully
+    # Only what the gateway holds: its own database role, the shared root
+    # and the sealing key. Never EVENT_SIGNING_SECRET, DATABASE_URL or the
+    # migration and purge logins, which it refuses at start.
+    environment:
+      APP_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      GATEWAY_DATABASE_URL: postgres://ianua_gateway:${GATEWAY_DATABASE_PASSWORD}@postgres:5432/ianua
+      DATABASE_MAX_CONNECTIONS: "5"
+      # The same bus and cache as the server's.
+      BUS_URL: nats://nats:4222
+      CACHE_URL: redis://redis:6379
+      HMAC_SECRET: ${HMAC_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      # The server's relay listener, over mutual TLS with zero's own
+      # certificate of the internal authority.
+      API_INTERNAL_URL: https://ianua:3002
+      API_INTERNAL_CA_FILE: /run/internal-pki/ca-cert.pem
+      API_INTERNAL_CLIENT_CERT_FILE: /run/internal-pki/gateway-cert.pem
+      API_INTERNAL_CLIENT_KEY_FILE: /run/internal-pki/gateway-key.pem
+      # Where the worker's Protected apps steps call, over mutual TLS, on
+      # this network only. Traefik never routes to it.
+      GATEWAY_WORKFLOW_LISTEN: 0.0.0.0:8083
+      GATEWAY_WORKFLOW_CA_FILE: /run/internal-pki/ca-cert.pem
+      GATEWAY_WORKFLOW_TLS_CERT_FILE: /run/internal-pki/workflow-listener-cert.pem
+      GATEWAY_WORKFLOW_TLS_KEY_FILE: /run/internal-pki/workflow-listener-key.pem
+      PROXY_BASE_DOMAIN: ${IANUA_APPS_DOMAIN}
+      PLATFORM_ADDRESSING: ${PLATFORM_ADDRESSING:-off}
+      PLATFORM_WILDCARD_TLS: ${PLATFORM_WILDCARD_TLS:-false}
+      ACME_DIRECTORY_URL: ${ACME_DIRECTORY_URL:-https://acme-v02.api.letsencrypt.org/directory}
+      DNS_NAMESERVERS: ${DNS_NAMESERVERS:-}
+      PROXY_PUBLIC_ADDRESS: ${PUBLIC_IP:-}
+      APP_BASE_URL: https://${IANUA_DASHBOARD_HOST}
+      UPSTREAM_NETWORKS: ${UPSTREAM_NETWORKS:-10.0.0.0/8,172.16.0.0/12,192.168.0.0/16}
+      GATEWAY_LISTEN: 0.0.0.0:8443
+      # The platform's certificate, for the apps domain and every name one
+      # label under it.
+      GATEWAY_TLS_CERT: /certs/default.crt
+      GATEWAY_TLS_KEY: /certs/default.key
+      GATEWAY_ACME_LISTEN: 0.0.0.0:8081
+      # Traefik names the real client in a PROXY header. Believed only from
+      # Traefik's own address; any other peer sending one is refused.
+      GATEWAY_PROXY_PROTOCOL_PEERS: 172.30.0.2
+      # Where agent runners send their agents' requests, over TLS with a
+      # certificate of the internal authority, on this network only. A
+      # runner trusts that authority alone for it, with
+      # RUNNER_GATEWAY_URL=https://zero:8082 and RUNNER_GATEWAY_CA_FILE set
+      # to ca-cert.pem from the internal-pki-zero volume. Traefik never
+      # routes to it.
+      GATEWAY_RUNNER_LISTEN: 0.0.0.0:8082
+      GATEWAY_RUNNER_TLS_CERT_FILE: /run/internal-pki/runner-listener-cert.pem
+      GATEWAY_RUNNER_TLS_KEY_FILE: /run/internal-pki/runner-listener-key.pem
+      # /health/live, /health/ready and /metrics, on this network only.
+      GATEWAY_STATUS_LISTEN: 0.0.0.0:9090
+      # Where connectors inside your networks dial in, over mutual TLS.
+      GATEWAY_CONNECTOR_LISTEN: 0.0.0.0:8444
+      GATEWAY_CONNECTOR_CA_FILE: /run/connector-pki/connector-ca-cert.pem
+      GATEWAY_CONNECTOR_TLS_CERT_FILE: /run/connector-pki/connector-listener-cert.pem
+      GATEWAY_CONNECTOR_TLS_KEY_FILE: /run/connector-pki/connector-listener-key.pem
+    # Connectors elsewhere reach the listener at IANUA_CONNECTOR_HOST:8444.
+    ports:
+      - "8444:8444"
+    volumes:
+      - zero-certs:/certs:ro
+      - connector-pki:/run/connector-pki:ro
+      - internal-pki-zero:/run/internal-pki:ro
+    networks: [ianua]
+
+  # The egress gateway, the only way out for the services your agents call
+  # (`docker compose --profile agents up -d`). Each service connects with a
+  # client certificate chaining to ./egress/ca.crt and goes only where the
+  # one egress policy written for it lists; set its HTTPS_PROXY and
+  # HTTP_PROXY to http://egress:3128. It signs in as the data plane's role,
+  # the one zero signs in as, with GATEWAY_DATABASE_PASSWORD from .env.
+  egress:
+    <<: [*restart, *hardening]
+    profiles: [agents]
+    image: ${IANUA_IMAGE_REGISTRY:-ghcr.io/ianuaidp}/ianua-egress:${IANUA_VERSION:-latest}
+    build:
+      context: ../..
+      dockerfile: docker/Dockerfile
+      target: egress
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ianua:
+        condition: service_started
+    environment:
+      APP_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      GATEWAY_DATABASE_URL: postgres://ianua_gateway:${GATEWAY_DATABASE_PASSWORD}@postgres:5432/ianua
+      HMAC_SECRET: ${HMAC_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      EGRESS_LISTEN: 0.0.0.0:3128
+      EGRESS_STATUS_LISTEN: 0.0.0.0:9902
+      EGRESS_TLS_CERT_FILE: /etc/egress/tls.crt
+      EGRESS_TLS_KEY_FILE: /etc/egress/tls.key
+      EGRESS_CLIENT_CA_FILE: /etc/egress/ca.crt
+      # Internal networks a listed name may resolve to; public only if empty.
+      EGRESS_PRIVATE_NETWORKS: ${EGRESS_PRIVATE_NETWORKS:-}
+    volumes:
+      - ./egress:/etc/egress:ro
+    networks: [ianua]
+
+  # The runner beside one agent: it holds the agent's key, and the agent,
+  # which reaches nothing else, sends every request to it at
+  # http://runner:8480 (`--profile agents`). Copy this service for each
+  # agent. With no SPIRE on one machine, the runner signs with a key you
+  # enrolled on the agent's credential, in ./runner/key.pem.
+  runner:
+    <<: [*restart, *hardening]
+    profiles: [agents]
+    image: ${IANUA_IMAGE_REGISTRY:-ghcr.io/ianuaidp}/ianua-runner:${IANUA_VERSION:-latest}
+    build:
+      context: ../..
+      dockerfile: docker/Dockerfile
+      target: runner
+    depends_on:
+      ianua:
+        condition: service_started
+      zero:
+        condition: service_started
+    environment:
+      APP_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      RUNNER_LISTEN: 0.0.0.0:8480
+      RUNNER_AGENT_ID: ${RUNNER_AGENT_ID:-}
+      RUNNER_API_URL: http://ianua:3000/api/v1/organizations/${RUNNER_ORGANIZATION:-}/tenants/${RUNNER_TENANT:-}/agents
+      RUNNER_GATEWAY_URL: http://zero:8082
+      # Both addresses are on this machine's own network.
+      RUNNER_PLAIN_HTTP: in_cluster
+      RUNNER_UPSTREAM_HOST: ${RUNNER_UPSTREAM_HOST:-}
+      RUNNER_TOKEN_AUDIENCE: https://${IANUA_API_HOST}
+      RUNNER_GRANTED: ${RUNNER_GRANTED:-}
+      RUNNER_IDENTITY: key
+      RUNNER_KEY_ID: ${RUNNER_KEY_ID:-}
+      RUNNER_KEY_FILE: /run/ianua/key.pem
+    volumes:
+      - ./runner/key.pem:/run/ianua/key.pem:ro
+    networks: [ianua]
+
+  # A connector, the program a tenant runs inside its own network so a
+  # private app is reachable through the gateway (`--profile connector`).
+  # Here it runs beside the platform, which suits trying it out; in a real
+  # network run it there, as deploy/connector/README.md says. It holds no
+  # platform secret. Create the connector first and put its one-time code
+  # in CONNECTOR_ENROLLMENT_CODE in .env.
+  connector:
+    <<: [*restart, *hardening]
+    profiles: [connector]
+    image: ${IANUA_IMAGE_REGISTRY:-ghcr.io/ianuaidp}/ianua-connector:${IANUA_VERSION:-latest}
+    build:
+      context: ../..
+      dockerfile: docker/Dockerfile
+      target: connector
+    depends_on:
+      zero:
+        condition: service_started
+    environment:
+      APP_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      CONNECTOR_API_URL: https://${IANUA_API_HOST}
+      CONNECTOR_TENANT: ${CONNECTOR_TENANT:-}
+      CONNECTOR_GATEWAY_ADDRESS: zero:8444
+      CONNECTOR_ENROLLMENT_CODE: ${CONNECTOR_ENROLLMENT_CODE:-}
+      CONNECTOR_ALLOWED_TARGETS: ${CONNECTOR_ALLOWED_TARGETS:-}
+    volumes:
+      - connector-state:/var/lib/ianua-connector
+    networks: [ianua]
+
+  dashboard:
+    <<: *restart
+    image: ${IANUA_IMAGE_REGISTRY:-ghcr.io/ianuaidp}/ianua-front:${IANUA_VERSION:-latest}
+    build:
+      # The browser only ever calls the dashboard's own /api routes, which
+      # forward to API_URL from inside this network. That keeps the session
+      # cookie on the dashboard's host and the API address out of the bundle.
+      context: ../../dashboard
+      dockerfile: ../docker/Dockerfile.dashboard
+      args:
+        NEXT_PUBLIC_API_URL: /api
+    environment:
+      API_URL: http://ianua:3000/api/v1
+      DEPLOYMENT: self_hosted
+      HOSTNAME: 0.0.0.0
+    depends_on:
+      - ianua
+    networks: [ianua]

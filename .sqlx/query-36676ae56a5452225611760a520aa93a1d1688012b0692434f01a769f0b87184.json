@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a raised view of an operation's risk: a new one is added, a known\n-- one takes its new class and who raised it. Its operation and when it was\n-- first set never change. Another override of the same operation refuses\n-- it.\nINSERT INTO operation_risk_overrides\n    (id, tenant_id, integration, operation, effect, raised_by, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nON CONFLICT (id) DO UPDATE SET\n    effect = EXCLUDED.effect,\n    raised_by = EXCLUDED.raised_by,\n    updated_at = EXCLUDED.updated_at\nWHERE operation_risk_overrides.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Jsonb",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "36676ae56a5452225611760a520aa93a1d1688012b0692434f01a769f0b87184"
+}

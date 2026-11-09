@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a member's set of recovery codes: a new set is added, a known one\n-- takes the time it was made again. Its member never changes.\nINSERT INTO org_recovery_code_sets (org_user_id, generated_at)\nVALUES ($1, $2)\nON CONFLICT (org_user_id) DO UPDATE SET\n    generated_at = EXCLUDED.generated_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e4a4db636ddc087eff63cc179bee53d7b35e6e05d13aa05f28b289590482e4d2"
+}

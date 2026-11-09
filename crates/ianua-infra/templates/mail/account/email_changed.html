@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Your email address was changed{% endblock %}
+{% block preheader %}The email address of your account was changed.{% endblock %}
+{% block headline %}Your email address was changed{% endblock %}
+
+{% block content %}
+  {{ c.greeting("there") }}
+  {% call c.para() %}The email address of your {{ c.brand() }} account was changed to <strong>{{ user_email }}</strong>.{% endcall %}
+  {% call c.para(pad=32) %}If you did not make this change, tell your administrator straight away.{% endcall %}
+{% endblock %}

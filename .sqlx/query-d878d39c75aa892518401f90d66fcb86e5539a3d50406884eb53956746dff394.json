@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many users of a tenant hold, under one attribute, one of the given\n-- options as their text or among their list.\nSELECT count(*) AS \"count!\"\nFROM user_metadata\nWHERE tenant_id = $1 AND namespace = $2 AND key = $3\n  AND (value_text = ANY($4::text[]) OR value_array && $4::text[])\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "d878d39c75aa892518401f90d66fcb86e5539a3d50406884eb53956746dff394"
+}

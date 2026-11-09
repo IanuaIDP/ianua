@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many accounts a tenant holds against its plan: every one, whatever\n-- its standing, since a deactivated account comes back without a check.\nSELECT count(*) AS \"count!\"\nFROM users\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "1a5c1880508ef5ec301a162b8827ff49de6e593fb130eb3c86d71da662431bbc"
+}

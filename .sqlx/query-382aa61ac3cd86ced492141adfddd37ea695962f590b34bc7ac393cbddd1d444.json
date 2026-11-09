@@ -1,0 +1,73 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The tenant's traffic per route in the window, busiest first, at most the\n-- given number of routes: requests, refusals, upstream failures and the\n-- median and 95th-percentile times, with the names the route and its\n-- service have now. Traffic that matched no route is left out.\nSELECT p.route_id AS \"route_id!\", r.name AS \"route_name?\", r.service_id AS \"service_id?\",\n       s.name AS \"service_name?\", count(*) AS \"requests!\",\n       count(*) FILTER (WHERE p.outcome <> 'allowed') AS \"denied!\",\n       count(*) FILTER (WHERE p.outcome = 'allowed' AND p.status >= 500) AS \"server_errors!\",\n       round(percentile_cont(0.5) WITHIN GROUP (ORDER BY p.duration_ms))::integer AS \"p50?\",\n       round(percentile_cont(0.95) WITHIN GROUP (ORDER BY p.duration_ms))::integer AS \"p95?\"\nFROM proxy_request_records p\nLEFT JOIN routes r ON r.tenant_id = p.tenant_id AND r.id = p.route_id\nLEFT JOIN services s ON s.tenant_id = r.tenant_id AND s.id = r.service_id\nWHERE p.tenant_id = $1 AND p.route_id IS NOT NULL\n    AND p.occurred_at >= $2 AND p.occurred_at < $3\nGROUP BY p.route_id, r.name, r.service_id, s.name\nORDER BY count(*) DESC, p.route_id\nLIMIT $4\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "route_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "route_name?",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "service_id?",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "service_name?",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "requests!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 5,
+        "name": "denied!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 6,
+        "name": "server_errors!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "p50?",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "p95?",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      true,
+      false,
+      false,
+      false,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "382aa61ac3cd86ced492141adfddd37ea695962f590b34bc7ac393cbddd1d444"
+}

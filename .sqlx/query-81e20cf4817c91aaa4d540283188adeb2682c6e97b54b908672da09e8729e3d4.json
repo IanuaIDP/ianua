@@ -1,0 +1,131 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The connections of a tenant with the given ids, each with the rules of\n-- its group mapping in the order they were given: the provider's group,\n-- whether the rule gives a role or a group, and which.\nSELECT c.id, c.provider_name, c.status, c.saml, c.oidc, c.jit_provisioning,\n       c.jit_default_role_id, c.email_trust, c.assurance_trust, c.domain_hint,\n       c.allowed_domains, c.mapped_claims, c.mapped_fields, c.group_claim,\n       ARRAY(\n           SELECT r.provider_group\n           FROM connection_group_rules r\n           WHERE r.tenant_id = c.tenant_id AND r.connection_id = c.id\n           ORDER BY r.position\n       ) AS \"rule_groups!\",\n       ARRAY(\n           SELECT CASE WHEN r.role_id IS NULL THEN 'group' ELSE 'role' END\n           FROM connection_group_rules r\n           WHERE r.tenant_id = c.tenant_id AND r.connection_id = c.id\n           ORDER BY r.position\n       ) AS \"rule_kinds!\",\n       ARRAY(\n           SELECT coalesce(r.role_id, r.group_id)\n           FROM connection_group_rules r\n           WHERE r.tenant_id = c.tenant_id AND r.connection_id = c.id\n           ORDER BY r.position\n       ) AS \"rule_grants!\",\n       c.created_at, c.keyed_at\nFROM federation_connections c\nWHERE c.tenant_id = $1 AND c.id = ANY($2)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "provider_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "saml",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "oidc",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 5,
+        "name": "jit_provisioning",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "jit_default_role_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "email_trust",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "assurance_trust",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "domain_hint",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "allowed_domains",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 11,
+        "name": "mapped_claims",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 12,
+        "name": "mapped_fields",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 13,
+        "name": "group_claim",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 14,
+        "name": "rule_groups!",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 15,
+        "name": "rule_kinds!",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 16,
+        "name": "rule_grants!",
+        "type_info": "UuidArray"
+      },
+      {
+        "ordinal": 17,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 18,
+        "name": "keyed_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true,
+      null,
+      null,
+      null,
+      false,
+      false
+    ]
+  },
+  "hash": "81e20cf4817c91aaa4d540283188adeb2682c6e97b54b908672da09e8729e3d4"
+}

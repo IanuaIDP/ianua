@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}დაადასტურეთ ელფოსტის მისამართი{% endblock %}
+{% block preheader %}ორგანიზაციის შესაქმნელად დაადასტურეთ ელფოსტის მისამართი.{% endblock %}
+{% block headline %}მოგესალმებით IANUA-ში{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para() %}გმადლობთ {{ c.brand() }}-ზე რეგისტრაციისთვის.{% endcall %}
+  {% call c.para(pad=8) %}<strong>{{ organization_name | default("თქვენი ორგანიზაცია") }}</strong>-ს შექმნამდე ერთი ნაბიჯი დარჩა. დასასრულებლად დაადასტურეთ ელფოსტის მისამართი.{% endcall %}
+  {{ c.cta(action_url, "ელფოსტის დადასტურება") }}
+  {% call c.para(pad=0) %}ამ ბმულს ვადა გაუვა {{ expires_at }}-ში.{% endcall %}
+  {% call c.para(pad=32) %}თუ არ დარეგისტრირებულხართ, შეგიძლიათ ეს წერილი უგულებელყოთ.{% endcall %}
+{% endblock %}

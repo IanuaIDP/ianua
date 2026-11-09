@@ -1,0 +1,48 @@
+{#-
+  The parts every sign-in page is built from, imported as `p`:
+    {% import "sign_in/parts.html" as p %}
+-#}
+
+{#- The notice above the form: `note` is `none` or `{code, tone}`, and
+    `own` holds the texts this page words its own way. -#}
+{% macro note(note, own) -%}
+{%- set texts = {
+  "check_email": "メールをご確認ください。このアドレスで登録可能な場合は、確認リンクをお送りします。",
+  "verified": "アドレスが確認されました。サインインできます。",
+  "password_reset": "新しいパスワードが設定されました。このパスワードでサインインできます。",
+  "password_change_required": "パスワードは正しいですが、先に変更する必要があります。新しいパスワードを設定してください。",
+  "not_accepted": "メールアドレスとパスワードが一致しません。",
+  "locked": "失敗回数が多すぎます。しばらくしてから再試行してください。",
+  "not_verified": "先にメールアドレスを確認してください。リンクは受信メールにあります。",
+  "too_many": "このアドレスからの試行が多すぎます。1分待ってから再試行してください。",
+  "not_allowed": "ここではパスワードによるサインインは無効です。",
+  "invalid": "入力内容を確認して、再試行してください。",
+  "link_expired": "このリンクの有効期限が切れています。",
+  "code_needed": "アカウントには第2要素があります。認証アプリのコードも入力してください。",
+  "unavailable": "現在サインインできません。しばらくしてから再試行してください。",
+  "failed": "問題が発生しました。再試行してください。"
+} -%}
+{%- if note -%}
+<p class="note{% if note.tone == 'refused' %} refused{% endif %}" role="status">{% if note.code in own %}{{ own[note.code] }}{% else %}{{ texts[note.code] }}{% endif %}</p>
+{%- endif -%}
+{%- endmacro %}
+
+{#- A required input with its label. -#}
+{% macro field(name, label, kind, autocomplete) -%}
+<label for="{{ name }}">{{ label }}</label><input id="{{ name }}" name="{{ name }}" type="{{ kind }}" autocomplete="{{ autocomplete }}" required>
+{%- endmacro %}
+
+{#- Where to go after signing in, carried in the form, or nothing. -#}
+{% macro return_to(path) -%}
+{%- if path -%}<input type="hidden" name="return_to" value="{{ path }}">{%- endif -%}
+{%- endmacro %}
+
+{#- The form's button. -#}
+{% macro submit(text) -%}
+<button type="submit">{{ text }}</button>
+{%- endmacro %}
+
+{#- A line under the form linking to another step. -#}
+{% macro link(text, path, label) -%}
+<p class="footer">{{ text }} <a href="{{ path }}">{{ label }}</a></p>
+{%- endmacro %}

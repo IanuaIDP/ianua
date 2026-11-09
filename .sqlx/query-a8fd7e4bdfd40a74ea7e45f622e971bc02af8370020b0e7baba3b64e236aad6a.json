@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The oldest of the tenants' records still to be published, with what the\n-- bus carries of them, locked for this relay; another relay passes over\n-- them.\nSELECT o.record_id AS id, o.tenant_id, r.organization_id, r.actor, r.event_type, r.payload,\n       r.occurred_at, o.chain_depth\nFROM event_outbox o\nJOIN audit_records r ON r.id = o.record_id\nORDER BY o.queued_at, o.record_id\nLIMIT $1\nFOR UPDATE OF o SKIP LOCKED\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "actor",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "event_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "payload",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 6,
+        "name": "occurred_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "chain_depth",
+        "type_info": "Int2"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "a8fd7e4bdfd40a74ea7e45f622e971bc02af8370020b0e7baba3b64e236aad6a"
+}

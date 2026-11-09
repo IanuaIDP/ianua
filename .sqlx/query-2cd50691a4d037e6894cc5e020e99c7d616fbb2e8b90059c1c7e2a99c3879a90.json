@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The tenants deleted before the cut-off whose teardown never began, or\n-- stands running unchanged since the cut-off, the oldest first. A\n-- teardown that failed waits for an operator and is not one.\nSELECT t.id\nFROM tenants t\nLEFT JOIN tenant_teardowns d ON d.tenant_id = t.id\nWHERE t.status = 'deleted' AND t.updated_at < $1\n  AND (d.tenant_id IS NULL\n       OR (d.failed_step IS NULL AND NOT d.planned <@ d.done AND d.updated_at < $1))\nORDER BY t.updated_at, t.id\nLIMIT $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "2cd50691a4d037e6894cc5e020e99c7d616fbb2e8b90059c1c7e2a99c3879a90"
+}

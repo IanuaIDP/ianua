@@ -1,0 +1,10 @@
+Hi {{ user_name | default("there") }},
+
+You are invited to join {{ organization_name | default("an organization") }} on IANUA, with the address {{ user_email | default("this one") }}. To get started, choose your password and activate your account:
+{{ action_url }}
+
+This invitation expires in {{ expires_at }}.
+
+If you were not expecting this, you can ignore this email.
+
+IANUA

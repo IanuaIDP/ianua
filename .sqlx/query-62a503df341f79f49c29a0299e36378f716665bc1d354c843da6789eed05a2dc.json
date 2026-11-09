@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Completes a password reset of a tenant at the given time, only while it\n-- is still pending: a row changed means this call completed it.\nUPDATE password_resets\nSET status = 'completed', completed_at = $3\nWHERE tenant_id = $1 AND id = $2 AND status = 'pending'\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "62a503df341f79f49c29a0299e36378f716665bc1d354c843da6789eed05a2dc"
+}

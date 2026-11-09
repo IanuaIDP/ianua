@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Die Änderung Ihrer Kontoadresse wurde beantragt{% endblock %}
+{% block preheader %}Es wurde beantragt, Ihr Konto auf eine andere Adresse umzustellen.{% endblock %}
+{% block headline %}Die Änderung Ihrer Kontoadresse wurde beantragt{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("")) }}
+  {% call c.para() %}Es wurde beantragt, die Adresse Ihres Kontos bei <strong>{{ tenant_name | default("Ihrer Organisation") }}</strong> zu <strong>{{ user_email }}</strong> zu ändern{% if ip_address is defined %}, von {{ ip_address }} aus{% endif %}.{% endcall %}
+  {% call c.para(pad=8) %}Wenn Sie das nicht waren, brechen Sie die Änderung jetzt ab. Ihr Konto behält diese Adresse.{% endcall %}
+  {{ c.cta(action_url, "Änderung abbrechen") }}
+  {% call c.para(pad=0) %}Sie können die Änderung innerhalb von {{ expires_at }} abbrechen.{% endcall %}
+  {% call c.para(pad=32) %}Wenn Sie die Änderung selbst beantragt haben, müssen Sie nichts tun.{% endcall %}
+{% endblock %}

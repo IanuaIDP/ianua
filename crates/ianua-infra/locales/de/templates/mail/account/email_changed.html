@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ihre E-Mail-Adresse wurde geändert{% endblock %}
+{% block preheader %}Die E-Mail-Adresse Ihres Kontos wurde geändert.{% endblock %}
+{% block headline %}Ihre E-Mail-Adresse wurde geändert{% endblock %}
+
+{% block content %}
+  {{ c.greeting("") }}
+  {% call c.para() %}Die E-Mail-Adresse Ihres {{ c.brand() }}-Kontos wurde zu <strong>{{ user_email }}</strong> geändert.{% endcall %}
+  {% call c.para(pad=32) %}Wenn Sie diese Änderung nicht vorgenommen haben, informieren Sie umgehend Ihren Administrator.{% endcall %}
+{% endblock %}

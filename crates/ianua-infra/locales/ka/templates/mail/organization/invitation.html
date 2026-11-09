@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}გაწევრიანების მოწვევა: {{ organization_name | default("ორგანიზაცია") }}{% endblock %}
+{% block preheader %}მოწვეული ხართ IANUA-ზე {{ organization_name | default("ორგანიზაცია") }}-ში გასაწევრიანებლად.{% endblock %}
+{% block headline %}გაწევრიანების მოწვევა: {{ organization_name | default("ორგანიზაცია") }}{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para() %}მოწვეული ხართ {{ c.brand() }}-ზე <strong>{{ organization_name | default("ორგანიზაცია") }}</strong>-ში გასაწევრიანებლად, მისამართით {{ user_email | default("ამ წერილის მიმღების მისამართი") }}.{% endcall %}
+  {% call c.para(pad=8) %}დასაწყებად აირჩიეთ პაროლი და გაააქტიურეთ ანგარიში.{% endcall %}
+  {{ c.cta(action_url, "მოწვევის მიღება") }}
+  {% call c.para(pad=0) %}ამ მოწვევას ვადა გაუვა {{ expires_at }}-ში.{% endcall %}
+  {% call c.para(pad=32) %}თუ ამას არ ელოდით, შეგიძლიათ ეს წერილი უგულებელყოთ.{% endcall %}
+{% endblock %}

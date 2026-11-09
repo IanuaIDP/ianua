@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a new channel, unless its account already has one, so two publishes\n-- at once make one.\nINSERT INTO workflow_account_channels\n    (id, tenant_id, account_id, integration, secret_sealed, setup, status, remote, lapses_at,\n     history_cursor, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)\nON CONFLICT (tenant_id, account_id) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "40048f42de7d14427aa3a864a65a4dbc297f0fc01502c1aa290ef52fb9ab9ce4"
+}

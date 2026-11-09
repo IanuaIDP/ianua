@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes one memory of a tenant once its texts are gone and its waiting\n-- period is over; its entries go with it.\nDELETE FROM memories\nWHERE tenant_id = $1 AND id = $2 AND status = 'deletion_requested'\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b636768689f7a9ccb928d2e5662dd21cf7187299e250df27cdc3344b404070f4"
+}

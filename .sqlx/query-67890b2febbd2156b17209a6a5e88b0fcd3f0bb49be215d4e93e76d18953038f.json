@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every delegation of a tenant that loses its authority when the given\n-- one is revoked: its sub-delegations, the tokens minted from it and the\n-- delegations a token exchange derived from it, and theirs in turn. The\n-- given one is left out, and a loop stored by mistake ends the walk.\nWITH RECURSIVE reached (id) AS (\n    SELECT $2::uuid\n    UNION\n    SELECT edge.derived\n    FROM reached\n    CROSS JOIN LATERAL (\n        SELECT child.id AS derived\n        FROM agent_delegations child\n        WHERE child.tenant_id = $1 AND child.parent_id = reached.id\n        UNION ALL\n        SELECT minted.delegation_id\n        FROM delegation_sources minted\n        WHERE minted.tenant_id = $1 AND minted.source_id = reached.id\n        UNION ALL\n        SELECT derived.delegation_id\n        FROM delegation_provenance derived\n        WHERE derived.tenant_id = $1 AND derived.source_id = reached.id\n    ) AS edge\n)\nSELECT reached.id AS \"id!\"\nFROM reached\nWHERE reached.id <> $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "67890b2febbd2156b17209a6a5e88b0fcd3f0bb49be215d4e93e76d18953038f"
+}

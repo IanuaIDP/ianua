@@ -1,0 +1,192 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every approval request of a tenant, whatever its agent, newest first, in\n-- one status when one is given, without the people behind their\n-- delegations. A request still pending past its time to decide counts as\n-- expired, as the request itself reads, though no sweep saved it so.\nSELECT id, agent_id, delegation_id, requested_by_kind, requested_by_id, requested_by_person,\n       run_id, pending_tool, pending_arguments, pending_at_step, run_exposure, chain_depth,\n       owner_kind, owner_id, owner_person, action_class, action, status, first_by_kind,\n       first_by_id, first_by_person, first_at, decided_by_kind, decided_by_id,\n       decided_by_person, decided_at, created_at, expires_at, updated_at\nFROM agent_approvals\nWHERE tenant_id = $1\n  AND ($2::text IS NULL\n       OR CASE WHEN status = 'pending' AND expires_at <= $3 THEN 'expired' ELSE status END = $2)\nORDER BY created_at DESC, id DESC\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "agent_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "delegation_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "requested_by_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "requested_by_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "requested_by_person",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "run_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "pending_tool",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "pending_arguments",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "pending_at_step",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 10,
+        "name": "run_exposure",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "chain_depth",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 12,
+        "name": "owner_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 13,
+        "name": "owner_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 14,
+        "name": "owner_person",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 15,
+        "name": "action_class",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 16,
+        "name": "action",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 17,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 18,
+        "name": "first_by_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 19,
+        "name": "first_by_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 20,
+        "name": "first_by_person",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 21,
+        "name": "first_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 22,
+        "name": "decided_by_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 23,
+        "name": "decided_by_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 24,
+        "name": "decided_by_person",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 25,
+        "name": "decided_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 26,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 27,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 28,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "ae54fbe1b419aba45d363b41db8fd3ad8a4b0b10c87f2d9cf5c22f1e8f483235"
+}

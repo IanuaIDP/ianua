@@ -1,0 +1,41 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Gives a stored run of the tenant its new standing, only while it is\n-- still at the version the caller read, and answers the version it is\n-- stored at now. No row comes back when the run changed since, or is gone.\nUPDATE agent_runs SET\n    purpose = $4,\n    granted_tools = $5,\n    approval_classes = $6,\n    approval = $7,\n    delegation_id = $8,\n    max_steps = $9,\n    spend_limit_micros = $10,\n    input_tokens = $11,\n    output_tokens = $12,\n    spent_micros = $13,\n    exposure = $14,\n    chain_depth = $15,\n    status = $16,\n    pending_call = $17,\n    updated_at = $18,\n    spend_check = $19,\n    spend_check_micros = $20\nWHERE tenant_id = $1 AND id = $2 AND updated_at = $3\nRETURNING updated_at\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Timestamptz",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "Text",
+        "Uuid",
+        "Int4",
+        "Int8",
+        "Int8",
+        "Int8",
+        "Int8",
+        "Text",
+        "Int2",
+        "Text",
+        "Jsonb",
+        "Timestamptz",
+        "Text",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "b7bb33b133c1751119ad87054ee68d0cf8828e998ca0b10d668027f12542a2d7"
+}

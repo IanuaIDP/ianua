@@ -1,0 +1,40 @@
+[package]
+name = "ianua-dns"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "ianua-dns"
+path = "src/main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+ianua-domain = { workspace = true }
+ianua-app = { workspace = true }
+ianua-infra = { workspace = true }
+ianua-boot = { workspace = true }
+ianua-proto = { workspace = true }
+
+arc-swap = { workspace = true }
+hickory-proto = { workspace = true }
+thiserror = { workspace = true }
+time = { workspace = true }
+tokio = { workspace = true }
+tokio-rustls = { workspace = true, features = ["ring"] }
+tonic = { workspace = true }
+tracing = { workspace = true }
+url = { workspace = true }
+ianua-workspace-hack = { version = "0.1", path = "../ianua-workspace-hack" }
+
+[dev-dependencies]
+async-trait = { workspace = true }
+ianua-app = { workspace = true, features = ["test-support"] }
+ianua-domain = { workspace = true, features = ["test-support"] }
+ianua-grpc = { workspace = true }
+ianua-infra = { workspace = true, features = ["test-support"] }
+tempfile = { workspace = true }
+tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }

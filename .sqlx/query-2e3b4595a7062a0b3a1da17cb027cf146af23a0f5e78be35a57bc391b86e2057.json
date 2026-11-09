@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Writes the roles a connection's mapping gave an account of a tenant, all\n-- in one statement, each at its place in the list.\nINSERT INTO mapped_holding_roles (tenant_id, connection_id, user_id, role_id, position)\nSELECT $1, $2, $3, given.role_id, given.position::integer\nFROM UNNEST($4::uuid[]) WITH ORDINALITY AS given (role_id, position)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2e3b4595a7062a0b3a1da17cb027cf146af23a0f5e78be35a57bc391b86e2057"
+}

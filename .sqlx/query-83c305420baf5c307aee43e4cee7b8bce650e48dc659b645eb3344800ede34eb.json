@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps the agent runs one run of one tenant waits on, all in one\n-- statement. A run already kept is left as it is.\nINSERT INTO workflow_execution_runs (tenant_id, agent_run_id, execution_id)\nSELECT $1::uuid, waited.agent_run_id, $2::uuid\nFROM UNNEST($3::uuid[]) AS waited (agent_run_id)\nON CONFLICT (tenant_id, agent_run_id) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "83c305420baf5c307aee43e4cee7b8bce650e48dc659b645eb3344800ede34eb"
+}

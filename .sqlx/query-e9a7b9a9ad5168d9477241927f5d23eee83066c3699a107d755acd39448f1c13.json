@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Forgets the notes one tenant's monitors made before the given time: the\n-- bus hands none of their events out again.\nDELETE FROM event_reactions\nWHERE tenant_id = $1 AND noted_at < $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e9a7b9a9ad5168d9477241927f5d23eee83066c3699a107d755acd39448f1c13"
+}

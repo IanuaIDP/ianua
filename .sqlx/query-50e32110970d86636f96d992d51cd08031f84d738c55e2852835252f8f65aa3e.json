@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The claims still to be proved of every tenant in this database,\n-- registered more than two minutes before now ($1) and due for another\n-- check: every five minutes in their first hour, every half hour until\n-- they are six hours old, every six hours after. The oldest hundred first.\nSELECT tenant_id, id, domain, connection, verification_status, verified_at, failed_at,\n       dns_challenge_token, tls_status, created_at\nFROM registered_domains\nWHERE verification_status <> 'verified'\n  AND created_at < $1::timestamptz - interval '2 minutes'\n  AND (last_checked_at IS NULL OR last_checked_at < $1::timestamptz - CASE\n        WHEN created_at > $1::timestamptz - interval '1 hour' THEN interval '5 minutes'\n        WHEN created_at > $1::timestamptz - interval '6 hours' THEN interval '30 minutes'\n        ELSE interval '6 hours'\n      END)\nORDER BY created_at\nLIMIT 100\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "domain",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "connection",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "verification_status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "verified_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "failed_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "dns_challenge_token",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "tls_status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "50e32110970d86636f96d992d51cd08031f84d738c55e2852835252f8f65aa3e"
+}

@@ -1,0 +1,70 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every device one member trusted, revoked ones included, in the order\n-- they were trusted.\nSELECT id, org_user_id, secret_hash, device_name, last_user_agent, last_ip,\n       status, last_seen_at, created_at\nFROM org_trusted_devices\nWHERE org_user_id = $1\nORDER BY created_at, id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "org_user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "secret_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "device_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "last_user_agent",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "last_ip",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "last_seen_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "d588326fa8c2f90a7ca8db7224c8acc9b7b7551cc30ce7676b587a50ebbb3ab1"
+}

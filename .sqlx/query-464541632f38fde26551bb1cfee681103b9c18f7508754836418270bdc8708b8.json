@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Revokes every session of one member not revoked yet, suspended ones\n-- included.\nUPDATE org_sessions\nSET status = 'revoked'\nWHERE org_user_id = $1 AND status <> 'revoked'\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "464541632f38fde26551bb1cfee681103b9c18f7508754836418270bdc8708b8"
+}

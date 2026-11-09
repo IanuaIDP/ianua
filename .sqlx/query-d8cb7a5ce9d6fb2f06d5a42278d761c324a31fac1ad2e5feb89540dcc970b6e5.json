@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Writes what building a version's bundle, or scanning its image, came to,\n-- only while it is still being built: a second try that raced the first\n-- finds no row, and the first result stands.\nUPDATE sandbox_versions SET\n    build = $3,\n    bundle_digest = $4,\n    bundle_bytes = $5,\n    unlisted = $6,\n    failure = $7,\n    failure_detail = $8,\n    scan_high = $9,\n    scan_medium = $10,\n    scan_low = $11,\n    updated_at = $12\nWHERE tenant_id = $1 AND id = $2 AND build = 'building'\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Int8",
+        "TextArray",
+        "Text",
+        "Text",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d8cb7a5ce9d6fb2f06d5a42278d761c324a31fac1ad2e5feb89540dcc970b6e5"
+}

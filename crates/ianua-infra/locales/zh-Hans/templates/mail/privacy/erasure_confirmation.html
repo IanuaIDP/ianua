@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}已收到您的删除申请{% endblock %}
+{% block preheader %}已收到您的数据删除申请。{% endblock %}
+{% block headline %}已收到您的删除申请{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("用户")) }}
+  {% call c.para() %}已收到您删除 <strong>{{ tenant_name | default("您的组织") }}</strong> 中个人数据的申请{% if erasure_date is defined %}。删除将于 <strong>{{ erasure_date }}</strong> 开始{% endif %}。{% endcall %}
+  {% if action_url is defined %}{% call c.para(pad=8) %}如果您在此之前改变主意，可以取消申请。{% endcall %}{{ c.cta(action_url, "取消删除") }}{% endif %}
+  {% call c.para(pad=32) %}如果您未提出此申请，请立即告知管理员。{% endcall %}
+{% endblock %}

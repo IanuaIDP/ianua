@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Which of the given places in the tenant's chain hold records the agent\n-- made, in chain order.\nSELECT seq\nFROM audit_records\nWHERE tenant_id = $1 AND actor_kind = $2 AND actor_id = $3 AND seq = ANY($4)\nORDER BY seq\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "seq",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Int8Array"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "e39a69424e4a0b3318fdfb08e69813bed786e86fa4aa3f5e097b6baa739888b7"
+}

@@ -1,0 +1,10 @@
+error[E0624]: associated function `reconstitute` is private
+  --> tests/compile_fail/sign_in_rebuilt_from_parts.rs:12:35
+   |
+12 |     let _forged = SignInProgress::reconstitute(SignInProgressRow {
+   |                                   ^^^^^^^^^^^^ private associated function
+   |
+  ::: src/domains/authentication/sessions/sign_in_progress.rs
+   |
+   |     pub(crate) fn reconstitute(row: SignInProgressRow) -> Result<Self, DomainError> {
+   |     ------------------------------------------------------------------------------- private associated function defined here

@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The sealed credentials of the account held with one authority, if any.\nSELECT credentials_sealed\nFROM acme_accounts\nWHERE directory_url = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "credentials_sealed",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "44e631df33906d6bb8f6eb4edd15236d5dd1046b477b6416e822e5c65b9b4777"
+}

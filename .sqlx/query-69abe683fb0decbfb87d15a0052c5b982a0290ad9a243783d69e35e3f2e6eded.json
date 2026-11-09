@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Adds events the gateway raised in one tenant to its inbox, each sealed by\n-- the gateway, for the worker to append to the tenant's trail.\nINSERT INTO gateway_events\n    (id, tenant_id, event_type, subject, payload, seal, occurred_at, written_at)\nSELECT added.id, $1, added.event_type, added.subject, added.payload, added.seal,\n       added.occurred_at, now()\nFROM UNNEST($2::uuid[], $3::text[], $4::text[], $5::text[], $6::text[], $7::timestamptz[])\n    AS added (id, event_type, subject, payload, seal, occurred_at)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TimestamptzArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "69abe683fb0decbfb87d15a0052c5b982a0290ad9a243783d69e35e3f2e6eded"
+}

@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Takes the lease for holder $3 until $4: a new one, one this holder holds\n-- already, or one that ran out before $5. Answers nothing when another\n-- holder's lease still runs.\nINSERT INTO platform_leases (leased, leased_id, holder, leased_until)\nVALUES ($1, $2, $3, $4)\nON CONFLICT (leased, leased_id) DO UPDATE\nSET holder = EXCLUDED.holder, leased_until = EXCLUDED.leased_until\nWHERE platform_leases.holder = EXCLUDED.holder OR platform_leases.leased_until < $5\nRETURNING leased_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "leased_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid",
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "0dfa86e8f2c71f0309d6f906c5d88531f4e096998246df269ada4c2e92b33fee"
+}

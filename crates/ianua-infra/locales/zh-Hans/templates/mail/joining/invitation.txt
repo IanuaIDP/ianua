@@ -1,0 +1,10 @@
+您好，{{ user_name | default("用户") }}：
+
+您受邀使用邮箱 {{ user_email | default("当前邮箱") }} 加入 IANUA 上的 {{ tenant_name | default("一个团队") }}{% if role_name is defined %}，角色为 {{ role_name }}{% endif %}。请先设置密码并激活账户：
+{{ action_url }}
+
+此邀请将在 {{ expires_at }} 后过期。
+
+如果您未预期收到此邀请，可以忽略此邮件。
+
+IANUA

@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}新设备已被设为受信任设备{% endblock %}
+{% block preheader %}一台设备已添加为您账户的受信任设备。{% endblock %}
+{% block headline %}新设备已被设为受信任设备{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("用户")) }}
+  {% call c.para() %}{% if device_name is defined %}<strong>{{ device_name }}</strong>{% else %}一台新设备{% endif %}已被添加为您在 <strong>{{ tenant_name | default("您的组织") }}</strong> 的账户的受信任设备{% if ip_address is defined %}，来源地址为 {{ ip_address }}{% endif %}。受信任设备可以跳过登录的第二步。{% endcall %}
+  {% call c.para(pad=32) %}如果您不认识此设备，请在账户设置中将其移除并更改密码。{% endcall %}
+{% endblock %}

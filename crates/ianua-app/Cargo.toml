@@ -1,0 +1,31 @@
+[package]
+name = "ianua-app"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[features]
+test-support = ["ianua-domain/test-support"]
+
+[lints]
+workspace = true
+
+[dependencies]
+ianua-domain = { workspace = true }
+ianua-macros = { path = "../ianua-macros" }
+uuid = { workspace = true }
+time = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+async-trait = { workspace = true }
+futures-util = { workspace = true }
+base64 = { workspace = true }
+rand = { workspace = true }
+tracing = { workspace = true }
+ianua-workspace-hack = { version = "0.1", path = "../ianua-workspace-hack" }
+
+[dev-dependencies]
+ianua-domain = { workspace = true, features = ["test-support"] }
+tokio = { version = "1", features = ["macros", "rt"] }

@@ -1,0 +1,11 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}データが削除されました{% endblock %}
+{% block preheader %}削除申請の処理が完了しました。{% endblock %}
+{% block headline %}データが削除されました{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para(pad=32) %}ご申請のとおり、<strong>{{ tenant_name | default("所属組織") }}</strong>のデータが完全に削除されました。元に戻すことはできません。{% endcall %}
+{% endblock %}

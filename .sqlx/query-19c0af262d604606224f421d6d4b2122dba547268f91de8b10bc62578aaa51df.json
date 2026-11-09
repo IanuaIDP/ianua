@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Takes a relation on a named resource away from a principal of a tenant.\n-- Taking one it does not hold changes nothing.\nDELETE FROM resource_grants\nWHERE tenant_id = $1 AND subject_kind = $2 AND subject_id = $3 AND relation = $4\n  AND object_ref = $5\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "19c0af262d604606224f421d6d4b2122dba547268f91de8b10bc62578aaa51df"
+}

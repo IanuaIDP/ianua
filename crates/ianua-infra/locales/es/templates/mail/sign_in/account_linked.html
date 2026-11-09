@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Su cuenta se vinculó a {{ provider_name | default("un proveedor de inicio de sesión") }}{% endblock %}
+{% block preheader %}Ahora puede iniciar sesión mediante un proveedor de inicio de sesión.{% endblock %}
+{% block headline %}Su cuenta se ha vinculado{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para() %}Se ha iniciado sesión por primera vez en su cuenta de <strong>{{ tenant_name | default("su organización") }}</strong> mediante <strong>{{ provider_name | default("un proveedor de inicio de sesión") }}</strong>{% if ip_address is defined %}, desde {{ ip_address }}{% endif %}. A partir de ahora, ese proveedor puede permitirle iniciar sesión.{% endcall %}
+  {% call c.para(pad=32) %}Si no fue usted, avise a su administrador de inmediato.{% endcall %}
+{% endblock %}

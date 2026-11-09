@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% import "sign_in/parts.html" as p %}
+
+{% block title %}Створіть обліковий запис у {{ workspace }}{% endblock %}
+
+{% block content %}
+      <h1>Створіть обліковий запис</h1>
+      <p class="subtitle">Приєднайтеся до {{ workspace }}. Ми надішлемо посилання для підтвердження вашої адреси.</p>
+      {{ p.note(note, {
+        "not_allowed": "Цей робочий простір не приймає нових реєстрацій.",
+        "invalid": "Перевірте введені дані. Можливо, пароль закороткий або надто поширений."
+      }) }}
+      <form method="post" action="{{ form_path }}">
+        {{ p.field("display_name", "Ваше ім’я", "text", "name") }}
+        {{ p.field("email", "Адреса електронної пошти", "email", "email") }}
+        {{ p.field("password", "Пароль", "password", "new-password") }}
+        {{ p.submit("Створити обліковий запис") }}
+      </form>
+      {{ p.link("Уже маєте обліковий запис?", log_in_path, "Увійти") }}
+{% endblock %}

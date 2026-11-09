@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an impersonation grant: a new one is added, a known one takes its\n-- revocation. Who it lets act as whom, why and for how long never change.\n-- A revoked grant takes nothing new, so a save of a copy read before the\n-- revocation never makes it live again or moves the time it was revoked.\nINSERT INTO impersonation_grants\n    (id, operator_id, tenant_id, user_id, reason, expires_at, revoked_at, created_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nON CONFLICT (id) DO UPDATE SET\n    revoked_at = EXCLUDED.revoked_at\nWHERE impersonation_grants.operator_id = EXCLUDED.operator_id\n    AND impersonation_grants.revoked_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "50cb2184a41792a12b7b842f2add1a4ee8d2237b8117e9b0712631d9598c08ef"
+}

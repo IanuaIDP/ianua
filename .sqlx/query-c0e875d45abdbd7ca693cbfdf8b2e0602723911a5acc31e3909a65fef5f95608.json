@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes a webhook subscription of the tenant for good, with its\n-- messages and every try at sending them.\nDELETE FROM webhook_subscriptions\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c0e875d45abdbd7ca693cbfdf8b2e0602723911a5acc31e3909a65fef5f95608"
+}

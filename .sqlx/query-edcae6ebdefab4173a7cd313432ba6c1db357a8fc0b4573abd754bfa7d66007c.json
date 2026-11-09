@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Saves a destination, new or changed, never moving it to another\n-- organization or changing when it was added.\nINSERT INTO org_notification_destinations (\n    id, organization_id, name, kind, hook, url, signing_secret, categories, minimum_severity,\n    state, created_at, updated_at\n)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)\nON CONFLICT (id) DO UPDATE\nSET name = EXCLUDED.name,\n    kind = EXCLUDED.kind,\n    hook = EXCLUDED.hook,\n    url = EXCLUDED.url,\n    signing_secret = EXCLUDED.signing_secret,\n    categories = EXCLUDED.categories,\n    minimum_severity = EXCLUDED.minimum_severity,\n    state = EXCLUDED.state,\n    updated_at = EXCLUDED.updated_at\nWHERE org_notification_destinations.organization_id = EXCLUDED.organization_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "TextArray",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "edcae6ebdefab4173a7cd313432ba6c1db357a8fc0b4573abd754bfa7d66007c"
+}

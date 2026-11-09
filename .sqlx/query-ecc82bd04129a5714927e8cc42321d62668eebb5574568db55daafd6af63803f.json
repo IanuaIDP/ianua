@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Notes when the verification sweep last asked DNS about one registered\n-- domain of one tenant.\nUPDATE registered_domains SET last_checked_at = $3\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ecc82bd04129a5714927e8cc42321d62668eebb5574568db55daafd6af63803f"
+}

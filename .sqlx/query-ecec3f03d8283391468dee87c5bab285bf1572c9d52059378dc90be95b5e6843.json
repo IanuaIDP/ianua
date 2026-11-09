@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps the named resources one delegation of a tenant grants a relation\n-- on, all in one statement, each relation at the same place in the two\n-- lists as its resource. One listed twice is kept once.\nINSERT INTO delegation_resources (tenant_id, delegation_id, relation, resource_ref)\nSELECT $1, $2, given.relation, given.resource_ref\nFROM UNNEST($3::text[], $4::text[]) AS given (relation, resource_ref)\nON CONFLICT DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "TextArray",
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ecec3f03d8283391468dee87c5bab285bf1572c9d52059378dc90be95b5e6843"
+}

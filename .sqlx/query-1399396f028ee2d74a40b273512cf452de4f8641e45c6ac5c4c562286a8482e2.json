@@ -1,0 +1,62 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The audit records an agent made in the tenant after the given place in\n-- the chain, oldest first, at most the given number.\nSELECT seq, id, event_type, payload, occurred_at, entry_hash, prev_hash\nFROM audit_records\nWHERE tenant_id = $1 AND actor_kind = $2 AND actor_id = $3 AND seq > $4\nORDER BY seq\nLIMIT $5\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "seq",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "event_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "payload",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "occurred_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "entry_hash",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 6,
+        "name": "prev_hash",
+        "type_info": "Bytea"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "1399396f028ee2d74a40b273512cf452de4f8641e45c6ac5c4c562286a8482e2"
+}

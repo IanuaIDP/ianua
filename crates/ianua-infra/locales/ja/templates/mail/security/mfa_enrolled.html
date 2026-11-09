@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}2段階サインインが有効になりました{% endblock %}
+{% block preheader %}アカウントに第2要素が追加されました。{% endblock %}
+{% block headline %}2段階サインインが有効になりました{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para() %}<strong>{{ tenant_name | default("所属組織") }}</strong>のアカウントに第2要素が追加されました。今後、サインイン時に求められます。{% endcall %}
+  {% call c.para(pad=32) %}ご自身で設定していない場合は、直ちに管理者に連絡してください。他の人がアカウントにアクセスした可能性があります。{% endcall %}
+{% endblock %}

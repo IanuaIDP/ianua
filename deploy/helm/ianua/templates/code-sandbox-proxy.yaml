@@ -1,0 +1,173 @@
+{{- if and .Values.codeSandboxes.enabled .Values.codeSandboxes.network.enabled }}
+{{- $namespace := include "ianua.codeSandboxNamespace" . }}
+{{- $port := .Values.codeSandboxes.network.port }}
+{{- /*
+The key the worker signs each run's ticket with and the network filter
+checks it by. Only those two read it.
+*/}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "ianua.sandboxProxySecretName" . }}
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: sandbox-proxy
+type: Opaque
+stringData:
+  SANDBOX_PROXY_KEY: {{ include "ianua.sandboxProxyKey" . | quote }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ianua.fullname" . }}-sandbox-proxy
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: sandbox-proxy
+spec:
+  replicas: {{ .Values.codeSandboxes.network.replicas }}
+  selector:
+    matchLabels:
+      {{- include "ianua.selectorLabels" (dict "root" . "component" "sandbox-proxy") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "ianua.selectorLabels" (dict "root" . "component" "sandbox-proxy") | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: sandbox-proxy
+          image: {{ include "ianua.serverImage" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["sandbox-proxy"]
+          env:
+            - name: APP_ENV
+              value: production
+            - name: SANDBOX_PROXY_LISTEN
+              value: "0.0.0.0:{{ $port }}"
+            - name: SANDBOX_PROXY_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ianua.sandboxProxySecretName" . }}
+                  key: SANDBOX_PROXY_KEY
+          ports:
+            - name: filter
+              containerPort: {{ $port }}
+          readinessProbe:
+            tcpSocket:
+              port: filter
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: filter
+            periodSeconds: 15
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.codeSandboxes.network.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ianua.fullname" . }}-sandbox-proxy
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: sandbox-proxy
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "ianua.selectorLabels" (dict "root" . "component" "sandbox-proxy") | nindent 4 }}
+  ports:
+    - name: filter
+      port: {{ $port }}
+      targetPort: filter
+---
+{{- /*
+Only code pods that may reach the network connect, from the code namespace.
+The filter itself reaches DNS and public addresses on port 443, never a
+private range, so a host name pointed at an internal address is refused by
+the network as well as by the filter.
+*/}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "ianua.fullname" . }}-sandbox-proxy
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: sandbox-proxy
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "ianua.selectorLabels" (dict "root" . "component" "sandbox-proxy") | nindent 6 }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ $namespace }}
+          podSelector:
+            matchLabels:
+              ianua.io/sandbox: code
+              ianua.io/network: proxied
+      ports:
+        - port: {{ $port }}
+  egress:
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+              - 169.254.0.0/16
+              - 100.64.0.0/10
+              - 127.0.0.0/8
+      ports:
+        - port: 443
+---
+{{- /*
+In the code namespace: a pod that may reach the network reaches the filter,
+and nothing else. Every other code pod keeps no traffic at all.
+*/}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: reach-the-filter
+  namespace: {{ $namespace }}
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: code-sandbox
+spec:
+  podSelector:
+    matchLabels:
+      ianua.io/sandbox: code
+      ianua.io/network: proxied
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Release.Namespace }}
+          podSelector:
+            matchLabels:
+              {{- include "ianua.selectorLabels" (dict "root" . "component" "sandbox-proxy") | nindent 14 }}
+      ports:
+        - port: {{ $port }}
+{{- end }}

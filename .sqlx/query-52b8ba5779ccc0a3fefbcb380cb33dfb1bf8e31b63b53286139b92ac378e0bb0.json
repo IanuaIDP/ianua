@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Replaces an operator's choices with the categories and channels given,\n-- in one statement: the categories left out are dropped, the others kept\n-- with their new channel.\nWITH dropped AS (\n    DELETE FROM operator_notification_preferences\n    WHERE operator_id = $1 AND NOT (category = ANY($2::text[]))\n)\nINSERT INTO operator_notification_preferences (operator_id, category, channel)\nSELECT $1, chosen.category, chosen.channel\nFROM UNNEST($2::text[], $3::text[]) AS chosen (category, channel)\nON CONFLICT (operator_id, category) DO UPDATE\nSET channel = EXCLUDED.channel\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "TextArray",
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "52b8ba5779ccc0a3fefbcb380cb33dfb1bf8e31b63b53286139b92ac378e0bb0"
+}

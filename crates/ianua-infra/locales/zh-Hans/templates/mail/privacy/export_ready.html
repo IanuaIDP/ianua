@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}您的数据副本已准备好{% endblock %}
+{% block preheader %}请登录以下载您的数据副本。{% endblock %}
+{% block headline %}您的数据副本已准备好{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("用户")) }}
+  {% call c.para() %}您申请获取的 <strong>{{ tenant_name | default("您的组织") }}</strong> 中的数据副本已准备好。{% endcall %}
+  {% call c.para() %}请登录账户并打开隐私设置以下载。可下载至 {{ expires_at }}。{% endcall %}
+  {% call c.para(pad=32) %}此邮件不包含下载链接。如果您未申请副本，请告知管理员。{% endcall %}
+{% endblock %}

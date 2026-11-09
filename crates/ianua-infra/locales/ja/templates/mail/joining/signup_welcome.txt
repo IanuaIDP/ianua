@@ -1,0 +1,6 @@
+{{ user_name | default("ご利用者") }}様
+
+{{ organization_name | default("組織") }}が作成され、アカウントを利用できるようになりました。こちらからサインインしてください：
+{{ action_url }}
+
+IANUA

@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a topic: a new one is added, a known one of the same tenant takes\n-- the new values. Its tenant, its name services publish to, its maker and\n-- its creation time never change.\nINSERT INTO topics\n    (id, tenant_id, name, topic_name, description, schema_definition, retention_kind,\n     retention_amount, status, created_by_kind, created_by_id, created_by_person, data_class,\n     created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)\nON CONFLICT (id) DO UPDATE SET\n    name = EXCLUDED.name,\n    description = EXCLUDED.description,\n    schema_definition = EXCLUDED.schema_definition,\n    retention_kind = EXCLUDED.retention_kind,\n    retention_amount = EXCLUDED.retention_amount,\n    status = EXCLUDED.status,\n    data_class = EXCLUDED.data_class,\n    updated_at = EXCLUDED.updated_at\nWHERE topics.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Int8",
+        "Text",
+        "Text",
+        "Uuid",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "eec9d67a5901a42a229ea48b565a84e485d6a4b8df96c5354210ca0a6c41322e"
+}

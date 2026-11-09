@@ -1,0 +1,943 @@
+# Default values for the ianua chart.
+# Override with `-f my-values.yaml` or `--set key=value`.
+
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  registry: ghcr.io
+  repository: ianuaidp
+  server: ianua-server
+  zero: ianua-zero
+  dns: ianua-dns
+  runner: ianua-runner
+  egress: ianua-egress
+  # Image tag. Empty falls back to Chart.appVersion ("latest").
+  # Pin to a commit SHA in production.
+  tag: ""
+  pullPolicy: IfNotPresent
+
+# GHCR is private — a pull secret is required.
+# Provide a GitHub token with `read:packages`, or reference an existing secret.
+imagePullSecret:
+  create: true
+  username: ""
+  password: ""
+  existingSecret: ""
+
+serviceAccount:
+  create: true
+  name: ""
+
+# ── Who this deployment serves ────────────────────────────────────
+#
+# cloud       The hosted service: any number of organizations, public signup,
+#             plan limits.
+# selfHosted  One organization on your own cluster. The install Job
+#             (`ianua install`) makes it from `selfHosted` below, after the
+#             migration; signup is closed and no plan limit applies. See
+#             values-selfhosted.yaml for a complete example.
+deployment:
+  mode: cloud
+
+# Read only when deployment.mode=selfHosted.
+selfHosted:
+  # The one organization, made by the install Job. Changing these later does
+  # nothing: rename it and its owner in the dashboard. Only the install Job
+  # receives them; every other command refuses the INSTALL_* settings, so the
+  # owner's first password never stays in a serving pod's environment.
+  organizationName: ""
+  tenantName: Main
+  owner:
+    email: ""
+    name: Owner
+    # The owner's first password. Empty generates one, kept across upgrades
+    # in a Secret only the install Job reads (<release>-install); NOTES.txt
+    # shows how to read it.
+    password: ""
+    # Or name a Secret you manage with an INSTALL_OWNER_PASSWORD key.
+    existingSecret: ""
+  # Domains you own. Any name at or beneath one of them can be added to a
+  # tenant and is trusted at once, with no DNS record to prove it.
+  trustedDomains: []
+  # Internal networks your apps live in. A route may send traffic to an
+  # address inside one of these; anything else internal is refused. Defaults
+  # to every private range, which covers the cluster's pods and services and
+  # most office networks. Narrow it to the ranges you actually use. The cloud
+  # metadata address and other link-local addresses stay refused whatever is
+  # listed.
+  upstreamNetworks:
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16
+
+# ── Non-secret configuration (shared by all components) ───────────
+config:
+  # auto chooses nested in cloud with ACME and authoritative DNS configured,
+  # flat in self-hosted with an operator wildcard, otherwise custom domains only.
+  platformAddressing: ""
+  platformWildcardTls: false
+  # Additional deployment hosts whose first labels cannot be organization slugs.
+  platformHosts: []
+  # Base domain for tenant subdomain resolution and the gateway.
+  baseDomain: ianua.io
+  appEnv: production
+  # APP_BASE_URL, required: the dashboard's address. Emailed links, identity
+  # providers, file download links and tenants' logos are made under it, so
+  # whatever serves it must send /api/v1 to the API (see traefik.appHosts).
+  appBaseUrl: https://ianua.io
+  # The logo in emails, served by the API at /email-logo.png. Empty keeps the
+  # server's built-in default.
+  emailLogoUrl: ""
+  webauthn:
+    rpId: ianua.io
+    rpOrigin: https://ianua.io
+  email:
+    # EMAIL_FROM, a bare address, and EMAIL_FROM_NAME, the name mail shows.
+    from: noreply@ianua.io
+    fromName: Ianua
+    # smtp | mailgun | none. The server takes sendgrid, postmark and ses too:
+    # set EMAIL_PROVIDER and their settings through config.env, and their keys
+    # in secrets.existingSecret. With none no mail goes out, and a new device
+    # sets up an authenticator app instead of confirming by email.
+    provider: mailgun
+    mailgun:
+      # The sending domain configured in Mailgun. The `from` address must be on
+      # this domain (use a subdomain like mg.ianua.io to protect root reputation).
+      domain: ianua.io
+      region: eu # us | eu — must match your Mailgun account region
+    smtp:
+      host: ""
+      port: 587
+      # starttls | implicit. `none` is refused in production.
+      tls: starttls
+      # Optional; set it and secrets.smtpPassword together, or neither.
+      username: ""
+  databaseMaxConnections: 10
+  # Serve Swagger UI + OpenAPI JSON at /api/v1/docs. Exposes the full endpoint
+  # surface publicly — enable deliberately.
+  apiDocs: false
+  # Allowed browser CORS origin. "*" allows any origin (no credentials); a single
+  # origin like "https://app.ianua.io" restricts it. Empty denies cross-origin.
+  corsOrigin: ""
+  # Any other setting from the configuration reference, by its variable name,
+  # given to every component. Leave out variables this chart already sets
+  # from the values above.
+  #   env:
+  #     MFA_LOCKOUT_SECONDS: "1800"
+  #     GATEWAY_MAX_CONNECTIONS: "20000"
+  env: {}
+  # Comma-separated IPs of the load balancer(s) in front of the server
+  # (server.service.type=LoadBalancer's assigned address). X-Forwarded-For is
+  # trusted only from these — leaving this empty behind a real LB means every
+  # audit record and rate-limit bucket is attributed to the LB's own IP
+  # instead of the real client's.
+  trustedProxies: ""
+
+# ── Secrets ───────────────────────────────────────────────────────
+# Set values here (the chart creates a Secret) OR point `existingSecret`
+# at a Secret you manage that contains the same keys.
+secrets:
+  existingSecret: ""
+  databaseUrl: "" # DATABASE_URL — ignored when postgresql.enabled=true
+  # MIGRATION_DATABASE_URL: the database owner's login (one that may create
+  # roles and change owners). It migrates, makes the app's and the audit
+  # purge's roles, makes tenants' schemas and seals the audit log away from
+  # the role DATABASE_URL signs in as. Kept in a Secret only the worker and
+  # the migrate, install, operator and demo jobs read: an API pod never holds
+  # it, and the server refuses to start one that does. Ignored with a bundled
+  # database, which uses its superuser.
+  migrationDatabaseUrl: ""
+  # Or name a Secret you manage with a MIGRATION_DATABASE_URL key. Keep it out
+  # of existingSecret, which every pod loads.
+  migrationExistingSecret: ""
+  # AUDIT_PURGE_DATABASE_URL: the audit retention purge's own login, the only
+  # role that may remove audit records. The migration makes the role with the
+  # name and password this URL holds. Read like the owner's login, by the
+  # worker and the jobs alone. Required with an external database; generated
+  # and kept with a bundled one (see postgresql.auditPurgeRole).
+  auditPurgeDatabaseUrl: ""
+  # Or name a Secret you manage with an AUDIT_PURGE_DATABASE_URL key.
+  auditPurgeExistingSecret: ""
+  # NAMESERVER_DATABASE_URL, with dns.enabled: the nameservers' own login,
+  # which reads the zones and nothing else. The migration makes the role with
+  # the name and password this URL holds; the worker and the jobs hold it for
+  # that, and the nameserver pods sign in with it. Required with an external
+  # database; generated and kept with a bundled one (see
+  # postgresql.nameserverRole).
+  nameserverDatabaseUrl: ""
+  # Or name a Secret you manage with a NAMESERVER_DATABASE_URL key.
+  nameserverExistingSecret: ""
+  # GATEWAY_DATABASE_URL: the gateway's own login, which reads the
+  # configuration it serves and writes only its records and its event inbox.
+  # The migration makes the role with the name and password this URL holds;
+  # the worker and the jobs hold it for that, and the gateway and the egress
+  # gateway sign in with it. Required with an external database; generated
+  # and kept with a bundled one (see postgresql.gatewayRole).
+  gatewayDatabaseUrl: ""
+  # Or name a Secret you manage with a GATEWAY_DATABASE_URL key.
+  gatewayExistingSecret: ""
+  # The three keys may be left empty: the chart then generates them on first
+  # install and reads them back on every upgrade. Each is exactly 32 random
+  # bytes, written as 64 hex characters or as base64 (`openssl rand -hex 32`).
+  # Never let ENCRYPTION_KEY change once data exists: stored keys and
+  # certificates cannot be read with a different one.
+  # HMAC_SECRET: the shared root, which the gateway holds too.
+  hmacSecret: ""
+  # EVENT_SIGNING_SECRET: the control plane's own root, for the seals on
+  # events, live updates, receipts and the audit chain, passkey ceremonies,
+  # file links, SAML pairwise IDs and sign-in puzzles. Must differ from
+  # HMAC_SECRET. Only the server, worker and jobs receive it: the proxy and
+  # egress gateway, which face the internet, never hold it.
+  eventSigningSecret: ""
+  encryptionKey: "" # ENCRYPTION_KEY
+  # The bundled NATS requires it from every client; the server and the
+  # gateway read it as BUS_TOKEN, the bundled NATS as NATS_CREDS_TOKEN.
+  # Generated and kept like the keys above when empty; with existingSecret,
+  # that secret must carry it under both names.
+  natsToken: ""
+  smtpPassword: "" # SMTP_PASSWORD, with config.email.smtp.username
+  mailgunApiKey: "" # required when email.provider=mailgun
+  # FILES_OBJECTS_SECRET_ACCESS_KEY, required with files.store=objects.
+  filesObjectsSecretAccessKey: ""
+
+# ── Control plane: API (MODE=api) ─────────────────────────────────
+server:
+  # One replica by default (low footprint). Scale up for HA; live updates
+  # reach every replica over the bus.
+  replicas: 1
+  port: 3000
+  # The internal listener: the probes and the metrics at /metrics. The worker
+  # opens it too, on the same port, for its probes and metrics.
+  internalPort: 3001
+  # The relay listener: the gateway's app sign-in relay and its questions
+  # about agent approvals, over mutual TLS with the internal links'
+  # certificates. Served only through a ClusterIP Service of its own, which no
+  # ingress routes to.
+  relayPort: 3002
+  # Lets only the gateway reach the relay port; the public port stays open.
+  # Needs a CNI that enforces NetworkPolicy.
+  networkPolicy:
+    enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 192Mi
+    limits:
+      memory: 384Mi
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 75
+  service:
+    type: ClusterIP
+    # External port. 80 so Cloudflare (or any proxy) can reach it; the
+    # container still listens on `server.port`.
+    port: 80
+  ingress:
+    enabled: true
+    className: nginx
+    host: api.ianua.io
+    # cert-manager ClusterIssuer for automatic Let's Encrypt TLS (e.g.
+    # "letsencrypt-prod"). Requires cert-manager installed in the cluster.
+    # Leave empty to supply tls.secretName yourself.
+    certManagerClusterIssuer: ""
+    annotations: {}
+    tls:
+      enabled: true
+      secretName: ianua-api-tls
+
+# ── Control plane: worker (MODE=worker) ───────────────────────────
+# Runs the jobs, the sweeps, the outbox relay and the event consumers. Safe on
+# any number of replicas. It holds the owner's and the audit purge's logins
+# and migrates as it starts.
+worker:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 160Mi
+    limits:
+      memory: 384Mi
+
+# ── Data plane: gateway (ianua-zero) ──────────────────────────────
+zero:
+  # One replica by default (low footprint). Scale up for HA.
+  replicas: 1
+  port: 8080
+  # Plain HTTP, for the `/.well-known/acme-challenge/` requests a certificate
+  # authority makes when proving a self-managed domain. It answers those out of
+  # the database, which is where the control plane writes them — the main port
+  # answers from an in-memory map nothing fills, so this is the only path that
+  # can actually satisfy an HTTP-01 challenge.
+  acmePort: 8081
+  # The listener for the agent runners in this cluster (see agentSandboxes),
+  # over TLS with the internal links' certificates. Never takes a PROXY
+  # protocol header: the socket peer is the client. Only opened when there
+  # are sandboxes, and only they may reach it.
+  internalPort: 8082
+  # The workflow listener the worker's Protected apps steps call, over mutual
+  # TLS with the internal links' certificates. ClusterIP only, and only the
+  # worker may reach it.
+  workflowPort: 8083
+  # Lets only the worker reach the workflow port; the other ports stay open.
+  # Needs a CNI that enforces NetworkPolicy.
+  networkPolicy:
+    enabled: true
+  # Expect a PROXY protocol header naming the real client, because the ingress
+  # passes TLS through and its connection is its own.
+  #
+  # Only ever true when this port is reachable solely by that ingress — the
+  # header is unauthenticated, so on anything the internet can reach it lets a
+  # client choose the address that ends up in the audit log. It is ClusterIP,
+  # which is what makes it safe here.
+  proxyProtocol: true
+  # The peers believed to send that header: the ingress's pod network. Any
+  # other peer opening with one is refused.
+  proxyProtocolPeers: "10.0.0.0/8"
+  # /health/live, /health/ready and /metrics: the probes and the scraper
+  # only, never a Service the internet reaches.
+  statusPort: 9090
+  resources:
+    requests:
+      cpu: 100m
+      memory: 160Mi
+    limits:
+      memory: 384Mi
+  # Gateway TLS termination. Provide a TLS secret (tls.crt/tls.key) and the
+  # gateway serves HTTPS directly. For per-tenant *.baseDomain you need a
+  # wildcard certificate — issue it with cert-manager DNS-01 or supply one.
+  # Empty = plain HTTP (terminate TLS upstream instead).
+  tls:
+    secretName: ""
+    # With no secretName, generate a self-signed fallback certificate once and
+    # keep it across upgrades. Served only to hostnames zero has no real
+    # certificate for, so a browser should refuse it — which is the point.
+    generateSelfSigned: false
+  # Live traffic enters here. LoadBalancer provisions a cloud LB on LKE/DOKS.
+  service:
+    type: LoadBalancer
+    # 80 for HTTP; set 443 when zero.tls.secretName is set.
+    port: 80
+    annotations: {}
+
+# Where custom-domain certificates come from.
+#
+# Unset, the server signs custom domains' certificates itself, which browsers
+# refuse. Set it for any domain people visit.
+#
+# Staging issues untrusted certificates against generous rate limits and is
+# the right choice until this is proved out. Production's limits are strict
+# and a mistake against them locks issuance for the hostname for a week.
+acme:
+  # Staging:    https://acme-staging-v02.api.letsencrypt.org/directory
+  # Production: https://acme-v02.api.letsencrypt.org/directory
+  # In production the server refuses to start with neither this nor
+  # terminatedUpstream set.
+  directoryUrl: "https://acme-staging-v02.api.letsencrypt.org/directory"
+  # true when TLS for tenants' domains ends in front of the gateway, at a
+  # load balancer holding the real certificates; leave directoryUrl empty
+  # then. The platform signs its own certificates for the hop behind it.
+  terminatedUpstream: false
+  # Where the authority writes about expiry and revocation. Optional by the
+  # spec, and worth setting.
+  contactEmail: ""
+  # The proxy's public address, given to tenants whose domain is a zone apex —
+  # DNS forbids a CNAME there, so they need an A record and we can only spell
+  # one out if this is set. Also one of the two things that must be set before
+  # delegation is offered at all (see dns.enabled below).
+  proxyAddress: ""
+
+# Authoritative nameservers for hostnames tenants have delegated to us.
+#
+# Off by default, and turning it on is only half the job. Two things outside
+# the cluster have to be true first, and until both are, leaving this off is
+# correct — every domain stays tenant-managed and works exactly as it does now.
+#
+#   1. Reserve two static IPs with your cloud, and put them in
+#      nameservers[].loadBalancerIP below. They must be static: glue records
+#      hard-code them.
+#
+#   2. Add glue records at the registrar holding your own domain, mapping
+#      ns1/ns2 to those two IPs. This is the step that makes the names
+#      resolvable at all — without it a delegation points at a name nothing
+#      can look up, because the only thing that could answer for it is the
+#      server being delegated to.
+#
+# Then set enabled: true here, and PROXY_PUBLIC_ADDRESS on the server, which
+# is what a delegated hostname is pointed at. The server offers delegation to
+# tenants only when both that address and these nameservers are configured —
+# taking a tenant's hostname with nothing to answer from would be worse than
+# not offering it.
+dns:
+  enabled: false
+  # At least two, on different addresses. One is refused at template time:
+  # a parent zone requires two, and registrars reject a single-nameserver
+  # delegation.
+  #
+  # The annotation is not optional on Linode. A *common* NodeBalancer serves
+  # TCP, HTTP and HTTPS only — no UDP — so a DNS Service on one answers
+  # nothing, and nothing in the cluster reports a fault. UDP needs a *premium*
+  # NodeBalancer.
+  #
+  # Price this before turning it on. Per Linode's own
+  # /v4/nodebalancers/types, a common NodeBalancer is $10/mo and a premium one
+  # is $150/mo — and two are needed, one per nameserver, so this route is
+  # $300/mo before a single query is answered.
+  #
+  # The alternative, and the reason this defaults to false: run the same binary
+  # on two small instances, $5/mo each, following the control plane over gRPC
+  # (see deploy/nameserver/). That is the conventional way to host
+  # authoritative DNS. No load balancer is involved, because DNS is stateless,
+  # read-only, and already fails over across its own NS records.
+  #
+  # On another cloud, replace this with that provider's equivalent, or drop it
+  # if its default balancer already does UDP.
+  nameservers:
+    - name: ns1.ianua.io
+      # Reserved static IP. Empty lets the cloud pick, which is fine for a
+      # first look and wrong the moment a glue record names it.
+      loadBalancerIP: ""
+      annotations:
+        service.beta.kubernetes.io/linode-loadbalancer-nodebalancer-type: premium
+    - name: ns2.ianua.io
+      loadBalancerIP: ""
+      annotations:
+        service.beta.kubernetes.io/linode-loadbalancer-nodebalancer-type: premium
+  replicas: 2
+  # Container port. Not 53: binding below 1024 needs root or
+  # CAP_NET_BIND_SERVICE, and this process faces the open internet
+  # unauthenticated over UDP. The Services map 53 onto it.
+  port: 5353
+  # SOA contact, written with a dot where an address has an @.
+  hostmaster: hostmaster.ianua.io
+  # How often zones are reloaded from Postgres. A tenant's DNS change takes
+  # effect within this, plus the record's own TTL.
+  refreshSeconds: 15
+  # One load runs at a time; the pool opens connections only as needed.
+  dbMaxConnections: 2
+  resources:
+    requests:
+      cpu: 50m
+      memory: 96Mi
+    limits:
+      memory: 256Mi
+
+# ── The one public entrance ───────────────────────────────────────
+#
+# With this on, every Service below can be ClusterIP and one Traefik
+# LoadBalancer carries all of it — four cloud balancers become one.
+#
+# Traefik itself is a separate release (deploy/helm/traefik/values.yaml); what
+# lives here is only the routing, because it names the services it points at
+# and those are defined by this chart.
+traefik:
+  enabled: false
+  # How the hosts below are terminated.
+  #   tcp   TCP routers. Every route shares one ordering, but the client
+  #         address is lost — right only behind a CDN that carries it in a
+  #         header of its own.
+  #   http  HTTP routers, so Traefik adds X-Forwarded-For. For a deployment
+  #         with nothing in front of Traefik. Set config.trustedProxies to the
+  #         pod range so the API believes it.
+  terminateWith: tcp
+  # Send everything on :80 except certificate challenges to HTTPS. Leave off
+  # when Traefik's own entrypoint already redirects.
+  redirectToHttps: false
+  # Hosts whose TLS ends at Traefik, forwarded as plain HTTP to a service.
+  # Both of these sit behind a CDN, so the client address arrives in a header
+  # rather than in the connection.
+  terminated:
+    - host: ianua.io
+      service: ianua-front
+      port: 80
+    - host: api.ianua.io
+      service: ianua-server
+      port: 80
+  # The hosts serving config.appBaseUrl, the dashboard's address. File
+  # download links and tenants' logos are made under it, at /api/v1/files/...,
+  # so /api/v1 on these hosts goes straight to the API below. Only with
+  # terminateWith=http, since a TCP route cannot read a path; with tcp, the
+  # dashboard's own /api/v1 pass-through carries those requests.
+  appHosts: []
+  api:
+    service: ianua-server
+    port: 80
+  tls:
+    # The certificate Traefik serves for those hosts. It faces the CDN, not
+    # browsers — a Cloudflare Origin CA certificate is the intended article:
+    # free, fifteen years, and trusted by exactly the one client that connects.
+    secretName: ianua-origin-tls
+    # Or a Traefik certificate resolver, which takes precedence when set — the
+    # bundled Traefik (edge, below) names its Let's Encrypt one `letsencrypt`.
+    certResolver: ""
+  # Everything else on :443 — every tenant's own domain — reaches zero still
+  # encrypted, because zero is what holds their certificates.
+  passthrough:
+    service: ianua-zero
+    port: 443
+    # Tell zero who actually connected. Must match zero.proxyProtocol below:
+    # one on and the other off means either every client is recorded as
+    # Traefik, or every connection is dropped for a header that never comes.
+    proxyProtocol: true
+  # The nameservers' link. Passed through because the client certificate is
+  # the authentication.
+  grpc:
+    enabled: true
+    service: ianua-grpc
+    port: 50051
+  # Where a certificate authority's HTTP-01 challenge goes. The only thing on
+  # :80 that is answered rather than redirected — before a domain's first
+  # certificate exists there is nothing on :443 to redirect it to.
+  acme:
+    service: ianua-zero
+    port: 8081
+
+# ── A Traefik installed by this chart ─────────────────────────────
+#
+# Off by default: the hosted service installs Traefik as its own release
+# (deploy/helm/traefik). Turn it on for a self-hosted installation that has
+# nothing in front of the cluster yet, together with traefik.enabled above for
+# the routes. Everything under `edge` is passed to the upstream Traefik chart.
+edge:
+  enabled: false
+  ingressClass:
+    enabled: false
+  providers:
+    kubernetesCRD:
+      enabled: true
+    kubernetesIngress:
+      enabled: false
+  ports:
+    web:
+      port: 8000
+      exposedPort: 80
+    websecure:
+      port: 8443
+      exposedPort: 443
+      # TLS is decided per route: most connections are passed through to zero,
+      # and an entrypoint-wide default would answer handshakes meant for it.
+      http:
+        tls:
+          enabled: false
+  service:
+    type: LoadBalancer
+  # Certificates for the dashboard and API hosts. TLS-ALPN on :443, because :80
+  # belongs to zero's challenges for tenant domains.
+  certificatesResolvers:
+    letsencrypt:
+      acme:
+        email: ""
+        storage: /data/acme.json
+        tlsChallenge: {}
+  persistence:
+    enabled: true
+    path: /data
+    size: 128Mi
+
+# ── Feeding nameservers that run outside the cluster ──────────────
+#
+# Turn this on instead of dns.enabled when the nameservers are their own hosts
+# (deploy/nameserver/). They cannot reach Postgres or NATS — both ClusterIP —
+# so the control plane streams them the zone catalog over gRPC and they hold
+# nothing else.
+#
+# Both ends prove who they are with a certificate from a private CA created for
+# this link, made once with `ianua link-pki` (deploy/nameserver/README.md shows
+# how). The API pods open the listener; the stream sends only the zones whose
+# delegation was proved, at most 16 streams open at once.
+# Turning this on needs the server half of that PKI in a Secret:
+#
+#   kubectl create secret generic ianua-grpc-pki \
+#     --from-file=tls.crt=pki/server-cert.pem \
+#     --from-file=tls.key=pki/server-key.pem \
+#     --from-file=ca.crt=pki/ca-cert.pem
+#
+# ca-key.pem is not in that list and must never be: it signs certificates that
+# read every tenant's DNS records, and nothing running needs it.
+# The certificates of the links inside the cluster: the gateway calling the
+# API's relay listener, and the worker calling the gateway's workflow
+# listener. Left empty, the chart generates them once and keeps them across
+# upgrades. To bring your own, run
+#   ianua internal-pki --gateway-name <name>-zero-workflow \
+#     --api-name <name>-server-internal --out pki
+# where <name> is the chart's full name (ianua for a release named ianua),
+# remove pki/ca-key.pem, then
+#   kubectl create secret generic ianua-internal-links --from-file=pki/
+# and name it here.
+internalLinks:
+  existingSecret: ""
+  # How long generated certificates last. Upgrades keep the same ones, so
+  # rotate before they lapse by bringing your own.
+  validityDays: 3650
+
+grpc:
+  enabled: false
+  # Container port. Above 1024 so the process needs no capability to bind it.
+  port: 50051
+  tls:
+    # Name of the Secret above. No default: templating a private key from
+    # values.yaml would put it in version control.
+    existingSecret: ""
+  service:
+    # LoadBalancer, because the whole point is reaching this from hosts outside
+    # the cluster. TCP only, so a common NodeBalancer serves it — around $10/mo
+    # on Linode, against $150/mo for the premium one DNS itself would need.
+    type: LoadBalancer
+    port: 50051
+    # Reserved static IP. The nameservers name it in their own configuration,
+    # by hand, on hosts nothing in the cluster manages — so an address that
+    # changes when the balancer is recreated silently stops the zone updates.
+    loadBalancerIP: ""
+    # The nameservers' addresses, once they are static. Not a security boundary
+    # — the listener demands a client certificate regardless — but there is no
+    # reason to let the rest of the internet complete a handshake.
+    sourceRanges: []
+    annotations: {}
+
+# Makes the platform's first operator with `ianua operator create --email`,
+# after the migration. Every deployment needs one, production too; once any
+# operator exists the Job makes nobody, and operators make the rest. Turn it
+# off again once they have signed in.
+#   helm upgrade ... --set firstOperator.enabled=true \
+#     --set firstOperator.email=you@example.com
+firstOperator:
+  enabled: false
+  email: ""
+  # Their first password. Empty generates one, kept in a Secret of its own
+  # (<release>-first-operator) that only this Job reads; NOTES.txt shows how
+  # to read it. The server refuses OPERATOR_PASSWORD in any other command.
+  password: ""
+  # Or name a Secret you manage with an OPERATOR_PASSWORD key.
+  existingSecret: ""
+
+# Seeds a demonstration organization with `ianua demo`: tenants, people,
+# roles, routes, a webhook, agents. Development only: it needs
+# config.appEnv=development, and refuses a database that holds any other
+# organization. Runs again safely, making only what is missing.
+#   helm upgrade ... --set config.appEnv=development --set demoJob.enabled=true
+demoJob:
+  enabled: false
+
+# ── Bundled dependencies ──────────────────────────────────────────
+# Postgres via CloudNativePG — an operator-managed cluster with automated
+# failover and rolling upgrades (RDS-like, no manual config). REQUIRES the
+# CloudNativePG operator installed in the cluster; see the chart README.
+# CNPG provisions the database and a connection Secret the app reads directly.
+# A managed database (set secrets.databaseUrl, leave this disabled) is still
+# the simplest production option on LKE/DOKS.
+# AUDIT_REQUIRE_SEALED: the server and worker refuse to start unless the role
+# DATABASE_URL signs in as can neither change nor remove an audit record. The
+# migration seals it as the database owner. Set false only to run knowingly
+# unsealed.
+audit:
+  requireSealed: true
+
+postgresql:
+  enabled: false
+  # cloudnativepg  an operator-managed cluster, as described above.
+  # standalone     one plain Postgres with its own disk and a generated
+  #                password. No operator, no failover — for a single-server
+  #                installation that wants to start without any prerequisite.
+  provider: cloudnativepg
+  # Image for the standalone provider.
+  standaloneImage: pgvector/pgvector:pg17
+  instances: 1 # single instance by default; set 3 for HA (1 primary + 2 replicas)
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.2
+  database: ianua
+  owner: ianua
+  # Standalone only: the ordinary role the platform connects as. The migrate
+  # job creates it on first install and hands it the tables; row-level
+  # security confines it to one tenant at a time. `owner` stays the superuser
+  # and is given to the worker and the jobs alone.
+  runtimeRole: ianua_app
+  # The audit retention purge's own role, the only one that may remove audit
+  # records. The migration makes it, with a password the chart generates and
+  # keeps.
+  auditPurgeRole: ianua_audit_purge
+  # The nameservers' own role, with dns.enabled: it reads the zones and
+  # nothing else. The migration makes it, with a password the chart generates
+  # and keeps.
+  nameserverRole: ianua_nameserver
+  # The gateway's own role. The migration makes it, with a password the
+  # chart generates and keeps.
+  gatewayRole: ianua_gateway
+  # CloudNativePG only: turn on the cluster superuser, which the worker and
+  # the jobs hold as the database owner. It must stay true: the worker
+  # refuses to start without the owner's login.
+  sealAuditLog: true
+  storage: 10Gi
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+# NATS JetStream: the message bus (BUS_URL) the API, the worker and the
+# gateway share. The API and the worker run apart, so the server needs one.
+# No managed option on LKE/DOKS, so it is bundled and on by default.
+nats:
+  enabled: true
+  image: nats:2.11-alpine
+  storage: 5Gi
+  # Only the server, worker and proxy may connect. The token alone already
+  # refuses anonymous clients; the policy keeps everything else in the cluster
+  # from reaching the broker at all. Needs a CNI that enforces NetworkPolicy.
+  networkPolicy:
+    enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# The bus's address when nats.enabled=false: nats://, tls://, ws:// or wss://,
+# with no user or password in it (give the token as BUS_TOKEN and
+# NATS_CREDS_TOKEN in secrets.existingSecret).
+externalBusUrl: ""
+
+# Redis: the cache (CACHE_URL) every node shares, for rate limit counts,
+# cache versions and sign-in puzzles. Disable and set externalCacheUrl to use
+# a managed Redis (available on DigitalOcean).
+redis:
+  enabled: true
+  image: redis:8-alpine
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+# The cache's address when redis.enabled=false: redis:// or rediss://. It
+# lands in the ConfigMap; when it holds a password, leave this empty and put
+# CACHE_URL and REDIS_URL in secrets.existingSecret instead.
+externalCacheUrl: ""
+
+# Where the platform keeps files: data exports, audit log exports and
+# tenants' logos.
+#   disk     a volume the server and the worker both mount. ReadWriteOnce
+#            keeps the worker on a server's node; with more than one server
+#            replica, or nodes apart, use ReadWriteMany or objects.
+#   objects  an S3-compatible bucket. Give it a lifecycle rule that aborts
+#            unfinished multipart uploads after a day.
+files:
+  store: disk
+  disk:
+    size: 5Gi
+    accessMode: ReadWriteOnce
+    storageClassName: ""
+  objects:
+    endpoint: ""
+    region: ""
+    bucket: ""
+    accessKeyId: ""
+    # virtual_host, or path for MinIO and dotted bucket names.
+    addressing: virtual_host
+
+# Code sandboxes. Each run of a workflow's code step gets a pod of its own in
+# a namespace that holds nothing else, made by the worker through an account
+# that may only make, read, attach to and delete pods there. A pod holds no
+# Kubernetes key, runs as nobody under the runtime class below, reaches
+# nothing on the network, and is deleted when the run ends. Needs a CNI that
+# enforces NetworkPolicy, and the runtime class installed on the nodes.
+# Memory: where workflow steps keep texts and find the ones most alike.
+# The platform's own embedding server fills the memories of a tenant that
+# brings no embedding model of its own. It downloads its model from Hugging
+# Face when it starts; a cluster with no way out needs an image with the
+# model already inside, or an external server below.
+embeddings:
+  enabled: false
+  image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.7
+  # The model it serves. A memory keeps the model it was filled with, so
+  # changing this stops existing memories taking new texts.
+  model: BAAI/bge-small-en-v1.5
+  replicas: 1
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+  # An embedding server run elsewhere, speaking OpenAI's embeddings API,
+  # when enabled=false: its base address, such as http://tei.ai:8080/v1, and
+  # the model it serves. Leave both empty for none.
+  externalUrl: ""
+  externalModel: ""
+
+# Where the memories' texts and vectors are kept: pgvector inside the
+# platform's Postgres when url is empty, or a server speaking Qdrant's REST
+# API. Its key, if any, goes in secrets.existingSecret as
+# VECTOR_STORE_API_KEY.
+vectorStore:
+  url: ""
+
+codeSandboxes:
+  enabled: false
+  # The namespace the pods run in; empty for "<release namespace>-code".
+  namespace: ""
+  # RuntimeClass the pods run under. gVisor at minimum: a plain container
+  # runtime shares the node's kernel and is not a sandbox. Must exist on the
+  # cluster; the server refuses to start in production without one.
+  runtimeClassName: gvisor
+  # The most runs one worker holds at once.
+  mostAtOnce: 8
+  # How long a pod may take to start, or its image to be pulled, beyond the
+  # code's own time limit.
+  startGraceSeconds: 120
+  # Pods started ahead, so a run need not wait for its pod: once a runtime
+  # and memory size has run, each worker keeps this many of it waiting, for
+  # up to this many minutes. Waiting pods count against the quota below.
+  # perKind 0 keeps none.
+  warm:
+    perKind: 2
+    minutes: 15
+  # The network filter: a version that names its allowed hosts reaches them
+  # through it, over encrypted connections to port 443, and nothing else.
+  # Off, no code reaches any network and a version naming hosts does not
+  # run. The CNI must enforce NetworkPolicy.
+  network:
+    enabled: false
+    port: 3128
+    replicas: 1
+    # The key shared by the worker and the filter: 32 bytes as 64 hex
+    # characters or base64. Empty, the chart makes one and keeps it.
+    key: ""
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
+  # Companies' own container images as code steps, pulled from registries
+  # each tenant's administrator allows. Off by default. A version's image is
+  # scanned before it first runs by scanCommand, a program in the worker's
+  # image run as `<command> <image>` that prints SARIF (a small script
+  # around Trivy or Grype); with none, no company image is cleared to run.
+  # On, the worker may make a pull secret per run in the code namespace,
+  # owned by the run's pod and deleted with it.
+  ownImages:
+    enabled: false
+    scanCommand: ""
+    scanTimeoutSeconds: 600
+  # Every worker's runs together, waiting pods included.
+  quota:
+    pods: 50
+    cpu: "50"
+    memory: 64Gi
+    ephemeralStorage: 25Gi
+
+# Agent sandboxes. Each agent listed runs in its own pod: the agent under a
+# sandboxing runtime with no credential of any kind, and the ianua runner
+# beside it holding the agent's key. The pod reaches nothing but ianua: not
+# the internet, not cloud metadata, not DNS. Tests, evaluations and
+# production use the same template, so no environment lacks the controls.
+# Needs a CNI that enforces NetworkPolicy.
+agentSandboxes:
+  # RuntimeClass the pods run under. gVisor at minimum: a plain container
+  # runtime shares the host kernel and is not a sandbox. Must exist on the
+  # cluster; pods will not schedule without it.
+  runtimeClassName: gvisor
+  # The machines agents run on. Agents sharing a machine share its CPU
+  # caches and memory, which two of them could signal through by timing;
+  # label and taint machines for agents alone and name them here. An agent
+  # may name its own `nodeSelector` and `tolerations` to run apart from
+  # every other agent.
+  nodeSelector: {}
+  tolerations: []
+  # The `aud` the token endpoint expects on agent assertions (the public API
+  # URL the server is configured with).
+  tokenAudience: ""
+  # The organization and tenant the agents belong to.
+  organization: ""
+  tenant: ""
+  # How the runner proves it acts for its agent.
+  #   spiffe: attest with the runner's SPIFFE SVID (SPIRE and its CSI driver
+  #           must be installed). ianua mints the agent's key on each
+  #           attestation and the runner holds it in memory only; set the
+  #           agent's attestation policy to allow only the runner's SPIFFE ID,
+  #           and nothing started any other way can obtain a token.
+  #   key:    mount a key enrolled on the agent's credential (keySecret,
+  #           keyId). Whoever holds that key can act as the agent anywhere.
+  identity: spiffe
+  spiffe:
+    helperImage: ghcr.io/spiffe/spiffe-helper:0.10.0
+    # The SPIRE agent's Workload API socket, inside the CSI volume.
+    socketPath: /spiffe-workload-api/spire-agent.sock
+  # Agents to run. Each entry:
+  #   name:         a short DNS-safe name
+  #   agentId:      the ianua agent id
+  #   image:        the agent's own image
+  #   upstreamHost: the tenant domain the agent calls through the data plane
+  #   granted:      capabilities to request, as JSON, e.g. '{"http":["routing:view"]}'
+  #   keySecret:    (identity: key) a Secret with `key.pem`, the agent's
+  #                 private key; mounted into the runner only
+  #   keyId:        (identity: key) the key's id on the agent's credential
+  #   env:          the agent's own environment (no secrets: it would hold them)
+  #   resources:    the agent container's resources
+  #   nodeSelector: (optional) machines for this agent alone, in place of
+  #                 the shared nodeSelector above
+  #   tolerations:  (optional) the taints of those machines it tolerates
+  agents: []
+  runner:
+    # The port each runner serves its agent on. The agent and its runner run
+    # in separate pods so the network policy can tell them apart: the agent
+    # reaches only its runner, and only runners reach the data plane.
+    port: 8480
+    resources:
+      requests:
+        cpu: 20m
+        memory: 32Mi
+      limits:
+        memory: 128Mi
+  # The egress gateway: the only way out for the services agents call.
+  # Each service authenticates with a client certificate chaining to the CA in
+  # `tlsSecret` and reaches only what its egress policy lists (API:
+  # /egress-policies). Services address it by service IP through
+  # `<RELEASE>_EGRESS_SERVICE_HOST`/`_PORT`, so they need no DNS, and set it
+  # as their HTTPS_PROXY / HTTP_PROXY.
+  # On wherever agents run (agentSandboxes.agents), and then tlsSecret is
+  # required. It signs in as the gateway's database role (see
+  # secrets.gatewayExistingSecret), reading the egress policies, the assertion
+  # keys and the agents' data marks, and adding refusals to the gateway's
+  # sealed inbox. It locks only services labelled
+  # `ianua.io/agent-upstream: "true"` (see upstreamLock): label every service
+  # an agent's route reaches, or that service is a way out. A service is named
+  # by its certificate, so the one tenant whose egress policy names it decides
+  # for it, wherever that tenant's data lives; a service two tenants claim
+  # reaches nothing.
+  egressGateway:
+    enabled: true
+    replicas: 1
+    port: 3128
+    # The health probes' port: /health/live and /health/ready.
+    statusPort: 9902
+    # A Secret with tls.crt and tls.key (the gateway's certificate) and
+    # ca.crt (the CA service certificates chain to).
+    tlsSecret: ""
+    # Internal networks a listed name may resolve to, as CIDR blocks. Empty
+    # reaches public addresses only.
+    privateNetworks: []
+    # Extra NetworkPolicy egress rules for the gateway, e.g. an external
+    # database on a private address.
+    extraEgress: []
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
+  # The services agents call run in pods labelled
+  # `ianua.io/agent-upstream: "true"`. They accept traffic only from the data
+  # plane and reach only what is listed here, so one an agent exploits cannot
+  # be a step towards anything else.
+  upstreamLock:
+    enabled: true
+    # Namespaces whose labelled pods are locked. Empty means this release's.
+    namespaces: []
+    # NetworkPolicy egress rules the locked services may use, beyond the
+    # egress gateway when it is enabled.
+    allowedEgress: []
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  fsGroup: 65532
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

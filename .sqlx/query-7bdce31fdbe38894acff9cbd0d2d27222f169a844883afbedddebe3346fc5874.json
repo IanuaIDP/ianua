@@ -1,0 +1,95 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The refresh token of one tenant whose hash is the given one, whatever\n-- its state.\nSELECT token_hash, family_id, client_id, user_id, scopes, session_id, binding,\n       binding_thumbprint, issued_at, expires_at, family_expires_at, state, ended_at\nFROM oauth_refresh_tokens\nWHERE tenant_id = $1 AND token_hash = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "token_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "family_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "client_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "scopes",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 5,
+        "name": "session_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "binding",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "binding_thumbprint",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "issued_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "family_expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 11,
+        "name": "state",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "ended_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "7bdce31fdbe38894acff9cbd0d2d27222f169a844883afbedddebe3346fc5874"
+}

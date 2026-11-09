@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes the passkey of a tenant with the given id.\nDELETE FROM passkey_credentials\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "7ac55bd5d703be5aeef1892f4b7a1d0b1edfeeee9c0cfc7c04a83d61dc3f252b"
+}

@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Takes one payment provider event about one organization, answering\n-- whether it was taken for the first time, and lets go of that\n-- organization's events taken before the given moment. A second delivery\n-- of an event still being taken waits for the first to commit.\nWITH taken AS (\n    INSERT INTO payment_events (event_id, organization_id, created_at, received_at)\n    VALUES ($1, $2, $3, $4)\n    ON CONFLICT (event_id) DO NOTHING\n    RETURNING event_id\n), cleared AS (\n    DELETE FROM payment_events\n    WHERE organization_id = $2 AND received_at < $5\n    RETURNING event_id\n)\nSELECT EXISTS (SELECT 1 FROM taken) AS \"first!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "first!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "35578b0c3d839ae4307bc3ad3f82e27b698ae8725046cbb706f9582f7b5b2490"
+}

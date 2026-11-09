@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Takes every subject a signal stream of a tenant lists off it.\nDELETE FROM signal_stream_subjects\nWHERE tenant_id = $1 AND stream_id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a033bee1ea4556f9cf0ad1cb98284a8909d4447f855149efb9e6533c2907620a"
+}

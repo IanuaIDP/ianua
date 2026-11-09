@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a member's session: a new one is added, a known one takes the new\n-- values. Its member, organization and creation time never change. A\n-- revoked session takes nothing new, so a save of a copy read before the\n-- revocation never makes it live again.\nINSERT INTO org_sessions\n    (id, organization_id, org_user_id, working_tenant, refresh_token_hash,\n     auth_method, factor, owed, ip_address, user_agent, status, kept_through,\n     created_at, last_active_at, expires_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)\nON CONFLICT (id) DO UPDATE SET\n    working_tenant = EXCLUDED.working_tenant,\n    refresh_token_hash = EXCLUDED.refresh_token_hash,\n    auth_method = EXCLUDED.auth_method,\n    factor = EXCLUDED.factor,\n    owed = EXCLUDED.owed,\n    ip_address = EXCLUDED.ip_address,\n    user_agent = EXCLUDED.user_agent,\n    status = EXCLUDED.status,\n    kept_through = EXCLUDED.kept_through,\n    last_active_at = EXCLUDED.last_active_at,\n    expires_at = EXCLUDED.expires_at\nWHERE org_sessions.status <> 'revoked'\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "775dca49c85314d5d710164f41356927b75c90026a326cb11af54d1da97de622"
+}

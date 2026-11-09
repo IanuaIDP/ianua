@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The tenants an organization member holds any grant in.\nSELECT DISTINCT tenant_id\nFROM org_tenant_grants\nWHERE org_user_id = $1\nORDER BY tenant_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "cc499ed62e59094dcf4b8d368749a2be6f254d28e8100f7def35dc983b143942"
+}

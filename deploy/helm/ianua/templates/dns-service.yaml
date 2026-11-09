@@ -1,0 +1,62 @@
+{{- if .Values.dns.enabled }}
+{{/*
+One LoadBalancer per nameserver, because each needs its own address.
+
+A parent zone delegating to us lists every nameserver by name, and a resolver
+picks between them. Two names pointing at one address is not redundancy — it
+is one machine wearing two hats, and it fails the "different addresses" check
+registrars apply to glue records.
+
+Both UDP and TCP on the same Service, deliberately: a resolver asks over UDP
+and comes back over TCP when the answer does not fit, and it comes back to the
+*same* address. Splitting them across two LoadBalancers would give TCP a
+different IP from the one the delegation names, so every truncated answer
+would go unanswered.
+
+This needs a load balancer that does UDP at all, which is not a given. On
+Linode a *common* NodeBalancer is TCP/HTTP/HTTPS only and will not serve DNS;
+UDP requires a *premium* one, requested through the annotation defaulted in
+values.yaml. Check the equivalent before deploying to any other cloud — the
+symptom of getting this wrong is a delegation that answers nothing, and
+nothing in the cluster reporting a fault.
+*/}}
+{{- range .Values.dns.nameservers }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ianua.fullname" $ }}-dns-{{ include "ianua.dnsShortName" . }}
+  labels:
+    {{- include "ianua.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: dns
+    ianua.io/nameserver: {{ .name | quote }}
+  {{- with .annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: LoadBalancer
+  {{- with .loadBalancerIP }}
+  # Must be a reserved, static address. Glue records at the registrar hard-code
+  # it, and they are not re-read: an address that changes when the balancer is
+  # recreated takes every delegated domain off the air with nothing in the
+  # cluster reporting a fault.
+  loadBalancerIP: {{ . | quote }}
+  {{- end }}
+  # Preserves the client address, which is what the query log is worth reading
+  # for and what any future rate limiting would key on. Without it every query
+  # appears to come from a node.
+  externalTrafficPolicy: Local
+  selector:
+    {{- include "ianua.selectorLabels" (dict "root" $ "component" "dns") | nindent 4 }}
+  ports:
+    - name: dns-udp
+      port: 53
+      targetPort: dns-udp
+      protocol: UDP
+    - name: dns-tcp
+      port: 53
+      targetPort: dns-tcp
+      protocol: TCP
+{{- end }}
+{{- end }}

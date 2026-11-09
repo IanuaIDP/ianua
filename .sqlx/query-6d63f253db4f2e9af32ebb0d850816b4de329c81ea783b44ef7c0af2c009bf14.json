@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps the sealed credentials of the account held with one authority,\n-- replacing any kept before; when it was first kept stays as it was.\nINSERT INTO acme_accounts (directory_url, credentials_sealed, created_at, updated_at)\nVALUES ($1, $2, $3, $3)\nON CONFLICT (directory_url) DO UPDATE SET\n    credentials_sealed = EXCLUDED.credentials_sealed,\n    updated_at = GREATEST(acme_accounts.updated_at, EXCLUDED.updated_at)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6d63f253db4f2e9af32ebb0d850816b4de329c81ea783b44ef7c0af2c009bf14"
+}

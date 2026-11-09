@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The recovery codes of a member's set, each with when it was used.\nSELECT code_hash, used_at\nFROM org_recovery_codes\nWHERE org_user_id = $1\nORDER BY code_hash\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "code_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "used_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true
+    ]
+  },
+  "hash": "5d9752d7862c9ea372fa145f6c8bb86c1573c54a976f9f8c03ccbda029ed82ea"
+}

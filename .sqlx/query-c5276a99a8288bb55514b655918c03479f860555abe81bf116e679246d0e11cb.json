@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a webhook subscription: a new one is added, a known one of the\n-- same tenant takes the new values. Its tenant, its maker and its creation\n-- time never change.\nINSERT INTO webhook_subscriptions\n    (id, tenant_id, url, signing_secret_sealed, previous_secret_sealed, previous_secret_until,\n     event_types, status, description, retry, created_by_kind, created_by_id,\n     consecutive_failures, last_delivered_at, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)\nON CONFLICT (id) DO UPDATE SET\n    url = EXCLUDED.url,\n    signing_secret_sealed = EXCLUDED.signing_secret_sealed,\n    previous_secret_sealed = EXCLUDED.previous_secret_sealed,\n    previous_secret_until = EXCLUDED.previous_secret_until,\n    event_types = EXCLUDED.event_types,\n    status = EXCLUDED.status,\n    description = EXCLUDED.description,\n    retry = EXCLUDED.retry,\n    consecutive_failures = EXCLUDED.consecutive_failures,\n    last_delivered_at = EXCLUDED.last_delivered_at,\n    updated_at = EXCLUDED.updated_at\nWHERE webhook_subscriptions.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "TextArray",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Uuid",
+        "Int8",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c5276a99a8288bb55514b655918c03479f860555abe81bf116e679246d0e11cb"
+}

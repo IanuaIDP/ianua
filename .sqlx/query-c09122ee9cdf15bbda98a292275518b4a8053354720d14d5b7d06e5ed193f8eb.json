@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a member's trusted device: a new one is added, a known one takes\n-- the new values. Its member and when it was trusted never change. A\n-- revoked device takes nothing new, so a sign-in that read it before the\n-- revocation never trusts it again.\nINSERT INTO org_trusted_devices\n    (id, org_user_id, secret_hash, device_name, last_user_agent, last_ip,\n     status, last_seen_at, created_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\nON CONFLICT (id) DO UPDATE SET\n    secret_hash = EXCLUDED.secret_hash,\n    device_name = EXCLUDED.device_name,\n    last_user_agent = EXCLUDED.last_user_agent,\n    last_ip = EXCLUDED.last_ip,\n    status = EXCLUDED.status,\n    last_seen_at = EXCLUDED.last_seen_at\nWHERE org_trusted_devices.org_user_id = EXCLUDED.org_user_id\n    AND org_trusted_devices.status <> 'revoked'\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c09122ee9cdf15bbda98a292275518b4a8053354720d14d5b7d06e5ed193f8eb"
+}

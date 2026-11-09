@@ -1,0 +1,16 @@
+# The raw `EventDispatcher::dispatch` sink must never be called directly from a
+# use case: that would let the request's actor, IP or tenant be dropped or
+# fabricated. All dispatch goes through `RequestAuditor::dispatch`, which binds
+# the audit context once at the request boundary. The single legitimate call
+# lives in `RequestAuditor::dispatch` and carries an explicit allow. The path
+# names where the trait is defined, not where it is re-exported.
+disallowed-methods = [
+    { path = "ianua_app::ports::shared::events::EventDispatcher::dispatch", reason = "use RequestAuditor::dispatch instead: the audit context is bound at the boundary" },
+]
+
+# A function longer than this many lines of code, or taking more inputs, is
+# split or given a struct. Tests may unwrap: a panic there is a failed test.
+too-many-lines-threshold = 30
+too-many-arguments-threshold = 4
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true

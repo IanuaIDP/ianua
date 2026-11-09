@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a member's passkey: a new one is added, a known one of the same\n-- member and organization takes its new name, counter and last use. Its\n-- member, organization, credential id, public key and registration time\n-- never change. The counter and the last use only move forward, so a save\n-- of a copy read before a later sign-in never lowers the counter a cloned\n-- key is caught by.\nINSERT INTO org_passkey_credentials\n    (id, organization_id, org_user_id, credential_id, public_key, sign_count,\n     authenticator_type, attestation, name, last_used_at, created_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\nON CONFLICT (id) DO UPDATE SET\n    sign_count = GREATEST(org_passkey_credentials.sign_count, EXCLUDED.sign_count),\n    name = EXCLUDED.name,\n    last_used_at = GREATEST(org_passkey_credentials.last_used_at, EXCLUDED.last_used_at)\nWHERE org_passkey_credentials.organization_id = EXCLUDED.organization_id\n    AND org_passkey_credentials.org_user_id = EXCLUDED.org_user_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Bytea",
+        "Bytea",
+        "Int8",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "35e8ae58ea39e5fbc8e05bbd18da26c35602186536de35734c1a534593d0e2d5"
+}

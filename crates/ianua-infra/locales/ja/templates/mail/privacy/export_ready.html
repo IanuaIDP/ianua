@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}データのコピーが用意できました{% endblock %}
+{% block preheader %}データのコピーをダウンロードするには、サインインしてください。{% endblock %}
+{% block headline %}データのコピーが用意できました{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para() %}ご申請の<strong>{{ tenant_name | default("所属組織") }}</strong>のデータのコピーが用意できました。{% endcall %}
+  {% call c.para() %}アカウントにサインインし、プライバシー設定からダウンロードしてください。ダウンロード期限は{{ expires_at }}です。{% endcall %}
+  {% call c.para(pad=32) %}このメールにダウンロードリンクは含まれていません。コピーの申請に心当たりがない場合は、管理者に連絡してください。{% endcall %}
+{% endblock %}

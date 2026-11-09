@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% import "sign_in/parts.html" as p %}
+
+{% block title %}Saisissez votre code pour {{ workspace }}{% endblock %}
+
+{% block content %}
+      <h1>Authentification requise</h1>
+      <p class="subtitle">Pour protéger votre compte, saisissez le code de vérification de votre application d’authentification.</p>
+      {{ p.note(note, {
+        "not_accepted": "Ce code n’a pas été accepté. Réessayez ou reconnectez-vous si le problème persiste."
+      }) }}
+      <form method="post" action="{{ form_path }}">
+        <label for="code">Code de votre application d’authentification</label><input id="code" name="code" inputmode="numeric" autocomplete="one-time-code" required autofocus>
+        <label class="choice" for="remember_device"><input id="remember_device" name="remember_device" type="checkbox" value="yes"> Mémoriser cet appareil</label>
+        {{ p.return_to(return_to) }}
+        {{ p.submit("Continuer") }}
+      </form>
+      {{ p.link("Code perdu ?", log_in_path, "Recommencer") }}
+{% endblock %}

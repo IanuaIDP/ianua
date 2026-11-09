@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Your second factor was reset{% endblock %}
+{% block preheader %}An owner of {{ organization_name | default("your organization") }} reset your second factor.{% endblock %}
+{% block headline %}Your second factor was reset{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("there")) }}
+  {% call c.para() %}An owner of <strong>{{ organization_name | default("your organization") }}</strong> reset the second factor of your {{ c.brand() }} account, and you were signed out everywhere. Sign in again with your password and set up a new second factor.{% endcall %}
+  {% call c.para(pad=32) %}If you did not ask for this, tell an owner of your organization straight away.{% endcall %}
+{% endblock %}

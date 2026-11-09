@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Takes off every named resource one delegation of a tenant was kept as\n-- granting, before what it grants now is written.\nDELETE FROM delegation_resources\nWHERE tenant_id = $1 AND delegation_id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "47ef366134d4249bd96aa0e42f4089592136a7be8084b160f8c13ca8acff1f9e"
+}

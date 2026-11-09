@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}თქვენი ანგარიში დაიბლოკა{% endblock %}
+{% block preheader %}თქვენი ანგარიში შესვლის წარუმატებელი მცდელობების შემდეგ დაიბლოკა.{% endblock %}
+{% block headline %}თქვენი ანგარიში დაიბლოკა{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para() %}თქვენი ანგარიში <strong>{{ tenant_name | default("თქვენი ორგანიზაცია") }}</strong>-ში დაიბლოკა შესვლის ზედმეტად ბევრი წარუმატებელი მცდელობის შემდეგ{% if ip_address is defined %}, მისამართიდან <strong>{{ ip_address }}</strong>{% endif %}.{% endcall %}
+  {% call c.para(pad=32) %}თუ ეს თქვენ იყავით, დაელოდეთ ბლოკის დასრულებას და სცადეთ ხელახლა, ან სთხოვეთ ადმინისტრატორს, ადრე მოხსნას ბლოკი. თუ ეს თქვენ არ ყოფილხართ, შესვლის შესაძლებლობის მიღებისთანავე შეცვალეთ პაროლი.{% endcall %}
+{% endblock %}

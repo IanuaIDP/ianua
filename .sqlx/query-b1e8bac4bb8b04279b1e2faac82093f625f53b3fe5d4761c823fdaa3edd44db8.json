@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes one webhook secret of one tenant.\nDELETE FROM workflow_trigger_secrets\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b1e8bac4bb8b04279b1e2faac82093f625f53b3fe5d4761c823fdaa3edd44db8"
+}

@@ -1,0 +1,246 @@
+---
+title: Tenant agent screens
+description: Agents, delegations, approvals, runs, flows, tools and model providers inside a tenant.
+sidebar:
+  order: 7
+---
+
+These are the sections under **Automation** and **Agents** in a tenant's sidebar: agents and everything inside one, flows, tools and model providers. All of them live in `src/components/dashboard/tenant-detail/sections`.
+
+An **agent** is software that acts for a person. Ann creates an agent that sorts support tickets for her. It proves who it is with a credential. It holds only the access Ann gave it, called a _delegation_. It can be made to wait for a person's approval, and it can be stopped at any time.
+
+## Agent list
+
+These are `agents-card.tsx` and the folder `agents/`.
+
+| Component                | File                                   | What it does                                                                                                                                                                 |
+| ------------------------ | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AgentsCard`             | `agents-card.tsx`                      | The Agents page: status tabs, create and edit, "Stop all agents", and rows that open an agent's page.                                                                        |
+| `TenantAgentsTable`      | `agents/tenant-agents-table.tsx`       | The agents, with owner, status and dates.                                                                                                                                    |
+| `TenantAgentActionsMenu` | `agents/tenant-agent-actions-menu.tsx` | The actions a status allows. An active agent can be edited, suspended or revoked. A suspended one can be edited, resumed or revoked. A revoked one can be edited or deleted. |
+| `TenantAgentFormModal`   | `agents/tenant-agent-form-modal.tsx`   | The name, a description, and the owner: the person the agent acts for.                                                                                                       |
+
+## Inside one agent
+
+`AgentDetailPage` (see [Page shells](/ianua/dashboard/components/tenant/#page-shells)) shows one of these sections:
+
+| Component              | File                                | What it does                                                                                                                                                                                                                                                                                                                                                              |
+| ---------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AgentOverviewSection` | `agents/agent-overview-section.tsx` | Who the agent is, its owner and status, how it must prove itself, a summary of its credentials and delegations, and edit.                                                                                                                                                                                                                                                 |
+| `AgentNextStepCard`    | `agents/agent-next-step-card.tsx`   | A new agent can neither prove who it is nor reach anything. This card points to the next missing step, adding a credential or giving access, and goes away once both are done.                                                                                                                                                                                            |
+| `AgentLifecycleCard`   | `agents/agent-lifecycle-card.tsx`   | Four controls: **Suspend or Resume** stops or lets the agent run again, and the other three are each stronger than the last. **Require re-attestation** blocks the agent at the gateway until it proves itself again, and its badge reads Must re-attest until then. **Contain** is the kill switch: it revokes every delegation the agent could reach, and shows them before asking to confirm. **Revoke** is for good. |
+| `DelegationsSection`   | `agents/delegations-section.tsx`    | **Access**: what the agent may do, given as delegations. Give access, revoke it, ask whether an action is allowed, and try a request live.                                                                                                                                                                                                                                |
+| `ApprovalsSection`     | `agents/approvals-section.tsx`      | Requests waiting for a person to approve or deny.                                                                                                                                                                                                                                                                                                                         |
+| `ActivitySection`      | `agents/activity-section.tsx`       | What the agent did: its part of the audit trail.                                                                                                                                                                                                                                                                                                                          |
+| `RunsSection`          | `agents/runs-section.tsx`           | The agent's runs, newest first, a page at a time, with a choice of rows per page. Runs can be started and stopped, and a run's steps load only when opened.                                                                                                                                                                                                               |
+| `CredentialsSection`   | `agents/credentials-section.tsx`    | The public keys the agent signs with: register, rotate, revoke. Also how it must prove itself.                                                                                                                                                                                                                                                                            |
+| `ChannelsSection`      | `agents/channels-section.tsx`       | What the agent shares with other agents and reads from them. Opens and closes channels, with the most sensitive data each may carry and how long it stays open.                                                                                                                                                                                                            |
+
+### Access
+
+These are in `agents/delegations/`.
+
+| Component                       | File                                   | What it does                                                                                                               |
+| ------------------------------- | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `DelegationsTable`              | `delegations-table.tsx`                | The delegations, with who passed access to whom, what for, what they allow, the budget and the expiry.                     |
+| `DelegationActionsMenu`         | `delegation-actions-menu.tsx`          | Revokes a delegation.                                                                                                      |
+| `DelegationBudgetBadge`         | `delegation-budget-badge.tsx`          | How many requests are left in the budget.                                                                                  |
+| `GrantDelegationModal`          | `grant-delegation-modal.tsx`           | "Give this agent access": a preset or chosen abilities, apps, purpose, name, expiry, budget and which steps need approval. |
+| `AccessGrantedModal`            | `access-granted-modal.tsx`             | Shows the access token once, after access is given.                                                                        |
+| `GrantResourceAccessModal`      | `grant-resource-access-modal.tsx`      | Gives access to one particular thing, such as one document.                                                                |
+| `DelegationResourceActionsMenu` | `delegation-resource-actions-menu.tsx` | Takes away access to one thing.                                                                                            |
+| `CheckAuthorizationModal`       | `check-authorization-modal.tsx`        | Asks "may this agent do X?" and shows the answer and why.                                                                  |
+| `TryAccessPanel`                | `try-access-panel.tsx`                 | Sends a test request through the gateway as the agent, and shows what came back.                                           |
+| `SigningKeyNotice`              | `signing-key-notice.tsx`               | Shown when the tenant has no signing key yet, since delegation tokens are signed with it. Its button creates one.          |
+
+### Approvals
+
+These are in `agents/approvals/`.
+
+| Component             | File                        | What it does                                             |
+| --------------------- | --------------------------- | -------------------------------------------------------- |
+| `ApprovalsTable`      | `approvals-table.tsx`       | Approvals waiting and decided, with their run and times. |
+| `ApprovalActionsMenu` | `approval-actions-menu.tsx` | Approve or deny, after a confirm.                        |
+
+### Runs
+
+These are in `agents/runs/`.
+
+| Component             | File                        | What it does                                                                 |
+| --------------------- | --------------------------- | ---------------------------------------------------------------------------- |
+| `RunsTable`           | `runs-table.tsx`            | The runs, with id, goal, status and times.                                   |
+| `RunActionsMenu`      | `run-actions-menu.tsx`      | Show the steps, and stop a run that is still going.                          |
+| `StartRunModal`       | `start-run-modal.tsx`       | Starts a run: a goal, a model provider, and the delegation it runs under.    |
+| `RunTraceModal`       | `run-trace-modal.tsx`       | Loads every step of a run only when opened, with loading and retry states.   |
+| `RunsPagination`      | `runs-pagination.tsx`       | Previous and next pages, and 20, 50 or 100 rows per page. It shows no total. |
+| `ReviewApprovalModal` | `review-approval-modal.tsx` | Approve or deny a step a run is waiting on.                                  |
+
+### Credentials
+
+These are in `agents/credentials/`.
+
+| Component                    | File                                | What it does                                                                     |
+| ---------------------------- | ----------------------------------- | -------------------------------------------------------------------------------- |
+| `CredentialsTable`           | `credentials-table.tsx`             | The credentials, with algorithm, status, expiry and grace period.                |
+| `CredentialActionsMenu`      | `credential-actions-menu.tsx`       | Revokes a credential not revoked yet.                                            |
+| `CreateCredentialModal`      | `create-credential-modal.tsx`       | Registers a public key the agent made: algorithm, key, expiry.                   |
+| `RotateCredentialModal`      | `rotate-credential-modal.tsx`       | Replaces a credential with a new public key.                                     |
+| `GracePeriodCountdown`       | `grace-period-countdown.tsx`        | Counts down until a replaced credential stops working.                           |
+| `EditAttestationPolicyModal` | `edit-attestation-policy-modal.tsx` | How often the agent must prove itself again, and which origins it may call from. |
+
+### Activity
+
+This is in `agents/activity/`.
+
+| Component            | File                       | What it does                                        |
+| -------------------- | -------------------------- | --------------------------------------------------- |
+| `AgentActivityTable` | `agent-activity-table.tsx` | What the agent did, each with an icon and one line. |
+
+## Flows
+
+These are `flows-card.tsx` and the folder `flows/`. A flow chains agents into stages. Each stage runs one or more agent steps.
+
+| Component            | File                              | What it does                                                                                         |
+| -------------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `FlowsCard`          | `flows-card.tsx`                  | The flows, a page at a time. A row opens the flow's page, and create opens the builder.              |
+| `FlowsTable`         | `flows/flows-table.tsx`           | The flows, with how far their stages got and how many steps they have.                               |
+| `FlowActionsMenu`    | `flows/flow-actions-menu.tsx`     | Cancel a running flow, or delete it, as permissions allow.                                           |
+| `FlowStageTimeline`  | `flows/flow-stage-timeline.tsx`   | The stages from top to bottom, with status and steps that open, on the flow's page.                  |
+| `FlowStageBlock`     | `flows/flow-stage-block.tsx`      | One stage in the builder: move it, remove it, and its steps.                                         |
+| `FlowNodeCard`       | `flows/flow-node-card.tsx`        | One step in the builder: the agent, action classes, tools and approvals. It can be moved or removed. |
+| `FlowNodeDetailCard` | `flows/flow-node-detail-card.tsx` | One step on the flow's page, with its run and status.                                                |
+| `AddFlowNodeModal`   | `flows/add-flow-node-modal.tsx`   | Adds or edits a step: agent, model provider, goal, purpose, approvals.                               |
+
+## Workflows
+
+These live in `src/components/dashboard/workflows`. The builder has its own folder, `builder/`. Screens read everything through the services `workflows`, `workflow-executions`, `workflow-approvals`, `workflow-accounts` and `workflow-catalog`.
+
+| Component                                                                  | File                                                      | What it does                                                                                                                                                                    |
+| -------------------------------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `WorkflowsCard`                                                            | `workflows-card.tsx`                                      | The Workflows page with tabs Workflows, Runs (`?tab=runs`) and Risks (`?tab=risks`). Someone with no view right gets a notice instead of an error.                              |
+| `WorkflowsTable`                                                           | `workflows-table.tsx`                                     | The workflows: name, what starts each, whether it is on, last change. Search and status filter work on the loaded page.                                                         |
+| `WorkflowActionsMenu`                                                      | `workflow-actions-menu.tsx`                               | Open, Runs, and Start a run for a by-hand workflow that is on.                                                                                                                  |
+| `RunsCard`                                                                 | `runs-card.tsx`                                           | Every run in the tenant, newest first.                                                                                                                                          |
+| `RunsTable`                                                                | `runs-table.tsx`                                          | One line per run. Used by the Runs tab and by one workflow's runs.                                                                                                              |
+| `WorkflowRunsPage`                                                         | `workflow-runs-page.tsx`                                  | One workflow's runs, and its tests kept apart.                                                                                                                                  |
+| `WorkflowRunPage`                                                          | `run-page.tsx`                                            | One run: status, who it acts for, cancel, retry, start again, and a link to a waiting decision. It reads the run again on each stream frame and every 15 seconds while it runs. |
+| `RunStepList`                                                              | `run-step-list.tsx`                                       | The steps of a run; opening one shows what went in and came out, why it failed, and a loop's items.                                                                             |
+| `StartRunModal`                                                            | `start-run-modal.tsx`                                     | Starts a by-hand workflow with JSON data and how sensitive it is.                                                                                                               |
+| `WorkflowApproval`                                                         | `../../auth/workflow-approval.tsx`                        | The approval page that chat messages link to. A whole loop stays locked until every page of items was opened. The `shown` data goes back exactly as it came.                    |
+| `ApprovalDecision`                                                         | `approvals/approval-decision.tsx`                         | The code box, the API's refusal, Approve and Deny.                                                                                                                              |
+| `LoopItemsList`                                                            | `approvals/loop-items-list.tsx`                           | A whole-loop approval's items, page by page, with a progress bar.                                                                                                               |
+| `JsonView`, `JsonEditor`, `WithheldNotice`                                 | `json-view.tsx`, `json-editor.tsx`, `withheld-notice.tsx` | Read-only JSON, a checked JSON box, and the note for hidden data.                                                                                                               |
+| `WorkflowStatusBadge`, `RunStatusBadge`, `StepPhaseBadge`, `ExposureBadge` | `workflow-badges.tsx`                                     | Status words in the dashboard's badge style.                                                                                                                                    |
+| `IntegrationMark`                                                          | `integration-mark.tsx`                                    | An integration's picture as an image on its brand colour, or a built-in icon.                                                                                                   |
+| `ClearanceSelect`                                                          | `clearance-select.tsx`                                    | Picks public, internal, confidential or restricted.                                                                                                                             |
+
+`useRunStream` (`hooks/dashboard/use-run-stream.ts`) reads a run again when the platform sends a frame. `useWorkflowCaller` gives the signed-in person as the API writes them, `tenant_user:<id>` or `org_user:<id>`.
+
+## Workflow builder
+
+These live in `workflows/builder`, and the panel for each kind of step in `builder/steps`. The working copy of the open draft is `use-working-copy.ts`. Graph bodies stay in the API's snake_case (`types/workflow-graph.ts`).
+
+| Component or file                                                                                                                     | File                                                          | What it does                                                                                                                                                                                                     |
+| ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `WorkflowBuilder`                                                                                                                     | `workflow-builder.tsx`                                        | The page at `workflows/create` and `workflows/{workflowId}`. Editable only on a draft, for someone with the update right (create right for a new one).                                                           |
+| `WorkflowCanvas`                                                                                                                      | `workflow-canvas.tsx`                                         | The picture: step cards, arrows, pan, zoom, drag, connect. Moved with one CSS transform.                                                                                                                         |
+| `WorkflowPicture`                                                                                                                     | `workflow-picture.tsx`                                        | The same canvas read only, for any version, with a run's colours when given one.                                                                                                                                 |
+| `StepCard`, `WireLayer`, `StepMark`                                                                                                   | `step-card.tsx`, `wire-layer.tsx`, `step-mark.tsx`            | One card, the arrows, and a step's picture or icon.                                                                                                                                                              |
+| `AddStepDrawer`                                                                                                                       | `add-step-drawer.tsx`                                         | The step search. Lists logic steps, steps needing no account and services with a connected account; a failed accounts read counts as none. Ends with Connect another service for those who may connect accounts. |
+| `StepPanel`, `WirePanel`, `TouchesPanel`, `SettingsPanel`, `VersionsPanel`                                                            | same names, kebab case                                        | The right-hand panel.                                                                                                                                                                                            |
+| `ValueField`, `DataPicker`, `OperationForm`                                                                                           | `steps/`                                                      | A field takes one typed value or one earlier path, never both. The picker reads the server's step data, or the catalog for a step not saved yet.                                                                 |
+| `TriggerPanel`, `ActionStepPanel`, `ConditionStepPanel`, `TransformStepPanel`, `ApprovalStepPanel`, `WaitStepPanel`, `OtherStepPanel` | `steps/`                                                      | One per kind. A kind not editable yet is shown and sent back unchanged.                                                                                                                                          |
+| `StepsOutline`                                                                                                                        | `steps-outline.tsx`                                           | The keyboard path: every step in order, to pick, add after, connect or remove.                                                                                                                                   |
+| `PublishSheet`, `HeldBanner`, `BuilderTopBar`                                                                                         | `publish-sheet.tsx`, `held-banner.tsx`, `builder-top-bar.tsx` | Turn on with its changes and refusals; why a version is held; name, status and tools.                                                                                                                            |
+
+| Component or file                                       | File                              | What it does                                                                                                                                                                        |
+| ------------------------------------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TryItModal`, `RunBar`                                  | `try-it-modal.tsx`, `run-bar.tsx` | Starts a test of the saved draft; the run colours the canvas in place and the bar says how it stands.                                                                               |
+| `AgentStepPanel`, `GuardrailStepPanel`, `LoopStepPanel` | `steps/`                          | Those kinds of step. A loop's steps are edited in the same panels; the picker inside a loop is built in the browser.                                                                |
+| `PickerField`, `TargetPicker`, `StepPreview`            | `steps/`                          | Fill a picker through the step's account, pick an app, data system or memory, and show what the step will send.                                                                     |
+| `MoneyInput`                                            | `steps/money-input.tsx`           | Units on screen, millionths on the wire. Also used by the flow node form.                                                                                                           |
+| `EvaluationsPage`                                       | `evaluations-page.tsx`            | Sample cases, the publish gate and the latest evaluations, read again every 5 seconds while one runs. Saving is off while any case is withheld, because a save replaces every case. |
+| `BuildForMeModal`                                       | `build-for-me-modal.tsx`          | Words or an example become proposed steps (`suggestion-to-working-copy.ts`, `workflow-examples.ts`); with a step, it suggests what follows it.                                      |
+
+`RouteActionsMenu` and `StreamRouteActionsMenu` offer Open to workflows and Close to workflows; a stream route asks for the login in `OpenStreamRouteModal`.
+
+The Save button in `BuilderTopBar` saves at once and creates a new workflow even with no finished step: the API refuses a graph with no step, so such a draft holds one empty step (`EMPTY_DRAFT_KEY`) that is never drawn and is replaced by the first real step. `use-draft-saving.ts` sends complete steps by itself, one edit at a time, with `arrange` apart so moving a card makes no revision. A step not complete stays local, its arrows joined across it on the server, and the copy is kept in `sessionStorage` per workflow (`draft-stash.ts`). `use-draft-stream.ts` reads the draft again on a stream frame and every 15 seconds. `tidy.ts`, `canvas-scene.ts`, `step-issues.ts`, `draft-diff.ts` and `what-it-touches.ts` are pure functions.
+
+## Connected accounts
+
+These live in `workflows/connected-accounts`.
+
+| Component               | File                          | What it does                                                                                                                                                    |
+| ----------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ConnectedAccountsCard` | `connected-accounts-card.tsx` | The accounts workflows act through, a page at a time. Connect an account shows the list of services above the accounts.                                         |
+| `ConnectAccountList`    | `connect-account-list.tsx`    | A popup over the accounts list, with a search and one row per service. Selecting a row shows that service's key field or sign-in beneath it, in the popup. A key is sent once and kept nowhere. |
+| `AccountActionsMenu`    | `account-actions-menu.tsx`    | Rename, turn off or on; replace the key, limit and share for the owner only.                                                                                    |
+| `AccountChangeModal`    | `account-change-modal.tsx`    | Rename, Replace the key, or Limit what it may do.                                                                                                               |
+
+## Sandboxes
+
+These live in `workflows/sandboxes` and read through the service `sandboxes`. The code editor is CodeMirror, loaded by `code-editor-loader.tsx` only when a sandbox page draws it.
+
+| Component            | File                       | What it does                                                                                                                        |
+| -------------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `SandboxesCard`      | `sandboxes-card.tsx`       | The sandboxes, a page at a time, with a link to the registries for those who may connect accounts.                                  |
+| `CreateSandboxModal` | `create-sandbox-modal.tsx` | Name, and Python, JavaScript or a company image.                                                                                    |
+| `SandboxActionsMenu` | `sandbox-actions-menu.tsx` | Open and Archive.                                                                                                                   |
+| `SandboxDetailPage`  | `sandbox-detail-page.tsx`  | One sandbox and its versions. Reads again every 5 seconds while a version builds.                                                   |
+| `VersionDetails`     | `version-details.tsx`      | One saved version: what it runs, its limits, hosts, packages, where it was imported from, its code.                                 |
+| `VersionBuildStatus` | `version-build-status.tsx` | How its build went, in plain words, and packages to pin next.                                                                       |
+| `VersionEditor`      | `version-editor.tsx`       | The next version: written or imported code, packages, runtime, limits, hosts, or a company image. Starts from the selected version. |
+| `PackageList`        | `package-list.tsx`         | The pinned packages, each at one exact version.                                                                                     |
+| `HeldAgentForm`      | `held-agent-form.tsx`      | The agent a version holds and its rules. Amounts are in units; millionths on the wire (`utils/micros.ts`).                          |
+| `WriteCodeModal`     | `write-code-modal.tsx`     | Has the tenant's model write code from words, or fix a failed trial. Saves nothing.                                                 |
+| `TrialPanel`         | `trial-panel.tsx`          | Tries a built version on sample input and reads the trial until it ends.                                                            |
+| `PushVersionModal`   | `push-version-modal.tsx`   | Sends a copy of a version to a repository.                                                                                          |
+| `RegistriesPage`     | `registries-page.tsx`      | The image registries a tenant allowed.                                                                                              |
+| `AllowRegistryModal` | `allow-registry-modal.tsx` | Host and login. The password goes straight to the API from this form and is kept nowhere else.                                      |
+
+## Memories
+
+These live in `workflows/memories` and read through the service `memories`. The API has no read of one memory, so `MemoryDetailPage` finds it in the list.
+
+| Component           | File                      | What it does                                                                    |
+| ------------------- | ------------------------- | ------------------------------------------------------------------------------- |
+| `MemoriesCard`      | `memories-card.tsx`       | The memories with their model, sensitivity and status.                          |
+| `CreateMemoryModal` | `create-memory-modal.tsx` | Name, what fills it and how sensitive it may be.                                |
+| `MemoryDeleteModal` | `memory-delete-modal.tsx` | Delete with the name typed to confirm.                                          |
+| `MemoryDetailPage`  | `memory-detail-page.tsx`  | One memory, Delete or Bring back.                                               |
+| `MemoryTexts`       | `memory-texts.tsx`        | Its texts page by page, shown only to those with the right to delete workflows. |
+
+## Risks
+
+These live in `workflows/risks` and read through the service `workflow-risks`.
+
+| Component        | File                         | What it does                                                                                |
+| ---------------- | ---------------------------- | ------------------------------------------------------------------------------------------- |
+| `RisksCard`      | `risks/risks-card.tsx`       | The Risks tab: steps raised above what their service declares. Removing needs full control. |
+| `RaiseRiskModal` | `risks/raise-risk-modal.tsx` | Raises a step, or changes one. Picking a step already raised changes that one.              |
+
+## Tools
+
+These are `tools-card.tsx` and the folder `tools/`. Tools are the actions agents may call, such as MCP tools.
+
+| Component           | File                            | What it does                                                     |
+| ------------------- | ------------------------------- | ---------------------------------------------------------------- |
+| `ToolsCard`         | `tools-card.tsx`                | The tools: register one, add example tools, see a tool's schema. |
+| `ToolsTable`        | `tools/tools-table.tsx`         | The tools, with method and action class.                         |
+| `ToolActionsMenu`   | `tools/tool-actions-menu.tsx`   | Turn a tool on or off, and delete it.                            |
+| `RegisterToolModal` | `tools/register-tool-modal.tsx` | Name, description, method and schema.                            |
+| `ToolSchemaModal`   | `tools/tool-schema-modal.tsx`   | Shows a tool's schema.                                           |
+
+## Model providers
+
+These are `model-providers-card.tsx` and the folder `model-providers/`.
+
+| Component                  | File                                              | What it does                                                                                       |
+| -------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `ModelProvidersCard`       | `model-providers-card.tsx`                        | The language model providers agents can use: connect, test the connection, turn on or off, delete. |
+| `ModelProvidersTable`      | `model-providers/model-providers-table.tsx`       | The providers, with kind, model and the last test's result.                                        |
+| `ModelProviderActionsMenu` | `model-providers/model-provider-actions-menu.tsx` | Set its data clearance and embedding model, turn it on or off, and delete it.      |
+| `ConnectProviderModal`     | `model-providers/connect-provider-modal.tsx`      | Name, kind, model and credentials.                                                                 |
+| `TestStatus`               | `model-providers/test-status.tsx`                 | Shows what "Test" found: success, or a failure in plain words.                                     |
+| `EmbeddingModelModal`      | `model-providers/embedding-model-modal.tsx`       | Sets the embedding model a provider offers for memories. Not offered for Anthropic.                |
+| `ProviderClearanceModal`   | `model-providers/provider-clearance-modal.tsx`    | Sets the most sensitive data runs and memories may send a provider.                |

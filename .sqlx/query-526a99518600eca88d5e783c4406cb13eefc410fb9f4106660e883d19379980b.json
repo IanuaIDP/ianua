@@ -1,0 +1,49 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The value one attribute holds for each of the given users of a tenant,\n-- read beside a page sorted by it.\nSELECT user_id, value_text, value_int, value_float, value_bool\nFROM user_metadata\nWHERE tenant_id = $1 AND user_id = ANY($2) AND namespace = $3 AND key = $4\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "value_text",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "value_int",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "value_float",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 4,
+        "name": "value_bool",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "526a99518600eca88d5e783c4406cb13eefc410fb9f4106660e883d19379980b"
+}

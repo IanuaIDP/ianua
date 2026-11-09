@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps how a trial went, only while the stored trial still runs, so a\n-- second try that raced the first changes nothing.\nUPDATE sandbox_trials\nSET state = $3, output = $4, failure = $5, failure_detail = $6, updated_at = $7\nWHERE tenant_id = $1 AND id = $2 AND state = 'running'\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Jsonb",
+        "Text",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b5188d58ceac6db2abbb798fdccb27320295cca941fba6b38c531dc2c397a90c"
+}

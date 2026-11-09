@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Records a peer's logout request to a tenant as taken until it expires,\n-- answering its id only when this statement was the one that took it.\nINSERT INTO taken_logout_requests (tenant_id, issuer, request_id, expires_at)\nVALUES ($1, $2, $3, $4)\nON CONFLICT (tenant_id, issuer, request_id) DO NOTHING\nRETURNING request_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "request_id",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "c9a9bc1fc1195c9ac9ba8652d90f691d6f797e00390985c8fc426454e1ecba70"
+}

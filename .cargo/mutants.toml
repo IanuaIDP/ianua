@@ -1,0 +1,40 @@
+# Mutation testing settings.
+#
+# A surviving mutant is a line that could be wrong without any test noticing,
+# which for an IDP is the shape of every bug worth fearing: a check that
+# silently stopped happening. Coverage says a line ran; this says a test would
+# object if it changed.
+#
+# Run it over the code where that matters rather than the whole workspace:
+#
+#   cargo mutants -j 8 -p ianua-domain -f 'crates/ianua-domain/src/domains/proxy/**'
+#
+# Scoping to `--lib` keeps the run on the pure tests. The integration suites
+# need Postgres, and a testcontainer per mutant is an overnight job.
+
+test_tool = "nextest"
+additional_cargo_test_args = ["--lib"]
+
+# The in-memory fakes are test scaffolding. Mutating a fake store to return an
+# empty vec proves nothing about the code under test — it just breaks the
+# fixture, and it survives because no test asserts on the fake itself.
+exclude_re = [
+    "tests::",
+    "impl .* for Fake",
+    "impl .* for Rejecting",
+    "impl .* for Recording",
+    "impl .* for Stub",
+]
+
+# Generated, transport-shaped, or otherwise not where a security bug lives.
+#
+# `ianua-infra/src/bin/**` holds the nextest setup scripts that start Postgres,
+# Redis and NATS. Mutating one breaks the harness rather than the code under
+# test: the containers never come up, every test errors, and the mutant is
+# scored as missed because nothing objected.
+exclude_globs = [
+    "crates/ianua-proto/**",
+    "crates/ianua-scenarios/**",
+    "crates/ianua-infra/src/bin/**",
+    "**/test_support/**",
+]

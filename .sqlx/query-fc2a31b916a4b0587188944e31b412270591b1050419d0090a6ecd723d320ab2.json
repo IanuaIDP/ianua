@@ -1,0 +1,191 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The sandbox versions of one tenant that the ids name.\nSELECT id, sandbox_id, number, program, runtime, image, code, packages, image_bytes,\n    run_seconds, memory_mib, build, bundle_digest, bundle_bytes, unlisted, failure,\n    failure_detail, scan_high, scan_medium, scan_low, saved_by, created_at, updated_at,\n    allowed_hosts, source_integration, source_repository, source_path, source_commit,\n    held_agent\nFROM sandbox_versions\nWHERE tenant_id = $1 AND id = ANY($2)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "sandbox_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "number",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "program",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "runtime",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "image",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "code",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "packages",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 8,
+        "name": "image_bytes",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 9,
+        "name": "run_seconds",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 10,
+        "name": "memory_mib",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 11,
+        "name": "build",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "bundle_digest",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 13,
+        "name": "bundle_bytes",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 14,
+        "name": "unlisted",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 15,
+        "name": "failure",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 16,
+        "name": "failure_detail",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 17,
+        "name": "scan_high",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 18,
+        "name": "scan_medium",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 19,
+        "name": "scan_low",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 20,
+        "name": "saved_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 21,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 22,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 23,
+        "name": "allowed_hosts",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 24,
+        "name": "source_integration",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 25,
+        "name": "source_repository",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 26,
+        "name": "source_path",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 27,
+        "name": "source_commit",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 28,
+        "name": "held_agent",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "fc2a31b916a4b0587188944e31b412270591b1050419d0090a6ecd723d320ab2"
+}

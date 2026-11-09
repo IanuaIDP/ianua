@@ -1,0 +1,316 @@
+{
+  "endpoints": {
+    "delete /cards/{id}": {
+      "answer": [],
+      "body": [],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /boards/{id}/labels": {
+      "answer": [],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "fields": false,
+        "limit": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /boards/{id}/lists": {
+      "answer": [
+        "closed",
+        "id",
+        "idBoard",
+        "limits",
+        "name",
+        "pos",
+        "softLimit",
+        "subscribed"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "card_fields": false,
+        "cards": false,
+        "fields": false,
+        "filter": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /boards/{id}/members": {
+      "answer": [],
+      "body": [],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /cards/{id}": {
+      "answer": [
+        "address",
+        "badges",
+        "cardRole",
+        "checkItemStates",
+        "closed",
+        "coordinates",
+        "cover",
+        "creationMethod",
+        "dateLastActivity",
+        "desc",
+        "descData",
+        "due",
+        "dueReminder",
+        "id",
+        "idAttachmentCover",
+        "idBoard",
+        "idChecklists",
+        "idLabels",
+        "idList",
+        "idMembers",
+        "idMembersVoted",
+        "idShort",
+        "labels",
+        "limits",
+        "locationName",
+        "manualCoverAttachment",
+        "mirrorSourceId",
+        "name",
+        "pos",
+        "shortLink",
+        "shortUrl",
+        "subscribed",
+        "url"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "actions": false,
+        "attachment_fields": false,
+        "attachments": false,
+        "board": false,
+        "board_fields": false,
+        "checkItemStates": false,
+        "checklist_fields": false,
+        "checklists": false,
+        "customFieldItems": false,
+        "fields": false,
+        "list": false,
+        "memberVoted_fields": false,
+        "member_fields": false,
+        "members": false,
+        "membersVoted": false,
+        "pluginData": false,
+        "sticker_fields": false,
+        "stickers": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /members/{id}/boards": {
+      "answer": [
+        "closed",
+        "creationMethod",
+        "dateLastActivity",
+        "dateLastView",
+        "datePluginDisable",
+        "desc",
+        "descData",
+        "enterpriseOwned",
+        "id",
+        "idMemberCreator",
+        "idOrganization",
+        "idTags",
+        "ixUpdate",
+        "labelNames",
+        "limits",
+        "memberships",
+        "name",
+        "pinned",
+        "powerUps",
+        "prefs",
+        "shortLink",
+        "shortUrl",
+        "starred",
+        "subscribed",
+        "templateGallery",
+        "url"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "fields": false,
+        "filter": false,
+        "lists": false,
+        "organization": false,
+        "organization_fields": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /cards": {
+      "answer": [
+        "address",
+        "badges",
+        "cardRole",
+        "checkItemStates",
+        "closed",
+        "coordinates",
+        "cover",
+        "creationMethod",
+        "dateLastActivity",
+        "desc",
+        "descData",
+        "due",
+        "dueReminder",
+        "id",
+        "idAttachmentCover",
+        "idBoard",
+        "idChecklists",
+        "idLabels",
+        "idList",
+        "idMembers",
+        "idMembersVoted",
+        "idShort",
+        "labels",
+        "limits",
+        "locationName",
+        "manualCoverAttachment",
+        "mirrorSourceId",
+        "name",
+        "pos",
+        "shortLink",
+        "shortUrl",
+        "subscribed",
+        "url"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "address": false,
+        "cardRole": false,
+        "coordinates": false,
+        "desc": false,
+        "due": false,
+        "dueComplete": false,
+        "fileSource": false,
+        "idCardSource": false,
+        "idLabels": false,
+        "idList": true,
+        "idMembers": false,
+        "keepFromSource": false,
+        "locationName": false,
+        "mimeType": false,
+        "name": false,
+        "pos": false,
+        "start": false,
+        "urlSource": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /cards/{id}/actions/comments": {
+      "answer": [
+        "data",
+        "date",
+        "display",
+        "id",
+        "idMemberCreator",
+        "limits",
+        "memberCreator",
+        "type"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "text": true
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /cards/{id}/idLabels": {
+      "answer": [],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "value": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "put /cards/{id}": {
+      "answer": [
+        "address",
+        "badges",
+        "cardRole",
+        "checkItemStates",
+        "closed",
+        "coordinates",
+        "cover",
+        "creationMethod",
+        "dateLastActivity",
+        "desc",
+        "descData",
+        "due",
+        "dueReminder",
+        "id",
+        "idAttachmentCover",
+        "idBoard",
+        "idChecklists",
+        "idLabels",
+        "idList",
+        "idMembers",
+        "idMembersVoted",
+        "idShort",
+        "labels",
+        "limits",
+        "locationName",
+        "manualCoverAttachment",
+        "mirrorSourceId",
+        "name",
+        "pos",
+        "shortLink",
+        "shortUrl",
+        "subscribed",
+        "url"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "address": false,
+        "closed": false,
+        "coordinates": false,
+        "cover": false,
+        "desc": false,
+        "due": false,
+        "dueComplete": false,
+        "idAttachmentCover": false,
+        "idBoard": false,
+        "idLabels": false,
+        "idList": false,
+        "idMembers": false,
+        "locationName": false,
+        "name": false,
+        "pos": false,
+        "start": false,
+        "subscribed": false
+      },
+      "statuses": [
+        "200"
+      ]
+    }
+  },
+  "version": "0.0.1"
+}

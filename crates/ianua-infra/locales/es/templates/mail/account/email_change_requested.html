@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Se ha solicitado cambiar la dirección de su cuenta{% endblock %}
+{% block preheader %}Se ha solicitado trasladar su cuenta a otra dirección.{% endblock %}
+{% block headline %}Se ha solicitado cambiar la dirección de su cuenta{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para() %}Se ha solicitado cambiar la dirección de su cuenta en <strong>{{ tenant_name | default("su organización") }}</strong> a <strong>{{ user_email }}</strong>{% if ip_address is defined %}, desde {{ ip_address }}{% endif %}.{% endcall %}
+  {% call c.para(pad=8) %}Si no fue usted, detenga el cambio ahora. Su cuenta conservará esta dirección.{% endcall %}
+  {{ c.cta(action_url, "Detener el cambio") }}
+  {% call c.para(pad=0) %}Puede detener el cambio durante {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Si lo solicitó usted, no necesita hacer nada.{% endcall %}
+{% endblock %}

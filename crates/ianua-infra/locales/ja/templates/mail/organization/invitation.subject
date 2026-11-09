@@ -1,0 +1,1 @@
+{{ organization_name | default("組織") }}への参加に招待されています

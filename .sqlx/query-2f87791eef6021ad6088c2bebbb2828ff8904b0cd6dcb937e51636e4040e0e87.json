@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Replaces the secret of a waiting registration with the one its service\n-- chose. Only the first is taken, in one statement, so two arriving at once\n-- leave one.\nUPDATE workflow_service_subscriptions SET\n    secret_sealed = $3,\n    secret_given_at = $4\nWHERE tenant_id = $1 AND id = $2 AND status = 'registering' AND secret_given_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2f87791eef6021ad6088c2bebbb2828ff8904b0cd6dcb937e51636e4040e0e87"
+}

@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Votre compte a été lié à {{ provider_name | default("un fournisseur de connexion") }}{% endblock %}
+{% block preheader %}Un fournisseur de connexion peut désormais vous connecter.{% endblock %}
+{% block headline %}Votre compte a été lié{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("cher utilisateur")) }}
+  {% call c.para() %}Une première connexion à votre compte dans <strong>{{ tenant_name | default("votre organisation") }}</strong> a été effectuée via <strong>{{ provider_name | default("un fournisseur de connexion") }}</strong>{% if ip_address is defined %}, depuis {{ ip_address }}{% endif %}. Ce fournisseur peut désormais vous connecter.{% endcall %}
+  {% call c.para(pad=32) %}Si ce n’était pas vous, prévenez immédiatement votre administrateur.{% endcall %}
+{% endblock %}

@@ -1,0 +1,43 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every page one person opened of the items one loop of one run asked an\n-- approval for, of any opening.\nSELECT opening, first_item, item_count, opened_at\nFROM workflow_approval_pages\nWHERE tenant_id = $1 AND execution_id = $2 AND step = $3 AND person = $4\nORDER BY opened_at, first_item\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "opening",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "first_item",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "item_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "opened_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "f10c982919cc4aa2bf753d2add3a489008e7f1345b5bf116b44002c96e92172b"
+}

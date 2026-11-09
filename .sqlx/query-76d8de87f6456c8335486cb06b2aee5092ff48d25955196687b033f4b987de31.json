@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an organization's subscription: a new one is added, the one it\n-- has takes the new values. When it started never changes.\nINSERT INTO org_subscriptions\n    (organization_id, plan, cycle, state, trial_ends_at, past_due_since,\n     payment_reference, trial, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\nON CONFLICT (organization_id) DO UPDATE SET\n    plan = EXCLUDED.plan,\n    cycle = EXCLUDED.cycle,\n    state = EXCLUDED.state,\n    trial_ends_at = EXCLUDED.trial_ends_at,\n    past_due_since = EXCLUDED.past_due_since,\n    payment_reference = EXCLUDED.payment_reference,\n    trial = EXCLUDED.trial,\n    updated_at = EXCLUDED.updated_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "76d8de87f6456c8335486cb06b2aee5092ff48d25955196687b033f4b987de31"
+}

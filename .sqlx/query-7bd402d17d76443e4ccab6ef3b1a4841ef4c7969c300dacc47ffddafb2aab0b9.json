@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The recovery codes of a user's set, each with when it was used.\nSELECT code_hash, used_at\nFROM recovery_codes\nWHERE tenant_id = $1 AND user_id = $2\nORDER BY code_hash\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "code_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "used_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true
+    ]
+  },
+  "hash": "7bd402d17d76443e4ccab6ef3b1a4841ef4c7969c300dacc47ffddafb2aab0b9"
+}

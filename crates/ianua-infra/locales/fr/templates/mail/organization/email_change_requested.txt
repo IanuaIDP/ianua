@@ -1,0 +1,12 @@
+Bonjour {{ user_name | default("cher utilisateur") }},
+
+Une demande de changement de l’adresse de votre compte dans {{ organization_name | default("votre organisation") }} vers {{ user_email }} a été faite{% if ip_address is defined %} depuis {{ ip_address }}{% endif %}.
+
+Si vous n’êtes pas à l’origine de cette demande, annulez le changement maintenant. Votre compte conservera cette adresse :
+{{ action_url }}
+
+Vous pouvez annuler le changement pendant {{ expires_at }}.
+
+Si vous avez vous-même fait cette demande, aucune action n’est nécessaire.
+
+IANUA

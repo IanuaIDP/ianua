@@ -1,0 +1,84 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- A tenant's evaluations still running past their deadline, oldest\n-- first, at most $3 of them.\nSELECT id, workflow_id, version, revision, cases, outcomes, state, started_by, deadline,\n    created_at, updated_at\nFROM evaluations\nWHERE tenant_id = $1 AND state = 'running' AND deadline <= $2\nORDER BY deadline\nLIMIT $3\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "workflow_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "version",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "revision",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "cases",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 5,
+        "name": "outcomes",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 6,
+        "name": "state",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "started_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 8,
+        "name": "deadline",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "12c0e3ccd09746246ea63547890a666c0ce9214fa624efa10c1771e344ddfa50"
+}

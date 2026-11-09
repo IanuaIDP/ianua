@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% import "sign_in/parts.html" as p %}
+
+{% block title %}Bei {{ workspace }} anmelden{% endblock %}
+
+{% block content %}
+      <h1>Willkommen zurück</h1>
+      <p class="subtitle">Melden Sie sich bei {{ workspace }} an, um fortzufahren</p>
+      {{ p.note(note, {}) }}
+      <form method="post" action="{{ form_path }}">
+        {{ p.field("email", "E-Mail-Adresse", "email", "username") }}
+        {{ p.field("password", "Passwort", "password", "current-password") }}
+        {{ p.return_to(return_to) }}
+        {{ p.submit("Anmelden") }}
+      </form>
+      {%- for choice in single_sign_on %}
+      <p class="footer"><a href="{{ choice.href }}">Mit {{ choice.name }} fortfahren</a></p>
+      {%- endfor %}
+      {%- if passkey_path and passkey_script_path %}
+      <p class="footer"><button type="button" id="passkey" data-address="{{ passkey_path }}"{% if return_to %} data-return-to="{{ return_to }}"{% endif %} hidden>Mit einem Passkey anmelden</button></p>
+      <script src="{{ passkey_script_path }}" defer></script>
+      {%- endif %}
+      {%- if forgot_password_path %}
+      {{ p.link("Passwort vergessen?", forgot_password_path, "Zurücksetzen") }}
+      {%- endif %}
+      {%- if sign_up_path %}
+      {{ p.link("Neu hier?", sign_up_path, "Konto erstellen") }}
+      {%- endif %}
+{% endblock %}

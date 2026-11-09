@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The most record sets any one of the given tenants holds across the zones\n-- it delegated, for a plan's usage.\nSELECT coalesce(max(held), 0) AS \"most!\"\nFROM (\n    SELECT count(*) AS held\n    FROM dns_records\n    WHERE tenant_id = ANY($1)\n    GROUP BY tenant_id\n) AS counted\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "most!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "f2796751c6bd33ab6ff4828e11e2e5a390e8d506f57df05e61769583b90fe91d"
+}

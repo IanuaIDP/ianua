@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}管理员申请以您的身份操作{% endblock %}
+{% block preheader %}请登录后批准或拒绝申请。{% endblock %}
+{% block headline %}管理员申请以您的身份操作{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("用户")) }}
+  {% call c.para() %}<strong>{{ tenant_name | default("您的组织") }}</strong> 的 <strong>{{ requester_name | default("一位管理员") }}</strong> 申请以您的身份操作，以帮助处理账户问题。{% endcall %}
+  {% if reason is defined %}{% call c.para() %}原因：{{ reason }}{% endcall %}{% endif %}
+  {% call c.para() %}请登录账户以批准或拒绝。此申请将在 {{ expires_at }} 后过期。{% endcall %}
+  {% call c.para(pad=32) %}未经您的批准，不会执行任何操作。如果您未预期收到此申请，请拒绝并告知管理员。{% endcall %}
+{% endblock %}

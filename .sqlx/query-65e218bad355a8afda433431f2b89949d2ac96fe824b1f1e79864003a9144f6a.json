@@ -1,0 +1,38 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The domains of every tenant in this database that serve, for the\n-- gateway: proved, and with an active certificate where one is needed, as\n-- `RegisteredDomain::is_active` holds them.\nSELECT tenant_id, id, domain, tls_status\nFROM registered_domains\nWHERE verification_status = 'verified' AND tls_status IN ('not_required', 'active')\nORDER BY tenant_id, id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "domain",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "tls_status",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "65e218bad355a8afda433431f2b89949d2ac96fe824b1f1e79864003a9144f6a"
+}

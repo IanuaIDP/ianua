@@ -1,0 +1,7 @@
+Bonjour {{ user_name | default("cher utilisateur") }},
+
+Un propriétaire de {{ organization_name | default("votre organisation") }} a réinitialisé le second facteur de votre compte IANUA, et vous avez été déconnecté partout. Reconnectez-vous avec votre mot de passe et configurez un nouveau second facteur.
+
+Si vous n’avez pas fait cette demande, prévenez immédiatement un propriétaire de votre organisation.
+
+IANUA

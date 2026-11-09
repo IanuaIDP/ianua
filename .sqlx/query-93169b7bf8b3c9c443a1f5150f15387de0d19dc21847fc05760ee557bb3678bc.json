@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes the members' sessions that expired before the given time, the\n-- end of their retention. A session in force expires later, so it stays.\nDELETE FROM org_sessions\nWHERE expires_at < $1\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "93169b7bf8b3c9c443a1f5150f15387de0d19dc21847fc05760ee557bb3678bc"
+}

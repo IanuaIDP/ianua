@@ -1,0 +1,11 @@
+Bonjour {{ user_name | default("cher utilisateur") }},
+
+{{ requester_name | default("Un administrateur") }} de {{ tenant_name | default("votre organisation") }} demande à agir en votre nom pour vous aider avec votre compte.
+{% if reason is defined %}
+Motif : {{ reason }}
+{% endif %}
+Connectez-vous à votre compte pour approuver ou refuser. La demande expire dans {{ expires_at }}.
+
+Rien ne se passe sans votre approbation. Si vous ne vous attendiez pas à cette demande, refusez-la et prévenez votre administrateur.
+
+IANUA

@@ -1,0 +1,51 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- One bounded batch after the complete key of the last attempted membership.\nSELECT group_id, principal_kind, principal_id, joined_at, expires_at\nFROM group_memberships\nWHERE tenant_id = $1 AND expires_at IS NOT NULL AND expires_at <= $2\n  AND (expires_at, group_id, principal_kind, principal_id) > ($3, $4, $5, $6)\nORDER BY expires_at, group_id, principal_kind, principal_id\nLIMIT 500\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "group_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "principal_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "principal_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "joined_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz",
+        "Uuid",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "15a6e22624c9e74d0e2314d4c9225410547bf319192361226870c9d0337b21c1"
+}

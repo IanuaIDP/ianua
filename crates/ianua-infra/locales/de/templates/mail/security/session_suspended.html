@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Eine Sitzung wurde beendet{% endblock %}
+{% block preheader %}Eine Sitzung Ihres Kontos wurde zu dessen Schutz beendet.{% endblock %}
+{% block headline %}Eine Sitzung wurde beendet{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("")) }}
+  {% call c.para() %}Eine Sitzung Ihres Kontos bei <strong>{{ tenant_name | default("Ihrer Organisation") }}</strong> wurde nach ungewöhnlich wirkenden Aktivitäten beendet{% if ip_address is defined %}, die von {{ ip_address }} kamen{% endif %}.{% endcall %}
+  {% call c.para(pad=32) %}Wenn Sie das waren, melden Sie sich erneut an, um fortzufahren. Andernfalls ändern Sie jetzt Ihr Passwort und überprüfen Sie Ihre aktiven Sitzungen.{% endcall %}
+{% endblock %}

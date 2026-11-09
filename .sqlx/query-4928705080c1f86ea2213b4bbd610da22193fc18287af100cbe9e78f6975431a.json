@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Writes the groups a connection's mapping put an account of a tenant in,\n-- all in one statement, each at its place in the list.\nINSERT INTO mapped_holding_groups (tenant_id, connection_id, user_id, group_id, position)\nSELECT $1, $2, $3, given.group_id, given.position::integer\nFROM UNNEST($4::uuid[]) WITH ORDINALITY AS given (group_id, position)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4928705080c1f86ea2213b4bbd610da22193fc18287af100cbe9e78f6975431a"
+}

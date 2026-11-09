@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a tenant's clearance rules, replacing what was stored.\nINSERT INTO clearance_rules (tenant_id, permissions, levels, updated_at)\nVALUES ($1, $2, $3, $4)\nON CONFLICT (tenant_id) DO UPDATE SET\n    permissions = EXCLUDED.permissions,\n    levels = EXCLUDED.levels,\n    updated_at = EXCLUDED.updated_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "TextArray",
+        "TextArray",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4e8c37cf180a98da9e71cfd269cf2135bc261421921e96434dda606718d378fa"
+}

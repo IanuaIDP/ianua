@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a certificate for a domain one tenant claims: a new one is added\n-- as the newest of its domain; a known one of the same tenant takes the\n-- chain and the sealed key again. Its domain, tenant and place in the\n-- order never change.\nINSERT INTO domain_certificates\n    (id, tenant_id, domain_id, certificate_pem, private_key, issued_at, expires_at,\n     source, issuer, subject_names)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\nON CONFLICT (id) DO UPDATE SET\n    certificate_pem = EXCLUDED.certificate_pem,\n    private_key = EXCLUDED.private_key\nWHERE domain_certificates.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Text",
+        "Text",
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e33dcb56b2e4147444030b6535f3885bfaed4d3d5afc165c089b969f709cf884"
+}

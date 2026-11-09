@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an organization's branding: made the first time, changed after.\n-- When it was first made never changes.\nINSERT INTO org_branding\n    (organization_id, logo_url, primary_color, sender_name, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6)\nON CONFLICT (organization_id) DO UPDATE SET\n    logo_url = EXCLUDED.logo_url,\n    primary_color = EXCLUDED.primary_color,\n    sender_name = EXCLUDED.sender_name,\n    updated_at = EXCLUDED.updated_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "92a37a905015bf690e194d3c897d54d4d67a5ac9655a2880808256a021803af0"
+}

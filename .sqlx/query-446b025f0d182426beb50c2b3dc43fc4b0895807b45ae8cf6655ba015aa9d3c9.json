@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an integration account: a new one is added, a known one takes its\n-- new values. Its integration, owner and when it was connected never\n-- change.\nINSERT INTO integration_accounts\n    (id, tenant_id, integration, name, credential_sealed, owner, sharing, operations, status,\n     created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\nON CONFLICT (id) DO UPDATE SET\n    name = EXCLUDED.name,\n    credential_sealed = EXCLUDED.credential_sealed,\n    sharing = EXCLUDED.sharing,\n    operations = EXCLUDED.operations,\n    status = EXCLUDED.status,\n    updated_at = EXCLUDED.updated_at\nWHERE integration_accounts.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Jsonb",
+        "Text",
+        "TextArray",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "446b025f0d182426beb50c2b3dc43fc4b0895807b45ae8cf6655ba015aa9d3c9"
+}

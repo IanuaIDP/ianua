@@ -1,0 +1,369 @@
+{
+  "endpoints": {
+    "delete /v2/task/{task_id}": {
+      "answer": [],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "custom_task_ids": false,
+        "team_id": false
+      },
+      "statuses": [
+        "204"
+      ]
+    },
+    "get /v2/folder/{folder_id}/list": {
+      "answer": [
+        "lists"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "archived": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /v2/list/{list_id}": {
+      "answer": [
+        "archived",
+        "assignee",
+        "content",
+        "due_date",
+        "due_date_time",
+        "folder",
+        "id",
+        "inbound_address",
+        "name",
+        "orderindex",
+        "override_statuses",
+        "permission_level",
+        "priority",
+        "space",
+        "start_date",
+        "start_date_time",
+        "status",
+        "statuses",
+        "task_count"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /v2/list/{list_id}/member": {
+      "answer": [
+        "members"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /v2/space/{space_id}/folder": {
+      "answer": [
+        "folders"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "archived": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /v2/space/{space_id}/list": {
+      "answer": [
+        "lists"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "archived": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /v2/task/{task_id}": {
+      "answer": [
+        "archived",
+        "assignees",
+        "attachments",
+        "checklists",
+        "creator",
+        "custom_fields",
+        "custom_id",
+        "custom_item_id",
+        "date_closed",
+        "date_created",
+        "date_done",
+        "date_updated",
+        "dependencies",
+        "description",
+        "due_date",
+        "folder",
+        "group_assignees",
+        "id",
+        "linked_tasks",
+        "list",
+        "locations",
+        "markdown_description",
+        "name",
+        "orderindex",
+        "parent",
+        "permission_level",
+        "points",
+        "priority",
+        "project",
+        "sharing",
+        "space",
+        "start_date",
+        "status",
+        "subtasks",
+        "tags",
+        "team_id",
+        "text_content",
+        "time_estimate",
+        "time_spent",
+        "top_level_parent",
+        "url",
+        "watchers"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "custom_fields": false,
+        "custom_task_ids": false,
+        "include_markdown_description": false,
+        "include_subtasks": false,
+        "team_id": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /v2/team": {
+      "answer": [
+        "teams"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /v2/team/{team_id}/space": {
+      "answer": [
+        "spaces"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "archived": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /v2/list/{list_id}/task": {
+      "answer": [
+        "archived",
+        "assignees",
+        "checklists",
+        "creator",
+        "custom_fields",
+        "custom_id",
+        "custom_item_id",
+        "date_closed",
+        "date_created",
+        "date_done",
+        "date_updated",
+        "dependencies",
+        "description",
+        "due_date",
+        "folder",
+        "group_assignees",
+        "id",
+        "linked_tasks",
+        "list",
+        "locations",
+        "markdown_description",
+        "name",
+        "orderindex",
+        "parent",
+        "permission_level",
+        "points",
+        "priority",
+        "project",
+        "sharing",
+        "space",
+        "start_date",
+        "status",
+        "tags",
+        "team_id",
+        "text_content",
+        "time_estimate",
+        "time_spent",
+        "top_level_parent",
+        "url",
+        "watchers"
+      ],
+      "body": [
+        "archived",
+        "assignees",
+        "check_required_custom_fields",
+        "custom_fields",
+        "custom_item_id",
+        "description",
+        "due_date",
+        "due_date_time",
+        "group_assignees",
+        "links_to",
+        "markdown_content",
+        "name",
+        "notify_all",
+        "parent",
+        "points",
+        "priority",
+        "start_date",
+        "start_date_time",
+        "status",
+        "tags",
+        "time_estimate"
+      ],
+      "body_paths": [
+        "assignees"
+      ],
+      "body_required": [
+        "name"
+      ],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /v2/task/{task_id}/comment": {
+      "answer": [
+        "date",
+        "hist_id",
+        "id"
+      ],
+      "body": [
+        "assignee",
+        "comment_text",
+        "group_assignee",
+        "notify_all"
+      ],
+      "body_required": [
+        "comment_text",
+        "notify_all"
+      ],
+      "query": {
+        "custom_task_ids": false,
+        "team_id": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /v2/task/{task_id}/tag/{tag_name}": {
+      "answer": [],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "custom_task_ids": false,
+        "team_id": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "put /v2/task/{task_id}": {
+      "answer": [
+        "archived",
+        "assignees",
+        "attachments",
+        "checklists",
+        "creator",
+        "custom_fields",
+        "custom_id",
+        "custom_item_id",
+        "date_closed",
+        "date_created",
+        "date_done",
+        "date_updated",
+        "dependencies",
+        "description",
+        "due_date",
+        "folder",
+        "group_assignees",
+        "id",
+        "linked_tasks",
+        "list",
+        "locations",
+        "markdown_description",
+        "name",
+        "orderindex",
+        "parent",
+        "permission_level",
+        "points",
+        "priority",
+        "project",
+        "sharing",
+        "space",
+        "start_date",
+        "status",
+        "subtasks",
+        "tags",
+        "team_id",
+        "text_content",
+        "time_estimate",
+        "time_spent",
+        "top_level_parent",
+        "url",
+        "watchers"
+      ],
+      "body": [
+        "archived",
+        "assignees",
+        "custom_item_id",
+        "description",
+        "due_date",
+        "due_date_time",
+        "group_assignees",
+        "markdown_content",
+        "name",
+        "parent",
+        "points",
+        "priority",
+        "start_date",
+        "start_date_time",
+        "status",
+        "time_estimate",
+        "watchers"
+      ],
+      "body_paths": [
+        "assignees",
+        "assignees.add",
+        "assignees.rem"
+      ],
+      "body_required": [],
+      "query": {
+        "custom_task_ids": false,
+        "team_id": false
+      },
+      "statuses": [
+        "200"
+      ]
+    }
+  },
+  "version": "2.0"
+}

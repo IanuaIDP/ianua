@@ -1,0 +1,141 @@
+# Nextest configuration.
+#
+# https://nexte.st/docs/configuration/
+
+nextest-version = { required = "0.9.59" }
+experimental = ["setup-scripts"]
+
+# Start one shared Postgres for the whole test run.
+#
+# Nextest runs each test in its own process, so without this every
+# Postgres-backed test (infra repo tests, e2e tests) would boot its own
+# container and replay all migrations. The setup binary starts a single
+# container, builds the migrated template once, and exports
+# `IANUA_TEST_PG_PORT` to the test processes via the file at `$NEXTEST_ENV`.
+# Harnesses clone each test database from the template.
+# Deliberately not `--quiet`: it suppresses cargo's "Blocking waiting for file
+# lock" notice and all compile progress, which makes a slow step here
+# indistinguishable from a hang.
+# Built in the `test` profile, the one the tests are built in, so it reuses
+# the crates they just compiled; in `dev` every change compiled them twice.
+[scripts.setup.postgres]
+command = "cargo run --profile test --package ianua-infra --features test-support --bin test_setup_postgres"
+
+# Start one shared cache server for the cache adapters' tests: a Valkey
+# container, used again while it answers, its port exported as
+# `IANUA_TEST_CACHE_PORT`.
+[scripts.setup.cache]
+command = "cargo run --profile test --package ianua-infra --features test-support --bin test_setup_cache"
+
+# Start one shared bus server for the bus adapters' tests: a container
+# with its persistent streams on, used again while it answers, its port
+# exported as `IANUA_TEST_BUS_PORT`.
+[scripts.setup.bus]
+command = "cargo run --profile test --package ianua-infra --features test-support --bin test_setup_bus"
+
+# Start one shared S3-compatible object store for the object file store's
+# tests: a VersityGW container, used again while it answers, its port exported
+# as `IANUA_TEST_OBJECTS_PORT`. Each test makes a bucket of its own.
+[scripts.setup.objects]
+command = "cargo run --profile test --package ianua-infra --features test-support --bin test_setup_objects"
+
+# Start a small open model behind an OpenAI-compatible server for the agent
+# scenarios run against a local model: an Ollama container, used again while
+# it answers, its models kept in a volume so the model is pulled once per
+# machine. It exports `IANUA_SCENARIO_MODEL=local` with the server's address
+# and the model's name. The image and the model are named in one constant in
+# the script. Only the `scenarios-local-model` profile runs it.
+[scripts.setup.local-model]
+command = "cargo run --profile test --package ianua-scenarios --bin scenario_setup_local_model"
+
+# Every test is ended after two minutes. A test that loops for ever, as one
+# reading a broken certificate once did, then fails on its own instead of
+# holding the whole run for as long as nobody looks.
+[profile.default]
+slow-timeout = { period = "60s", terminate-after = 2 }
+
+# The memory scenario against the real embedding server downloads its
+# model on a machine's first run, kept in a volume after that.
+[[profile.default.overrides]]
+filter = "package(ianua-scenarios) & test(/real_embedding_server/)"
+slow-timeout = { period = "60s", terminate-after = 8 }
+
+# CI profile for the E2E suite.
+#
+# E2E tests spend almost all of their time waiting on Postgres round-trips and
+# HTTP, not on CPU, so oversubscribing the runner's cores overlaps that I/O wait
+# and cuts wall-clock time. The shared Postgres container is configured for
+# 2000 connections; at ~10 connections per test (more for tests that also
+# stand up a live proxy worker), 16 concurrent tests stays well within budget,
+# with headroom for tests still winding down while the next batch starts.
+# `fail-fast = false` runs the whole suite so a single failure does not mask
+# others.
+[profile.ci-e2e]
+# GitHub-hosted runners have 4 cores and each scenario starts a whole platform.
+test-threads = 4
+fail-fast = false
+
+[[profile.ci-e2e.scripts]]
+filter = "package(ianua-scenarios) | (package(ianua-dns) & binary(serving)) | (package(ianua-server) & binary(seeding)) | (package(ianua-server) & test(/^worker::/)) | (package(ianua-server) & test(/^assembly::adapters::/)) | (package(ianua-infra) & !test(/^crypto::/) & !test(/^cache::/) & !test(/^bus::/) & !test(/^test_support::bus::/) & !test(/^files::objects::tests::/))"
+setup = "postgres"
+
+[[profile.ci-e2e.scripts]]
+filter = "package(ianua-infra) & test(/^files::objects::tests::/)"
+setup = "objects"
+
+[[profile.ci-e2e.scripts]]
+filter = "package(ianua-scenarios) | (package(ianua-infra) & test(/^cache::(state::server|attempts)::/))"
+setup = "cache"
+
+[[profile.ci-e2e.scripts]]
+filter = "package(ianua-scenarios) | (package(ianua-infra) & test(/^(bus::server|test_support::bus)::/))"
+setup = "bus"
+
+# The agent scenarios against a local open model rather than the scripted
+# one: `cargo nextest run -p ianua-scenarios --test agents --profile
+# scenarios-local-model`. A real model answers slower than a script, so a
+# test may run longer. Scripted scenarios still run against the scripted
+# model; the free ones reason with the local model.
+[profile.scenarios-local-model]
+slow-timeout = { period = "120s", terminate-after = 3 }
+fail-fast = false
+
+[[profile.scenarios-local-model.scripts]]
+filter = "package(ianua-scenarios)"
+setup = "postgres"
+
+[[profile.scenarios-local-model.scripts]]
+filter = "package(ianua-scenarios)"
+setup = "cache"
+
+[[profile.scenarios-local-model.scripts]]
+filter = "package(ianua-scenarios)"
+setup = "bus"
+
+[[profile.scenarios-local-model.scripts]]
+filter = "package(ianua-scenarios) & binary(agents)"
+setup = "local-model"
+
+# The infra database tests, the server's seeding, worker and API wiring
+# tests, the nameservers' serving tests and the scenarios share one
+# Postgres container. The infra convention tests read source only, so they
+# start nothing.
+[[profile.default.scripts]]
+filter = "package(ianua-scenarios) | (package(ianua-dns) & binary(serving)) | (package(ianua-server) & binary(seeding)) | (package(ianua-server) & test(/^worker::/)) | (package(ianua-server) & test(/^assembly::adapters::/)) | (package(ianua-infra) & !test(/^crypto::/) & !test(/^cache::/) & !test(/^bus::/) & !test(/^test_support::bus::/) & !test(/^files::objects::tests::/))"
+setup = "postgres"
+
+[[profile.default.scripts]]
+filter = "package(ianua-infra) & test(/^files::objects::tests::/)"
+setup = "objects"
+
+# The cache and bus servers are needed by the tests of their server
+# backends, whose adapters otherwise run in memory, by the sign-in counts,
+# whose lockouts are tested on the real server too, and by the scenarios,
+# which run the real platform.
+[[profile.default.scripts]]
+filter = "package(ianua-scenarios) | (package(ianua-infra) & test(/^cache::(state::server|attempts)::/))"
+setup = "cache"
+
+[[profile.default.scripts]]
+filter = "package(ianua-scenarios) | (package(ianua-infra) & test(/^(bus::server|test_support::bus)::/))"
+setup = "bus"

@@ -1,0 +1,1 @@
+Le invitan a unirse a {{ tenant_name | default("un equipo") }}

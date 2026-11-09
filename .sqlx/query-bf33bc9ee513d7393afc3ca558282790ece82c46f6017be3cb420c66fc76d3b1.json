@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- When anyone of the given tenants last signed in, or NULL when nobody\n-- ever did.\nSELECT max(occurred_at) AS \"last?\"\nFROM audit_records\nWHERE tenant_id = ANY($1) AND event_type = 'authentication.login_succeeded'\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "last?",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "bf33bc9ee513d7393afc3ca558282790ece82c46f6017be3cb420c66fc76d3b1"
+}

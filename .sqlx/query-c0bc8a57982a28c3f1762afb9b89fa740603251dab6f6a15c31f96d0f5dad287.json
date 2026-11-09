@@ -1,0 +1,149 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The session of a tenant holding the refresh token with the given hash.\nSELECT id, user_id, refresh_token_hash, parent_id, ip_address, user_agent,\n       auth_method, factor, owed, status, app_service_id,\n       signed_in_at, created_at, last_active_at, expires_at, kept_through, signed_in_from,\n       last_used_network, last_used_latitude, last_used_longitude, last_used_country, last_used_at\nFROM sessions\nWHERE tenant_id = $1 AND refresh_token_hash = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "refresh_token_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "parent_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "ip_address",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "user_agent",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "auth_method",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "factor",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "owed",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "app_service_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 11,
+        "name": "signed_in_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 12,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 13,
+        "name": "last_active_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 14,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 15,
+        "name": "kept_through",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 16,
+        "name": "signed_in_from",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 17,
+        "name": "last_used_network",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 18,
+        "name": "last_used_latitude",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 19,
+        "name": "last_used_longitude",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 20,
+        "name": "last_used_country",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 21,
+        "name": "last_used_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "c0bc8a57982a28c3f1762afb9b89fa740603251dab6f6a15c31f96d0f5dad287"
+}

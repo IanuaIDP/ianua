@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The links of one group, across its tenants, the oldest first.\nSELECT tenant_id, user_id, linked_at\nFROM org_linked_identity_links\nWHERE linked_identity_id = $1\nORDER BY linked_at, tenant_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "linked_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "47c6bc7413ed823cf073cd167cef5b16f21c8b5e3d54d3bb97d2b1d470e0d2e0"
+}

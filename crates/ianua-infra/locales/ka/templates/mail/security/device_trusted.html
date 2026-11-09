@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}ახალი მოწყობილობა სანდოდ ჩაითვალა{% endblock %}
+{% block preheader %}მოწყობილობა თქვენი ანგარიშის სანდო მოწყობილობებს დაემატა.{% endblock %}
+{% block headline %}ახალი მოწყობილობა სანდოდ ჩაითვალა{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para() %}{% if device_name is defined %}<strong>{{ device_name }}</strong>{% else %}ახალი მოწყობილობა{% endif %} დაემატა თქვენი ანგარიშის სანდო მოწყობილობებს <strong>{{ tenant_name | default("თქვენი ორგანიზაცია") }}</strong>-ში{% if ip_address is defined %}, მისამართიდან {{ ip_address }}{% endif %}. სანდო მოწყობილობას შესვლის მეორე საფეხურის გამოტოვება შეუძლია.{% endcall %}
+  {% call c.para(pad=32) %}თუ ამ მოწყობილობას არ ცნობთ, წაშალეთ ის ანგარიშის პარამეტრებიდან და შეცვალეთ პაროლი.{% endcall %}
+{% endblock %}

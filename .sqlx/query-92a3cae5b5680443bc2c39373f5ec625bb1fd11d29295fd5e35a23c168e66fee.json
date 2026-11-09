@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many tenants the organization held at the given moment: every one\n-- made by then and not archived or deleted.\nSELECT count(*) AS \"count!\"\nFROM tenants\nWHERE organization_id = $1 AND created_at <= $2 AND status NOT IN ('archived', 'deleted')\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "92a3cae5b5680443bc2c39373f5ec625bb1fd11d29295fd5e35a23c168e66fee"
+}

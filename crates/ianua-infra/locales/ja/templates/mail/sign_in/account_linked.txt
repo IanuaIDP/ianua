@@ -1,0 +1,7 @@
+{{ user_name | default("ご利用者") }}様
+
+{{ tenant_name | default("所属組織") }}のアカウントに、{{ provider_name | default("サインインプロバイダー") }}から初めてサインインがありました{% if ip_address is defined %}。送信元は{{ ip_address }}です{% endif %}。今後はこのプロバイダーでサインインできます。
+
+心当たりがない場合は、直ちに管理者に連絡してください。
+
+IANUA

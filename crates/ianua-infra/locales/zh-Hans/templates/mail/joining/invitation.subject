@@ -1,0 +1,1 @@
+您受邀加入 {{ tenant_name | default("一个团队") }}

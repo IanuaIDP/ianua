@@ -1,0 +1,39 @@
+{#-
+  What an error page tells a person, by the kind of trouble, imported as
+  `e`: a title, and one line of what to do. A kind not listed here fails
+  the render, so no page goes out without its words.
+-#}
+
+{#- The page's title for `kind`. -#}
+{% macro title(kind) -%}
+{%- set titles = {
+  "unauthenticated": "გასაგრძელებლად შედით",
+  "forbidden": "წვდომა არ გაქვთ",
+  "not_found": "გვერდი ვერ მოიძებნა",
+  "content_too_large": "მოთხოვნა ზედმეტად დიდია",
+  "too_many_requests": "ზედმეტად ბევრი მოთხოვნაა",
+  "misdirected_request": "ამ კავშირისთვის არასწორი მისამართია",
+  "bad_gateway": "აპლიკაცია არ პასუხობს",
+  "gateway_timeout": "აპლიკაციამ პასუხს ზედმეტად დიდი დრო მოანდომა",
+  "unavailable": "დროებით ხელმიუწვდომელია",
+  "bad_request": "მოთხოვნაში შეცდომაა"
+} -%}
+{{ titles[kind] }}
+{%- endmacro %}
+
+{#- What the person can do about `kind`. -#}
+{% macro advice(kind) -%}
+{%- set lines = {
+  "unauthenticated": "ამ გვერდის გასახსნელად ჯერ უნდა შეხვიდეთ. შედით და ხელახლა გახსენით.",
+  "forbidden": "თქვენს ანგარიშს ამ გვერდის გახსნის უფლება არ აქვს. თუ ფიქრობთ, რომ უნდა ჰქონდეს, მიმართეთ ადმინისტრატორს და მიაწოდეთ ქვემოთ მოცემული ნომერი.",
+  "not_found": "აქ არაფერია. შეამოწმეთ მისამართი ან წინა გვერდზე დაბრუნდით.",
+  "content_too_large": "გაგზავნილი მონაცემები აპლიკაციის დაშვებულ ზომას აღემატება. სცადეთ ნაკლები მონაცემით.",
+  "too_many_requests": "მოკლე დროში ბევრი მოთხოვნა გაგზავნეთ. ერთი წუთი დაელოდეთ და ხელახლა სცადეთ.",
+  "misdirected_request": "ეს კავშირი სხვა მისამართისთვის დამყარდა. დახურეთ ჩანართი და მისამართი ხელახლა გახსენით.",
+  "bad_gateway": "ამ მისამართზე აპლიკაციასთან დაკავშირება ვერ მოხერხდა. სცადეთ რამდენიმე წუთში.",
+  "gateway_timeout": "ამ მისამართზე აპლიკაციამ დროულად არ უპასუხა. სცადეთ რამდენიმე წუთში.",
+  "unavailable": "ეს მისამართი ახლა მოთხოვნებს ვერ იღებს. სცადეთ რამდენიმე წუთში.",
+  "bad_request": "მოთხოვნა ვერ წაიკითხა. დაბრუნდით, შეამოწმეთ შეყვანილი მონაცემები და ხელახლა სცადეთ."
+} -%}
+{{ lines[kind] }}
+{%- endmacro %}

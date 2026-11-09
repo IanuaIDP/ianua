@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Takes every group mapping rule off a connection of a tenant.\nDELETE FROM connection_group_rules\nWHERE tenant_id = $1 AND connection_id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "08201295a082cd28399fab0da1c63bbd006abdf99863bd33a386b33950c6f102"
+}

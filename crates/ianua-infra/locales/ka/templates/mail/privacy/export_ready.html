@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}თქვენი მონაცემების ასლი მზადაა{% endblock %}
+{% block preheader %}მონაცემების ასლის ჩამოსატვირთად შედით.{% endblock %}
+{% block headline %}თქვენი მონაცემების ასლი მზადაა{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para() %}თქვენ მიერ მოთხოვნილი მონაცემების ასლი <strong>{{ tenant_name | default("თქვენი ორგანიზაცია") }}</strong>-დან მზადაა.{% endcall %}
+  {% call c.para() %}ჩამოსატვირთად შედით ანგარიშში და გახსენით კონფიდენციალურობის პარამეტრები. ჩამოტვირთვა შესაძლებელია {{ expires_at }}-მდე.{% endcall %}
+  {% call c.para(pad=32) %}ეს წერილი ჩამოტვირთვის ბმულს არ შეიცავს. თუ ასლი არ მოგითხოვიათ, აცნობეთ ადმინისტრატორს.{% endcall %}
+{% endblock %}

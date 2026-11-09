@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every member of an organization who chose a channel for one category,\n-- with the channel.\nSELECT org_user_id AS holder, channel\nFROM org_notification_preferences\nWHERE organization_id = $1 AND category = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "holder",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "channel",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "8b10ef8ff9567b38b3963b988fe3d742643b4708668fed2e40f02e147d09c8ea"
+}

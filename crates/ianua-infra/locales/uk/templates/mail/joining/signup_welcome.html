@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ваша організація готова{% endblock %}
+{% block preheader %}Ваша організація готова. Увійдіть, щоб почати.{% endblock %}
+{% block headline %}Ваша організація готова{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("користувачу")) }}
+  {% call c.para(pad=8) %}<strong>{{ organization_name | default("Вашу організацію") }}</strong> створено, а ваш обліковий запис готовий до використання.{% endcall %}
+  {{ c.cta(action_url, "Увійти") }}
+{% endblock %}

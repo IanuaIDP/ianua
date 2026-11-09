@@ -1,0 +1,69 @@
+Ianua has been deployed as release "{{ .Release.Name }}" in namespace "{{ .Release.Namespace }}".
+
+Components:
+  • server (API)   MODE=api      → Service {{ include "ianua.fullname" . }}-server:{{ .Values.server.service.port | default .Values.server.port }}
+  • worker         MODE=worker   → jobs, sweeps, the outbox relay and the event consumers
+  • zero (gateway) data plane     → Service {{ include "ianua.fullname" . }}-zero ({{ .Values.zero.service.type }})
+
+1. The migrate Job (`ianua migrate`) brought the schema up to date before the
+   pods rolled. API pods wait until it is current.
+{{- if include "ianua.selfHosted" . }}
+
+2. The install Job (`ianua install`) made the organization
+   "{{ .Values.selfHosted.organizationName }}". On its first run it printed a one-time
+   setup token that confirms the owner's address. Read it within a day:
+
+     kubectl logs -n {{ .Release.Namespace }} job/{{ include "ianua.fullname" . }}-install
+
+   and send it to the API:
+
+     curl -X POST {{ .Values.config.appBaseUrl }}/api/v1/users/confirm-installer \
+       -H 'Content-Type: application/json' -d '{"token": "<the token>"}'
+
+   Then sign in at {{ .Values.config.appBaseUrl }} as {{ .Values.selfHosted.owner.email }}.
+{{- if not (or .Values.selfHosted.owner.password .Values.selfHosted.owner.existingSecret) }}
+   The owner's password was generated. Read it with:
+
+     kubectl get secret -n {{ .Release.Namespace }} {{ include "ianua.installSecretName" . }} \
+       -o jsonpath='{.data.INSTALL_OWNER_PASSWORD}' | base64 -d; echo
+
+   Change it in the dashboard after signing in.
+{{- end }}
+{{- end }}
+{{- if .Values.firstOperator.enabled }}
+
+3. The first-operator Job (`ianua operator create`) made the platform's first
+   operator, {{ .Values.firstOperator.email }}, unless one existed already.
+{{- if not (or .Values.firstOperator.password .Values.firstOperator.existingSecret) }}
+   Their password was generated. Read it with:
+
+     kubectl get secret -n {{ .Release.Namespace }} {{ include "ianua.fullname" . }}-first-operator \
+       -o jsonpath='{.data.OPERATOR_PASSWORD}' | base64 -d; echo
+{{- end }}
+   Once they have signed in, set firstOperator.enabled=false and delete that
+   Secret: operators make the rest.
+{{- else }}
+
+3. No platform operator was made. To make the first one:
+
+     helm upgrade ... --set firstOperator.enabled=true --set firstOperator.email=<address>
+{{- end }}
+
+{{- if eq .Values.zero.service.type "LoadBalancer" }}
+
+4. Live traffic enters through the gateway's load balancer. Get its address:
+
+     kubectl get svc -n {{ .Release.Namespace }} {{ include "ianua.fullname" . }}-zero \
+       -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+
+   Point your wildcard DNS (*.{{ .Values.config.baseDomain }}) at that address.
+{{- end }}
+{{- if .Values.server.ingress.enabled }}
+
+5. The API is exposed at: https://{{ .Values.server.ingress.host }}
+   Ensure DNS for that host points at your ingress controller.
+{{- end }}
+
+Check rollout status:
+
+  kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }}

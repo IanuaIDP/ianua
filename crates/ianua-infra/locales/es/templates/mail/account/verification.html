@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Verifique su dirección de correo{% endblock %}
+{% block preheader %}Verifique su dirección de correo para terminar de configurar su cuenta.{% endblock %}
+{% block headline %}Verifique su dirección de correo{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para(pad=8) %}Se ha creado una cuenta para usted en <strong>{{ tenant_name | default("su organización") }}</strong> en {{ c.brand() }}. Antes de iniciar sesión, verifique su dirección de correo.{% endcall %}
+  {{ c.cta(action_url, "Verificar correo") }}
+  {% call c.para(pad=0) %}Este enlace caduca en {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Si no esperaba este correo, puede ignorarlo.{% endcall %}
+{% endblock %}

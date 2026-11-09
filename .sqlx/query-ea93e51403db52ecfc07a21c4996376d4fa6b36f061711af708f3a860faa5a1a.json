@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Withdraw this proof without removing a concurrent order's other challenge.\nDELETE FROM platform_dns_proofs WHERE root = $1 AND value = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ea93e51403db52ecfc07a21c4996376d4fa6b36f061711af708f3a860faa5a1a"
+}

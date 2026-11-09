@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}欢迎加入 {{ tenant_name | default("IANUA") }}{% endblock %}
+{% block preheader %}您的账户已就绪。请登录以开始使用。{% endblock %}
+{% block headline %}欢迎加入 {{ tenant_name | default("IANUA") }}{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("用户")) }}
+  {% call c.para(pad=8) %}已在 {{ c.brand() }} 上为您创建 <strong>{{ tenant_name | default("您的组织") }}</strong> 的账户{% if role_name is defined %}，角色为 <strong>{{ role_name }}</strong>{% endif %}。一切已就绪，{% endcall %}
+  {{ c.cta(action_url, "登录") }}
+{% endblock %}

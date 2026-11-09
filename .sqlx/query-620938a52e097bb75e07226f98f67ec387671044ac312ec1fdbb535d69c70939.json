@@ -1,0 +1,47 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every record set of the given zones, each named by the tenant holding it\n-- and its hostname, whichever tenant that is: what the nameservers serve.\nSELECT hostname, name, kind, ttl, record_values\nFROM dns_records\nWHERE (tenant_id, hostname) IN (\n    SELECT served.tenant_id, served.hostname\n    FROM unnest($1::uuid[], $2::text[]) AS served (tenant_id, hostname)\n)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "hostname",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "ttl",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "record_values",
+        "type_info": "TextArray"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "620938a52e097bb75e07226f98f67ec387671044ac312ec1fdbb535d69c70939"
+}

@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}管理者があなたの代理での操作を申請しています{% endblock %}
+{% block preheader %}サインインして申請を承認または拒否してください。{% endblock %}
+{% block headline %}管理者があなたの代理での操作を申請しています{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para() %}<strong>{{ tenant_name | default("所属組織") }}</strong>の<strong>{{ requester_name | default("管理者") }}</strong>が、アカウントの問題をサポートするため、あなたの代理での操作を申請しています。{% endcall %}
+  {% if reason is defined %}{% call c.para() %}理由：{{ reason }}{% endcall %}{% endif %}
+  {% call c.para() %}アカウントにサインインして、承認または拒否してください。申請の有効期間は{{ expires_at }}です。{% endcall %}
+  {% call c.para(pad=32) %}承認するまで何も行われません。心当たりがない場合は、申請を拒否し、管理者に連絡してください。{% endcall %}
+{% endblock %}

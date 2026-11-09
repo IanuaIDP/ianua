@@ -1,0 +1,2 @@
+GET /api/v1/organizations/acme/tenants/acme-tenant/metrics?since=2025-01-01T00:00:00Z&until=2025-04-01T00:00:00Z
+accept: application/json

@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps, at the given moment, the counts of every organization not\n-- closed: its tenants not archived or deleted, and the people and active\n-- sessions their snapshots of the same moment kept, added up. Answers how\n-- many organizations were captured.\nWITH captured AS (\n    INSERT INTO org_metric_snapshots\n        (organization_id, captured_at, users_count, tenants_count, active_sessions_count)\n    SELECT o.id, $1, coalesce(sum(ts.users_count), 0)::bigint, count(t.id),\n           coalesce(sum(ts.active_sessions_count), 0)::bigint\n    FROM organizations o\n    LEFT JOIN tenants t ON t.organization_id = o.id AND t.status NOT IN ('archived', 'deleted')\n    LEFT JOIN tenant_metric_snapshots ts ON ts.tenant_id = t.id AND ts.captured_at = $1\n    WHERE o.status <> 'closed'\n    GROUP BY o.id\n    ON CONFLICT (organization_id, captured_at) DO NOTHING\n    RETURNING organization_id\n)\nSELECT count(*) AS \"captured!\" FROM captured WHERE organization_id IS NOT NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "captured!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "da4fa11f32ea1277b7ea809c3f781e47f5d609482e1b029394c8b211efad8129"
+}

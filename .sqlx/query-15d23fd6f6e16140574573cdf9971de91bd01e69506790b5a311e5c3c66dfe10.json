@@ -1,0 +1,70 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every egress policy of one tenant, by name.\nSELECT id, name, service, destinations, max_data_class, created_by_kind,\n       created_by, created_at, updated_at\nFROM egress_policies\nWHERE tenant_id = $1\nORDER BY name, id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "service",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "destinations",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "max_data_class",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "created_by_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "created_by",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "15d23fd6f6e16140574573cdf9971de91bd01e69506790b5a311e5c3c66dfe10"
+}

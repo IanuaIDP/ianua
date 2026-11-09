@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Grants an organization member roles in one tenant, all in one statement:\n-- each role with who granted it (NULL for the platform) and when.\nINSERT INTO org_tenant_grants (org_user_id, tenant_id, role_id, granted_by, granted_at)\nSELECT $1, $2, granted.role_id, granted.granted_by, granted.granted_at\nFROM UNNEST($3::uuid[], $4::uuid[], $5::timestamptz[])\n    AS granted (role_id, granted_by, granted_at)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "UuidArray",
+        "UuidArray",
+        "TimestamptzArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "16dc1c41f316cd9b0cb06f424bc55e8740730c5fe1e539860146b342520317de"
+}

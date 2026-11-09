@@ -1,0 +1,77 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The proved domains of one tenant still waiting for a certificate, proved\n-- before the cutoff, read from the database of its own it lives in.\nSELECT tenant_id, id, domain, connection, verification_status, verified_at, failed_at,\n       dns_challenge_token, tls_status, created_at\nFROM registered_domains\nWHERE tenant_id = $2\n  AND verification_status = 'verified' AND tls_status = 'provisioning' AND verified_at < $1\nORDER BY verified_at\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "domain",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "connection",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "verification_status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "verified_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "failed_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "dns_challenge_token",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "tls_status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "6afa12f00a72c380304dadf7b5f2e1eb47a2f6f55825002556e2426fde5b3f32"
+}

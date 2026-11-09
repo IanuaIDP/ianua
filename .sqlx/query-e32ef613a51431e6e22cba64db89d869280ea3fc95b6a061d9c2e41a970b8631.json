@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes every certificate of one domain but the newest saved: each one a\n-- newer certificate of the same tenant and domain stands behind.\nDELETE FROM domain_certificates old\nUSING domain_certificates newer\nWHERE old.domain_id = $1\n  AND newer.tenant_id = old.tenant_id\n  AND newer.domain_id = old.domain_id\n  AND newer.saved_order > old.saved_order\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e32ef613a51431e6e22cba64db89d869280ea3fc95b6a061d9c2e41a970b8631"
+}

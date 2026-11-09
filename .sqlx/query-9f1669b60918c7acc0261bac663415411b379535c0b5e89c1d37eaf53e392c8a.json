@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an OAuth client: a new one is added, a known one of the same tenant\n-- takes the new values. Its tenant, public client id, who manages it and\n-- its creation time never change.\nINSERT INTO oauth_clients\n    (id, tenant_id, client_id_value, credential, name, redirect_uris,\n     post_logout_redirect_uris, grant_types, scopes, settings, registration_token_hash,\n     admitted_with_id, status, created_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)\nON CONFLICT (id) DO UPDATE SET\n    credential = EXCLUDED.credential,\n    name = EXCLUDED.name,\n    redirect_uris = EXCLUDED.redirect_uris,\n    post_logout_redirect_uris = EXCLUDED.post_logout_redirect_uris,\n    grant_types = EXCLUDED.grant_types,\n    scopes = EXCLUDED.scopes,\n    settings = EXCLUDED.settings,\n    status = EXCLUDED.status\nWHERE oauth_clients.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Jsonb",
+        "Text",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "Jsonb",
+        "Text",
+        "Uuid",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9f1669b60918c7acc0261bac663415411b379535c0b5e89c1d37eaf53e392c8a"
+}

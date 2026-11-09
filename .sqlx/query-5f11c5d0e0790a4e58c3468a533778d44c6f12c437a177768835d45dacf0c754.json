@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Whether one tenant, read from the database of its own it lives in, holds\n-- a key rotated out and not yet revoked.\nSELECT EXISTS (\n    SELECT 1 FROM signing_keys WHERE tenant_id = $1 AND status = 'rotated'\n) AS \"held!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "held!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "5f11c5d0e0790a4e58c3468a533778d44c6f12c437a177768835d45dacf0c754"
+}

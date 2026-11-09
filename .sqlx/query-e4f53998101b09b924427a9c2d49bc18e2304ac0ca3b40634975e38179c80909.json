@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Whether a user of a tenant has a confirmed second factor. It names only\n-- the columns the gateway's role may read, never the factor's secret.\nSELECT EXISTS (\n    SELECT 1 FROM mfa_enrollments\n    WHERE tenant_id = $1 AND user_id = $2 AND status = 'verified'\n) AS \"holds!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "holds!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "e4f53998101b09b924427a9c2d49bc18e2304ac0ca3b40634975e38179c80909"
+}

@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Votre second facteur a été réinitialisé{% endblock %}
+{% block preheader %}Un propriétaire de {{ organization_name | default("votre organisation") }} a réinitialisé votre second facteur.{% endblock %}
+{% block headline %}Votre second facteur a été réinitialisé{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("cher utilisateur")) }}
+  {% call c.para() %}Un propriétaire de <strong>{{ organization_name | default("votre organisation") }}</strong> a réinitialisé le second facteur de votre compte {{ c.brand() }}, et vous avez été déconnecté partout. Reconnectez-vous avec votre mot de passe et configurez un nouveau second facteur.{% endcall %}
+  {% call c.para(pad=32) %}Si vous n’avez pas fait cette demande, prévenez immédiatement un propriétaire de votre organisation.{% endcall %}
+{% endblock %}

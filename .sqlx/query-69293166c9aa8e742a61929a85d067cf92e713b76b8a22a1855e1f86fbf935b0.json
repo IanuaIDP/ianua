@@ -1,0 +1,77 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The tenant's log shipping target with the given id.\nSELECT id, name, destination, credential, records, sample_percent, format, status, created_at,\n       updated_at\nFROM log_shipping_targets\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "destination",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 3,
+        "name": "credential",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "records",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "sample_percent",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 6,
+        "name": "format",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "69293166c9aa8e742a61929a85d067cf92e713b76b8a22a1855e1f86fbf935b0"
+}

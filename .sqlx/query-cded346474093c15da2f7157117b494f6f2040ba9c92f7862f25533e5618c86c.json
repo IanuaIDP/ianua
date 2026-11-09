@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many consumers a tenant holds against its plan, disabled ones too.\nSELECT count(*) AS \"count!\"\nFROM consumers\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "cded346474093c15da2f7157117b494f6f2040ba9c92f7862f25533e5618c86c"
+}

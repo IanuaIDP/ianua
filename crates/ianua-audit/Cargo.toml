@@ -1,0 +1,25 @@
+[package]
+name = "ianua-audit"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Reads the ianua source and reports where its layers are not connected."
+
+[[bin]]
+name = "ianua-audit"
+path = "src/main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = "1"
+proc-macro2.workspace = true
+quote = "1"
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+syn.workspace = true
+toml = "1"
+ianua-workspace-hack = { version = "0.1", path = "../ianua-workspace-hack" }

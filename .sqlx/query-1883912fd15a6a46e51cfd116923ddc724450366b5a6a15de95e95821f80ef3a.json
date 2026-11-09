@@ -1,0 +1,96 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The running jobs of a lane whose holder's lease ran out, locked for the\n-- claim that gives them up.\nSELECT id, tenant_id AS \"tenant_id?\", job_type, job_key, key_hold, payload, run_at, attempt, max_attempts,\n       status, error, created_at, last_attempted_at\nFROM scheduled_jobs\nWHERE status = 'running' AND leased_until < $2 AND job_type = ANY($1)\nORDER BY leased_until, id\nLIMIT $3\nFOR UPDATE SKIP LOCKED\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "tenant_id?",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "job_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "job_key",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "key_hold",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "payload",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "run_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "attempt",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "max_attempts",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "error",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 12,
+        "name": "last_attempted_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "TextArray",
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "1883912fd15a6a46e51cfd116923ddc724450366b5a6a15de95e95821f80ef3a"
+}

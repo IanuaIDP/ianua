@@ -1,0 +1,35 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes one tenant's API keys that expired by the given time, in the\n-- database of its own it lives in, answering the tenant, id and name of\n-- each for the audit of the expiry.\nDELETE FROM api_keys\nWHERE tenant_id = $1 AND expires_at <= $2\nRETURNING tenant_id, id, name\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "dafb2ff7c7ac5b185e87d8dc14edbd7f406398cad46cdde60d24e3a343fc4ea0"
+}

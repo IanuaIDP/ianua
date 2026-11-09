@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Adds new versions to an event schema of a tenant, all in one statement.\n-- A published version never changes, so one already kept stays as it is.\nINSERT INTO event_schema_versions (tenant_id, schema_id, version, definition, created_at)\nSELECT $1, $2, added.version, added.definition, added.created_at\nFROM UNNEST($3::bigint[], $4::text[], $5::timestamptz[]) AS added (version, definition, created_at)\nON CONFLICT (tenant_id, schema_id, version) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int8Array",
+        "TextArray",
+        "TimestamptzArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f4c70d5a89d32eefb427069545f1901eb26bcf0a90202ef6b0453d9271d6b1a7"
+}

@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes a tenant's trials that ended before the cutoff, a batch at a\n-- time; trials still running are kept, however old.\nDELETE FROM sandbox_trials\nWHERE id IN (\n    SELECT id\n    FROM sandbox_trials\n    WHERE tenant_id = $1 AND state <> 'running' AND updated_at < $2\n    ORDER BY updated_at\n    LIMIT $3\n)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b28e55bb095f1e2f5487becd0470b3e59011e3770db17a75b002482e2d1baf53"
+}

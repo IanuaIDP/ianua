@@ -1,0 +1,38 @@
+---
+title: Changing the database schema
+description: "How a table or column changes: edit the schema, let ianua-schema write the migration, and keep released migrations as they were."
+---
+
+The database is described twice in `crates/ianua-infra`. `schema/` says what the database should be now, one file per area. `migrations/` holds the numbered files every server applies once, in order. `ianua-schema` keeps the two in step, so a change is written once, in the schema, and the migration is written for you.
+
+## Making a change
+
+1. Edit the schema. Pat adds `pause_reason` to `api_keys` in `schema/0012_oauth.sql`, at the end of the table, with a comment above it saying why.
+2. Run `cargo run -p ianua-schema -- diff key_pause_reasons`. The tool builds one throwaway database from `migrations/` and one from `schema/`, compares them, and writes the next migration, here `0038_key_pause_reasons.sql`. Each change carries the comment the schema wrote above it.
+3. Read the file it wrote, and commit both.
+
+The tool then builds the migrations again with the new file and checks they reach the schema. Anything left over is listed, to finish by hand.
+
+## What the tool refuses
+
+A change that could lose data, or break on rows already there, is refused until the schema says so on purpose:
+
+| Change | What happens |
+| --- | --- |
+| A table or column left out of the schema | Refused. Say `-- schema: drops <table>.<column> because <reason>`, in a release after the code stopped using it. |
+| A column renamed | Never guessed from a drop and an add. Say `-- schema: renamed <table>.<old> to <new>`. |
+| A column's type changed, or a column made required | Refused. Say `-- schema: changes <table>.<column> because <reason>`. |
+| A new required column with no default | Refused. Give it a default, or add it nullable, fill it, and require it in a later release. |
+| A new column between existing ones | Refused. A table's columns keep their order, so a new one goes at the end. |
+| A new check or foreign key on a table with rows | Written `NOT VALID`, then validated, so the table is locked only briefly. |
+| A new index on a table with rows | Written in a file of its own, made concurrently outside a transaction, so the table goes on taking writes. |
+
+## Releases
+
+`cargo run -p ianua-schema -- release` records every migration in `released-migrations.lock`, with a fingerprint of its text. From then on a released file is never edited or removed: a house rule refuses it. Someone running a released version has applied those files. An edited one would stop their server at start, and a removed one would make an upgrade differ from a fresh install.
+
+## Checks
+
+`cargo run -p ianua-schema -- check` fails when the migrations do not build exactly the schema, for the platform database and for a tenant's own database, or when a released migration changed. CI runs it on every change.
+
+The tool makes its databases on the Postgres server `SCHEMA_DATABASE_URL` names, a server it may create and drop databases on. Without it, it starts a Postgres container of its own.

@@ -1,0 +1,123 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ianua.fullname" . }}-server
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: server
+spec:
+  {{- if not .Values.server.autoscaling.enabled }}
+  replicas: {{ .Values.server.replicas }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "ianua.selectorLabels" (dict "root" . "component" "server") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "ianua.selectorLabels" (dict "root" . "component" "server") | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      serviceAccountName: {{ include "ianua.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: server
+          image: {{ include "ianua.serverImage" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: MODE
+              value: api
+            {{- include "ianua.databaseUrlEnv" . | nindent 12 }}
+            {{- include "ianua.eventSigningEnv" . | nindent 12 }}
+            {{- include "ianua.auditSealEnv" . | nindent 12 }}
+            - name: RELAY_CA_FILE
+              value: /etc/ianua/internal/ca-cert.pem
+            - name: RELAY_TLS_CERT_FILE
+              value: /etc/ianua/internal/relay-listener-cert.pem
+            - name: RELAY_TLS_KEY_FILE
+              value: /etc/ianua/internal/relay-listener-key.pem
+            {{- if .Values.grpc.enabled }}
+            # Setting GRPC_LISTEN is what starts the listener. The certificate
+            # paths are required alongside it and the process refuses to start
+            # without them, rather than serving the zones unauthenticated.
+            - name: GRPC_LISTEN
+              value: "0.0.0.0:{{ .Values.grpc.port }}"
+            - name: GRPC_TLS_CERT_PATH
+              value: /etc/ianua/grpc/tls.crt
+            - name: GRPC_TLS_KEY_PATH
+              value: /etc/ianua/grpc/tls.key
+            - name: GRPC_CLIENT_CA_PATH
+              value: /etc/ianua/grpc/ca.crt
+            {{- end }}
+          envFrom:
+            {{- include "ianua.envFrom" . | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.server.port }}
+            - name: internal
+              containerPort: {{ .Values.server.internalPort }}
+            - name: relay
+              containerPort: {{ .Values.server.relayPort }}
+            {{- if .Values.grpc.enabled }}
+            - name: grpc
+              containerPort: {{ .Values.grpc.port }}
+            {{- end }}
+          volumeMounts:
+            {{- include "ianua.internalLinksMount" . | nindent 12 }}
+            {{- include "ianua.filesVolumeMount" . | nindent 12 }}
+            {{- if .Values.grpc.enabled }}
+            - name: grpc-pki
+              mountPath: /etc/ianua/grpc
+              readOnly: true
+            {{- end }}
+          # The probes are served on the internal listener only: readiness
+          # asks the database, the bus and the cache on every call, which
+          # nobody outside the cluster may make it do. The listener opens
+          # once the schema is current, which a first install's migration may
+          # take a while to make.
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: internal
+            periodSeconds: 5
+            failureThreshold: 60
+          # Ready while the database, the bus and the cache all answer.
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: internal
+            periodSeconds: 10
+            timeoutSeconds: 6
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: internal
+            periodSeconds: 15
+          resources:
+            {{- toYaml .Values.server.resources | nindent 12 }}
+      volumes:
+        {{- include "ianua.internalLinksVolume" (dict "root" . "files" (list "ca-cert.pem" "relay-listener-cert.pem" "relay-listener-key.pem")) | nindent 8 }}
+        {{- include "ianua.filesVolume" . | nindent 8 }}
+        {{- if .Values.grpc.enabled }}
+        - name: grpc-pki
+          secret:
+            secretName: {{ include "ianua.grpcPkiSecretName" . }}
+            # Group-readable, not owner-only: the files are owned by root and
+            # the container runs as 65532, which reaches them through fsGroup.
+            defaultMode: 0440
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}すでにアカウントがあります{% endblock %}
+{% block preheader %}このアドレスには、すでにIANUAアカウントがあります。{% endblock %}
+{% block headline %}すでにアカウントがあります{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para(pad=8) %}このアドレスで{{ c.brand() }}への登録申請がありましたが、すでにアカウントがあります。ご自身の操作であれば、登録の代わりにサインインしてください。{% endcall %}
+  {{ c.cta(action_url, "サインイン") }}
+  {% call c.para(pad=32) %}パスワードを忘れた場合は、サインインページでリセットできます。心当たりがない場合は、このメールを無視してください。変更は行われていません。{% endcall %}
+{% endblock %}

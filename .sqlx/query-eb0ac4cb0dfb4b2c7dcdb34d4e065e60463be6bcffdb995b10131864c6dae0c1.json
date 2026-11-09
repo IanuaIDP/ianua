@@ -1,0 +1,96 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The dead jobs queued before the cursor ($1, $2), newest first, at most\n-- $3. A first page passes no cursor.\nSELECT id, tenant_id AS \"tenant_id?\", job_type, job_key, key_hold, payload, run_at, attempt, max_attempts,\n       status, error, created_at, last_attempted_at\nFROM scheduled_jobs\nWHERE status = 'dead'\n  AND ($1::timestamptz IS NULL OR (created_at, id) < ($1, $2))\nORDER BY created_at DESC, id DESC\nLIMIT $3\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "tenant_id?",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "job_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "job_key",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "key_hold",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "payload",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "run_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "attempt",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "max_attempts",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "error",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 12,
+        "name": "last_attempted_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Uuid",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "eb0ac4cb0dfb4b2c7dcdb34d4e065e60463be6bcffdb995b10131864c6dae0c1"
+}

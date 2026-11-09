@@ -1,0 +1,10 @@
+Bonjour {{ user_name | default("cher utilisateur") }},
+
+Un compte a été créé pour vous dans {{ organization_name | default("votre organisation") }} sur IANUA. Avant de vous connecter, confirmez votre adresse e-mail :
+{{ action_url }}
+
+Ce lien expire dans {{ expires_at }}.
+
+Si vous n’attendiez pas cet e-mail, vous pouvez l’ignorer.
+
+IANUA

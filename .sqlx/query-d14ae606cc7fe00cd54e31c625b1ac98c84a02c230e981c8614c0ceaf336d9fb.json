@@ -1,0 +1,32 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an import: a new one is added, a known one of the same tenant takes\n-- its progress. Who started it, how many records it holds and when it was\n-- kept never change. Answers whether the row is new, so its records are\n-- written once, with it.\nINSERT INTO user_imports\n    (id, tenant_id, started_by, status, ended_at, total, done, imported,\n     refused_lines, refused_reasons, created_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\nON CONFLICT (id) DO UPDATE SET\n    status = EXCLUDED.status,\n    ended_at = EXCLUDED.ended_at,\n    done = EXCLUDED.done,\n    imported = EXCLUDED.imported,\n    refused_lines = EXCLUDED.refused_lines,\n    refused_reasons = EXCLUDED.refused_reasons\nWHERE user_imports.tenant_id = EXCLUDED.tenant_id\nRETURNING (xmax = 0) AS \"inserted!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "inserted!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Jsonb",
+        "Text",
+        "Timestamptz",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4Array",
+        "TextArray",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "d14ae606cc7fe00cd54e31c625b1ac98c84a02c230e981c8614c0ceaf336d9fb"
+}

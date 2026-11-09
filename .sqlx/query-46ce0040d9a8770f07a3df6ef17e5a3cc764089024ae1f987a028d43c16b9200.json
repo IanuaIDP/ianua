@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Marks one notification of a tenant user's inbox read; a second time\n-- changes nothing but still finds it.\nUPDATE tenant_notifications\nSET read = true\nWHERE tenant_id = $1 AND user_id = $2 AND id = $3\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "46ce0040d9a8770f07a3df6ef17e5a3cc764089024ae1f987a028d43c16b9200"
+}

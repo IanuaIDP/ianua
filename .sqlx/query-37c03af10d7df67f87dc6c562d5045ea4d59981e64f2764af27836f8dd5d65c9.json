@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a code as the latest sent for a user's second factor: a new code\n-- replaces the one before it, and a known one takes its counted tries and\n-- its spending.\nINSERT INTO mfa_sent_codes\n    (tenant_id, user_id, enrolled_at, method, code_hash, issued_at, expires_at,\n     wrong_tries, spent_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\nON CONFLICT (tenant_id, user_id) DO UPDATE SET\n    enrolled_at = EXCLUDED.enrolled_at,\n    method = EXCLUDED.method,\n    code_hash = EXCLUDED.code_hash,\n    issued_at = EXCLUDED.issued_at,\n    expires_at = EXCLUDED.expires_at,\n    wrong_tries = EXCLUDED.wrong_tries,\n    spent_at = EXCLUDED.spent_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Timestamptz",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Int2",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "37c03af10d7df67f87dc6c562d5045ea4d59981e64f2764af27836f8dd5d65c9"
+}

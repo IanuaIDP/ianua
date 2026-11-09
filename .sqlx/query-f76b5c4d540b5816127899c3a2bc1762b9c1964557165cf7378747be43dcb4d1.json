@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes one service of one tenant, with the sign-in hosts it holds. A\n-- route forwarding to it, or a service accepting its sign-in, refuses it.\nDELETE FROM services\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f76b5c4d540b5816127899c3a2bc1762b9c1964557165cf7378747be43dcb4d1"
+}

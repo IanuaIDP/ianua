@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Zweistufige Anmeldung aktiviert{% endblock %}
+{% block preheader %}Ihrem Konto wurde ein zweiter Faktor hinzugefügt.{% endblock %}
+{% block headline %}Zweistufige Anmeldung aktiviert{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("")) }}
+  {% call c.para() %}Ihrem Konto bei <strong>{{ tenant_name | default("Ihrer Organisation") }}</strong> wurde ein zweiter Faktor hinzugefügt. Dieser wird von nun an bei der Anmeldung abgefragt.{% endcall %}
+  {% call c.para(pad=32) %}Wenn Sie das nicht waren, informieren Sie umgehend Ihren Administrator: Möglicherweise hat jemand anderes Zugriff auf Ihr Konto erlangt.{% endcall %}
+{% endblock %}

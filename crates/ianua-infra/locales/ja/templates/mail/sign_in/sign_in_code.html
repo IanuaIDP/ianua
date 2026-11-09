@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}サインイン用コード{% endblock %}
+{% block preheader %}サインインを続けるには、このコードを入力してください。{% endblock %}
+{% block headline %}サインイン用コード{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para(pad=8) %}<strong>{{ tenant_name | default("アカウント") }}</strong>へのサインインを続けるには、このコードを入力してください：{% endcall %}
+  {{ c.code(one_time_code) }}
+  {% call c.para(pad=0) %}このコードの有効期間は{{ expires_at }}です。{% endcall %}
+  {% call c.para(pad=32) %}サインインを試みていない場合は、他の人がパスワードを知っている可能性があります。パスワードを変更し、このコードは誰にも教えないでください。{% endcall %}
+{% endblock %}

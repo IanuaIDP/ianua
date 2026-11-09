@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}組織の準備ができました{% endblock %}
+{% block preheader %}組織の準備ができました。サインインしてご利用ください。{% endblock %}
+{% block headline %}組織の準備ができました{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para(pad=8) %}<strong>{{ organization_name | default("組織") }}</strong>が作成され、アカウントを利用できるようになりました。{% endcall %}
+  {{ c.cta(action_url, "サインイン") }}
+{% endblock %}

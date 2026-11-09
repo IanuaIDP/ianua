@@ -1,0 +1,6 @@
+您好，{{ user_name | default("用户") }}：
+
+{{ organization_name | default("您的组织") }} 已创建，您的账户可以使用。请在此登录：
+{{ action_url }}
+
+IANUA

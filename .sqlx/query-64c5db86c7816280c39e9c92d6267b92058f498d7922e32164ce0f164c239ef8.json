@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Forgets a tenant's OIDC sign-ins whose time to be answered ran out by\n-- the given time.\nDELETE FROM oidc_flows\nWHERE tenant_id = $1 AND lapses_at <= $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "64c5db86c7816280c39e9c92d6267b92058f498d7922e32164ce0f164c239ef8"
+}

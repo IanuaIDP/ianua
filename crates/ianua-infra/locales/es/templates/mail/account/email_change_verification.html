@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Verifique su nueva dirección de correo{% endblock %}
+{% block preheader %}Verifique su nueva dirección para completar el cambio.{% endblock %}
+{% block headline %}Verifique su nueva dirección de correo{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para() %}Se ha solicitado cambiar la dirección de su cuenta {{ c.brand() }} a <strong>{{ user_email }}</strong>.{% endcall %}
+  {% call c.para(pad=8) %}Para completar el cambio, verifique esta dirección.{% endcall %}
+  {{ c.cta(action_url, "Verificar nueva dirección") }}
+  {% call c.para(pad=0) %}Este enlace caduca en {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Si no lo solicitó, puede ignorar este correo.{% endcall %}
+{% endblock %}

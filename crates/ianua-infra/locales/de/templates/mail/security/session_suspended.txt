@@ -1,0 +1,7 @@
+Hallo{% if user_name is defined and user_name %} {{ user_name | default("") }}{% endif %}!
+
+Eine Sitzung Ihres Kontos bei {{ tenant_name | default("Ihrer Organisation") }} wurde nach ungewöhnlich wirkenden Aktivitäten beendet{% if ip_address is defined %}, die von {{ ip_address }} kamen{% endif %}.
+
+Wenn Sie das waren, melden Sie sich erneut an, um fortzufahren. Andernfalls ändern Sie jetzt Ihr Passwort und überprüfen Sie Ihre aktiven Sitzungen.
+
+IANUA

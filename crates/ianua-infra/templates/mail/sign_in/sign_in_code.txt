@@ -1,0 +1,11 @@
+Hi {{ user_name | default("there") }},
+
+Type this code to go on signing in to {{ tenant_name | default("your account") }}:
+
+{{ one_time_code }}
+
+It stops working in {{ expires_at }}.
+
+If you are not signing in, someone may know your password. Change it, and do not give this code to anyone.
+
+IANUA

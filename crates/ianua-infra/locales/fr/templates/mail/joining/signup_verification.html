@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Confirmez votre adresse e-mail{% endblock %}
+{% block preheader %}Confirmez votre adresse e-mail pour créer votre organisation.{% endblock %}
+{% block headline %}Bienvenue chez IANUA{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("cher utilisateur")) }}
+  {% call c.para() %}Merci de vous être inscrit à {{ c.brand() }}.{% endcall %}
+  {% call c.para(pad=8) %}Il ne reste qu’une étape pour créer <strong>{{ organization_name | default("votre organisation") }}</strong>. Confirmez votre adresse e-mail pour terminer.{% endcall %}
+  {{ c.cta(action_url, "Confirmer l’adresse e-mail") }}
+  {% call c.para(pad=0) %}Ce lien expire dans {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Si vous ne vous êtes pas inscrit, vous pouvez ignorer cet e-mail.{% endcall %}
+{% endblock %}

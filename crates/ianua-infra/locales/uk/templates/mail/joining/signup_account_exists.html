@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}У вас уже є обліковий запис{% endblock %}
+{% block preheader %}Для цієї адреси вже є обліковий запис IANUA.{% endblock %}
+{% block headline %}У вас уже є обліковий запис{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("користувачу")) }}
+  {% call c.para(pad=8) %}Щойно надійшов запит на реєстрацію в {{ c.brand() }} з цією адресою, але обліковий запис для неї вже існує. Якщо це були ви, натомість увійдіть.{% endcall %}
+  {{ c.cta(action_url, "Увійти") }}
+  {% call c.para(pad=32) %}Якщо ви забули пароль, скиньте його на сторінці входу. Якщо це були не ви, проігноруйте лист: нічого не змінилося.{% endcall %}
+{% endblock %}

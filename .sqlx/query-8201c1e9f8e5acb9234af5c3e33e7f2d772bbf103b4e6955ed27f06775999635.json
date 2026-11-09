@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes the organization and platform records the bus took.\nDELETE FROM platform_event_outbox\nWHERE record_id = ANY($1)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8201c1e9f8e5acb9234af5c3e33e7f2d772bbf103b4e6955ed27f06775999635"
+}

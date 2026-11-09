@@ -1,0 +1,7 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+Se detuvo una sesión de su cuenta en {{ tenant_name | default("su organización") }} tras detectarse una actividad aparentemente inusual{% if ip_address is defined %}, desde {{ ip_address }}{% endif %}.
+
+Si fue usted, inicie sesión de nuevo para continuar. Si no, cambie su contraseña ahora y revise sus sesiones activas.
+
+IANUA

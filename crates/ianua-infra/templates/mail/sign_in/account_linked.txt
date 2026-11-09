@@ -1,0 +1,7 @@
+Hi {{ user_name | default("there") }},
+
+Your account in {{ tenant_name | default("your organization") }} was signed in to through {{ provider_name | default("a sign-in provider") }} for the first time{% if ip_address is defined %}, from {{ ip_address }}{% endif %}. From now on that provider can sign you in.
+
+If this was not you, tell your administrator straight away.
+
+IANUA

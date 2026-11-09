@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Надійшов запит на зміну адреси вашого облікового запису{% endblock %}
+{% block preheader %}Надійшов запит на перенесення вашого облікового запису на іншу адресу.{% endblock %}
+{% block headline %}Надійшов запит на зміну адреси вашого облікового запису{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("користувачу")) }}
+  {% call c.para() %}Надійшов запит на зміну адреси вашого облікового запису в <strong>{{ organization_name | default("вашій організації") }}</strong> на <strong>{{ user_email }}</strong>{% if ip_address is defined %} з адреси {{ ip_address }}{% endif %}.{% endcall %}
+  {% call c.para(pad=8) %}Якщо це були не ви, негайно скасуйте зміну. Ваш обліковий запис залишиться на цій адресі.{% endcall %}
+  {{ c.cta(action_url, "Скасувати зміну") }}
+  {% call c.para(pad=0) %}Скасувати зміну можна протягом {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Якщо ви самі надіслали запит, нічого робити не потрібно.{% endcall %}
+{% endblock %}

@@ -1,0 +1,65 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The latest code sent for the second factor of a user of a tenant.\nSELECT user_id, enrolled_at, method, code_hash, issued_at, expires_at, wrong_tries, spent_at\nFROM mfa_sent_codes\nWHERE tenant_id = $1 AND user_id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "enrolled_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "method",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "code_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "issued_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "wrong_tries",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 7,
+        "name": "spent_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "58e8311cd2158933622b53ae2969584981478567504a784cf3856f7d5f3e75d0"
+}

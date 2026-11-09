@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Records a newly opened passkey ceremony. One already recorded is left as\n-- it is: only settling it changes it, so saving it again can never reopen\n-- a ceremony already settled.\nINSERT INTO org_passkey_ceremonies\n    (id, org_user_id, purpose, state, created_at, expires_at, consumed_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nON CONFLICT (id) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Bytea",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e4bb6b2b6b48d5e4e8c00a98b075062167f1a8991556feafacd1e39649b36665"
+}

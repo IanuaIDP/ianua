@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}მოგესალმებით: {{ tenant_name | default("IANUA") }}{% endblock %}
+{% block preheader %}თქვენი ანგარიში მზადაა. დასაწყებად შედით.{% endblock %}
+{% block headline %}მოგესალმებით: {{ tenant_name | default("IANUA") }}{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para(pad=8) %}თქვენთვის შეიქმნა {{ c.brand() }} ანგარიში <strong>{{ tenant_name | default("თქვენი ორგანიზაცია") }}</strong>-ში{% if role_name is defined %}, როლით <strong>{{ role_name }}</strong>{% endif %}. ყველაფერი მზადაა.{% endcall %}
+  {{ c.cta(action_url, "შესვლა") }}
+{% endblock %}

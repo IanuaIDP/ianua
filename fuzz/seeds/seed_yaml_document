@@ -1,0 +1,12 @@
+POST /api/v1/organizations/acme/tenants/acme-tenant/gateway/import
+content-type: application/yaml
+accept: application/yaml
+
+openapi: 3.0.0
+info:
+  title: Orders
+  version: "1.0"
+paths:
+  /orders:
+    get:
+      operationId: listOrders

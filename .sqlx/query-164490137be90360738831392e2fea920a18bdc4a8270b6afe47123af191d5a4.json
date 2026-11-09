@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes a connection of a tenant, and with it its rules, links, mapped\n-- holdings and the sign-ins in flight through it.\nDELETE FROM federation_connections\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "164490137be90360738831392e2fea920a18bdc4a8270b6afe47123af191d5a4"
+}

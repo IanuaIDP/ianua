@@ -1,0 +1,41 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a consumer: a new one is added, a known one of the same tenant\n-- takes the new values. Its tenant, its maker and its creation time never\n-- change.\nINSERT INTO consumers\n    (id, tenant_id, name, description, credential_kind, key_prefix, key_hash,\n     cert_fingerprint, jwt_issuer, jwt_subject, jwks_uri, credential_expires_at,\n     previous_kind, previous_key_prefix, previous_key_hash, previous_cert_fingerprint,\n     previous_jwt_issuer, previous_jwt_subject, previous_jwks_uri, previous_expires_at,\n     previous_until, quota_requests, quota_period, status, clearance, created_by,\n     created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18,\n        $19, $20, $21, $22, $23, $24, $25, $26, $27, $28)\nON CONFLICT (id) DO UPDATE SET\n    name = EXCLUDED.name,\n    description = EXCLUDED.description,\n    credential_kind = EXCLUDED.credential_kind,\n    key_prefix = EXCLUDED.key_prefix,\n    key_hash = EXCLUDED.key_hash,\n    cert_fingerprint = EXCLUDED.cert_fingerprint,\n    jwt_issuer = EXCLUDED.jwt_issuer,\n    jwt_subject = EXCLUDED.jwt_subject,\n    jwks_uri = EXCLUDED.jwks_uri,\n    credential_expires_at = EXCLUDED.credential_expires_at,\n    previous_kind = EXCLUDED.previous_kind,\n    previous_key_prefix = EXCLUDED.previous_key_prefix,\n    previous_key_hash = EXCLUDED.previous_key_hash,\n    previous_cert_fingerprint = EXCLUDED.previous_cert_fingerprint,\n    previous_jwt_issuer = EXCLUDED.previous_jwt_issuer,\n    previous_jwt_subject = EXCLUDED.previous_jwt_subject,\n    previous_jwks_uri = EXCLUDED.previous_jwks_uri,\n    previous_expires_at = EXCLUDED.previous_expires_at,\n    previous_until = EXCLUDED.previous_until,\n    quota_requests = EXCLUDED.quota_requests,\n    quota_period = EXCLUDED.quota_period,\n    status = EXCLUDED.status,\n    clearance = EXCLUDED.clearance,\n    updated_at = EXCLUDED.updated_at\nWHERE consumers.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Int8",
+        "Text",
+        "Text",
+        "Text",
+        "Jsonb",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b2b8b262e4dc2df397dc3180db4e56d0e744f4ac86f3a90958d6441fd96c2f85"
+}

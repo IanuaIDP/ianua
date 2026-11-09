@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps the links of one group, all in one statement: a new link is added,\n-- a known one takes the account and time it now names.\nINSERT INTO org_linked_identity_links (linked_identity_id, tenant_id, user_id, linked_at)\nSELECT $1, link.tenant_id, link.user_id, link.linked_at\nFROM UNNEST($2::uuid[], $3::uuid[], $4::timestamptz[]) AS link (tenant_id, user_id, linked_at)\nON CONFLICT (linked_identity_id, tenant_id) DO UPDATE SET\n    user_id = EXCLUDED.user_id,\n    linked_at = EXCLUDED.linked_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray",
+        "UuidArray",
+        "TimestamptzArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "02b096929fbf2bd85932140f6f9584eddacb6184f49178d841e86f414ac5a1c7"
+}

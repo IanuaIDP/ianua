@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Puts principals into groups of a tenant, all in one statement, each\n-- place once however often it is named. A place someone holds still in\n-- force when they join is left as it is; one whose end had come by then,\n-- not yet cleared by the sweep, is replaced by the new one.\nINSERT INTO group_memberships\n    (tenant_id, group_id, principal_kind, principal_id, joined_at, expires_at)\nSELECT DISTINCT ON (joined.group_id, joined.principal_kind, joined.principal_id)\n       $1, joined.group_id, joined.principal_kind, joined.principal_id, joined.joined_at,\n       joined.expires_at\nFROM UNNEST($2::uuid[], $3::text[], $4::uuid[], $5::timestamptz[], $6::timestamptz[])\n    AS joined (group_id, principal_kind, principal_id, joined_at, expires_at)\nON CONFLICT (tenant_id, group_id, principal_kind, principal_id) DO UPDATE SET\n    joined_at = EXCLUDED.joined_at,\n    expires_at = EXCLUDED.expires_at\nWHERE group_memberships.expires_at IS NOT NULL\n  AND group_memberships.expires_at <= EXCLUDED.joined_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray",
+        "TextArray",
+        "UuidArray",
+        "TimestamptzArray",
+        "TimestamptzArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "06d1c29a612733c7d23bd36977907778407da0199620bb8492bd8e3ec169f3a2"
+}

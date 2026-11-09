@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ihr Konto ist bereit{% endblock %}
+{% block preheader %}Ihr Konto ist bereit. Melden Sie sich an, um loszulegen.{% endblock %}
+{% block headline %}Ihr Konto ist bereit{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("")) }}
+  {% call c.para(pad=8) %}Ihr Konto bei <strong>{{ tenant_name | default(organization_name | default("Ihrer Organisation")) }}</strong> ist eingerichtet und einsatzbereit.{% endcall %}
+  {{ c.cta(action_url, "Anmelden") }}
+{% endblock %}

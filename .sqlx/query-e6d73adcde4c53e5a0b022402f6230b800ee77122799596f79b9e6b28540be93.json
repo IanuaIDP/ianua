@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes a topic of the tenant for good, with every subscription to it.\nDELETE FROM topics\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e6d73adcde4c53e5a0b022402f6230b800ee77122799596f79b9e6b28540be93"
+}

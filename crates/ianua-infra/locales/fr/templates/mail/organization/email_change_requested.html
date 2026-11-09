@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Un changement d’adresse de votre compte a été demandé{% endblock %}
+{% block preheader %}Un changement de l’adresse de votre compte vers une autre adresse a été demandé.{% endblock %}
+{% block headline %}Un changement d’adresse de votre compte a été demandé{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("cher utilisateur")) }}
+  {% call c.para() %}Une demande de changement de l’adresse de votre compte dans <strong>{{ organization_name | default("votre organisation") }}</strong> vers <strong>{{ user_email }}</strong> a été faite{% if ip_address is defined %} depuis {{ ip_address }}{% endif %}.{% endcall %}
+  {% call c.para(pad=8) %}Si ce n’était pas vous, annulez le changement maintenant. Votre compte conservera cette adresse.{% endcall %}
+  {{ c.cta(action_url, "Annuler le changement") }}
+  {% call c.para(pad=0) %}Vous pouvez annuler le changement pendant {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Si vous avez vous-même fait cette demande, aucune action n’est nécessaire.{% endcall %}
+{% endblock %}

@@ -1,0 +1,158 @@
+{{/*
+The two privileged logins, kept apart from the chart Secret every pod loads:
+only the worker and the migrate, install, operator and demo jobs read them.
+
+The owner's login comes from the bundled database's superuser, or for an
+external database from secrets.migrationDatabaseUrl. The audit purge's role
+is made by the migration from AUDIT_PURGE_DATABASE_URL: for a bundled
+database the chart writes that URL itself, with a password generated once and
+kept on upgrade; for an external one it is given in values.
+
+The gateway's login is kept the same way: the migration makes its role from
+GATEWAY_DATABASE_URL, and the gateway and egress pods sign in with it and
+with nothing else of the control plane's.
+
+With dns.enabled the nameservers' login is kept the same way: the migration
+makes the role from NAMESERVER_DATABASE_URL, and the nameserver pods sign in
+with it and with nothing else.
+*/}}
+{{- $source := include "ianua.ownerLoginSource" . }}
+{{- if and (eq $source "external") .Values.secrets.migrationDatabaseUrl (not .Values.secrets.migrationExistingSecret) }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "ianua.migrationSecretName" . }}
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: migrate
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-20"
+    "helm.sh/hook-delete-policy": before-hook-creation
+type: Opaque
+stringData:
+  MIGRATION_DATABASE_URL: {{ .Values.secrets.migrationDatabaseUrl | quote }}
+---
+{{- end }}
+{{- if not .Values.secrets.auditPurgeExistingSecret }}
+{{- $secret := include "ianua.auditPurgeSecretName" . }}
+{{- $url := "" }}
+{{- if .Values.postgresql.enabled }}
+{{- $password := include "ianua.keptSecret" (dict
+    "root" .
+    "secret" $secret
+    "key" "password"
+    "given" ""
+    "generated" (randAlphaNum 32)
+) }}
+{{- $host := printf "%s-pg" (include "ianua.fullname" .) }}
+{{- if eq .Values.postgresql.provider "cloudnativepg" }}
+{{- $host = printf "%s-pg-rw" (include "ianua.fullname" .) }}
+{{- end }}
+{{- $url = printf "postgres://%s:%s@%s:5432/%s" .Values.postgresql.auditPurgeRole $password $host .Values.postgresql.database }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $secret }}
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: migrate
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-20"
+    "helm.sh/hook-delete-policy": before-hook-creation
+type: Opaque
+stringData:
+  password: {{ $password | quote }}
+  AUDIT_PURGE_DATABASE_URL: {{ $url | quote }}
+{{- else }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $secret }}
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: migrate
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-20"
+    "helm.sh/hook-delete-policy": before-hook-creation
+type: Opaque
+stringData:
+  AUDIT_PURGE_DATABASE_URL: {{ required "secrets.auditPurgeDatabaseUrl is required with an external database: the audit purge's own login, a role the migration makes (or set secrets.auditPurgeExistingSecret)" .Values.secrets.auditPurgeDatabaseUrl | quote }}
+{{- end }}
+{{- end }}
+{{- if not .Values.secrets.gatewayExistingSecret }}
+---
+{{- $secret := include "ianua.gatewaySecretName" . }}
+{{- $url := .Values.secrets.gatewayDatabaseUrl }}
+{{- $password := "" }}
+{{- if .Values.postgresql.enabled }}
+{{- $password = include "ianua.keptSecret" (dict
+    "root" .
+    "secret" $secret
+    "key" "password"
+    "given" ""
+    "generated" (randAlphaNum 32)
+) }}
+{{- $host := printf "%s-pg" (include "ianua.fullname" .) }}
+{{- if eq .Values.postgresql.provider "cloudnativepg" }}
+{{- $host = printf "%s-pg-rw" (include "ianua.fullname" .) }}
+{{- end }}
+{{- $url = printf "postgres://%s:%s@%s:5432/%s" .Values.postgresql.gatewayRole $password $host .Values.postgresql.database }}
+{{- end }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $secret }}
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: zero
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-20"
+    "helm.sh/hook-delete-policy": before-hook-creation
+type: Opaque
+stringData:
+  {{- with $password }}
+  password: {{ . | quote }}
+  {{- end }}
+  GATEWAY_DATABASE_URL: {{ required "secrets.gatewayDatabaseUrl is required with an external database: the gateway's own login, a role the migration makes (or set secrets.gatewayExistingSecret)" $url | quote }}
+{{- end }}
+{{- if and .Values.dns.enabled (not .Values.secrets.nameserverExistingSecret) }}
+---
+{{- $secret := include "ianua.nameserverSecretName" . }}
+{{- $url := .Values.secrets.nameserverDatabaseUrl }}
+{{- $password := "" }}
+{{- if .Values.postgresql.enabled }}
+{{- $password = include "ianua.keptSecret" (dict
+    "root" .
+    "secret" $secret
+    "key" "password"
+    "given" ""
+    "generated" (randAlphaNum 32)
+) }}
+{{- $host := printf "%s-pg" (include "ianua.fullname" .) }}
+{{- if eq .Values.postgresql.provider "cloudnativepg" }}
+{{- $host = printf "%s-pg-rw" (include "ianua.fullname" .) }}
+{{- end }}
+{{- $url = printf "postgres://%s:%s@%s:5432/%s" .Values.postgresql.nameserverRole $password $host .Values.postgresql.database }}
+{{- end }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $secret }}
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: dns
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-20"
+    "helm.sh/hook-delete-policy": before-hook-creation
+type: Opaque
+stringData:
+  {{- with $password }}
+  password: {{ . | quote }}
+  {{- end }}
+  NAMESERVER_DATABASE_URL: {{ required "secrets.nameserverDatabaseUrl is required with dns.enabled and an external database: the nameservers' own login, a role the migration makes (or set secrets.nameserverExistingSecret)" $url | quote }}
+{{- end }}

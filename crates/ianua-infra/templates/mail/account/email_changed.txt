@@ -1,0 +1,7 @@
+Hi there,
+
+The email address of your IANUA account was changed to {{ user_email }}.
+
+If you did not make this change, tell your administrator straight away.
+
+IANUA

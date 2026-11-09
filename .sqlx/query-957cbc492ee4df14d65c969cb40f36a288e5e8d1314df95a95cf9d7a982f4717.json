@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Holds the claims under one registrable domain for the running\n-- transaction, waiting while another transaction holds them, so a check\n-- of the names at, above and below one and the claim it allows are never\n-- raced by a claim on a name that overlaps it. Every name that can overlap\n-- another shares its registrable domain. The lock answers nothing; it is\n-- read as text only so the statement has a column.\nSELECT pg_advisory_xact_lock(hashtextextended('ianua.domain_claims:' || $1::text, 0))::text\n    AS \"held!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "held!",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "957cbc492ee4df14d65c969cb40f36a288e5e8d1314df95a95cf9d7a982f4717"
+}

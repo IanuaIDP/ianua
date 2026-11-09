@@ -1,0 +1,12 @@
+node_modules
+.next
+out
+.git
+.github
+deploy
+*.log
+.env*
+README.md
+.prettierignore
+.prettierrc
+eslint.config.mjs

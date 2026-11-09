@@ -1,0 +1,83 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The event schemas of a tenant with the given ids, without their\n-- versions.\nSELECT id, name, schema_name, description, format, compatibility, created_by_kind,\n       created_by_id, created_by_person, created_at, updated_at\nFROM event_schemas\nWHERE tenant_id = $1 AND id = ANY($2)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "schema_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "format",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "compatibility",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "created_by_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "created_by_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "created_by_person",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "a09ace8e7b82568de84d7475b0a89706f4a5873eab42760fb341377a511adbe7"
+}

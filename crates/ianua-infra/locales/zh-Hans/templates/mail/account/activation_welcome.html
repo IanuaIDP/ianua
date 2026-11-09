@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}您的账户已就绪{% endblock %}
+{% block preheader %}您的账户已就绪。请登录以开始使用。{% endblock %}
+{% block headline %}您的账户已就绪{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("用户")) }}
+  {% call c.para(pad=8) %}您在 <strong>{{ tenant_name | default(organization_name | default("您的组织")) }}</strong> 的账户已设置完成，可以使用。{% endcall %}
+  {{ c.cta(action_url, "登录") }}
+{% endblock %}

@@ -1,0 +1,152 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: >-
+  Grants Ianua permission to create and manage the PostgreSQL databases behind
+  your tenants, inside your own AWS account. Creates one IAM role and nothing
+  else. Delete this stack to revoke the grant completely.
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Values Ianua gave you
+        Parameters:
+          - IanuaAccountId
+          - ExternalId
+      - Label:
+          default: Naming
+        Parameters:
+          - RoleName
+          - ResourcePrefix
+    ParameterLabels:
+      IanuaAccountId:
+        default: Ianua AWS account id
+      ExternalId:
+        default: External id
+      RoleName:
+        default: Role name
+      ResourcePrefix:
+        default: Managed resource prefix
+
+Parameters:
+  IanuaAccountId:
+    Type: String
+    Description: >-
+      The AWS account that will assume this role. Copy it from the connect
+      screen; do not guess it. This is the only account the role will trust.
+    AllowedPattern: '^[0-9]{12}$'
+    ConstraintDescription: An AWS account id is exactly 12 digits.
+
+  ExternalId:
+    Type: String
+    Description: >-
+      The shared secret from the connect screen. Without it, anyone who learned
+      this role's ARN could ask Ianua to assume it on their behalf, because a
+      role ARN is not a secret. Ianua must present this exact value or the
+      assumption is refused.
+    NoEcho: true
+    MinLength: 24
+    MaxLength: 128
+    AllowedPattern: '^[A-Za-z0-9_-]+$'
+    ConstraintDescription: >-
+      Paste the value shown on the connect screen, unchanged.
+
+  RoleName:
+    Type: String
+    Description: The name of the role this stack creates.
+    Default: IanuaDatabaseProvisioning
+    AllowedPattern: '^[A-Za-z0-9+=,.@_-]{1,64}$'
+
+  ResourcePrefix:
+    Type: String
+    Description: >-
+      Ianua may only create, change or delete database instances whose name
+      starts with this. Everything else in your account is out of reach,
+      including databases you made yourself.
+    Default: ianua-
+    AllowedPattern: '^[a-z][a-z0-9-]{1,16}$'
+
+Resources:
+  IanuaProvisioningRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref RoleName
+      Description: >-
+        Assumed by Ianua to provision tenant databases in this account.
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: TrustIanuaWithExternalId
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:${AWS::Partition}:iam::${IanuaAccountId}:root'
+            Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                sts:ExternalId: !Ref ExternalId
+      Policies:
+        - PolicyName: IanuaDatabaseProvisioning
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              # Managing the databases Ianua creates, and only those. The name
+              # is derived from the tenant id and always carries the prefix, so
+              # this cannot reach a database you made yourself.
+              - Sid: ManagePrefixedDatabases
+                Effect: Allow
+                Action:
+                  - rds:CreateDBInstance
+                  - rds:ModifyDBInstance
+                  - rds:DeleteDBInstance
+                  - rds:RebootDBInstance
+                  - rds:AddTagsToResource
+                  - rds:ListTagsForResource
+                Resource:
+                  - !Sub 'arn:${AWS::Partition}:rds:*:${AWS::AccountId}:db:${ResourcePrefix}*'
+                  - !Sub 'arn:${AWS::Partition}:rds:*:${AWS::AccountId}:subgrp:*'
+                  - !Sub 'arn:${AWS::Partition}:rds:*:${AWS::AccountId}:pg:*'
+
+              # Reading state. RDS and EC2 describe calls do not support
+              # resource-level permissions, so these are account-wide by
+              # necessity. They are read-only and return no secrets.
+              - Sid: ReadDatabaseAndNetworkState
+                Effect: Allow
+                Action:
+                  - rds:DescribeDBInstances
+                  - rds:DescribeDBSubnetGroups
+                  - rds:DescribeDBEngineVersions
+                  - rds:DescribeOrderableDBInstanceOptions
+                  - ec2:DescribeVpcs
+                  - ec2:DescribeSubnets
+                  - ec2:DescribeSecurityGroups
+                  - ec2:DescribeAvailabilityZones
+                  - ec2:DescribeRegions
+                Resource: '*'
+
+              # RDS needs this the first time a database is created in an
+              # account. Scoped to the RDS service so it cannot be used to
+              # create a role for anything else.
+              - Sid: AllowRdsServiceLinkedRole
+                Effect: Allow
+                Action: iam:CreateServiceLinkedRole
+                Resource: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS'
+                Condition:
+                  StringLike:
+                    iam:AWSServiceName: rds.amazonaws.com
+      Tags:
+        - Key: ManagedBy
+          Value: Ianua
+
+Outputs:
+  RoleArn:
+    Description: >-
+      Paste this back into the Ianua connect screen. It is not a secret: the
+      external id is what makes it usable, and only by Ianua.
+    Value: !GetAtt IanuaProvisioningRole.Arn
+
+  ExternalIdReminder:
+    Description: >-
+      Keep the external id you entered. Ianua already has it; you do not need
+      to send it anywhere.
+    Value: 'Stored in the role trust policy.'

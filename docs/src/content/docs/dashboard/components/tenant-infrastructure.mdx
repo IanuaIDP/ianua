@@ -1,0 +1,134 @@
+---
+title: Tenant infrastructure screens
+description: Domains, API keys, OAuth clients, signals, services, routes, pipelines and keys inside a tenant.
+sidebar:
+  order: 6
+---
+
+These are the sections under **Infrastructure** in a tenant's sidebar: domains, API keys, OAuth clients, signals, services, routes, pipelines and crypto. All of them live in `src/components/dashboard/tenant-detail/sections`.
+
+## Domains
+
+These are `domains-card.tsx` and the folder `domains/`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `DomainsCard` | `domains-card.tsx` | The Domains page: add, verify, show the DNS steps, set up TLS, move to another tenant, delete. |
+| `DomainsTable` | `domains/domains-table.tsx` | The domains, with whether each is verified and has TLS. A row opens the domain's page. |
+| `DomainActionsMenu` | `domains/domain-actions-menu.tsx` | The actions a domain's status allows. |
+| `AddDomainModal` | `domains/add-domain-modal.tsx` | Adds a host name, or a wildcard under a parent domain. |
+| `TransferDomainModal` | `domains/transfer-domain-modal.tsx` | Offers a verified domain to another tenant of the organization, which has to accept before it moves. |
+| `DnsRecordsCard` | `domains/dns-records-card.tsx` | The DNS records ianua serves for a domain: list, add, edit, delete. |
+| `DnsRecordsTable` | `domains/dns-records-table.tsx` | The records, with name, type, TTL and values. |
+| `DnsRecordActionsMenu` | `domains/dns-record-actions-menu.tsx` | Edit and delete a record. |
+| `DnsRecordFormModal` | `domains/dns-record-form-modal.tsx` | Edits a record. Its value fields change with the record's type. |
+| `MultiValueField` | `domains/multi-value-field.tsx` | Rows of one value each, for A, AAAA, TXT and similar records. |
+| `MxValuesField` | `domains/mx-values-field.tsx` | Mail servers, each with a priority. |
+| `SrvValuesField` | `domains/srv-values-field.tsx` | Service targets: priority, weight, port and target. |
+| `CaaValuesField` | `domains/caa-values-field.tsx` | Which certificate authorities may issue: flag, tag and issuer. |
+| `fieldContainerClassName` and others | `domains/dns-record-form-field-styles.ts` | Shared class names for the value rows. |
+
+## API keys
+
+These are `api-keys-card.tsx` and the folder `api-keys/`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `ApiKeysCard` | `api-keys-card.tsx` | The tenant's API keys: list with when each ends, create with a name, tenant permissions and an optional last day, show the secret once, revoke. A key past its last day shows as expired. |
+| `TenantApiKeysTable` | `api-keys/tenant-api-keys-table.tsx` | The keys, with status and dates. |
+| `TenantApiKeyActionsMenu` | `api-keys/tenant-api-key-actions-menu.tsx` | Revoke. |
+| `CreateTenantApiKeyModal` | `api-keys/create-tenant-api-key-modal.tsx` | A name and a permission picker. |
+
+## OAuth clients
+
+These are `oauth-clients-card.tsx` and the folder `oauth-clients/`. An OAuth client is an app that signs people in through ianua with OpenID Connect.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `OAuthClientsCard` | `oauth-clients-card.tsx` | Create a client (its secret shows once), edit, revoke. |
+| `OAuthClientsTable` | `oauth-clients/oauth-clients-table.tsx` | The clients, with client ID and return addresses. |
+| `OAuthClientActionsMenu` | `oauth-clients/oauth-client-actions-menu.tsx` | Edit and revoke. |
+| `OAuthClientFormModal` | `oauth-clients/oauth-client-form-modal.tsx` | A name and the return addresses. |
+
+## Signals
+
+These are `streams-card.tsx` and the folder `streams/`. A signal stream sends security events to a receiver outside, such as another company's security system.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `StreamsCard` | `streams-card.tsx` | The signal streams: status tabs, register, edit. A row opens the stream's page. |
+| `StreamsTable` | `streams/streams-table.tsx` | The streams, with where each delivers (copyable), how, which signals and status. |
+| `StreamActionsMenu` | `streams/stream-actions-menu.tsx` | Edit, and turn a stream off or on. |
+| `StreamFormModal` | `streams/stream-form-modal.tsx` | Where to deliver, how, and which signals. |
+| `StreamDeliveriesTable` | `streams/stream-deliveries-table.tsx` | What was delivered, on the stream's page. |
+
+## Services
+
+These are `services-card.tsx` and the folder `services/`. A service is an app the gateway forwards requests to.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `ServicesCard` | `services-card.tsx` | The services. Create and edit open `ServiceFormPage`, and delete. |
+| `ServicesTable` | `services/services-table.tsx` | The services, with target, backends, timeout, health checks, a summary of their settings, and status. |
+| `ServiceActionsMenu` | `services/service-actions-menu.tsx` | Edit and delete. |
+| `WeightedBackendsField` | `services/weighted-backends-field.tsx` | More backends, each with a weight, to share the load. The service's own address takes part with weight 100, unless it is listed here with another weight. |
+| `DiscoveryFields` | `services/discovery-fields.tsx` | Finds the backends from DNS (name, record type, how often to look again) instead of listing them. |
+| `StickySessionFields` | `services/sticky-session-fields.tsx` | Keeps each visitor on the same backend. |
+| `AppSignInCard` | `services/app-sign-in-card.tsx` | "Sign-in on this app": the gateway signs people in on the app's own domain. It sets the domains, the address prefix, where to go after signing in, and what a signed-out visitor gets. It can instead accept another service's sign-in. |
+
+## Routes
+
+These are `routes-card.tsx` and the folder `routes/`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `RoutesCard` | `routes-card.tsx` | The Routes page, with HTTP routes and TCP and UDP routes under one heading. The address remembers which kind is open. |
+| `HttpRoutesCard` | `routes/http-routes-card.tsx` | The HTTP routes. Create and edit open `RouteFormPage`. "Add example route" creates the pipeline and service it needs, and is safe to press twice: if the route is there already, it says so. |
+| `RoutesTable` | `routes/routes-table.tsx` | The routes, with path, methods, service, pipeline, policy, the path sent on, status and priority. |
+| `RouteActionsMenu` | `routes/route-actions-menu.tsx` | Edit and delete. |
+| `StreamRoutesCard` | `routes/stream-routes-card.tsx` | The TCP and UDP ports the gateway listens on. Create and edit open `StreamRouteFormPage`. |
+| `StreamRoutesTable` | `routes/stream-routes-table.tsx` | Port, protocol and backends. |
+| `StreamRouteActionsMenu` | `routes/stream-route-actions-menu.tsx` | Edit and delete. |
+| `HostsField` | `routes/hosts-field.tsx` | Picks the domains a route answers on: all, or some. Only **verified** domains are offered, because the API refuses any other. |
+| `PipelineField` | `routes/pipeline-field.tsx` | Picks the pipeline a route runs. One is needed, and none is picked for you. |
+| `ServiceField` | `routes/service-field.tsx` | Picks the service a route forwards to. |
+| `PathRewriteFields` | `routes/path-rewrite-fields.tsx` | The path the app sees instead of the one that came in, made from the path's parameters. |
+| `SystemPermissionsField` | `routes/system-permissions-field.tsx` | ianua permissions, for the "Require system permission" policy. |
+| `CustomPermissionsField` | `routes/custom-permissions-field.tsx` | The company's own app permissions, for "Require custom permission". |
+| `ScopesField` | `routes/scopes-field.tsx` | Token scopes, for "Require scope". |
+| `StreamBackendsField` | `routes/stream-backends-field.tsx` | The `host:port` backends of a TCP or UDP route. |
+| `StreamSniField` | `routes/stream-sni-field.tsx` | The TLS server names (SNI) a port answers. |
+
+## Pipelines
+
+These are `pipeline-card.tsx` and the folder `pipeline/`. A pipeline is the list of checks a request on a route goes through, in order. Identity and Policy are always part of it.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `PipelineCard` | `pipeline-card.tsx` | The pipelines, and create. A row opens the pipeline's page. |
+| `PipelinesTable` | `pipeline/pipelines-table.tsx` | The pipelines, with status, the number of stages and routes, and when created and changed. |
+| `PipelineActionsMenu` | `pipeline/pipeline-actions-menu.tsx` | Turn a pipeline on or off, and delete it. |
+| `CreatePipelineModal` | `pipeline/create-pipeline-modal.tsx` | Names a new pipeline. |
+| `PipelineDetail` | `pipeline/pipeline-detail.tsx` | One pipeline's stages: add, drag into a new order, set up, remove. |
+| `StageRow` | `pipeline/stage-row.tsx` | One stage in the list, which can be dragged. |
+| `StageActionsMenu` | `pipeline/stage-actions-menu.tsx` | Turn a stage on or off, and delete it. |
+| `AddStageModal` | `pipeline/add-stage-modal.tsx` | Adds a stage by its kind, with that kind's settings: rule sets, an anomaly threshold, body limits, GraphQL limits, headers, a WebAssembly module and more. |
+| `HeaderEntriesField` | `pipeline/header-entries-field.tsx` | Header names and values, for the header stages. |
+| `WasmModuleField` | `pipeline/wasm-module-field.tsx` | Picks the WebAssembly module a Custom stage runs, and uploads it as soon as it is picked. |
+
+## Crypto
+
+These are the `crypto-*-card.tsx` files and the folder `crypto/`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `CryptoKeysCard` | `crypto-keys-card.tsx` | The tenant's signing keys: rotate and revoke. |
+| `CryptoKeysTable` | `crypto/crypto-keys-table.tsx` | The keys, with algorithm, status and a copyable key ID. |
+| `CryptoKeyActionsMenu` | `crypto/crypto-key-actions-menu.tsx` | Revokes a key. |
+| `RotateCryptoKeyModal` | `crypto/rotate-crypto-key-modal.tsx` | Moves to a new key, with the algorithm chosen. |
+| `CryptoMigrationCard` | `crypto-migration-card.tsx` | Moves the tenant to a new signing algorithm: start the move, follow it (the old and the new key), and go back. |
+| `PlanCryptoMigrationModal` | `crypto/plan-crypto-migration-modal.tsx` | Chooses the new algorithm. |
+| `RollbackCryptoMigrationModal` | `crypto/rollback-crypto-migration-modal.tsx` | Goes back, with a reason. |
+| `MigrationKeyValue` | `crypto/migration-key-value.tsx` | A label and value about the move. |
+| `CryptoJwksCard` | `crypto-jwks-card.tsx` | The public keys the tenant publishes (JWKS). |
+| `CryptoJwksTable` | `crypto/crypto-jwks-table.tsx` | The published keys, with a copyable key ID. |

@@ -1,0 +1,145 @@
+---
+title: Tenant screens
+description: A tenant's shell, overview, identity and settings screens.
+sidebar:
+  order: 5
+---
+
+Everything a tenant shows lives in `src/components/dashboard/tenant-detail`. The same components serve both ways into a tenant (see [Two ways into a tenant](/ianua/dashboard/overview/#two-ways-into-a-tenant)):
+
+- **Ann's view**, for the organization's Owners and Members, at `/tenants/{tenant}/...`. These pages draw their own `TenantSidebar` (`variant="management"`).
+- **Pat's view**, for the tenant's own users, at `/organizations/{org}/tenants/{tenant}/...`. The main `Sidebar` shows the tenant's navigation instead.
+
+In both views, `useTenantPermissions()` hides or turns off the sections and actions someone may not use (see [Sessions and permissions](/ianua/dashboard/auth-and-permissions/)).
+
+The infrastructure sections are on [Tenant infrastructure screens](/ianua/dashboard/components/tenant-infrastructure/), and the agent sections on [Tenant agent screens](/ianua/dashboard/components/tenant-agents/).
+
+## Page shells
+
+These are the files directly in `tenant-detail`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `TenantSidebar` | `tenant-sidebar.tsx` | The tenant's section sidebar: Overview, Users, Groups, Roles and on to Settings. It builds the items for either view, and leaves out the sections someone may not see (`filterTenantNavItemsByPermission`). |
+| `TenantSettingsManagementPage` | `tenant-settings-management-page.tsx` | The tenant's settings in Ann's view, with the tabs General (with where the data lives), Sign-in, mTLS, Classification and Danger zone. Each tab is hidden without its permission: `AuthConfig`, `Mtls`, `Classification` or `TenantSettings`. |
+| `TenantSettingsDetailPage` | `tenant-settings-detail-page.tsx` | The tenant's settings in Pat's view: General (with where the data lives and the Danger zone, for someone with a `TenantSettings` permission), Account, Security, Sign-in, mTLS and Classification. Opening a tab Pat may not see moves her to Account with a message saying so. |
+| `TenantCryptoDetailPage` | `tenant-crypto-detail-page.tsx` | The keys area, with its own sidebar: Keys, Migration, JWKS. |
+| `AgentDetailPage` | `agent-detail-page.tsx` | One agent: its header, its sidebar (Overview, Access, Approvals, Activity, Runs, Credentials) and the open section. |
+| `DomainDetailPage` | `domain-detail-page.tsx` | One domain: status, the DNS steps, verify, set up TLS, transfer, delete, and its DNS records. |
+| `FlowDetailPage` | `flow-detail-page.tsx` | One flow: a summary, its stages over time, and actions such as start and cancel. |
+| `CreateFlowPage` | `create-flow-page.tsx` | Builds a flow: name and description, stages, and agent steps added with `AddFlowNodeModal`. Stages and steps can be dragged into a new order. |
+| `PipelineDetailPage` | `pipeline-detail-page.tsx` | The page around one pipeline's `PipelineDetail`. |
+| `StreamDetailPage` | `stream-detail-page.tsx` | One signal stream: where it delivers, which signals, status actions, edit, and what was delivered. |
+| `RouteFormPage` | `route-form-page.tsx` | Creates or edits an HTTP route (`mode`): name, priority, path pattern, methods, hosts, pipeline, service, path rewrite and policy. |
+| `ServiceFormPage` | `service-form-page.tsx` | Creates or edits a service (`mode`): an upstream address or weighted backends, DNS discovery, timeout, expected audience, health checks, sticky sessions, and "Sign-in on this app". |
+| `StreamRouteFormPage` | `stream-route-form-page.tsx` | Creates or edits a TCP or UDP route (`mode`): the port it listens on, protocol, who may connect, server names (SNI), backends and timeouts. |
+| `CreateRoutePage`, `EditRoutePage` | `create-route-page.tsx`, `edit-route-page.tsx` | Show `RouteFormPage` to create or to edit. |
+| `CreateServicePage`, `EditServicePage` | `create-service-page.tsx`, `edit-service-page.tsx` | The same for `ServiceFormPage`. |
+| `CreateStreamRoutePage`, `EditStreamRoutePage` | `create-stream-route-page.tsx`, `edit-stream-route-page.tsx` | The same for `StreamRouteFormPage`. |
+
+In Ann's view, `src/app/(dashboard)/tenants/[tenantSlug]/page.tsx` picks the section to show from the address (`tenantSections`).
+
+## Overview, account and security
+
+These are in `sections/`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `TenantOverviewSection` | `tenant-overview-section.tsx` | The tenant's overview. A profile card shows the name, domain, contact email, slug and sign-in link, and a Details card the language, time zone and creation date. With the Metrics permission it also shows sign-in time, a health score, the success rate, and use by day or month. Without it, the overview shows the tenant's record and a note in place of the charts. |
+| `TenantAccountSection` | `tenant-account-section.tsx` | Pat's own profile: name and email, with a verification mail that can be sent again after a wait. |
+| `TenantSecuritySection` | `tenant-security-section.tsx` | Pat's own security: change the password, the second factor, passkeys and trusted devices. |
+| `TenantPolicySection` | `tenant-policy-section.tsx` | The tenant's access policy: its status and where it can move next (draft, review, active, archived), its rules in order, and what happens when no rule matches. It can be changed only as a draft. |
+| `PolicyRuleEditor` | `policy/policy-rule-editor.tsx` | Edits one rule: name, priority, on or off, conditions, action, and the reason for a refusal or the assurance needed. |
+| `fieldContainerClassName` and others | `form-field-styles.ts` | Shared class names for form rows that repeat. |
+
+## Users
+
+These are `sections/tenant-users-card.tsx` and the folder `sections/tenant-users/`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `TenantUsersCard` | `tenant-users-card.tsx` | The Users page: status tabs, the table with custom field columns, Add user, password resets, giving roles, and the Manage fields menu. Each action needs its permission. |
+| `TenantUsersTable` | `tenant-users/tenant-users-table.tsx` | The users, with status, roles (given right in the table) and custom field columns. |
+| `TenantUserActionsMenu` | `tenant-users/tenant-user-actions-menu.tsx` | The actions that fit a user's status and the viewer's permissions: edit fields, reset password, lock and restore, revoke or resend an invitation, delete. |
+| `AddTenantUserModal` | `tenant-users/add-tenant-user-modal.tsx` | Invites a user, or creates one with a typed or generated password and optional verification, and a role. |
+| `EditUserFieldsModal` | `tenant-users/edit-user-fields-modal.tsx` | "Edit user fields": one user's custom field values. |
+
+## Custom user fields
+
+These are in `sections/user-attributes/`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `ManageUserFields` | `manage-user-fields.tsx` | The Users page's **Manage fields** button and menu. Active fields have a show-in-list switch, Edit and Archive. Archived fields fold into their own part, with Restore and Delete. It has an empty state and a tooltip on every icon button, and opens the add, edit and delete dialogs. |
+| `UserFieldRow` | `user-field-row.tsx` | One field in the menu: name, type badge, and a mark if it is sensitive. An active field has the show-in-list switch, Edit and Archive. An archived one has Restore and Delete. |
+| `UserFieldIconButton` | `user-field-icon-button.tsx` | An icon button in the menu, with its tooltip. |
+| `UserFieldFormModal` | `user-field-form-modal.tsx` | "Add a field", or "Edit a field" when given one. It wraps `UserAttributeForm`. |
+| `DeleteUserFieldModal` | `delete-user-field-modal.tsx` | Asks "Delete field?". |
+| `UserAttributeForm` | `user-attribute-form.tsx` | Defines a field. It has the field type and how it is shown, a name and help text, and limits by kind (longest text, lowest and highest number). It has choices, one per line, and switches for Required, Show in user list, Allow filtering, Allow sorting and Sensitive. Advanced settings fold away: the internal name, and who manages the field. |
+| `AttributeControlField` | `attribute-control-field.tsx` | Draws the right input for a field. How it is shown is only a hint: the API checks the value by its kind. |
+| `AttributeValueCell` | `attribute-value-cell.tsx` | Shows a stored value in a table: a swatch, stars, chips or formatted text. |
+
+## Roles and permissions
+
+These are `sections/roles-card.tsx` and the folder `sections/roles/`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `RolesCard` | `roles-card.tsx` | The Roles page: the table, create, edit, and delete with moving the holders. |
+| `RolesTable` | `roles/roles-table.tsx` | The roles, with their permissions, number of users and creation date. |
+| `RolePermissionsCell` | `roles/role-permissions-cell.tsx` | The number of permissions. Hover or focus to list them. |
+| `RoleActionsMenu` | `roles/role-actions-menu.tsx` | Edit and delete. |
+| `RoleFormModal` | `roles/role-form-modal.tsx` | A role's name, and a picker over the system's permissions and the things the tenant declared. |
+| `DeleteRoleModal` | `roles/delete-role-modal.tsx` | Deletes a role, and can move its holders to another role. |
+| `ResourceTypesCard` | `roles/resource-types-card.tsx` | The Permissions page: the things the company's own app protects, with their actions. Declaring them lets roles and routes pick from a fixed list. |
+| `ResourceTypesTable` | `roles/resource-types-table.tsx` | The declared things and their actions. |
+| `ResourceTypeActionsMenu` | `roles/resource-type-actions-menu.tsx` | Edit and delete. |
+| `ResourceTypeFormModal` | `roles/resource-type-form-modal.tsx` | A thing's name, its key (fixed once created), a description and its actions. |
+
+## Groups
+
+These are `sections/groups-card.tsx` and the folder `sections/groups/`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `GroupsCard` | `groups-card.tsx` | The Groups page: the table, create (with a parent if wanted), members, roles, delete. |
+| `GroupsTable` | `groups/groups-table.tsx` | The groups, with parent, roles and creation date. |
+| `GroupActionsMenu` | `groups/group-actions-menu.tsx` | Members, Roles, Delete. |
+| `GroupFormModal` | `groups/group-form-modal.tsx` | The group's name and its parent group. |
+| `GroupMembersModal` | `groups/group-members-modal.tsx` | Adds and removes members: users and service consumers. |
+| `GroupRolesModal` | `groups/group-roles-modal.tsx` | Gives a group roles, or takes them away. |
+
+## Connections and SCIM
+
+These are `sections/connections-card.tsx` and the folder `sections/connections/`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `ConnectionsCard` | `connections-card.tsx` | The single sign-on connections, and the SCIM card. |
+| `ConnectionsTable` | `connections/connections-table.tsx` | The connections, with protocol and status. |
+| `ConnectionActionsMenu` | `connections/connection-actions-menu.tsx` | Turns off an active connection. A turned-off one can be turned on again or deleted. |
+| `AddConnectionModal` | `connections/add-connection-modal.tsx` | The provider's name, protocol and allowed domains. Then the SAML fields (entity ID, sign-on address, certificate, NameID format) or the OIDC ones (issuer, endpoints, client ID and secret, scopes). |
+| `AllowedDomainsField` | `connections/allowed-domains-field.tsx` | Picks which of the tenant's verified domains the provider may sign people in for. At least one is needed. |
+| `DeleteConnectionModal` | `connections/delete-connection-modal.tsx` | Deletes, after typing the name. |
+| `ScimProvisioningCard` | `connections/scim-provisioning-card.tsx` | Turns SCIM on, showing its token once. It shows the base path and the last contact, and can make a new token or turn SCIM off. |
+| `ScimSettingsForm` | `connections/scim-settings-form.tsx` | The default role, whether new users are active at once, and whether removed users are turned off instead of deleted. |
+| `DisableScimModal` | `connections/disable-scim-modal.tsx` | Turns SCIM off, after typing to confirm. |
+
+## Tenant settings
+
+These are in `sections/settings/`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `TenantGeneralSettingsSection` | `tenant-general-settings-section.tsx` | Name, contact email, time zone, language and main domain. The slug is shown but cannot change. |
+| `TenantAuthConfigSection` | `tenant-auth-config-section.tsx` | The sign-in settings: ways in, self sign-up, and the shared sign-in cards for passwords, lockout, sessions, second factor and allowed addresses. |
+| `TenantMtlsSettingsSection` | `tenant-mtls-settings-section.tsx` | The mTLS rule (off, optional, required) and the trusted CA certificates. |
+| `TenantClassificationSettingsSection` | `tenant-classification-settings-section.tsx` | Rules that remove, mask or hash fields in answers. |
+| `TenantResidencySection` | `tenant-residency-section.tsx` | Where the tenant's data lives, shown under General and not changeable. |
+| `TenantDangerZoneSettingsSection` | `tenant-danger-zone-settings-section.tsx` | Suspend, restore, archive and delete the tenant, as its status allows. |
+| `DangerZoneActionRow` | `danger-zone/danger-zone-action-row.tsx` | One row of the danger zone: a description and a button. |
+| `DangerZoneTenantModals` | `danger-zone/danger-zone-tenant-modals.tsx` | The suspend, archive and delete confirms in **Pat's view**, typing the tenant's name. |
+| `DangerZoneOrgModals` | `danger-zone/danger-zone-org-modals.tsx` | The same confirms, plus restore, in **Ann's view**, matching the Tenants list. |
+| `AddClassificationRuleModal` | `classification/add-classification-rule-modal.tsx` | A field's path, how sensitive it is, and what to do with it. |
+| `ClassificationRulesTable` | `classification/classification-rules-table.tsx` | The classification rules. |
+| `ClassificationRuleActionsMenu` | `classification/classification-rule-actions-menu.tsx` | Removes a rule. |

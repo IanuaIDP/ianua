@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes a SAML app of a tenant, and with it the record of the sessions\n-- signed in to it.\nDELETE FROM saml_service_providers\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "aed417b4488a8756be54a26f295b289e92a64a00f97e978e57f895969eab5e2e"
+}

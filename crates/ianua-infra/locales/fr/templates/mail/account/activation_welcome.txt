@@ -1,0 +1,6 @@
+Bonjour {{ user_name | default("cher utilisateur") }},
+
+Votre compte dans {{ tenant_name | default(organization_name | default("votre organisation")) }} est configuré et prêt à l’emploi. Connectez-vous ici :
+{{ action_url }}
+
+IANUA

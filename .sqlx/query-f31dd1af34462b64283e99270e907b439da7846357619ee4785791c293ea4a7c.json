@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The schedule of the version in service of each workflow named that\n-- starts on one, with the tenant holding it, whichever tenant that is.\nSELECT tenant_id, workflow_id, trigger_schedule AS \"trigger_schedule!\"\nFROM workflow_versions\nWHERE workflow_id = ANY($1) AND status = 'published' AND trigger_kind = 'schedule'\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "workflow_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "trigger_schedule!",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "f31dd1af34462b64283e99270e907b439da7846357619ee4785791c293ea4a7c"
+}

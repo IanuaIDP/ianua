@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The tenants an organization holds, every one not deleted, for the reads\n-- that span an organization's tenants.\nSELECT ARRAY(\n    SELECT t.id FROM tenants t\n    WHERE t.organization_id = $1 AND t.status <> 'deleted'\n    ORDER BY t.id\n) AS \"tenants!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenants!",
+        "type_info": "UuidArray"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "9b52bd789a74fc3a0bb8f41b97d66fa129a7898cb56041b0bc858b0764a6d45d"
+}

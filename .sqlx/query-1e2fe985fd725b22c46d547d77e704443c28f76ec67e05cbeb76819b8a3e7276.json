@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Whether one tenant, read from the database of its own it lives in, holds\n-- an active key made before the cutoff.\nSELECT EXISTS (\n    SELECT 1 FROM signing_keys\n    WHERE tenant_id = $1 AND status = 'active' AND created_at < $2\n) AS \"held!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "held!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "1e2fe985fd725b22c46d547d77e704443c28f76ec67e05cbeb76819b8a3e7276"
+}

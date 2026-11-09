@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The break-glass policy a tenant set, if it set one.\nSELECT self_service_system, self_service_custom, updated_at\nFROM break_glass_policies\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "self_service_system",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 1,
+        "name": "self_service_custom",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "6c070bf61257076d291035838af10028f002e233de7a6e29593504a21f343568"
+}

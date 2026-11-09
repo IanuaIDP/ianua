@@ -1,0 +1,172 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- What the given tenants use against their organization's plan, in one\n-- database: the accounts of all of them together, and for every other kind\n-- the most any one of them holds. Each kind is counted as the plan limit\n-- counts it when something is made.\nSELECT\n    (SELECT count(*) FROM users WHERE tenant_id = ANY($1)) AS \"users!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM routes\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"routes!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM registered_domains\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"domains!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM api_keys\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"api_keys!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM oauth_clients\n        WHERE tenant_id = ANY($1) AND status <> 'revoked' GROUP BY tenant_id) AS counted)\n        AS \"oauth_clients!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM roles\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"roles!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM groups\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"groups!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM webhook_subscriptions\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"webhooks!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM federation_connections\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"federation_connections!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM consumers\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"consumers!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM services\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"services!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM stream_routes\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"stream_routes!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM egress_policies\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"egress_policies!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM resource_types\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"resource_types!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM user_attribute_definitions\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"user_attributes!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM agents\n        WHERE tenant_id = ANY($1) AND status <> 'revoked' GROUP BY tenant_id) AS counted)\n        AS \"agents!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM agent_tools\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"agent_tools!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM agent_model_providers\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"model_providers!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM workflows\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"workflows!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM sandboxes\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"sandboxes!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM saml_service_providers\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"saml_service_providers!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM directory_service_accounts\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted)\n        AS \"directory_service_accounts!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM topic_subscriptions\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"message_subscriptions!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM connectors\n        WHERE tenant_id = ANY($1) AND status <> 'revoked' GROUP BY tenant_id) AS counted)\n        AS \"connectors!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM log_shipping_targets\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"log_targets!\",\n    (SELECT coalesce(max(held), 0) FROM (SELECT count(*) AS held FROM audit_streams\n        WHERE tenant_id = ANY($1) GROUP BY tenant_id) AS counted) AS \"audit_streams!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "users!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "routes!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "domains!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "api_keys!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "oauth_clients!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 5,
+        "name": "roles!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 6,
+        "name": "groups!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "webhooks!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 8,
+        "name": "federation_connections!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 9,
+        "name": "consumers!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 10,
+        "name": "services!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 11,
+        "name": "stream_routes!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 12,
+        "name": "egress_policies!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 13,
+        "name": "resource_types!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 14,
+        "name": "user_attributes!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 15,
+        "name": "agents!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 16,
+        "name": "agent_tools!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 17,
+        "name": "model_providers!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 18,
+        "name": "workflows!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 19,
+        "name": "sandboxes!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 20,
+        "name": "saml_service_providers!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 21,
+        "name": "directory_service_accounts!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 22,
+        "name": "message_subscriptions!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 23,
+        "name": "connectors!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 24,
+        "name": "log_targets!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 25,
+        "name": "audit_streams!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "0b7780cf7857bb89f040f15cdee3b054c76f0a04373f2c57e04470892acfec4e"
+}

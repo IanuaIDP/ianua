@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Tenant identities for an organization's retained audit history, including deleted tenants.\nSELECT ARRAY(\n    SELECT t.id FROM tenants t\n    WHERE t.organization_id = $1\n    ORDER BY t.id\n) AS \"tenants!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenants!",
+        "type_info": "UuidArray"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "2707cd5ee06420eab19fb7fba0696106f508bc94461a86483f891877141f8d94"
+}

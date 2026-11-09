@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% import "sign_in/parts.html" as p %}
+
+{% block title %}შეიყვანეთ კოდი {{ workspace }}-ისთვის{% endblock %}
+
+{% block content %}
+      <h1>საჭიროა ავთენტიფიკაცია</h1>
+      <p class="subtitle">ანგარიშის დასაცავად შეიყვანეთ დამადასტურებელი კოდი ავთენტიფიკატორის აპლიკაციიდან.</p>
+      {{ p.note(note, {
+        "not_accepted": "ეს კოდი არ მიიღება. სცადეთ ხელახლა, ან თუ კვლავ არ გამოდის, თავიდან შედით."
+      }) }}
+      <form method="post" action="{{ form_path }}">
+        <label for="code">კოდი ავთენტიფიკატორიდან</label><input id="code" name="code" inputmode="numeric" autocomplete="one-time-code" required autofocus>
+        <label class="choice" for="remember_device"><input id="remember_device" name="remember_device" type="checkbox" value="yes"> ამ მოწყობილობის დამახსოვრება</label>
+        {{ p.return_to(return_to) }}
+        {{ p.submit("გაგრძელება") }}
+      </form>
+      {{ p.link("კოდი დაკარგეთ?", log_in_path, "თავიდან დაწყება") }}
+{% endblock %}

@@ -1,0 +1,48 @@
+{#-
+  The parts every sign-in page is built from, imported as `p`:
+    {% import "sign_in/parts.html" as p %}
+-#}
+
+{#- The notice above the form: `note` is `none` or `{code, tone}`, and
+    `own` holds the texts this page words its own way. -#}
+{% macro note(note, own) -%}
+{%- set texts = {
+  "check_email": "Check your email. If this address can sign up, a link to confirm it is on its way.",
+  "verified": "Your address is confirmed. You can sign in now.",
+  "password_reset": "Your new password is set. You can sign in with it now.",
+  "password_change_required": "Your password is right, but it has to be changed first. Choose a new one.",
+  "not_accepted": "That email and password do not match.",
+  "locked": "Too many failed attempts. Try again later.",
+  "not_verified": "Confirm your email address first. The link is in your inbox.",
+  "too_many": "Too many attempts from here. Wait a minute and try again.",
+  "not_allowed": "Signing in with a password is turned off here.",
+  "invalid": "Check what you entered and try again.",
+  "link_expired": "That link has expired.",
+  "code_needed": "Your account has a second factor. Enter a code from your authenticator too.",
+  "unavailable": "Signing in is not available right now. Try again soon.",
+  "failed": "Something went wrong. Try again."
+} -%}
+{%- if note -%}
+<p class="note{% if note.tone == 'refused' %} refused{% endif %}" role="status">{% if note.code in own %}{{ own[note.code] }}{% else %}{{ texts[note.code] }}{% endif %}</p>
+{%- endif -%}
+{%- endmacro %}
+
+{#- A required input with its label. -#}
+{% macro field(name, label, kind, autocomplete) -%}
+<label for="{{ name }}">{{ label }}</label><input id="{{ name }}" name="{{ name }}" type="{{ kind }}" autocomplete="{{ autocomplete }}" required>
+{%- endmacro %}
+
+{#- Where to go after signing in, carried in the form, or nothing. -#}
+{% macro return_to(path) -%}
+{%- if path -%}<input type="hidden" name="return_to" value="{{ path }}">{%- endif -%}
+{%- endmacro %}
+
+{#- The form's button. -#}
+{% macro submit(text) -%}
+<button type="submit">{{ text }}</button>
+{%- endmacro %}
+
+{#- A line under the form linking to another step. -#}
+{% macro link(text, path, label) -%}
+<p class="footer">{{ text }} <a href="{{ path }}">{{ label }}</a></p>
+{%- endmacro %}

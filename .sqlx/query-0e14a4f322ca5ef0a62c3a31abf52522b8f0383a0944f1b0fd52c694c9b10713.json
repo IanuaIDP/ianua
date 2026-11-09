@@ -1,0 +1,47 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The login kept for one stream route open to workflows.\nSELECT login_user, login_password, tls, tls_authority, tls_server_name\nFROM stream_route_logins\nWHERE tenant_id = $1 AND stream_route_id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "login_user",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "login_password",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "tls",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "tls_authority",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "tls_server_name",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "0e14a4f322ca5ef0a62c3a31abf52522b8f0383a0944f1b0fd52c694c9b10713"
+}

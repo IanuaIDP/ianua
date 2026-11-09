@@ -1,0 +1,36 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The requests of the given tenants in the window, by how many\n-- milliseconds they took: how many took each, and how many of those were\n-- refused. Few distinct durations exist, so the rows stay few.\nSELECT duration_ms AS \"duration_ms!\", count(*) AS \"requests!\",\n       count(*) FILTER (WHERE outcome <> 'allowed') AS \"refused!\"\nFROM proxy_request_records\nWHERE tenant_id = ANY($1) AND occurred_at >= $2 AND occurred_at < $3\nGROUP BY duration_ms\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "duration_ms!",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "requests!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "refused!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "e8b735548e8c6ecbef971fdccb620190e9ee47282318f5b91f83fb53523dc079"
+}

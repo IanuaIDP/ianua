@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes the tenant's pipeline with the given id, unless a route of the\n-- tenant still runs it.\nDELETE FROM pipelines\nWHERE tenant_id = $1 AND id = $2\n    AND NOT EXISTS (\n        SELECT 1 FROM routes r WHERE r.tenant_id = $1 AND r.pipeline_id = $2\n    )\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "cc1e1a81b0bef806ca6bba9eada7c688ce58fc53244820224181cac6b0337f9d"
+}

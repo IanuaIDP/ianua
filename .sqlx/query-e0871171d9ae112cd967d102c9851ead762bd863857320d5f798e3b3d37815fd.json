@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Marks every unread notification of a member's inbox read.\nUPDATE org_notifications\nSET read = true\nWHERE organization_id = $1 AND org_user_id = $2 AND NOT read\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e0871171d9ae112cd967d102c9851ead762bd863857320d5f798e3b3d37815fd"
+}

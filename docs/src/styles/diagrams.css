@@ -1,0 +1,149 @@
+/*
+ * Mermaid diagrams in ianua's colours. Mermaid writes its own styles into each
+ * diagram under an id selector, so these have to be !important to win.
+ *
+ * Nodes are tagged in the diagram source with `:::ok`, `:::deny`, `:::ask`
+ * or `:::step`.
+ */
+
+:root {
+	--diagram-step-bg: #ffffff;
+	--diagram-step-line: #d4d4d8;
+	--diagram-step-text: #18181b;
+	--diagram-ok-bg: #ecfccb;
+	--diagram-ok-line: #65a30d;
+	--diagram-ok-text: #365314;
+	--diagram-deny-bg: #fef2f2;
+	--diagram-deny-line: #ef4444;
+	--diagram-deny-text: #991b1b;
+	--diagram-ask-bg: #f5f3ff;
+	--diagram-ask-line: #8b5cf6;
+	--diagram-ask-text: #4c1d95;
+	--diagram-edge: #a1a1aa;
+	--diagram-edge-text: #52525b;
+	--diagram-surface: #fafafa;
+}
+
+:root[data-theme='dark'] {
+	--diagram-step-bg: #18181b;
+	--diagram-step-line: #3f3f46;
+	--diagram-step-text: #f4f4f5;
+	--diagram-ok-bg: rgba(182, 243, 91, 0.12);
+	--diagram-ok-line: #b6f35b;
+	--diagram-ok-text: #d9f99d;
+	--diagram-deny-bg: rgba(248, 113, 113, 0.12);
+	--diagram-deny-line: #f87171;
+	--diagram-deny-text: #fecaca;
+	--diagram-ask-bg: rgba(139, 92, 246, 0.16);
+	--diagram-ask-line: #a78bfa;
+	--diagram-ask-text: #ede9fe;
+	--diagram-edge: #71717a;
+	--diagram-edge-text: #a1a1aa;
+	--diagram-surface: #0f0f11;
+}
+
+.mermaid {
+	display: flex;
+	justify-content: center;
+	padding: 2rem 1rem;
+	margin-block: 1.5rem;
+	border: 1px solid var(--sl-color-hairline);
+	border-radius: 0.75rem;
+	background: var(--diagram-surface) !important;
+}
+
+.mermaid .node .label-container,
+.mermaid .node rect,
+.mermaid .node polygon,
+.mermaid .node path {
+	fill: var(--diagram-step-bg) !important;
+	stroke: var(--diagram-step-line) !important;
+	stroke-width: 1.25px !important;
+}
+
+.mermaid .node .nodeLabel,
+.mermaid .node .label,
+.mermaid .node text {
+	color: var(--diagram-step-text) !important;
+	fill: var(--diagram-step-text) !important;
+}
+
+.mermaid .node.ok .label-container,
+.mermaid .node.ok rect,
+.mermaid .node.ok polygon,
+.mermaid .node.ok path {
+	fill: var(--diagram-ok-bg) !important;
+	stroke: var(--diagram-ok-line) !important;
+	stroke-width: 1.5px !important;
+}
+
+.mermaid .node.ok .nodeLabel,
+.mermaid .node.ok text {
+	color: var(--diagram-ok-text) !important;
+	fill: var(--diagram-ok-text) !important;
+}
+
+.mermaid .node.deny .label-container,
+.mermaid .node.deny rect,
+.mermaid .node.deny polygon,
+.mermaid .node.deny path {
+	fill: var(--diagram-deny-bg) !important;
+	stroke: var(--diagram-deny-line) !important;
+}
+
+.mermaid .node.deny .nodeLabel,
+.mermaid .node.deny text {
+	color: var(--diagram-deny-text) !important;
+	fill: var(--diagram-deny-text) !important;
+}
+
+.mermaid .node.ask .label-container,
+.mermaid .node.ask rect,
+.mermaid .node.ask polygon,
+.mermaid .node.ask path {
+	fill: var(--diagram-ask-bg) !important;
+	stroke: var(--diagram-ask-line) !important;
+	stroke-width: 1.5px !important;
+}
+
+.mermaid .node.ask .nodeLabel,
+.mermaid .node.ask text {
+	color: var(--diagram-ask-text) !important;
+	fill: var(--diagram-ask-text) !important;
+}
+
+.mermaid .cluster rect {
+	fill: transparent !important;
+	stroke: var(--diagram-step-line) !important;
+	stroke-dasharray: 5 4;
+	rx: 10px;
+	ry: 10px;
+}
+
+.mermaid .cluster .nodeLabel,
+.mermaid .cluster-label .nodeLabel,
+.mermaid .cluster text {
+	color: var(--diagram-edge-text) !important;
+	fill: var(--diagram-edge-text) !important;
+}
+
+.mermaid .flowchart-link,
+.mermaid .edgePath .path {
+	stroke: var(--diagram-edge) !important;
+	stroke-width: 1.5px !important;
+}
+
+.mermaid marker path,
+.mermaid .arrowheadPath {
+	fill: var(--diagram-edge) !important;
+	stroke: var(--diagram-edge) !important;
+}
+
+.mermaid .edgeLabel,
+.mermaid .edgeLabel *,
+.mermaid .labelBkg {
+	background: var(--diagram-surface) !important;
+	fill: var(--diagram-surface) !important;
+	color: var(--diagram-edge-text) !important;
+	opacity: 1 !important;
+}

@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an organization's identity provider: a new one is added, a known\n-- one takes the new values. Its organization and when it was added never\n-- change, and a provider of another organization under the same id is\n-- left as it is.\nINSERT INTO org_identity_providers\n    (id, organization_id, name, saml, oidc, email_trust, assurance_trust,\n     status, created_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\nON CONFLICT (id) DO UPDATE SET\n    name = EXCLUDED.name,\n    saml = EXCLUDED.saml,\n    oidc = EXCLUDED.oidc,\n    email_trust = EXCLUDED.email_trust,\n    assurance_trust = EXCLUDED.assurance_trust,\n    status = EXCLUDED.status\nWHERE org_identity_providers.organization_id = EXCLUDED.organization_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Jsonb",
+        "Jsonb",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "00cdc3e61d1ed85c54b40ed68a75b56505af48e078a9dada19ab09709fdd33b7"
+}

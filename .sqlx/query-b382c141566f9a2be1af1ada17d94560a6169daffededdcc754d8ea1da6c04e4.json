@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Marks the given dead jobs superseded: a later job did their work.\nUPDATE scheduled_jobs\nSET status = 'superseded'\nWHERE tenant_id IS NOT DISTINCT FROM $1 AND id = ANY($2) AND status = 'dead'\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b382c141566f9a2be1af1ada17d94560a6169daffededdcc754d8ea1da6c04e4"
+}

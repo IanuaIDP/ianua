@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Sets the suggestion beside each named position while the caller holds the\n-- review lock; decisions are left as they are.\nUPDATE access_review_items AS i\nSET suggested_choice = s.choice, suggested_reason = s.reason\nFROM UNNEST($3::bigint[], $4::text[], $5::text[]) AS s(position, choice, reason)\nWHERE i.tenant_id = $1 AND i.review_id = $2 AND i.position = s.position\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int8Array",
+        "TextArray",
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "103c65dbf8d59dc88c3b18178b92cededbac0c201ebdf563d899ffd0a398fb64"
+}

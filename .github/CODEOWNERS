@@ -1,0 +1,9 @@
+# Every change needs approval from one of its owners before it can be merged
+# into main. With branch protection "Require review from Code Owners" turned
+# on, the merge button stays locked until one of them approves.
+#
+# Later lines win: the first line covers the backend, deployment and docs,
+# and the dashboard line below it adds its own maintainers.
+
+*            @mauricemojito
+/dashboard/  @giorgizoidze @mauricemojito

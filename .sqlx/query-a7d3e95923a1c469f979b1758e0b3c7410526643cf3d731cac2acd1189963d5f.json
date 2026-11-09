@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many directory service accounts a tenant holds against its plan,\n-- disabled ones too.\nSELECT count(*) AS \"count!\"\nFROM directory_service_accounts\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "a7d3e95923a1c469f979b1758e0b3c7410526643cf3d731cac2acd1189963d5f"
+}

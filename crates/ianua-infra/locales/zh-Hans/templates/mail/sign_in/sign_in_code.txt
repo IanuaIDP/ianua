@@ -1,0 +1,11 @@
+您好，{{ user_name | default("用户") }}：
+
+输入此验证码以继续登录 {{ tenant_name | default("您的账户") }}：
+
+{{ one_time_code }}
+
+此验证码将在 {{ expires_at }} 后失效。
+
+如果您没有在登录，可能有人知道您的密码。请更改密码，并且不要向任何人透露此验证码。
+
+IANUA

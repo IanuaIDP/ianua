@@ -1,0 +1,84 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- A workflow's latest evaluations, newest first, at most $3 of them.\nSELECT id, workflow_id, version, revision, cases, outcomes, state, started_by, deadline,\n    created_at, updated_at\nFROM evaluations\nWHERE tenant_id = $1 AND workflow_id = $2\nORDER BY created_at DESC, id DESC\nLIMIT $3\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "workflow_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "version",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "revision",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "cases",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 5,
+        "name": "outcomes",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 6,
+        "name": "state",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "started_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 8,
+        "name": "deadline",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "25dacb52f6147193800858e83d28896bce9e32c4f6f1567de8708e6a37e7786d"
+}

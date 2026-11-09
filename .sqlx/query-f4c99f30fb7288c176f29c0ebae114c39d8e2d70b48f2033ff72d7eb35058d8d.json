@@ -1,0 +1,43 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- One memory's texts in the order they were kept, from $3 when a page\n-- before named where this one starts, at most $4: one more than a page, so\n-- the extra row says where the next page starts.\nSELECT id, text, exposure, created_at AS kept_at\nFROM memory_entries\nWHERE tenant_id = $1 AND memory_id = $2 AND ($3::uuid IS NULL OR id >= $3)\nORDER BY id\nLIMIT $4\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "text",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "exposure",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "kept_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "f4c99f30fb7288c176f29c0ebae114c39d8e2d70b48f2033ff72d7eb35058d8d"
+}

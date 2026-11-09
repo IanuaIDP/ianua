@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a mailed link: a new one is added, a known one of the same purpose\n-- takes when it was used, only while it is still unused, so of two\n-- requests following one link together only one changes the row. Its\n-- member, address, purpose and times never change, and a use is never\n-- undone.\nINSERT INTO org_tokens\n    (token_hash, purpose, org_user_id, sent_to, created_at, expires_at, consumed_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nON CONFLICT (token_hash) DO UPDATE SET\n    consumed_at = EXCLUDED.consumed_at\nWHERE org_tokens.purpose = EXCLUDED.purpose AND org_tokens.consumed_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Uuid",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3733d4d74f6841aa91e9f5e0af4f918a715ef307605df6d00780dfe2bcdc3969"
+}

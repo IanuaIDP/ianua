@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Neue Wiederherstellungscodes erstellt{% endblock %}
+{% block preheader %}Für Ihr Konto wurden neue Wiederherstellungscodes erstellt.{% endblock %}
+{% block headline %}Neue Wiederherstellungscodes erstellt{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("")) }}
+  {% call c.para() %}Für Ihr Konto bei <strong>{{ tenant_name | default("Ihrer Organisation") }}</strong> wurden neue Wiederherstellungscodes erstellt{% if remaining_codes is defined %}. Anzahl unbenutzter Codes: <strong>{{ remaining_codes }}</strong>{% endif %}. Ihre bisherigen Codes funktionieren nicht mehr.{% endcall %}
+  {% call c.para(pad=32) %}Bewahren Sie die Codes sicher auf: Jeder ermöglicht eine einmalige Anmeldung, falls Sie Ihren zweiten Faktor verlieren. Wenn Sie das nicht veranlasst haben, informieren Sie Ihren Administrator.{% endcall %}
+{% endblock %}

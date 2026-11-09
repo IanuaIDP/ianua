@@ -1,0 +1,59 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The review assignments of a tenant one agent is part of, as reviewer or\n-- reviewed, newest first, ended ones included.\nSELECT id, reviewer_id, reviewed_id, assigned_by_kind, assigned_by_id, assigned_at, ended_at\nFROM agent_review_assignments\nWHERE tenant_id = $1 AND (reviewer_id = $2 OR reviewed_id = $2)\nORDER BY assigned_at DESC, id DESC\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "reviewer_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "reviewed_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "assigned_by_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "assigned_by_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "assigned_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "ended_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "4cc65a8748b375481920fe6f8f6ed5cddf46c978202029daa742885219fd3aa8"
+}

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Forgets the DPoP proofs one tenant saw that expired by the given time:\n-- each would be refused as too old anyway.\nDELETE FROM oauth_dpop_proofs\nWHERE tenant_id = $1 AND expires_at <= $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "277225b984e5d1005a5579e04d7e78f79c50a7c754f561645699cc52db873a20"
+}

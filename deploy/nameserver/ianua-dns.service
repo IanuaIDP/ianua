@@ -1,0 +1,67 @@
+[Unit]
+Description=Ianua authoritative nameserver
+After=network-online.target
+Wants=network-online.target
+
+# Five failed starts in a minute and it stays down rather than looping. The
+# process retries the control plane on its own, for ever, so an exit means
+# something restarting will not fix — a bad address, a missing certificate, a
+# port already taken. A crash loop would hide that, and the other nameserver
+# answers meanwhile, which is what having two is for.
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=exec
+User=ianua
+Group=ianua
+EnvironmentFile=/etc/ianua/dns.env
+ExecStart=/usr/local/bin/ianua-dns
+Restart=always
+RestartSec=5s
+
+# Port 53 is privileged and this process is not. The one capability that lets
+# it bind, and nothing else — dropping the rest of the bounding set means even
+# a compromised process cannot acquire them.
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+
+# This is the most exposed process in the deployment: reachable by anyone, over
+# UDP, unauthenticated, with no chance to refuse a packet before parsing it.
+# What it legitimately needs is a socket, its configuration, and its
+# certificate. Everything below removes something it does not.
+ProtectSystem=strict
+ProtectHome=true
+ProtectProc=invisible
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+# Not just AF_INET/AF_INET6: resolving the control plane's hostname goes
+# through glibc, which opens an AF_NETLINK socket to pick a source address and
+# an AF_UNIX one wherever systemd-resolved or nscd answers. Cut those and the
+# nameserver comes up, binds, and then never reaches the control plane —
+# reported as a DNS failure that looks nothing like a sandbox rule.
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources
+UMask=0077
+
+# Redundant while ProtectSystem=strict holds, and kept anyway: the private key
+# under here is what proves to the control plane that this host is ours, and it
+# should take two mistakes to make it writable, not one.
+ReadOnlyPaths=/etc/ianua
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Extends holder $3's lease until $4. Answers nothing once another holder\n-- took it over.\nUPDATE platform_leases\nSET leased_until = $4\nWHERE leased = $1 AND leased_id = $2 AND holder = $3\nRETURNING leased_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "leased_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "532dfb0b6046b237abbb13ee32cbba073c35713e8121aea81911856b2fd6e67a"
+}

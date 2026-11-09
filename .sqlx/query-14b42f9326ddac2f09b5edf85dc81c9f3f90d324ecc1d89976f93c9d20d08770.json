@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Writes the uses one tenant's initial access token has left, one fewer,\n-- only while it is unrevoked and has exactly one more: of two\n-- registrations spending its last use together, only one is admitted.\nUPDATE oauth_initial_access_tokens\nSET uses_left = $3\nWHERE tenant_id = $1 AND id = $2 AND uses_left = $3 + 1 AND revoked_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "14b42f9326ddac2f09b5edf85dc81c9f3f90d324ecc1d89976f93c9d20d08770"
+}

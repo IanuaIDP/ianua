@@ -1,0 +1,11 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}您的数据已删除{% endblock %}
+{% block preheader %}您的删除申请已完成。{% endblock %}
+{% block headline %}您的数据已删除{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("用户")) }}
+  {% call c.para(pad=32) %}您在 <strong>{{ tenant_name | default("您的组织") }}</strong> 的数据已按申请永久删除。此操作无法撤销。{% endcall %}
+{% endblock %}

@@ -1,0 +1,7 @@
+您好，{{ user_name | default("用户") }}：
+
+您的 {{ tenant_name | default("您的组织") }} 账户首次通过 {{ provider_name | default("一个登录提供商") }} 登录{% if ip_address is defined %}，来源地址为 {{ ip_address }}{% endif %}。今后，您可以通过该提供商登录。
+
+如果不是您本人操作，请立即告知管理员。
+
+IANUA

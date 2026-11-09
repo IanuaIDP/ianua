@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Puts a dead job back on the queue as an operator retried it: pending, due\n-- at $5, with $4 attempts allowed. Only while it is still dead at the\n-- attempt the operator read, so of two retries at once one changes it, and\n-- only while no job with its key waits or runs. Matched on its tenant as\n-- well as its id.\nUPDATE scheduled_jobs AS j\nSET status = $6, max_attempts = $4, run_at = $5\nWHERE j.id = $1 AND j.tenant_id IS NOT DISTINCT FROM $2\n  AND j.status = 'dead' AND j.attempt = $3\n  AND NOT EXISTS (\n      SELECT 1\n      FROM scheduled_jobs AS live\n      WHERE j.job_key IS NOT NULL\n        AND live.job_key = j.job_key\n        AND live.tenant_id IS NOT DISTINCT FROM j.tenant_id\n        AND live.status IN ('pending', 'running')\n  )\nRETURNING id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int4",
+        "Int4",
+        "Timestamptz",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "3d221d18b5753096b1ad74e2ff0a9becd3414f842ae4d6dacfce6287d0c7831c"
+}

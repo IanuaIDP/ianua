@@ -1,0 +1,47 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The separation rule of a tenant with the given id.\nSELECT id, name, first_role_id, second_role_id, created_at\nFROM separation_rules\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "first_role_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "second_role_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "8ef07a056f68bfa05859420f1387e99a4bbc409952bb80a27d812b37227eeec1"
+}

@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many places a tenant ships request records to against its plan,\n-- paused ones too.\nSELECT count(*) AS \"count!\"\nFROM log_shipping_targets\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "4541f5a518ae86570d06c39649b24ee83c780ca9ce8c7dd370ff640080e9435e"
+}

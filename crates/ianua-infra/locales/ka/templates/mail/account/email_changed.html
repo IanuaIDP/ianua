@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}თქვენი ელფოსტის მისამართი შეიცვალა{% endblock %}
+{% block preheader %}თქვენი ანგარიშის ელფოსტის მისამართი შეიცვალა.{% endblock %}
+{% block headline %}თქვენი ელფოსტის მისამართი შეიცვალა{% endblock %}
+
+{% block content %}
+  {{ c.greeting("მომხმარებელო") }}
+  {% call c.para() %}თქვენი {{ c.brand() }} ანგარიშის ელფოსტის მისამართი შეიცვალა: <strong>{{ user_email }}</strong>.{% endcall %}
+  {% call c.para(pad=32) %}თუ ეს ცვლილება თქვენ არ შეგიტანიათ, დაუყოვნებლივ აცნობეთ ადმინისტრატორს.{% endcall %}
+{% endblock %}

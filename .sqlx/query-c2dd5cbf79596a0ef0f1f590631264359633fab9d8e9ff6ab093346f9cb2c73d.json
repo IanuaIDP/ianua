@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many approval requests of a tenant wait for a decision against its\n-- plan. One whose time to decide ran out waits for nobody, so it does not\n-- count, though no sweep saved it as expired.\nSELECT count(*) AS \"count!\"\nFROM agent_approvals\nWHERE tenant_id = $1 AND status = 'pending' AND $2 < expires_at\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "c2dd5cbf79596a0ef0f1f590631264359633fab9d8e9ff6ab093346f9cb2c73d"
+}

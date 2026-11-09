@@ -1,0 +1,10 @@
+Bonjour {{ user_name | default("cher utilisateur") }},
+
+Votre demande de suppression de vos données dans {{ tenant_name | default("votre organisation") }} a été reçue{% if erasure_date is defined %}. La suppression commence le {{ erasure_date }}{% endif %}.
+{% if action_url is defined %}
+Si vous changez d’avis avant cette date, vous pouvez annuler la demande ici :
+{{ action_url }}
+{% endif %}
+Si vous n’avez pas fait cette demande, prévenez immédiatement votre administrateur.
+
+IANUA

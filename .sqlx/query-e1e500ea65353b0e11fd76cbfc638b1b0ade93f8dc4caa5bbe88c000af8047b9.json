@@ -1,0 +1,54 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The assignments of one role of a tenant to the principals with the given\n-- ids.\nSELECT role_id, principal_kind, principal_id, assigned_by, assigned_at, expires_at\nFROM role_assignments\nWHERE tenant_id = $1 AND role_id = $2 AND principal_id = ANY($3)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "role_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "principal_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "principal_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "assigned_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "assigned_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "e1e500ea65353b0e11fd76cbfc638b1b0ade93f8dc4caa5bbe88c000af8047b9"
+}

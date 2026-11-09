@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The webhook secret of one workflow of one tenant.\nSELECT id, workflow_id, secret_hash, issued_by, created_at, secret_changed_at\nFROM workflow_trigger_secrets\nWHERE tenant_id = $1 AND workflow_id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "workflow_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "secret_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "issued_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "secret_changed_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "6efccf20adb7b1cb31add20476e00cbec13a49cb67642b13dca0fd8f5250a0ad"
+}

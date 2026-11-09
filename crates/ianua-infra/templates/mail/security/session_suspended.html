@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}A session was stopped{% endblock %}
+{% block preheader %}A session on your account was stopped to protect it.{% endblock %}
+{% block headline %}A session was stopped{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("there")) }}
+  {% call c.para() %}A session on your account in <strong>{{ tenant_name | default("your organization") }}</strong> was stopped after activity that looked unusual{% if ip_address is defined %}, from {{ ip_address }}{% endif %}.{% endcall %}
+  {% call c.para(pad=32) %}If this was you, sign in again to go on. If it was not, change your password now and look over your active sessions.{% endcall %}
+{% endblock %}

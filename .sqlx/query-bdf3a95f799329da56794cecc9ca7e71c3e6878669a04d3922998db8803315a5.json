@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Expires every pending password reset a user of a tenant holds.\nUPDATE password_resets\nSET status = 'expired'\nWHERE tenant_id = $1 AND user_id = $2 AND status = 'pending'\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "bdf3a95f799329da56794cecc9ca7e71c3e6878669a04d3922998db8803315a5"
+}

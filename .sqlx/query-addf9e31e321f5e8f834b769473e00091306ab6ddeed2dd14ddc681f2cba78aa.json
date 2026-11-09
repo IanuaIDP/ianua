@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The organization a tenant belongs to, while the tenant is not deleted,\n-- for a credential found in it.\nSELECT organization_id\nFROM tenants\nWHERE id = $1 AND status <> 'deleted'\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "addf9e31e321f5e8f834b769473e00091306ab6ddeed2dd14ddc681f2cba78aa"
+}

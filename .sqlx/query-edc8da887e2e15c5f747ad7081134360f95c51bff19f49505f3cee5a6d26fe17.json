@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The passkey with the given WebAuthn credential id, whoever holds it.\nSELECT id, org_user_id, credential_id, public_key, sign_count,\n       authenticator_type, attestation, name, last_used_at, created_at\nFROM org_passkey_credentials\nWHERE credential_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "org_user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "credential_id",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 3,
+        "name": "public_key",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 4,
+        "name": "sign_count",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 5,
+        "name": "authenticator_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "attestation",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "last_used_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "edc8da887e2e15c5f747ad7081134360f95c51bff19f49505f3cee5a6d26fe17"
+}

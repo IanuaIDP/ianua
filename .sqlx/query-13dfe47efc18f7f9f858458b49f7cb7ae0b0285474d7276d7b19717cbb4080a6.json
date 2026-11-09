@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes the second-factor challenge of a tenant whose token hashes to\n-- the given value.\nDELETE FROM mfa_challenges\nWHERE tenant_id = $1 AND token_hash = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "13dfe47efc18f7f9f858458b49f7cb7ae0b0285474d7276d7b19717cbb4080a6"
+}

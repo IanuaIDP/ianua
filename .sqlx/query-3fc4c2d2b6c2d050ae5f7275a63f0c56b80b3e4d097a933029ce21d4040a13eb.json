@@ -1,0 +1,79 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The erasure requests of every organization still to be carried out:\n-- pending ones whose grace period ended by the given time, and failed\n-- ones due a retry, the longest due first.\nSELECT id, organization_id, org_user_id, reason, status, completed_at,\n       requested_at, scheduled_at, cancel_token_hash, sent_to\nFROM org_erasure_requests\nWHERE status IN ('pending', 'failed')\n  AND (status = 'failed' OR scheduled_at <= $1)\n  AND (scheduled_at, id) > (COALESCE($2::timestamptz, '-infinity'::timestamptz),\n                             COALESCE($3::uuid, '00000000-0000-0000-0000-000000000000'::uuid))\nORDER BY scheduled_at, id\nLIMIT $4\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "org_user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "reason",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "completed_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "requested_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "scheduled_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "cancel_token_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "sent_to",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Timestamptz",
+        "Uuid",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "3fc4c2d2b6c2d050ae5f7275a63f0c56b80b3e4d097a933029ce21d4040a13eb"
+}

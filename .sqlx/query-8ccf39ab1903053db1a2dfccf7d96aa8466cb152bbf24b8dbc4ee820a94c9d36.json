@@ -1,0 +1,41 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The SAML apps a session of a tenant signed in to, each sign-in once.\nSELECT session_id, provider_id, name_id, session_index\nFROM saml_app_sessions\nWHERE tenant_id = $1 AND session_id = $2\nORDER BY provider_id, session_index\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "session_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "provider_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "name_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "session_index",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "8ccf39ab1903053db1a2dfccf7d96aa8466cb152bbf24b8dbc4ee820a94c9d36"
+}

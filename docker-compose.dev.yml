@@ -1,0 +1,35 @@
+services:
+  ianua:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+      target: server
+    command: cargo watch -x 'run -p ianua-server' -w crates/ -w Cargo.toml
+    volumes:
+      - .:/app
+      - cargo-server:/usr/local/cargo/registry
+      - target-server:/app/target
+    read_only: false
+    security_opt: []
+
+  zero:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+      target: zero
+    command: cargo watch -x 'run -p ianua-zero' -w crates/ -w Cargo.toml
+    volumes:
+      - .:/app
+      - cargo-zero:/usr/local/cargo/registry
+      - target-zero:/app/target
+    read_only: false
+    security_opt: []
+    depends_on:
+      ianua:
+        condition: service_started
+
+volumes:
+  cargo-server:
+  cargo-zero:
+  target-server:
+  target-zero:

@@ -1,0 +1,1 @@
+Le damos la bienvenida a {{ tenant_name | default("IANUA") }}

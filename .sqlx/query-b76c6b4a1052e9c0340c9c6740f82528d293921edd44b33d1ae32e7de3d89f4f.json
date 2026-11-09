@@ -1,0 +1,94 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- A tenant's job by its id.\nSELECT id, tenant_id AS \"tenant_id?\", job_type, job_key, key_hold, payload, run_at, attempt, max_attempts,\n       status, error, created_at, last_attempted_at\nFROM scheduled_jobs\nWHERE id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "tenant_id?",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "job_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "job_key",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "key_hold",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "payload",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "run_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "attempt",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "max_attempts",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "error",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 12,
+        "name": "last_attempted_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "b76c6b4a1052e9c0340c9c6740f82528d293921edd44b33d1ae32e7de3d89f4f"
+}

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes a signal stream of the tenant for good, with the subjects it\n-- lists, its delivery history and the tokens it held for polling.\nDELETE FROM signal_streams\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9858cf806f580521a3f19a1b97efcbfbcfe857a00008af58412f8d6ab7476c0d"
+}

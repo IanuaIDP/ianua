@@ -1,0 +1,4 @@
+-- The directory service accounts of a tenant with the given ids.
+SELECT id, name, secret_hash, access, base_dns, status, created_at, secret_changed_at
+FROM directory_service_accounts
+WHERE tenant_id = $1 AND id = ANY($2)

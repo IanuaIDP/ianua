@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The branding of one tenant, when it saved one.\nSELECT logo_url, primary_color, background_color, css_source, css_rendered,\n       email_from_name, email_from_address\nFROM tenant_branding\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "logo_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "primary_color",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "background_color",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "css_source",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "css_rendered",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "email_from_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "email_from_address",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "87a892359899520c24d512fae32006a092140dd28f0c40d4e581fb6c94c3e022"
+}

@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}您的登录验证码{% endblock %}
+{% block preheader %}输入此验证码以继续登录。{% endblock %}
+{% block headline %}您的登录验证码{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("用户")) }}
+  {% call c.para(pad=8) %}输入此验证码以继续登录 <strong>{{ tenant_name | default("您的账户") }}</strong>：{% endcall %}
+  {{ c.code(one_time_code) }}
+  {% call c.para(pad=0) %}此验证码将在 {{ expires_at }} 后失效。{% endcall %}
+  {% call c.para(pad=32) %}如果您没有在登录，可能有人知道您的密码。请更改密码，并且不要向任何人透露此验证码。{% endcall %}
+{% endblock %}

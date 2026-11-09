@@ -1,0 +1,10 @@
+Bonjour {{ user_name | default("cher utilisateur") }},
+
+Connectez-vous à {{ tenant_name | default("votre compte") }} avec ce lien. Aucun mot de passe n’est nécessaire :
+{{ action_url }}
+
+Ce lien expire dans {{ expires_at }}.
+
+Si vous n’avez pas fait cette demande, vous pouvez ignorer cet e-mail.
+
+IANUA

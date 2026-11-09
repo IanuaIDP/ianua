@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Your sign-in link{% endblock %}
+{% block preheader %}Use this link to sign in to your account.{% endblock %}
+{% block headline %}Sign in to {{ tenant_name | default("your account") }}{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("there")) }}
+  {% call c.para(pad=8) %}Press the button below to sign in. No password needed.{% endcall %}
+  {{ c.cta(action_url, "Sign in") }}
+  {% call c.para(pad=0) %}This link expires in {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}If you did not ask for this, you can ignore this email.{% endcall %}
+{% endblock %}

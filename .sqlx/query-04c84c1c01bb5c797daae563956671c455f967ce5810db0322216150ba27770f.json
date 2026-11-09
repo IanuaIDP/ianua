@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Takes one role of a tenant away from everyone given it straight.\nDELETE FROM role_assignments\nWHERE tenant_id = $1 AND role_id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "04c84c1c01bb5c797daae563956671c455f967ce5810db0322216150ba27770f"
+}

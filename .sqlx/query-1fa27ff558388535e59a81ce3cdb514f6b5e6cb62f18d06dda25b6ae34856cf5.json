@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Spends one mailed link of one purpose at the given time, only while it is\n-- still unused: of two requests following one link together, only one\n-- changes the row and learns it won.\nUPDATE org_tokens\nSET consumed_at = $3\nWHERE token_hash = $1 AND purpose = $2 AND consumed_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "1fa27ff558388535e59a81ce3cdb514f6b5e6cb62f18d06dda25b6ae34856cf5"
+}

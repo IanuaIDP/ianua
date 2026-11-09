@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Closes the zone one tenant holds for one hostname, and with it every\n-- record it answers with.\nDELETE FROM dns_zones\nWHERE tenant_id = $1 AND hostname = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "857291fcfc95fe24085f2b89cc2c1d9f813fdc9a4c12e8267f227ae412d32d94"
+}

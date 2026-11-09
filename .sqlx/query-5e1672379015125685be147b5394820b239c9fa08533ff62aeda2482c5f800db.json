@@ -1,0 +1,31 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an agent: a new one is added, a known one of the same tenant takes\n-- the new values. Its tenant and its creation time never change, and a\n-- revoked one stays revoked, whatever a copy read before the revoke says.\nINSERT INTO agents\n    (id, tenant_id, name, description, owner_kind, owner_id, owner_person, offered_to_kind,\n     offered_to_id, offered_to_person, offered_at, offer_expires_at, status,\n     attestation_policy, reattestation_required_since, last_attested_at, created_at,\n     updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)\nON CONFLICT (id) DO UPDATE SET\n    name = EXCLUDED.name,\n    description = EXCLUDED.description,\n    owner_kind = EXCLUDED.owner_kind,\n    owner_id = EXCLUDED.owner_id,\n    owner_person = EXCLUDED.owner_person,\n    offered_to_kind = EXCLUDED.offered_to_kind,\n    offered_to_id = EXCLUDED.offered_to_id,\n    offered_to_person = EXCLUDED.offered_to_person,\n    offered_at = EXCLUDED.offered_at,\n    offer_expires_at = EXCLUDED.offer_expires_at,\n    status = CASE\n        WHEN agents.status = 'revoked' THEN 'revoked'\n        ELSE EXCLUDED.status\n    END,\n    attestation_policy = EXCLUDED.attestation_policy,\n    reattestation_required_since = EXCLUDED.reattestation_required_since,\n    last_attested_at = EXCLUDED.last_attested_at,\n    updated_at = EXCLUDED.updated_at\nWHERE agents.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Uuid",
+        "Text",
+        "Text",
+        "Uuid",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Text",
+        "Jsonb",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5e1672379015125685be147b5394820b239c9fa08533ff62aeda2482c5f800db"
+}

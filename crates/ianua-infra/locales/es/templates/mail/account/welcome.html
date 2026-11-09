@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Le damos la bienvenida a {{ tenant_name | default("IANUA") }}{% endblock %}
+{% block preheader %}Su cuenta está lista. Inicie sesión para empezar.{% endblock %}
+{% block headline %}Le damos la bienvenida a {{ tenant_name | default("IANUA") }}{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para(pad=8) %}Se ha creado una cuenta para usted en <strong>{{ tenant_name | default("su organización") }}</strong> en {{ c.brand() }}{% if role_name is defined %} con el rol <strong>{{ role_name }}</strong>{% endif %}. Todo está listo.{% endcall %}
+  {{ c.cta(action_url, "Iniciar sesión") }}
+{% endblock %}

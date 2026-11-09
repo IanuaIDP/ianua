@@ -1,0 +1,39 @@
+{#-
+  What an error page tells a person, by the kind of trouble, imported as
+  `e`: a title, and one line of what to do. A kind not listed here fails
+  the render, so no page goes out without its words.
+-#}
+
+{#- The page's title for `kind`. -#}
+{% macro title(kind) -%}
+{%- set titles = {
+  "unauthenticated": "请登录以继续",
+  "forbidden": "您没有访问权限",
+  "not_found": "页面未找到",
+  "content_too_large": "请求过大",
+  "too_many_requests": "请求过多",
+  "misdirected_request": "此连接的地址不正确",
+  "bad_gateway": "应用未响应",
+  "gateway_timeout": "应用响应超时",
+  "unavailable": "暂时不可用",
+  "bad_request": "请求存在问题"
+} -%}
+{{ titles[kind] }}
+{%- endmacro %}
+
+{#- What the person can do about `kind`. -#}
+{% macro advice(kind) -%}
+{%- set lines = {
+  "unauthenticated": "打开此页面前需要先登录。请登录后重新打开。",
+  "forbidden": "您的账户无权打开此页面。如果您认为应该拥有权限，请联系管理员并提供下方的参考编号。",
+  "not_found": "此处没有内容。请检查地址，或返回上一页。",
+  "content_too_large": "您发送的数据超出了应用允许的大小。请减少数据后重试。",
+  "too_many_requests": "您在短时间内发送了大量请求。请等待一分钟后重试。",
+  "misdirected_request": "此连接是为另一个地址建立的。请关闭标签页后重新打开该地址。",
+  "bad_gateway": "无法连接到此地址对应的应用。请过几分钟后重试。",
+  "gateway_timeout": "此地址对应的应用未及时响应。请过几分钟后重试。",
+  "unavailable": "此地址目前无法接收请求。请过几分钟后重试。",
+  "bad_request": "无法读取请求。请返回并检查输入内容后重试。"
+} -%}
+{{ lines[kind] }}
+{%- endmacro %}

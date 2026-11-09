@@ -1,0 +1,145 @@
+# A self-hosted installation: one organization, on your own cluster, with
+# nothing installed beforehand.
+#
+#   helm upgrade --install ianua deploy/helm/ianua -n ianua --create-namespace \
+#     -f deploy/helm/ianua/values-selfhosted.yaml -f my-overrides.yaml
+#
+# Install it as release `ianua`: the routes below name the services that
+# release creates. Replace every example.com, point the three hosts at the
+# address the `ianua-edge` LoadBalancer is given, and confirm the owner with
+# the setup token the install Job prints (NOTES.txt shows how). Secrets, the
+# database passwords and zero's fallback certificate are generated on first
+# install and kept on upgrade.
+#
+# The dashboard is a separate chart (ianua-front); its service is expected as
+# `ianua-front` in the same namespace.
+
+deployment:
+  mode: selfHosted
+
+selfHosted:
+  organizationName: Example Inc
+  tenantName: Main
+  owner:
+    email: you@example.com
+    name: Your Name
+    # Empty generates one; NOTES.txt shows how to read it.
+    password: ""
+  trustedDomains:
+    - example.com
+
+image:
+  tag: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecret:
+  create: false
+
+config:
+  # With platformWildcardTls enabled, apps use <app>-<random-label>.<baseDomain>.
+  # First supply an operator-issued wildcard through zero.tls.existingSecret.
+  # Without that certificate, platform addresses stay off; custom domains work.
+  platformWildcardTls: false
+  baseDomain: apps.example.com
+  appBaseUrl: https://ianua.example.com
+  emailLogoUrl: https://api.ianua.example.com/email-logo.png
+  corsOrigin: https://ianua.example.com
+  webauthn:
+    rpId: ianua.example.com
+    rpOrigin: https://ianua.example.com
+  email:
+    from: noreply@example.com
+    fromName: Ianua
+    # A mail server is required: sign-in links, invitations and password
+    # resets go out by mail. The owner's first address is confirmed with the
+    # setup token the install Job prints instead.
+    provider: smtp
+    smtp:
+      host: smtp.example.com
+      port: 587
+      tls: starttls
+      username: ""
+  # Whose forwarded client address the API believes. `auto` reads the pod
+  # range from the cluster's nodes, so Traefik is trusted and nobody else is.
+  # If your network plugin does not publish one, set your pod range here
+  # (e.g. "10.244.0.0/16"); until then the API records Traefik's address.
+  trustedProxies: auto
+
+secrets:
+  # Leave empty to generate on first install; they are kept on upgrade.
+  hmacSecret: ""
+  encryptionKey: ""
+  smtpPassword: ""
+
+server:
+  ingress:
+    enabled: false
+
+acme:
+  directoryUrl: https://acme-v02.api.letsencrypt.org/directory
+  contactEmail: you@example.com
+
+# One plain Postgres with its own disk. No operator needed.
+postgresql:
+  enabled: true
+  provider: standalone
+
+# Tenant domains reach zero still encrypted, so zero terminates TLS itself.
+zero:
+  proxyProtocol: true
+  tls:
+    generateSelfSigned: true
+  service:
+    type: ClusterIP
+    port: 443
+
+# No external nameservers in a self-hosted install.
+grpc:
+  enabled: false
+
+dns:
+  enabled: false
+  nameservers: []
+
+# The routes: dashboard and API end at Traefik, every other name passes
+# through to zero, and :80 answers certificate challenges and redirects the
+# rest.
+traefik:
+  enabled: true
+  terminateWith: http
+  redirectToHttps: true
+  terminated:
+    - host: ianua.example.com
+      service: ianua-front
+      port: 80
+    - host: api.ianua.example.com
+      service: ianua-server
+      port: 80
+  # The dashboard's host is config.appBaseUrl: file links and logos are made
+  # under it, so its /api/v1 goes straight to the API.
+  appHosts:
+    - ianua.example.com
+  tls:
+    secretName: ""
+    certResolver: letsencrypt
+  passthrough:
+    service: ianua-zero
+    port: 443
+    proxyProtocol: true
+  grpc:
+    enabled: false
+
+# The Traefik those routes run on, installed by this chart.
+edge:
+  enabled: true
+  service:
+    # Keeps the visitor's address. With the default the node rewrites it on
+    # the way in, and Traefik — and so zero and the API — sees the node.
+    spec:
+      externalTrafficPolicy: Local
+  certificatesResolvers:
+    letsencrypt:
+      acme:
+        email: you@example.com
+        storage: /data/acme.json
+        tlsChallenge: {}

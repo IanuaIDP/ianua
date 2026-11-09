@@ -1,0 +1,139 @@
+Ianua Source Use License, Version 1.0
+
+Copyright (c) 2026 Maurice Schilpp and Giorgi Zoidze
+
+Files of third parties included with the Software stay under their own
+licenses, as listed in the NOTICE file.
+
+1. Acceptance
+
+By using, copying, changing or sharing the Software, you agree to these
+terms. If you do not agree, you have no permission to do any of those things.
+
+2. Definitions
+
+"Software" means ianua, in source or compiled form, as the Licensor makes it
+available under these terms.
+
+"Licensor" means the copyright holders named above, together, and anyone to
+whom they transfer the rights in the Software.
+
+"You" means the person who accepts these terms. If that person accepts them
+for an organization, "You" means that organization.
+
+"Your Group" means You and every organization that You control, that controls
+You, or that is under common control with You. Control means owning more than
+half of the voting rights, or having the right to direct the organization's
+management.
+
+"Your Own Purposes" means using the Software:
+
+(a) for the internal business of Your Group;
+
+(b) for personal use; or
+
+(c) for non-commercial study, research, teaching or evaluation.
+
+"Your Own Purposes" includes running the Software to sign in Your Group's
+employees, contractors, partners and customers to Your Group's own
+applications and services, and to control their access to them. This holds
+even when those applications and services are sold, as long as what the
+customer pays for is not the Software or access to its features.
+
+"Hosted Service" means making the Software, or a work based on it, available
+to anyone outside Your Group so that they can use any substantial part of its
+features. Examples are identity, sign-in or access control run for others,
+workflow automation run for others, and oversight of others' agents. It does
+not matter whether You charge for it, or how it is packaged, branded or
+embedded.
+
+3. Permission
+
+The Licensor gives You a non-exclusive, worldwide, royalty-free license,
+which You may not sublicense or transfer, to use, copy and change the
+Software and to make works based on it for Your Own Purposes, and to share it
+as section 5 allows. Contractors may do these things on Your behalf and only
+for You. You are responsible for what they do.
+
+4. Limitations
+
+Unless You have a separate written agreement with the Licensor, You may not:
+
+(a) sell, rent or license the Software or a work based on it;
+
+(b) provide a Hosted Service;
+
+(c) run an installation in which anyone outside Your Group administers an
+    organization or tenant of their own; or
+
+(d) remove, hide or change any notice of copyright, license or attribution
+    in the Software.
+
+You may be paid to install, configure, support or advise on the Software for
+someone else if that person runs it for their own purposes under their own
+license from these terms.
+
+5. Sharing copies
+
+You may give others copies of the Software, or of a work based on it, only
+free of charge and not as part of anything sold. Every copy must include these
+terms and the NOTICE file. A changed copy must say prominently that it has
+been changed. Each recipient gets a license directly from the Licensor under
+these terms.
+
+6. Patents
+
+The Licensor gives You a license, on the same conditions as section 3, under
+any patent claims the Licensor can license that the Software as provided
+necessarily infringes. It does not cover infringement caused by Your changes.
+If You or anyone in Your Group claims in a legal proceeding that the Software
+infringes a patent, every patent license under these terms ends for Your
+Group on the day the claim is filed.
+
+7. Names and marks
+
+These terms give You no right to use the name "ianua", or the Licensor's
+logos or other marks, except to say truthfully where the Software came from.
+
+8. No other rights
+
+The Licensor keeps every right these terms do not expressly give. For any
+use these terms do not allow, ask the Licensor for a commercial license.
+
+9. Ending this license
+
+Use of the Software that breaks these terms is not licensed, and Your license
+ends automatically. If the Licensor gives You written notice of a breach and
+You stop within 30 days of receiving it, Your license is restored as if it
+had never ended. This applies once. A later breach ends Your license for
+good. When Your license ends, You must stop using the Software.
+
+10. No warranty
+
+To the extent the law allows, the Software is provided as it is, without any
+warranty or condition, express or implied, including of merchantability,
+fitness for a particular purpose, freedom from defects, and non-infringement.
+
+11. Limits on liability
+
+To the extent the law allows, the Licensor is not liable for any damage
+arising from these terms or from the use of the Software, including lost
+profits, lost data, interrupted business, or any indirect or consequential
+damage, whatever the legal basis.
+
+Nothing in these terms excludes or limits liability that the law does not
+allow to be excluded or limited. That includes liability for intent and for
+gross negligence, for injury to life, body or health, and under mandatory
+product liability law.
+
+12. General law
+
+These terms are governed by the law of the country in which the first
+copyright holder named above has a residence or registered office, without
+regard to its conflict-of-law rules. Between businesses, the courts of that place have exclusive
+jurisdiction. Mandatory rights a consumer has in the place where the consumer
+lives are not affected.
+
+If a part of these terms cannot be enforced, the rest stays in force, and
+that part is applied as far as the law allows. Sections 10, 11 and 12 continue
+after this license ends.

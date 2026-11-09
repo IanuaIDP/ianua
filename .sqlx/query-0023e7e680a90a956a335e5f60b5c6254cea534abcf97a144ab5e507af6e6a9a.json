@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many of a tenant's invitations still pending give the given role.\nSELECT count(*) AS \"count!\"\nFROM invitations\nWHERE tenant_id = $1 AND role_id = $2 AND status = 'pending'\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "0023e7e680a90a956a335e5f60b5c6254cea534abcf97a144ab5e507af6e6a9a"
+}

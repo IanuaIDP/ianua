@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}アカウントがロックされました{% endblock %}
+{% block preheader %}サインインの失敗後に、アカウントがロックされました。{% endblock %}
+{% block headline %}アカウントがロックされました{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para() %}<strong>{{ tenant_name | default("所属組織") }}</strong>のアカウントは、サインインの失敗回数が多すぎたためロックされました{% if ip_address is defined %}。試行元は<strong>{{ ip_address }}</strong>です{% endif %}。{% endcall %}
+  {% call c.para(pad=32) %}ご自身の操作であれば、ロックが解除されるまで待ってから再試行するか、管理者に解除を依頼してください。心当たりがない場合は、サインインできるようになり次第、パスワードを変更してください。{% endcall %}
+{% endblock %}

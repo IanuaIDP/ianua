@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Forgets the client assertions one tenant spent that expired by the given\n-- time: none of them is taken any more.\nDELETE FROM oauth_client_assertions\nWHERE tenant_id = $1 AND expires_at <= $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "98b8469e3121ba99ea7702ff25aa083ee325c6ebff6e5935cb3ad0d75feb2a46"
+}

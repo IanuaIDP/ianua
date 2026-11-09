@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Hands out the sign-up whose link carries the token with the given hash and\n-- forgets it in the same statement, so a link works once.\nDELETE FROM pending_signups\nWHERE token_hash = $1\nRETURNING token_hash, email, company_name, tenant_name, admin_display_name, password_hash,\n          timezone, locale, requested_at, expires_at\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "token_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "company_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "tenant_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "admin_display_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "password_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "timezone",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "locale",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "requested_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "ce4a9edf65481c11ef056e41dd4c4604c95daafd4823b2e38804a3e4242be75e"
+}

@@ -1,0 +1,7 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+Se añadió un segundo factor a su cuenta en {{ tenant_name | default("su organización") }}. A partir de ahora se le pedirá al iniciar sesión.
+
+Si no lo hizo usted, avise a su administrador de inmediato: es posible que otra persona haya accedido a su cuenta.
+
+IANUA

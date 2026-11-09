@@ -1,0 +1,7 @@
+Hi {{ user_name | default("there") }},
+
+A new set of recovery codes was made for your account in {{ tenant_name | default("your organization") }}{% if remaining_codes is defined %}. You have {{ remaining_codes }} unused codes{% endif %}. Your earlier codes no longer work.
+
+Keep them somewhere safe: each one signs you in once if you lose your second factor. If you did not do this, tell your administrator.
+
+IANUA

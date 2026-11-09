@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Publishes a challenge, replacing any earlier one for the same token.\nINSERT INTO acme_challenges (token, key_authorization, domain, expires_at)\nVALUES ($1, $2, $3, $4)\nON CONFLICT (token) DO UPDATE SET\n    key_authorization = EXCLUDED.key_authorization,\n    domain = EXCLUDED.domain,\n    expires_at = EXCLUDED.expires_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fe61fc4d57997134dbbf7035d5871f95d2598fe2faf92467a48370752084a7ce"
+}

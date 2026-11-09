@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes the passkey ceremonies of every tenant in this database that\n-- lapsed before the given time without an answer, and counts them: the\n-- sweep's work across tenants.\nWITH purged AS (\n    DELETE FROM passkey_ceremonies\n    WHERE expires_at < $1 AND consumed_at IS NULL\n    RETURNING tenant_id\n)\nSELECT count(*) AS \"purged!\" FROM purged\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "purged!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "bf60f95fade2e5592de3cd072697479788e76a2f8314e5edba6a622794f90cfc"
+}

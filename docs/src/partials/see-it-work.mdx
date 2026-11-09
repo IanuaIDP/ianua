@@ -1,0 +1,54 @@
+Your tenant's apps are served at **`acme-main.apps.localhost`**: the organization, a dash, the tenant, then your apps domain. The gateway picks up each change within a moment, so there is nothing to restart.
+
+**A public request goes through.** This one also tries to claim to be someone else, by setting identity headers itself:
+
+```sh
+curl -sk https://acme-main.apps.localhost/public/hello \
+  -H "X-Forwarded-User: admin" \
+  -H "X-Ianua-Assertion: forged"
+```
+
+The app answers with what it received:
+
+```text
+Host: hello:80
+User-Agent: curl/8.7.1
+Accept: */*
+X-Forwarded-For: …
+X-Forwarded-Host: acme-main.apps.localhost
+X-Forwarded-Proto: https
+```
+
+The request arrived, but neither of the headers you sent is there. The gateway removes identity headers a caller sets, because only the gateway may say who a caller is.
+
+**A private request without a login is refused:**
+
+```sh
+curl -sk https://acme-main.apps.localhost/private/hello
+```
+
+```json
+{"correlation_id":"…","error":"denied: missing bearer token"}
+```
+
+The status is `401`, and the app never saw the request.
+
+**A path no route covers is refused too:**
+
+```sh
+curl -sk -o /dev/null -w "%{http_code}\n" https://acme-main.apps.localhost/admin
+```
+
+That prints `404`. Nothing reaches an app unless a route says it may.
+
+Every one of these decisions, allowed or refused, is recorded. The gateway writes one line per request, with the decision and the reason for it:
+
+```sh
+docker compose logs zero | grep path=/private/hello
+```
+
+```text
+WARN … request denied … method=GET path=/private/hello … decision="denied" deny_status=401 deny_reason=denied: missing bearer token
+```
+
+The same records feed the traffic figures on your tenant's overview in the dashboard.

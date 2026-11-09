@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many tenants an organization holds against its plan: every one not\n-- deleted, archived ones too, since an archived tenant is restored without\n-- a check.\nSELECT count(*) AS \"count!\"\nFROM tenants\nWHERE organization_id = $1 AND status <> 'deleted'\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "20392a893eaf50a12e8604513fd35f3104e86799b0da36249c0cacb5ecccbfe7"
+}

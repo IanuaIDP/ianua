@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Your account is ready{% endblock %}
+{% block preheader %}Your account is ready. Sign in to get started.{% endblock %}
+{% block headline %}Your account is ready{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("there")) }}
+  {% call c.para(pad=8) %}Your account in <strong>{{ tenant_name | default(organization_name | default("your organization")) }}</strong> is set up and ready to use.{% endcall %}
+  {{ c.cta(action_url, "Sign in") }}
+{% endblock %}

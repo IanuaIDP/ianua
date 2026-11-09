@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}თქვენი მეორე ფაქტორი გაუქმდა{% endblock %}
+{% block preheader %}{{ organization_name | default("თქვენი ორგანიზაცია") }}-ს მფლობელმა თქვენი მეორე ფაქტორი გააუქმა.{% endblock %}
+{% block headline %}თქვენი მეორე ფაქტორი გაუქმდა{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para() %}<strong>{{ organization_name | default("თქვენი ორგანიზაცია") }}</strong>-ს მფლობელმა თქვენი {{ c.brand() }} ანგარიშის მეორე ფაქტორი გააუქმა და ყველა სესიიდან გამოხვედით. ხელახლა შედით პაროლით და ახალი მეორე ფაქტორი დააყენეთ.{% endcall %}
+  {% call c.para(pad=32) %}თუ ეს თქვენ არ მოგითხოვიათ, დაუყოვნებლივ აცნობეთ თქვენი ორგანიზაციის მფლობელს.{% endcall %}
+{% endblock %}

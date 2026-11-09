@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps the consent one person of one tenant gave one client: a new one is\n-- added, a known one takes its new scopes and the time they were given.\nINSERT INTO oauth_consents (tenant_id, user_id, client_id, scopes, granted_at)\nVALUES ($1, $2, $3, $4, $5)\nON CONFLICT (tenant_id, user_id, client_id) DO UPDATE SET\n    scopes = EXCLUDED.scopes,\n    granted_at = EXCLUDED.granted_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "TextArray",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2252d9e80433a994f4b9bbfdbded35cc277f04ac5a9532b2d6ead0bcfb7555e6"
+}

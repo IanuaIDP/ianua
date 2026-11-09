@@ -1,0 +1,50 @@
+{{- if .Values.agentSandboxes.upstreamLock.enabled }}
+{{- $root := . }}
+{{- $namespaces := .Values.agentSandboxes.upstreamLock.namespaces | default (list .Release.Namespace) }}
+{{- range $namespaces }}
+---
+{{- /*
+A service agents may call is reached only through the data plane, and
+reaches only what is listed. An agent that exploits it lands somewhere with
+no way onward.
+*/}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "ianua.fullname" $root }}-agent-upstream
+  namespace: {{ . }}
+  labels:
+    {{- include "ianua.labels" $root | nindent 4 }}
+    app.kubernetes.io/component: agent-upstream
+spec:
+  podSelector:
+    matchLabels:
+      ianua.io/agent-upstream: "true"
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ $root.Release.Namespace }}
+          podSelector:
+            matchLabels:
+              {{- include "ianua.selectorLabels" (dict "root" $root "component" "zero") | nindent 14 }}
+  egress:
+    {{- if include "ianua.egressGatewayOn" $root }}
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ $root.Release.Namespace }}
+          podSelector:
+            matchLabels:
+              {{- include "ianua.selectorLabels" (dict "root" $root "component" "egress") | nindent 14 }}
+      ports:
+        - port: {{ $root.Values.agentSandboxes.egressGateway.port }}
+    {{- end }}
+    {{- with $root.Values.agentSandboxes.upstreamLock.allowedEgress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Spends, at the given time, every link of one purpose a member holds that\n-- is still unused and in date, so a link sent later supersedes them.\nUPDATE org_tokens\nSET consumed_at = $3\nWHERE org_user_id = $1 AND purpose = $2 AND consumed_at IS NULL AND expires_at > $3\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "35d1060504cd36b77b782e63919099a1438d98db587b56e0394e3863e97885fe"
+}

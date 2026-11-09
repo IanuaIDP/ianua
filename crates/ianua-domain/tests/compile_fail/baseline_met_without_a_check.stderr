@@ -1,0 +1,7 @@
+error[E0451]: field `level` of struct `BaselineMet` is private
+ --> tests/compile_fail/baseline_met_without_a_check.rs:8:9
+  |
+7 |     let _met = BaselineMet {
+  |                ----------- in this type
+8 |         level: AssuranceLevel::Aal2,
+  |         ^^^^^ private field

@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps every key of a tenant's key set in one statement: a new key is\n-- added, a known one takes its new standing and expiry. A key's algorithm,\n-- its two halves and its creation time never change.\nINSERT INTO signing_keys\n    (tenant_id, kid, algorithm, public_key, private_key_sealed, status, rotated_at,\n     expires_at, created_at)\nSELECT $1, kept.kid, kept.algorithm, kept.public_key, kept.private_key_sealed, kept.status,\n       kept.rotated_at, kept.expires_at, kept.created_at\nFROM UNNEST($2::text[], $3::text[], $4::text[], $5::text[], $6::text[], $7::timestamptz[],\n            $8::timestamptz[], $9::timestamptz[])\n    AS kept (kid, algorithm, public_key, private_key_sealed, status, rotated_at, expires_at,\n             created_at)\nON CONFLICT (tenant_id, kid) DO UPDATE SET\n    status = EXCLUDED.status,\n    rotated_at = EXCLUDED.rotated_at,\n    expires_at = EXCLUDED.expires_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TimestamptzArray",
+        "TimestamptzArray",
+        "TimestamptzArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b0a980cad5f77f6717c32111312445505b1290fa61069361460ad59aa37463b3"
+}

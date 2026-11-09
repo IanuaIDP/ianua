@@ -1,0 +1,66 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The latest decision a member of an organization made on one kind of\n-- consent.\nSELECT id, organization_id, org_user_id, consent_type, granted, version,\n       ip_address, recorded_at\nFROM org_consents\nWHERE organization_id = $1 AND org_user_id = $2 AND consent_type = $3\nORDER BY recorded_at DESC, id DESC\nLIMIT 1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "org_user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "consent_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "granted",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "version",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "ip_address",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "recorded_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "cc8d821d54abf88b555f4a4fecddc129907c021a8f62335f2e8e9e62a099a726"
+}

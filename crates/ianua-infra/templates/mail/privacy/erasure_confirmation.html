@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}We have your deletion request{% endblock %}
+{% block preheader %}Your request to delete your data was received.{% endblock %}
+{% block headline %}We have your deletion request{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("there")) }}
+  {% call c.para() %}Your request to delete your data from <strong>{{ tenant_name | default("your organization") }}</strong> was received{% if erasure_date is defined %}. Deletion begins on <strong>{{ erasure_date }}</strong>{% endif %}.{% endcall %}
+  {% if action_url is defined %}{% call c.para(pad=8) %}If you change your mind before then, you can cancel it.{% endcall %}{{ c.cta(action_url, "Cancel deletion") }}{% endif %}
+  {% call c.para(pad=32) %}If you did not ask for this, tell your administrator straight away.{% endcall %}
+{% endblock %}

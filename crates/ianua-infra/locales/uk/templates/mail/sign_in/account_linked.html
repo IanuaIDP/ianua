@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ваш обліковий запис прив’язано до {{ provider_name | default("постачальника входу") }}{% endblock %}
+{% block preheader %}Відтепер ви можете входити через постачальника входу.{% endblock %}
+{% block headline %}Ваш обліковий запис прив’язано{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("користувачу")) }}
+  {% call c.para() %}У ваш обліковий запис у <strong>{{ tenant_name | default("вашій організації") }}</strong> вперше ввійшли через <strong>{{ provider_name | default("постачальника входу") }}</strong>{% if ip_address is defined %} з адреси {{ ip_address }}{% endif %}. Відтепер цей постачальник може забезпечувати вам вхід.{% endcall %}
+  {% call c.para(pad=32) %}Якщо це були не ви, негайно повідомте адміністратора.{% endcall %}
+{% endblock %}

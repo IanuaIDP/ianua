@@ -1,0 +1,83 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- One trial of a tenant.\nSELECT id, sandbox_id, version_id, input, state, output, failure, failure_detail, started_by,\n    created_at, updated_at\nFROM sandbox_trials\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "sandbox_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "version_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "input",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "state",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "output",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 6,
+        "name": "failure",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "failure_detail",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "started_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "57bc1f27db902b6ced2205cd5c86d8f699e136e992cc0e8896deec17184cef04"
+}

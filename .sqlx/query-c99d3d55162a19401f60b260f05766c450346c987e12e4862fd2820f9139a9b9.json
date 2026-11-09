@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Up to a page of the channels the platform registered, unchanged since\n-- before a moment, that no live registration waits on, in whichever tenants\n-- the read may see.\nSELECT channel.tenant_id, channel.id\nFROM workflow_account_channels AS channel\nWHERE channel.setup = 'registered'\n    AND channel.updated_at < $1\n    AND NOT EXISTS (\n        SELECT 1\n        FROM workflow_service_subscriptions AS registration\n        WHERE registration.integration = channel.integration\n            AND registration.route_key = channel.id::text\n            AND registration.status = 'live'\n    )\nORDER BY channel.updated_at, channel.id\nLIMIT $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "c99d3d55162a19401f60b260f05766c450346c987e12e4862fd2820f9139a9b9"
+}

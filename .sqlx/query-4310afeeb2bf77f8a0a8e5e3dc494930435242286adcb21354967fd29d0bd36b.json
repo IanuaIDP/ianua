@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Records a retired password hash of a user of a tenant at the given time,\n-- or just after the latest one recorded when that is later, so each entry\n-- keeps its own place in the order.\nINSERT INTO password_history (tenant_id, user_id, recorded_at, password_hash)\nSELECT $1, $2, GREATEST($3::timestamptz, max(recorded_at) + interval '1 microsecond'), $4::text\nFROM password_history\nWHERE tenant_id = $1 AND user_id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Timestamptz",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4310afeeb2bf77f8a0a8e5e3dc494930435242286adcb21354967fd29d0bd36b"
+}

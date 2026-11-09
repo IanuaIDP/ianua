@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many exports of the given log the worker is still writing.\nSELECT count(*) AS \"count!\"\nFROM audit_exports\nWHERE log = $1 AND status = 'pending'\n    AND organization_id IS NOT DISTINCT FROM $2 AND tenant_id IS NOT DISTINCT FROM $3\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "efbda3c61f99dc7208e5e550df5a81008dff1239368124a300afa20009341e82"
+}

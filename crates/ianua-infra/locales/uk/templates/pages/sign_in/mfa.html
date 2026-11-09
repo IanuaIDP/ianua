@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% import "sign_in/parts.html" as p %}
+
+{% block title %}Введіть код для {{ workspace }}{% endblock %}
+
+{% block content %}
+      <h1>Потрібна автентифікація</h1>
+      <p class="subtitle">Щоб захистити обліковий запис, введіть код перевірки із застосунку-автентифікатора.</p>
+      {{ p.note(note, {
+        "not_accepted": "Цей код не прийнято. Спробуйте ще раз, а якщо помилка повторюється, увійдіть заново."
+      }) }}
+      <form method="post" action="{{ form_path }}">
+        <label for="code">Код з автентифікатора</label><input id="code" name="code" inputmode="numeric" autocomplete="one-time-code" required autofocus>
+        <label class="choice" for="remember_device"><input id="remember_device" name="remember_device" type="checkbox" value="yes"> Запам’ятати цей пристрій</label>
+        {{ p.return_to(return_to) }}
+        {{ p.submit("Продовжити") }}
+      </form>
+      {{ p.link("Втратили код?", log_in_path, "Почати знову") }}
+{% endblock %}

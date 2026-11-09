@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Marks every unread notification of an operator's inbox read.\nUPDATE platform_notifications\nSET read = true\nWHERE operator_id = $1 AND NOT read\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "374fdf04f7aa36193b17c8e703d09d982c21c6778c935d75475249a31b399118"
+}

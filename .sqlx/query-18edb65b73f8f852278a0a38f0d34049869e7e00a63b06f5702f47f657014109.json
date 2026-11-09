@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The tenant and id of each connection with the given ids that follows a\n-- metadata address, across the tenants the transaction may see.\nSELECT tenant_id, id\nFROM federation_connections\nWHERE id = ANY($1) AND follows_metadata\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "18edb65b73f8f852278a0a38f0d34049869e7e00a63b06f5702f47f657014109"
+}

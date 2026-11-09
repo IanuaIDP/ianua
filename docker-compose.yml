@@ -1,0 +1,111 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ianua
+      POSTGRES_USER: ianua
+      POSTGRES_PASSWORD: ianua
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ianua"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+
+  nats:
+    image: nats:2-alpine
+    command: ["--jetstream", "--store_dir", "/data"]
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    volumes:
+      - natsdata:/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  ianua:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: server
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.docker
+    environment:
+      # Three roles: the app's, the owner (the superuser, which migrates and
+      # makes the other two), and the audit purge's.
+      DATABASE_URL: postgres://ianua_app:ianua_app@postgres:5432/ianua
+      MIGRATION_DATABASE_URL: postgres://ianua:ianua@postgres:5432/ianua
+      AUDIT_PURGE_DATABASE_URL: postgres://ianua_audit_purge:ianua_audit_purge@postgres:5432/ianua
+      BUS_URL: nats://nats:4222
+      CACHE_URL: redis://redis:6379
+      SMTP_HOST: mailpit
+      HOST: 0.0.0.0
+      APP_ENV: development
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+  zero:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: zero
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_started
+      ianua:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgres://ianua:ianua@postgres:5432/ianua
+      DATABASE_MAX_CONNECTIONS: "5"
+      NATS_URL: nats://nats:4222
+      PROXY_LISTEN: 0.0.0.0:8080
+      PROXY_BASE_DOMAIN: zero.localhost
+      PROXY_JWKS_TTL_SECS: "300"
+      IANUA_API_INTERNAL_URL: http://ianua:3001
+      HMAC_SECRET: "0000000000000000000000000000000000000000000000000000000000000001"
+      RUST_LOG: info,ianua_zero=debug
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  pgdata:
+  natsdata:
+  redisdata:

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Suspends every active agent of a tenant at the given time, always moving\n-- each one's last change on, so a copy read before the stop can never be\n-- saved over it. Agents already suspended or revoked are left alone.\nUPDATE agents\nSET status = 'suspended', updated_at = GREATEST($2, updated_at + interval '1 microsecond')\nWHERE tenant_id = $1 AND status = 'active'\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "56acb1d71b6723333ca1b4189c3d1519fc4126034e6e88ce173428719f9320d2"
+}

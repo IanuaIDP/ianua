@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes an agent of the tenant for good; its keys, challenges,\n-- delegations, requests and mark go with it by cascade.\nDELETE FROM agents\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9dff9dc5bef8af11ee6406705c7834e24b1ba4b4e452a73a25e078f8f93bffaa"
+}

@@ -1,0 +1,110 @@
+---
+title: 'Quickstart: the API'
+description: Put the test app behind the gateway with a few curl commands, then watch the gateway at work.
+sidebar:
+  order: 5
+  label: With the API
+---
+
+import SeeItWork from '../../../partials/see-it-work.mdx';
+import WrapUp from '../../../partials/quickstart-wrap-up.mdx';
+
+This continues the [Quickstart](/ianua/start/quickstart/). You have ianua running and the `hello` test app is started. Everything the dashboard does goes through this same API, so anything you can click you can also script.
+
+## 1. Sign in
+
+Sign in to the API and keep the session token:
+
+```sh
+API=https://api.ianua.localhost/api/v1
+TOKEN=$(curl -sk -X POST $API/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"you@example.com","password":"Violet otters juggle 42 brass lanterns at dusk"}' | jq -r .refresh_token)
+T=$API/organizations/acme/tenants/main
+auth=(-sk -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json')
+```
+
+`T` is your tenant: organization `acme`, tenant `main`. Every call below goes to it.
+
+A sign-in from a device ianua has not seen, by someone with no second factor, waits for a confirmation by email: the answer has `"email_confirmation_required": true`, and the token works only once you confirm. Send the `token` from the mailed link with the waiting sign-in's token:
+
+```sh
+curl -sk -X POST $API/login/confirm \
+  -H 'Content-Type: application/json' \
+  -d "{\"token\":\"<token from the link>\",\"refresh_token\":\"$TOKEN\"}"
+```
+
+If your address has an account in more than one organization, the answer has `"status": "choose_organization"` and a list of them instead of a token. Sign in again with `"organization": "acme"` added to the body.
+
+## 2. Create a pipeline
+
+Create a pipeline and switch it on. A new pipeline always contains the two checks that can never be removed: **who is calling** and **are they allowed**.
+
+```sh
+PIPELINE=$(curl "${auth[@]}" -X POST $T/pipelines -d '{"name":"Default"}' | jq -r .id)
+curl "${auth[@]}" -X POST $T/pipelines/$PIPELINE/activate
+```
+
+## 3. Add a service
+
+Tell ianua where the app lives:
+
+```sh
+SERVICE=$(curl "${auth[@]}" -X POST $T/services -d '{
+  "name": "hello",
+  "upstream": {
+    "url": "http://hello:80",
+    "timeout_secs": 30,
+    "preserve_host": false,
+    "expected_audience": {"pinned": "hello"},
+    "identity": "token"
+  }
+}' | jq -r .id)
+```
+
+`expected_audience` says which tokens the service accepts: `{"pinned": "hello"}` takes only tokens made for `hello`, and `"no_token_accepted"` takes none. Any route that is not public refuses to save on a service with no pinned audience. `identity` is `"token"`, or `"client_certificate"` for a service only callers with a client certificate may reach.
+
+## 4. Add two routes
+
+Everything under `/public/` is open to anyone. Everything under `/private/` needs a signed-in caller.
+
+```sh
+curl "${auth[@]}" -X POST $T/routes -d "{
+  \"name\": \"public\", \"path_pattern\": \"/public/*\", \"methods\": [\"Get\"],
+  \"service_id\": \"$SERVICE\", \"pipeline_id\": \"$PIPELINE\", \"policy\": \"Public\"
+}"
+
+curl "${auth[@]}" -X POST $T/routes -d "{
+  \"name\": \"private\", \"path_pattern\": \"/private/*\", \"methods\": [\"Get\"],
+  \"service_id\": \"$SERVICE\", \"pipeline_id\": \"$PIPELINE\", \"policy\": \"Authenticated\"
+}"
+```
+
+Each call answers with the new route's `id`.
+
+## 5. See it work
+
+<SeeItWork />
+
+**And the gateway will not be pointed at the wrong place.** Try to make the cloud metadata service, where cloud servers keep their credentials, the address of a service:
+
+```sh
+curl "${auth[@]}" -X POST $T/services -d '{
+  "name": "sneaky",
+  "upstream": {
+    "url": "http://169.254.169.254/",
+    "timeout_secs": 30,
+    "preserve_host": false,
+    "expected_audience": "no_token_accepted",
+    "identity": "token"
+  }
+}'
+```
+
+It is refused with status `422`, whatever networks you allow:
+
+```json
+{"error":"domain_error","message":"Upstreams may not target an internal address outside the networks this deployment allows."}
+```
+
+<WrapUp />

@@ -1,0 +1,179 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The runs of one tenant that the ids name.\nSELECT id, workflow_id, version, graph, acting_for, authors, cause, cause_event,\n    cause_event_depth, restarted_execution_id, restart_from, cause_change, pass_of, pass_step, pass_index,\n    chain_depth, input, exposure, steps, status, cancelled_by, deadline, created_at, updated_at,\n    failure_alert, mode, stand_ins\nFROM workflow_executions\nWHERE tenant_id = $1 AND id = ANY($2)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "workflow_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "version",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "graph",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "acting_for",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 5,
+        "name": "authors",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 6,
+        "name": "cause",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "cause_event",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "cause_event_depth",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 9,
+        "name": "restarted_execution_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 10,
+        "name": "restart_from",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "cause_change",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "pass_of",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 13,
+        "name": "pass_step",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 14,
+        "name": "pass_index",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 15,
+        "name": "chain_depth",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 16,
+        "name": "input",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 17,
+        "name": "exposure",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 18,
+        "name": "steps",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 19,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 20,
+        "name": "cancelled_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 21,
+        "name": "deadline",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 22,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 23,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 24,
+        "name": "failure_alert",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 25,
+        "name": "mode",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 26,
+        "name": "stand_ins",
+        "type_info": "TextArray"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "10b905cdd23e0f7efd1e48c323ad4bf31c0f8bfe428d379539abf15921a3209c"
+}

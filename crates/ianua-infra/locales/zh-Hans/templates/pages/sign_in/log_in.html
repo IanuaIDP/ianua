@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% import "sign_in/parts.html" as p %}
+
+{% block title %}登录 {{ workspace }}{% endblock %}
+
+{% block content %}
+      <h1>欢迎回来</h1>
+      <p class="subtitle">登录 {{ workspace }} 以继续</p>
+      {{ p.note(note, {}) }}
+      <form method="post" action="{{ form_path }}">
+        {{ p.field("email", "邮箱地址", "email", "username") }}
+        {{ p.field("password", "密码", "password", "current-password") }}
+        {{ p.return_to(return_to) }}
+        {{ p.submit("登录") }}
+      </form>
+      {%- for choice in single_sign_on %}
+      <p class="footer"><a href="{{ choice.href }}">通过 {{ choice.name }} 继续</a></p>
+      {%- endfor %}
+      {%- if passkey_path and passkey_script_path %}
+      <p class="footer"><button type="button" id="passkey" data-address="{{ passkey_path }}"{% if return_to %} data-return-to="{{ return_to }}"{% endif %} hidden>使用通行密钥登录</button></p>
+      <script src="{{ passkey_script_path }}" defer></script>
+      {%- endif %}
+      {%- if forgot_password_path %}
+      {{ p.link("忘记密码？", forgot_password_path, "重置密码") }}
+      {%- endif %}
+      {%- if sign_up_path %}
+      {{ p.link("初次使用？", sign_up_path, "创建账户") }}
+      {%- endif %}
+{% endblock %}

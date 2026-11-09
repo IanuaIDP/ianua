@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Verify your new email address{% endblock %}
+{% block preheader %}Verify your new address to finish the change.{% endblock %}
+{% block headline %}Verify your new email address{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("there")) }}
+  {% call c.para() %}Someone asked to move your {{ c.brand() }} account to <strong>{{ user_email }}</strong>.{% endcall %}
+  {% call c.para(pad=8) %}To finish the change, verify this address.{% endcall %}
+  {{ c.cta(action_url, "Verify new address") }}
+  {% call c.para(pad=0) %}This link expires in {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}If you did not ask for this, you can ignore this email.{% endcall %}
+{% endblock %}

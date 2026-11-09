@@ -1,0 +1,14 @@
+target/
+**/target/
+.git/
+.github/
+.idea/
+.vscode/
+.env
+.env.*
+!.env.docker
+scripts/
+docs/
+dashboard/
+.claude/
+*.md

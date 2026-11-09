@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Replaces a tenant user's choices with the categories and channels given,\n-- in one statement: the categories left out are dropped, the others kept\n-- with their new channel.\nWITH dropped AS (\n    DELETE FROM notification_preferences\n    WHERE tenant_id = $1 AND user_id = $2 AND NOT (category = ANY($3::text[]))\n)\nINSERT INTO notification_preferences (tenant_id, user_id, category, channel)\nSELECT $1, $2, chosen.category, chosen.channel\nFROM UNNEST($3::text[], $4::text[]) AS chosen (category, channel)\nON CONFLICT (tenant_id, user_id, category) DO UPDATE\nSET channel = EXCLUDED.channel\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "TextArray",
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "eb77e5f10dffbde6e098e340ab3d60e9914b94ee33b322a53b2d2995dd64b8fc"
+}

@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The measured times of the successful sign-ins of the given tenants in\n-- the window, their total in milliseconds and how many were measured.\nSELECT coalesce(sum((payload -> 'value' ->> 'auth_duration_ms')::bigint), 0)::bigint\n           AS \"total!\",\n       count(payload -> 'value' ->> 'auth_duration_ms') AS \"measured!\"\nFROM audit_records\nWHERE tenant_id = ANY($1)\n    AND event_type = 'authentication.login_succeeded'\n    AND occurred_at >= $2 AND occurred_at < $3\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "total!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "measured!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "0aae69ff189731f3c2957ca3fd46a307c110f687662f51da76b80df57fb4b3e4"
+}

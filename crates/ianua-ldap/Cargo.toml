@@ -1,0 +1,29 @@
+[package]
+name = "ianua-ldap"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+ianua-domain = { path = "../ianua-domain" }
+ianua-app = { path = "../ianua-app" }
+
+ldap3_proto = "0.8"
+tokio = { workspace = true }
+tokio-util = { workspace = true, features = ["codec", "rt"] }
+futures-util = { workspace = true, features = ["sink"] }
+tracing = { workspace = true }
+thiserror = { workspace = true }
+arc-swap = { workspace = true }
+tokio-rustls = { workspace = true, features = ["ring"] }
+rustls-pemfile = { workspace = true }
+sha2 = { workspace = true }
+ianua-workspace-hack = { version = "0.1", path = "../ianua-workspace-hack" }
+
+[dev-dependencies]
+ianua-app = { path = "../ianua-app", features = ["test-support"] }
+ianua-domain = { path = "../ianua-domain", features = ["test-support"] }

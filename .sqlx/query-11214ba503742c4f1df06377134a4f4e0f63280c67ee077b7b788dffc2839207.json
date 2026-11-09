@@ -1,0 +1,83 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The one channel of one account of one tenant.\nSELECT id, account_id, integration, secret_sealed, setup, status, remote, lapses_at,\n    history_cursor, created_at, updated_at\nFROM workflow_account_channels\nWHERE tenant_id = $1 AND account_id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "account_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "integration",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "secret_sealed",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "setup",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "remote",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "lapses_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "history_cursor",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "11214ba503742c4f1df06377134a4f4e0f63280c67ee077b7b788dffc2839207"
+}

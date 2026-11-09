@@ -1,0 +1,1 @@
+Vous êtes invité à rejoindre {{ organization_name | default("une organisation") }}

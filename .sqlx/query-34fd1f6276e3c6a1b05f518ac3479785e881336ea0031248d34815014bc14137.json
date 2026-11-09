@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Drops the tokens a poll stream of the tenant holds under the given ids,\n-- once its receiver acknowledged them.\nDELETE FROM signal_poll_events\nWHERE tenant_id = $1 AND stream_id = $2 AND jti = ANY($3)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "34fd1f6276e3c6a1b05f518ac3479785e881336ea0031248d34815014bc14137"
+}

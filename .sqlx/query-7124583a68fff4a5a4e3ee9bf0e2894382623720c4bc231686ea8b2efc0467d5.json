@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes one registered domain of one tenant.\nDELETE FROM registered_domains\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "7124583a68fff4a5a4e3ee9bf0e2894382623720c4bc231686ea8b2efc0467d5"
+}

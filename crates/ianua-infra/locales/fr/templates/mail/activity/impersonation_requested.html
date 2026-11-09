@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Un administrateur demande à agir en votre nom{% endblock %}
+{% block preheader %}Connectez-vous pour approuver ou refuser la demande.{% endblock %}
+{% block headline %}Un administrateur demande à agir en votre nom{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("cher utilisateur")) }}
+  {% call c.para() %}<strong>{{ requester_name | default("Un administrateur") }}</strong> de <strong>{{ tenant_name | default("votre organisation") }}</strong> demande à agir en votre nom pour vous aider avec votre compte.{% endcall %}
+  {% if reason is defined %}{% call c.para() %}Motif : {{ reason }}{% endcall %}{% endif %}
+  {% call c.para() %}Connectez-vous à votre compte pour approuver ou refuser. La demande expire dans {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Rien ne se passe sans votre approbation. Si vous ne vous attendiez pas à cette demande, refusez-la et prévenez votre administrateur.{% endcall %}
+{% endblock %}

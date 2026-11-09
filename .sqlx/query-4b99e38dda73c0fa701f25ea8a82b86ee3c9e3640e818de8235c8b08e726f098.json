@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Records a new pass carrying a session to another host. One already\n-- recorded is left as it is, so saving it again never brings back a pass\n-- already taken.\nINSERT INTO session_handoffs\n    (tenant_id, token_hash, browser_hash, session_id, service_id, host, expires_at, consumed_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nON CONFLICT (tenant_id, token_hash) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4b99e38dda73c0fa701f25ea8a82b86ee3c9e3640e818de8235c8b08e726f098"
+}

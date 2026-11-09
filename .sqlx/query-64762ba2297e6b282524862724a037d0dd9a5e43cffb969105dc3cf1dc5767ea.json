@@ -1,0 +1,94 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The mail provider one tenant named, if it named one.\nSELECT kind, smtp_host, smtp_port, smtp_security, smtp_username, ses_region,\n       ses_access_key_id, mailgun_domain, mailgun_region, credential,\n       check_state, checked_at, updated_at\nFROM tenant_mail_providers\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "smtp_host",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "smtp_port",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "smtp_security",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "smtp_username",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "ses_region",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "ses_access_key_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "mailgun_domain",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "mailgun_region",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "credential",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "check_state",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "checked_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 12,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "64762ba2297e6b282524862724a037d0dd9a5e43cffb969105dc3cf1dc5767ea"
+}

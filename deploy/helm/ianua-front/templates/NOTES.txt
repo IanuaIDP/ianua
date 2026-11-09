@@ -1,0 +1,9 @@
+ianua-front deployed as release "{{ .Release.Name }}" in namespace "{{ .Release.Namespace }}".
+
+Get the LoadBalancer address and point the apex (ianua.io) at it:
+
+  kubectl get svc -n {{ .Release.Namespace }} {{ include "ianua-front.fullname" . }} \
+    -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+
+The server-side API base is {{ .Values.apiUrl }} (Next route handlers proxy to it).
+The browser-facing NEXT_PUBLIC_API_URL is baked into the image at build time.

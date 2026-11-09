@@ -1,0 +1,6 @@
+# Only the bug and feature forms; no blank issues.
+blank_issues_enabled: false
+contact_links:
+  - name: Report a vulnerability
+    url: https://ianuaidp.github.io/ianua/security/reporting-a-vulnerability/
+    about: Please report security problems privately, never in a public issue.

@@ -1,0 +1,7 @@
+Hallo{% if user_name is defined and user_name %} {{ user_name | default("") }}{% endif %}!
+
+{% if device_name is defined %}{{ device_name }}{% else %}Ein neues Gerät{% endif %} wurde zu den vertrauenswürdigen Geräten Ihres Kontos bei {{ tenant_name | default("Ihrer Organisation") }} hinzugefügt{% if ip_address is defined %}, von {{ ip_address }} aus{% endif %}. Ein vertrauenswürdiges Gerät kann den zweiten Anmeldeschritt überspringen.
+
+Wenn Sie dieses Gerät nicht kennen, entfernen Sie es in Ihren Kontoeinstellungen und ändern Sie Ihr Passwort.
+
+IANUA

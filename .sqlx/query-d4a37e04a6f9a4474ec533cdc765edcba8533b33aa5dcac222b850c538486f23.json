@@ -1,0 +1,77 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The services of one tenant with the given ids.\nSELECT id, name, upstream, health_check, app_sign_in, accepts_sign_in_of,\n       sign_in_delivery, status, created_at, updated_at\nFROM services\nWHERE tenant_id = $1 AND id = ANY($2)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "upstream",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 3,
+        "name": "health_check",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "app_sign_in",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 5,
+        "name": "accepts_sign_in_of",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "sign_in_delivery",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 7,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "d4a37e04a6f9a4474ec533cdc765edcba8533b33aa5dcac222b850c538486f23"
+}

@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}La copia de sus datos está lista{% endblock %}
+{% block preheader %}Inicie sesión para descargar la copia de sus datos.{% endblock %}
+{% block headline %}La copia de sus datos está lista{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para() %}La copia de sus datos en <strong>{{ tenant_name | default("su organización") }}</strong> que solicitó está lista.{% endcall %}
+  {% call c.para() %}Inicie sesión en su cuenta y abra los ajustes de privacidad para descargarla. Puede hacerlo hasta {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Este correo no contiene un enlace de descarga. Si no solicitó una copia, avise a su administrador.{% endcall %}
+{% endblock %}

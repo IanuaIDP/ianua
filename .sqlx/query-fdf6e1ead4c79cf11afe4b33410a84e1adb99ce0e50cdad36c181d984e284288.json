@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Remembers that a session of a tenant signed in to one of its SAML apps.\n-- The same sign-in kept again is kept once.\nINSERT INTO saml_app_sessions (tenant_id, session_id, provider_id, name_id, session_index)\nVALUES ($1, $2, $3, $4, $5)\nON CONFLICT (tenant_id, session_id, provider_id, session_index) DO UPDATE SET\n    name_id = EXCLUDED.name_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fdf6e1ead4c79cf11afe4b33410a84e1adb99ce0e50cdad36c181d984e284288"
+}

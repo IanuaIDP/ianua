@@ -1,0 +1,48 @@
+{#-
+  The parts every sign-in page is built from, imported as `p`:
+    {% import "sign_in/parts.html" as p %}
+-#}
+
+{#- The notice above the form: `note` is `none` or `{code, tone}`, and
+    `own` holds the texts this page words its own way. -#}
+{% macro note(note, own) -%}
+{%- set texts = {
+  "check_email": "Prüfen Sie Ihr E-Mail-Postfach. Falls sich diese Adresse registrieren kann, ist ein Bestätigungslink unterwegs.",
+  "verified": "Ihre Adresse ist bestätigt. Sie können sich jetzt anmelden.",
+  "password_reset": "Ihr neues Passwort ist festgelegt. Sie können sich jetzt damit anmelden.",
+  "password_change_required": "Ihr Passwort ist richtig, muss aber zuerst geändert werden. Wählen Sie ein neues.",
+  "not_accepted": "Diese E-Mail-Adresse und das Passwort passen nicht zusammen.",
+  "locked": "Zu viele fehlgeschlagene Versuche. Versuchen Sie es später erneut.",
+  "not_verified": "Bestätigen Sie zuerst Ihre E-Mail-Adresse. Den Link finden Sie in Ihrem Posteingang.",
+  "too_many": "Zu viele Versuche von dieser Adresse. Warten Sie eine Minute und versuchen Sie es erneut.",
+  "not_allowed": "Die Anmeldung mit Passwort ist hier deaktiviert.",
+  "invalid": "Prüfen Sie Ihre Eingaben und versuchen Sie es erneut.",
+  "link_expired": "Dieser Link ist abgelaufen.",
+  "code_needed": "Ihr Konto hat einen zweiten Faktor. Geben Sie zusätzlich einen Code aus Ihrer Authenticator-App ein.",
+  "unavailable": "Die Anmeldung ist derzeit nicht verfügbar. Versuchen Sie es in Kürze erneut.",
+  "failed": "Etwas ist schiefgelaufen. Versuchen Sie es erneut."
+} -%}
+{%- if note -%}
+<p class="note{% if note.tone == 'refused' %} refused{% endif %}" role="status">{% if note.code in own %}{{ own[note.code] }}{% else %}{{ texts[note.code] }}{% endif %}</p>
+{%- endif -%}
+{%- endmacro %}
+
+{#- A required input with its label. -#}
+{% macro field(name, label, kind, autocomplete) -%}
+<label for="{{ name }}">{{ label }}</label><input id="{{ name }}" name="{{ name }}" type="{{ kind }}" autocomplete="{{ autocomplete }}" required>
+{%- endmacro %}
+
+{#- Where to go after signing in, carried in the form, or nothing. -#}
+{% macro return_to(path) -%}
+{%- if path -%}<input type="hidden" name="return_to" value="{{ path }}">{%- endif -%}
+{%- endmacro %}
+
+{#- The form's button. -#}
+{% macro submit(text) -%}
+<button type="submit">{{ text }}</button>
+{%- endmacro %}
+
+{#- A line under the form linking to another step. -#}
+{% macro link(text, path, label) -%}
+<p class="footer">{{ text }} <a href="{{ path }}">{{ label }}</a></p>
+{%- endmacro %}

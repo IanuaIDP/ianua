@@ -1,0 +1,7 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+Se ha iniciado sesión por primera vez en su cuenta de {{ tenant_name | default("su organización") }} mediante {{ provider_name | default("un proveedor de inicio de sesión") }}{% if ip_address is defined %}, desde {{ ip_address }}{% endif %}. A partir de ahora, ese proveedor puede permitirle iniciar sesión.
+
+Si no fue usted, avise a su administrador de inmediato.
+
+IANUA

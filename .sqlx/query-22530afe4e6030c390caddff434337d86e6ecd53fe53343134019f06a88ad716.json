@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many principals were given each of the given roles of a tenant\n-- straight. A role nobody holds is left out.\nSELECT role_id, count(*) AS \"count!\"\nFROM role_assignments\nWHERE tenant_id = $1 AND role_id = ANY($2)\nGROUP BY role_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "role_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "22530afe4e6030c390caddff434337d86e6ecd53fe53343134019f06a88ad716"
+}

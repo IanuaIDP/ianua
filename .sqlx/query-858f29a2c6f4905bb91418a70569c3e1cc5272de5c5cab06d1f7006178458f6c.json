@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Replaces every answer the zone one tenant holds for one hostname gives\n-- to one name and type, and moves the zone's serial on, by a second at\n-- least, when that changed what it answers. Answers whether the tenant\n-- holds the zone.\nWITH zone AS (\n    SELECT tenant_id, hostname\n    FROM dns_zones\n    WHERE tenant_id = $1 AND hostname = $2\n), written AS (\n    INSERT INTO dns_records (tenant_id, hostname, name, kind, ttl, record_values)\n    SELECT tenant_id, hostname, $3::text, $4::text, $5::integer, $6::text[]\n    FROM zone\n    ON CONFLICT (hostname, name, kind) DO UPDATE SET\n        ttl = EXCLUDED.ttl,\n        record_values = EXCLUDED.record_values\n    WHERE (dns_records.ttl, dns_records.record_values)\n        IS DISTINCT FROM (EXCLUDED.ttl, EXCLUDED.record_values)\n    RETURNING hostname\n), touched AS (\n    UPDATE dns_zones\n    SET changed_at = greatest(changed_at + interval '1 second', $7::timestamptz)\n    WHERE tenant_id = $1 AND hostname IN (SELECT hostname FROM written)\n    RETURNING hostname\n)\nSELECT EXISTS (SELECT 1 FROM zone) AS \"held!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "held!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Int4",
+        "TextArray",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "858f29a2c6f4905bb91418a70569c3e1cc5272de5c5cab06d1f7006178458f6c"
+}

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Releases the hostname one registration of one tenant claims, and with it\n-- the certificates that serve it.\nDELETE FROM domain_claims\nWHERE tenant_id = $1 AND domain_id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "14177efd41d870f813488c3b39bdbd247217af1809d9f1500a8f3bf975c405c6"
+}

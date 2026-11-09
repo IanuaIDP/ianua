@@ -1,0 +1,131 @@
+[package]
+name = "ianua-server"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "ianua"
+path = "src/main.rs"
+
+[features]
+# The outside services workflow steps may call. Each is a crate of its own
+# under `integrations/`; leaving one out builds the platform without it.
+default = [
+    "github",
+    "slack",
+    "jira",
+    "azure-devops",
+    "mailgun",
+    "twilio",
+    "google-calendar",
+    "google-sheets",
+    "gmail",
+    "gitlab",
+    "linear",
+    "asana",
+    "trello",
+    "clickup",
+    "teams",
+    "discord",
+    "pagerduty",
+    "notion",
+    "airtable",
+    "hubspot",
+    "stripe",
+    "salesforce",
+    "telegram",
+    "postgres",
+    "mysql",
+    "redis",
+    "mongodb",
+]
+github = ["dep:ianua-integration-github"]
+slack = ["dep:ianua-integration-slack"]
+jira = ["dep:ianua-integration-jira"]
+azure-devops = ["dep:ianua-integration-azure-devops"]
+mailgun = ["dep:ianua-integration-mailgun"]
+twilio = ["dep:ianua-integration-twilio"]
+google-calendar = ["dep:ianua-integration-google-calendar"]
+google-sheets = ["dep:ianua-integration-google-sheets"]
+gmail = ["dep:ianua-integration-gmail"]
+gitlab = ["dep:ianua-integration-gitlab"]
+linear = ["dep:ianua-integration-linear"]
+asana = ["dep:ianua-integration-asana"]
+trello = ["dep:ianua-integration-trello"]
+clickup = ["dep:ianua-integration-clickup"]
+teams = ["dep:ianua-integration-teams"]
+discord = ["dep:ianua-integration-discord"]
+pagerduty = ["dep:ianua-integration-pagerduty"]
+notion = ["dep:ianua-integration-notion"]
+airtable = ["dep:ianua-integration-airtable"]
+hubspot = ["dep:ianua-integration-hubspot"]
+stripe = ["dep:ianua-integration-stripe"]
+salesforce = ["dep:ianua-integration-salesforce"]
+telegram = ["dep:ianua-integration-telegram"]
+postgres = ["dep:ianua-integration-postgres"]
+mysql = ["dep:ianua-integration-mysql"]
+redis = ["dep:ianua-integration-redis"]
+mongodb = ["dep:ianua-integration-mongodb"]
+
+[lints]
+workspace = true
+
+[dependencies]
+ianua-domain = { workspace = true }
+ianua-app = { workspace = true }
+ianua-api = { workspace = true }
+ianua-assembly = { workspace = true }
+ianua-infra = { workspace = true }
+ianua-boot = { workspace = true }
+ianua-grpc = { workspace = true }
+ianua-ldap = { workspace = true }
+ianua-integration = { workspace = true }
+ianua-integration-github = { workspace = true, optional = true }
+ianua-integration-slack = { workspace = true, optional = true }
+ianua-integration-jira = { workspace = true, optional = true }
+ianua-integration-azure-devops = { workspace = true, optional = true }
+ianua-integration-mailgun = { workspace = true, optional = true }
+ianua-integration-twilio = { workspace = true, optional = true }
+ianua-integration-google-calendar = { workspace = true, optional = true }
+ianua-integration-google-sheets = { workspace = true, optional = true }
+ianua-integration-gmail = { workspace = true, optional = true }
+ianua-integration-gitlab = { workspace = true, optional = true }
+ianua-integration-linear = { workspace = true, optional = true }
+ianua-integration-asana = { workspace = true, optional = true }
+ianua-integration-trello = { workspace = true, optional = true }
+ianua-integration-clickup = { workspace = true, optional = true }
+ianua-integration-teams = { workspace = true, optional = true }
+ianua-integration-discord = { workspace = true, optional = true }
+ianua-integration-pagerduty = { workspace = true, optional = true }
+ianua-integration-notion = { workspace = true, optional = true }
+ianua-integration-airtable = { workspace = true, optional = true }
+ianua-integration-hubspot = { workspace = true, optional = true }
+ianua-integration-stripe = { workspace = true, optional = true }
+ianua-integration-salesforce = { workspace = true, optional = true }
+ianua-integration-telegram = { workspace = true, optional = true }
+ianua-integration-postgres = { workspace = true, optional = true }
+ianua-integration-mysql = { workspace = true, optional = true }
+ianua-integration-redis = { workspace = true, optional = true }
+ianua-integration-mongodb = { workspace = true, optional = true }
+async-trait = { workspace = true }
+axum = { workspace = true }
+prometheus = { workspace = true }
+sqlx = { workspace = true }
+thiserror = { workspace = true }
+time = { workspace = true }
+tokio = { workspace = true }
+tokio-rustls = { workspace = true, features = ["ring"] }
+tracing = { workspace = true }
+url = { workspace = true }
+ianua-workspace-hack = { version = "0.1", path = "../ianua-workspace-hack" }
+
+[dev-dependencies]
+ianua-api = { workspace = true, features = ["test-support"] }
+ianua-assembly = { workspace = true, features = ["test-support"] }
+ianua-app = { workspace = true, features = ["test-support"] }
+ianua-infra = { workspace = true, features = ["test-support"] }
+serde_json = { workspace = true }
+tempfile = { workspace = true }
+wiremock = { workspace = true }

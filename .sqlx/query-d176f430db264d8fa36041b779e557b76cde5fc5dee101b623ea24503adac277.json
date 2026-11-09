@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Whether a clone is filling the tenant now.\nSELECT EXISTS (\n    SELECT 1 FROM tenant_clones WHERE tenant_id = $1 AND state = 'copying'\n) AS \"copying!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "copying!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "d176f430db264d8fa36041b779e557b76cde5fc5dee101b623ea24503adac277"
+}

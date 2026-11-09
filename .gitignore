@@ -1,0 +1,68 @@
+# Rust build artifacts
+/target/
+**/*.rs.bk
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# A contributor's own assistant rules for this checkout
+CLAUDE.local.md
+
+# Environment
+.env
+.env.*
+!.env.example
+!.env.docker
+
+# Per-host nameserver overrides, for a host deliberately configured differently.
+# The shared `dns.env` is committed — it holds no keys, and a config CI cannot
+# read is a deploy that fails in CI and nowhere else.
+deploy/nameserver/dns.env.*
+!deploy/nameserver/dns.env.example
+
+# Key material never belongs in the tree. `grpc_pki_init` writes outside it by
+# default; this catches a run that was pointed here by mistake.
+*.pem
+
+# Docs site
+docs/node_modules/
+docs/dist/
+docs/.astro/
+
+# Coverage
+*.profraw
+lcov.info
+tarpaulin-report.html
+
+# Mutation testing scratch, under whatever name a run was given
+/mutants.out*/
+
+# Fuzzing: the corpus and the crashes it finds are build output, not source.
+# A crash worth keeping becomes a regression test in the crate it belongs to.
+# The targets and the hand-written seeds under /fuzz/seeds/ are tracked.
+/fuzz/target/
+/fuzz/corpus/
+/fuzz/artifacts/
+/fuzz/coverage/
+# Its own workspace, and a dev tool rather than something we ship: pinning it
+# buys little and the checksums read as secrets to the pre-commit scanner.
+/fuzz/Cargo.lock
+
+# Dashboard (Next.js, in dashboard/)
+dashboard/node_modules/
+dashboard/.next/
+dashboard/out/
+dashboard/build/
+dashboard/dist/
+dashboard/tsconfig.tsbuildinfo
+dashboard/.next-dev.*.log
+!dashboard/.env.local.example
+npm-debug.log*

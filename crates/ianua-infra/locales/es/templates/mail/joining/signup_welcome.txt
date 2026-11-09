@@ -1,0 +1,6 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+Se ha creado {{ organization_name | default("su organización") }} y su cuenta está lista para usar. Inicie sesión aquí:
+{{ action_url }}
+
+IANUA

@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many notifications of a member's inbox are not yet read.\nSELECT count(*) AS \"count!\"\nFROM org_notifications\nWHERE organization_id = $1 AND org_user_id = $2 AND NOT read\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "a715e4d71293403afe65b522b45bf4a88ff23e59c56685af8d4bf7b348988db2"
+}

@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Новий пристрій додано до довірених{% endblock %}
+{% block preheader %}Пристрій додано до довірених пристроїв вашого облікового запису.{% endblock %}
+{% block headline %}Новий пристрій додано до довірених{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("користувачу")) }}
+  {% call c.para() %}{% if device_name is defined %}<strong>{{ device_name }}</strong>{% else %}Новий пристрій{% endif %} додано до довірених пристроїв вашого облікового запису в <strong>{{ tenant_name | default("вашій організації") }}</strong>{% if ip_address is defined %} з адреси {{ ip_address }}{% endif %}. Довірений пристрій може пропускати другий крок входу.{% endcall %}
+  {% call c.para(pad=32) %}Якщо ви не впізнаєте цей пристрій, видаліть його в налаштуваннях облікового запису та змініть пароль.{% endcall %}
+{% endblock %}

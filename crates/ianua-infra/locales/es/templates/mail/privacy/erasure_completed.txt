@@ -1,0 +1,5 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+Sus datos en {{ tenant_name | default("su organización") }} se han eliminado definitivamente, tal como solicitó. Esta acción no se puede deshacer.
+
+IANUA

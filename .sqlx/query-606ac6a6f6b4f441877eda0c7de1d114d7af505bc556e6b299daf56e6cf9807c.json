@@ -1,0 +1,43 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Adds a version just saved. A sandbox's number is taken once, so a second\n-- save made from the same read is refused by its constraint.\nINSERT INTO sandbox_versions\n    (id, tenant_id, sandbox_id, number, program, runtime, image, code, packages, image_bytes,\n     run_seconds, memory_mib, build, bundle_digest, bundle_bytes, unlisted, failure,\n     failure_detail, scan_high, scan_medium, scan_low, saved_by, created_at, updated_at,\n     allowed_hosts, source_integration, source_repository, source_path, source_commit,\n     held_agent)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19,\n    $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Int4",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Jsonb",
+        "Int8",
+        "Int4",
+        "Int4",
+        "Text",
+        "Text",
+        "Int8",
+        "TextArray",
+        "Text",
+        "Text",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Jsonb",
+        "Timestamptz",
+        "Timestamptz",
+        "TextArray",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Jsonb"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "606ac6a6f6b4f441877eda0c7de1d114d7af505bc556e6b299daf56e6cf9807c"
+}

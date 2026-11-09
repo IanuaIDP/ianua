@@ -1,0 +1,88 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every break-glass grant of a tenant, oldest first.\nSELECT id, user_id, grantee_person, system_permissions, custom_permissions, reason,\n       approver_kind, approver_id, approver_person, expires_at, revoked_at, created_at\nFROM break_glass_grants\nWHERE tenant_id = $1\nORDER BY created_at, id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "grantee_person",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "system_permissions",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 4,
+        "name": "custom_permissions",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 5,
+        "name": "reason",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "approver_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "approver_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "approver_person",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "revoked_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 11,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "e07c8bc4958b213baa7dc255f201cdb53d8703f9e19a66d5bb8579298df620e4"
+}

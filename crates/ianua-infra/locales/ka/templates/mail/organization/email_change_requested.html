@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}მოთხოვნილია თქვენი ანგარიშის მისამართის შეცვლა{% endblock %}
+{% block preheader %}მოთხოვნილია თქვენი ანგარიშის სხვა მისამართზე გადატანა.{% endblock %}
+{% block headline %}მოთხოვნილია თქვენი ანგარიშის მისამართის შეცვლა{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para() %}მოთხოვნილია თქვენი ანგარიშის მისამართის შეცვლა <strong>{{ organization_name | default("თქვენი ორგანიზაცია") }}</strong>-ში, ახალ მისამართზე <strong>{{ user_email }}</strong>{% if ip_address is defined %}, წყაროდან {{ ip_address }}{% endif %}.{% endcall %}
+  {% call c.para(pad=8) %}თუ ეს თქვენ არ ყოფილხართ, ახლავე გააუქმეთ ცვლილება. თქვენი ანგარიში ამ მისამართზე დარჩება.{% endcall %}
+  {{ c.cta(action_url, "ცვლილების გაუქმება") }}
+  {% call c.para(pad=0) %}ცვლილების გაუქმება შეგიძლიათ {{ expires_at }}-ის განმავლობაში.{% endcall %}
+  {% call c.para(pad=32) %}თუ ეს თავად მოითხოვეთ, არაფრის გაკეთება არ გჭირდებათ.{% endcall %}
+{% endblock %}

@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Adds the new steps of a run of a tenant in one statement. A step is\n-- never changed once it is kept, so one already stored stays as it is.\nINSERT INTO agent_run_steps (tenant_id, run_id, seq, step)\nSELECT $1, $2, kept.seq, kept.step\nFROM UNNEST($3::integer[], $4::jsonb[]) AS kept (seq, step)\nON CONFLICT (tenant_id, run_id, seq) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int4Array",
+        "JsonbArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c2490385a2c7ea629acffb04ce0bfd22ecf7612bd059f1a481aa8461c44024c7"
+}

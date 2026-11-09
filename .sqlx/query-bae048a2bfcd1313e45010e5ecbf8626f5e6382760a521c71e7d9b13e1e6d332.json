@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Whether a tenant lives in a schema of its own, read by the trail before\n-- it adds a record to the platform's tables.\nSELECT EXISTS (SELECT 1 FROM tenant_databases WHERE tenant_id = $1) AS \"held!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "held!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "bae048a2bfcd1313e45010e5ecbf8626f5e6382760a521c71e7d9b13e1e6d332"
+}

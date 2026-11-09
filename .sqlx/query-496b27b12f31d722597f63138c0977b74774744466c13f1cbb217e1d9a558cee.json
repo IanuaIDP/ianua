@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many agent tools a tenant registered against its plan, disabled ones\n-- too.\nSELECT count(*) AS \"count!\"\nFROM agent_tools\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "496b27b12f31d722597f63138c0977b74774744466c13f1cbb217e1d9a558cee"
+}

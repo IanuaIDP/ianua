@@ -1,0 +1,102 @@
+---
+title: Dashboard shell
+description: The layout, sidebar, shared tables and dialogs, and the organization screens.
+sidebar:
+  order: 3
+---
+
+This page covers everything in `src/components/dashboard` that is not inside one tenant: the layout and sidebar, the shared tables and dialogs, the organization's overview, Team, Tenants, and notifications.
+
+## Layout and navigation
+
+These are the files directly in `src/components/dashboard`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `DashboardLayout` | `dashboard-layout.tsx` | Wraps every page behind sign-in. It sends a signed-out visitor to the right sign-in page, opens the notification WebSocket, and draws the main `Sidebar`. In a tenant user's view, the sidebar only lists sections they may see. It blocks pages too: a Member with no role in a tenant sees "No access to this tenant", and anyone whose roles do not cover a section sees "You don't have access to this page". When a Member opens a tenant, it reads their access again. |
+| `Sidebar` | `sidebar.tsx` | The sidebar on the left: logo, a button to fold it, the current organization or tenant, the navigation, Settings, Notifications, the Help Center and the signed-in person. Folded, it shows only icons. On pages with their own section sidebar it stays folded (`locked`). |
+| `SidebarNav` | `sidebar-nav.tsx` | Draws the navigation. Items next to each other with the same `group` go into a section that opens and closes, such as Infrastructure or Agents. |
+| `SidebarSettings` | `sidebar-settings.tsx` | The Settings link, marked when open. |
+| `SidebarNotifications` | `sidebar-notifications.tsx` | The Notifications link with the count of unread ones, for the organization or the tenant. React Query checks it every so often. |
+| `SidebarHelpCenter` | `sidebar-help-center.tsx` | The Help Center link, which opens in a new tab. |
+| `SidebarUserProfile` | `sidebar-user-profile.tsx` | The signed-in person's initials, name and email, with sign out. Folded, it opens as a small menu. |
+| `DashboardPageHeader` | `dashboard-page-header.tsx` | The page header with its breadcrumb `trail`. Each step can have an icon, a badge, a link or a click handler. |
+| `LocaleSync` | `locale-sync.tsx` | Once per session, reads the language the signed-in person saved (`GET .../me`). If the dashboard has it and the cookie says something else, it switches. Someone with no saved language keeps the cookie's. It draws nothing. |
+| `OrganizationNotificationWebSocket` | `organization-notification-websocket.tsx` | Opens the organization's notification WebSocket, shows a toast for each new notification and refreshes the counts. If the socket drops, it reconnects, waiting longer each time (`REALTIME_NOTIFICATION_RECONNECT_DELAYS`). It draws nothing. |
+| `TenantNotificationWebSocket` | `tenant-notification-websocket.tsx` | The same, for a tenant session. |
+
+## Shared building blocks
+
+These are in `src/components/dashboard/shared`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `DashboardDataCard` | `dashboard-data-card.tsx` | The card around a table: title, description, main and second buttons (with a tooltip when turned off) or its own `secondaryAction`, an error message, body and footer. |
+| `DashboardTableShell` | `dashboard-table-shell.tsx` | Holds a table that scrolls, with a header that stays in place, an actions column pinned to the right (`hasActionsColumn`), and loading and empty states. |
+| `DashboardTableActionsCell` | `dashboard-table-actions-cell.tsx` | The cell with a row's actions, pinned to the right, so its menu stays in view when a wide table scrolls sideways. Its row needs the `group` class for the hover colour. A click inside it does not reach a clickable row, unless `stopRowClick={false}`. |
+| `DashboardSortableHeaderCell` | `dashboard-sortable-header-cell.tsx` | A header cell that switches the sort and shows the arrow. |
+| `DashboardPagination` | `dashboard-pagination.tsx` | Moves between pages and picks the rows per page. Next needs a `nextCursor`, previous goes back through the kept cursors, and the range shows no total because the API sends none. |
+| `DashboardTabs` | `dashboard-tabs.tsx` | Tabs that filter one list, such as by status. |
+| `DashboardStatusBadge` | `dashboard-status-badge.tsx` | A coloured badge for a status such as Active, Suspended or Invited. The text comes from `dashboard.status`. |
+| `DashboardActionsMenu` | `dashboard-actions-menu.tsx` | A row's menu of actions. An action runs at once, or first asks to confirm, sometimes by typing a name. Then it runs and shows a toast for success or failure. Actions have English ids, and their text comes from `dashboard.actions.labels` unless `actionLabels` is given. |
+| `DashboardPageContent` | `dashboard-page-content.tsx` | The padded wrapper around a page's content. |
+| `SectionSidebar` | `section-sidebar.tsx` | The second sidebar inside a tenant, an agent, crypto or settings: a back link and items in groups that open and close. Each sidebar remembers its open group in `section-sidebar-store`. |
+| `ActionConfirmModal` | `action-confirm-modal.tsx` | A confirm dialog, which can ask to type a name. The sentence is `ConfirmationLabel` in `utils/confirmation-label.tsx`. |
+| `DeleteEntityModal` | `delete-entity-modal.tsx` | "Delete X": lists what will be removed and asks to type the name. |
+| `SuspendEntityModal` | `suspend-entity-modal.tsx` | The same, for suspending an organization or a tenant. |
+| `UnsavedChangesModal` | `unsaved-changes-modal.tsx` | Asks before leaving a create or edit page with unsaved changes, with `useUnsavedChangesGuard`. |
+| `MemberCreatedModal` | `member-created-modal.tsx` | Shown after creating a member or user with a password. It shows the details to hand over, with copy buttons, and the sign-in address. |
+| `ResetMemberPasswordModal` | `reset-member-password-modal.tsx` | An admin resets a member's or tenant user's password, typed or generated to meet the rules. |
+| `createMemberActionModalContent` | `member-action-modal-content.ts` | Writes the confirm text of member actions (lock, restore, revoke, delete and more) from the `dashboard.memberActions` messages. It takes the translator and `'teamMember'` or `'user'`. |
+| `PermissionScopePicker` | `permission-scope-picker.tsx` | Checkboxes in groups for picking permissions, for roles and API keys. Each group can pick all, and it has locked and loading states. |
+| `VerificationCodeInput` | `verification-code-input.tsx` | One box per digit of a one-time code (`length`, six by default). Typing moves to the next box. |
+| `DragInsertionLine` | `drag-insertion-line.tsx` | The line showing where a dragged item will land (with `useDragReorder`). |
+| `DragPreviewCard` | `drag-preview-card.tsx` | The picture of the item being dragged. |
+
+## Organization overview
+
+These are in `src/components/dashboard/overview`. `/overview` and a tenant's overview both use them.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `OverviewSummaryCard` | `overview-summary-card.tsx` | A small card with a title, for the summary row. |
+| `MetricCard` | `metric-card.tsx` | A card listing several `MetricItem`. |
+| `MetricItem` | `metric-item.tsx` | One number: label, value and a change badge. |
+| `ChangeBadge` | `change-badge.tsx` | A percentage up or down, coloured by whether that is good. |
+| `MiniLineChart` | `mini-line-chart.tsx` | A tiny line chart inside the text. |
+| `ProgressRing` | `progress-ring.tsx` | A ring that fills up, for the health score. |
+| `ActivityCalendarCard` | `activity-calendar-card.tsx` | A calendar coloured by how much happened each day, with a filter by category. |
+| `RecentActivityCard` | `recent-activity-card.tsx` | The latest audit records, with who did them and a link to the whole audit log. |
+
+## Team
+
+These are in `src/components/dashboard/team`. `/team` uses them: the organization's members, the people who run ianua.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `TeamCard` | `team-card.tsx` | The Team page: status tabs, search, the table, pages, and Add Member for Owners and Admins. |
+| `TeamTable` | `team-table.tsx` | The members, with sortable columns and a picker of the roles the signed-in person may give. A row whose role they may not touch is read-only. |
+| `TeamActionsMenu` | `team-actions-menu.tsx` | The actions that fit a member's status: Lock, Restore Access, Reset Password, Revoke or Resend Invitation, Delete Forever, and Tenant Access for Members. Actions that would lock Ann out of her own account are hidden from her. |
+| `AddTeamMemberModal` | `add-team-member-modal.tsx` | Adds a member by invitation, or by creating the account with a typed or generated password and optional verification, with the organization role. |
+| `MemberTenantAccessModal` | `member-tenant-access-modal.tsx` | Picks the roles a Member holds in each tenant. A tenant with none means no access. It saves only the tenants that changed. |
+
+## Tenant list
+
+These are in `src/components/dashboard/tenants`, used by `/tenants`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `TenantsCard` | `tenants-card.tsx` | The Tenants page: status tabs, the table, pages, and Create tenant. |
+| `TenantsTable` | `tenants-table.tsx` | The tenants, sortable by name, slug, status and creation. |
+| `TenantActionsMenu` | `tenant-actions-menu.tsx` | The actions that fit a tenant's status: Suspend, Restore Access, Archive, Delete forever. |
+| `CreateTenantModal` | `create-tenant-modal.tsx` | Creates a tenant: name, slug (made from the name), domain, contact email, time zone, language and where its data lives. |
+| `TenantResidencyFields` | `tenant-residency-fields.tsx` | "Where the data lives": this installation, a connected cloud account (provider, region, network), or a database that already exists. |
+
+## Notifications
+
+These are in `src/components/notifications`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `NotificationStack` | `notification-stack.tsx` | Draws the toasts for `NotificationProvider`. The newest is on top, older ones fold into a "+N" count, and one or all can be closed. |
+| `hasRichNotificationContent` | `notification-content.ts` | Tells whether a toast has a title or body beyond a plain message. |

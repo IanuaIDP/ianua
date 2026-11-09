@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes a group of a tenant, with the roles it carries and its members.\n-- One with groups under it is kept by its foreign key.\nDELETE FROM groups\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6d003e15a5940bdc2d6b32dc56ec12b0a8425e9a505395d5e0749f72b1316c49"
+}

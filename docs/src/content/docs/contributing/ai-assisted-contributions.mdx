@@ -1,0 +1,71 @@
+---
+title: Using AI in your contributions
+description: Where AI tools are welcome in a contribution to ianua, where they need extra care, where they are not allowed, and why every line is checked by a person before it is merged.
+sidebar:
+  order: 2
+---
+
+You may use AI tools when you contribute to ianua. Many of us do. But ianua decides who gets into other people's apps, so a mistake here is not just a bug: it can let the wrong person in. This page says where AI help is welcome, where it needs extra care, where it is not allowed, and why.
+
+The short version: **you are responsible for every line you send, whoever or whatever wrote it, and nothing is merged until a person has checked it.**
+
+## Why we are careful
+
+AI tools write code that looks right, compiles and passes the tests, but is wrong in a way that only shows when someone attacks it. Some real examples of the kind of mistake we see:
+
+- **A check that fails open.** Sam asks an assistant to "handle the case where the policy store is down". It returns `allow` so traffic keeps flowing. Every request is now let through whenever the store is slow.
+- **A missing tenant.** A new list query forgets to say which tenant it is for. The tests pass, because the test database holds one tenant. In production it shows one customer's users to another.
+- **A token trusted too much.** A helper reads the algorithm from the token's own header. Anyone can now send a token that says it needs no signature.
+- **A package that does not exist.** The assistant imports a library with a plausible name. Someone has registered that name with malware in it.
+
+None of these is caught by "it compiles and the tests pass". They are caught by a person who understands the change and reads it with an attacker in mind.
+
+## Where AI help is welcome
+
+Use AI freely for these, as long as you read and understand the result:
+
+- **Docs and comments**: fixing wording, typos, examples.
+- **Tests**: writing more cases, as long as each test checks what the code should do, not just what it happens to do now.
+- **Code that follows an existing pattern**: a new fake store shaped like the others, a DTO, a new use case copied from a finished one.
+- **Refactors that change no behaviour**, where the existing tests prove nothing changed.
+- **Understanding the code**: asking what a module does, or where something happens.
+- **Finding bugs**, as long as you check the bug is real before you report it.
+
+## Where it needs extra care
+
+These parts of ianua decide who gets in and what they can see. AI may help here, but a change only goes in when:
+
+- you can explain every line of it in your own words,
+- it comes with tests, including tests where the request is refused,
+- a maintainer who knows that part of the code has reviewed it.
+
+The parts are:
+
+- **Signing in**: passwords, second factors, passkeys, sessions, federation.
+- **Permissions**: roles, policies, the gateway's Identity and Policy stages.
+- **Tokens and keys**: issuing, checking, signing, rotating.
+- **Keeping tenants apart**: tenant scoping in the code and row-level security in the database.
+- **The gateway's handling of headers and identity**: what it removes, what it adds and signs.
+- **The audit log**.
+- **Database migrations** that touch any of the above.
+
+## Where AI is not allowed
+
+- **Writing cryptography.** No new algorithms, no hand-made constant-time comparisons, no home-grown encryption. We use well-known, reviewed libraries.
+- **Pasting what is not yours to share.** Never put secrets, keys, real user data, customer configuration or unpublished vulnerability reports into an AI tool.
+- **Weakening a check to make it pass.** Do not let an assistant "fix" a failing security test, convention check or lint by deleting it, loosening it or switching it off.
+- **Sending code you do not understand.** If you can't explain why a change is safe, don't send it. A pull request whose author can't answer questions about it will be closed.
+- **Unattended agents.** An AI agent may not open pull requests or push on its own. A person owns every pull request and answers for it.
+- **Unchecked security reports.** A report written by an AI tool with no proof that the problem can actually happen wastes the time of the people fixing real ones. See [Reporting a vulnerability](/ianua/security/reporting-a-vulnerability/).
+
+## What every change goes through
+
+Nothing is merged on a green check alone. Every pull request, with or without AI, goes through:
+
+1. **The automatic checks.** The build with every warning as an error, formatting, the full test suite, and the convention checks, run with `ianua-audit check`. They read the source itself and fail on things such as a proof of who someone is made outside the code allowed to make it, or a permission checked by hand.
+2. **A person's review.** A maintainer reads the change. For the parts listed under "Where it needs extra care", that is a maintainer who knows that part, and they look for refused cases as much as allowed ones.
+3. **Your answers.** The reviewer may ask you why a line is safe. "The AI wrote it" is not an answer; "it refuses because the token's audience is checked here" is.
+
+## Say what the AI did
+
+In your pull request, say whether you used AI and for what, for example "tests written with an assistant, then checked by hand", or "none". The pull request template asks for this. It doesn't change whether your work is welcome. It tells the reviewer where to look hardest.

@@ -1,0 +1,10 @@
+Hi {{ user_name | default("there") }},
+
+Someone asked to move your IANUA account to {{ user_email }}. To finish the change, verify this address:
+{{ action_url }}
+
+This link expires in {{ expires_at }}.
+
+If you did not ask for this, you can ignore this email.
+
+IANUA

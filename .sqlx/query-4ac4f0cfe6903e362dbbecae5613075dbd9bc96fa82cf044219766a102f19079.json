@@ -1,0 +1,71 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The signal deliveries of a tenant with the given ids.\nSELECT id, stream_id, signal_id, signal_type, status, response_code, duration_ms,\n       attempt_number, attempted_at\nFROM signal_deliveries\nWHERE tenant_id = $1 AND id = ANY($2)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "stream_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "signal_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "signal_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "response_code",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 6,
+        "name": "duration_ms",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "attempt_number",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 8,
+        "name": "attempted_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "4ac4f0cfe6903e362dbbecae5613075dbd9bc96fa82cf044219766a102f19079"
+}

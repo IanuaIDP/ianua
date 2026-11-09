@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- When the set of recovery codes a user of a tenant holds was made, if\n-- they hold one.\nSELECT user_id, generated_at\nFROM recovery_code_sets\nWHERE tenant_id = $1 AND user_id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "generated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "5044799ee70f6403f2e8ee58e11012de92206ac2dad4a399159133bc6038da1e"
+}

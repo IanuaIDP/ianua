@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Confirmez votre nouvelle adresse e-mail{% endblock %}
+{% block preheader %}Confirmez votre nouvelle adresse pour terminer le changement.{% endblock %}
+{% block headline %}Confirmez votre nouvelle adresse e-mail{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("cher utilisateur")) }}
+  {% call c.para() %}Une demande de changement de l’adresse de votre compte {{ c.brand() }} vers <strong>{{ user_email }}</strong> a été faite.{% endcall %}
+  {% call c.para(pad=8) %}Pour terminer le changement, confirmez cette adresse.{% endcall %}
+  {{ c.cta(action_url, "Confirmer la nouvelle adresse") }}
+  {% call c.para(pad=0) %}Ce lien expire dans {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Si vous n’avez pas fait cette demande, vous pouvez ignorer cet e-mail.{% endcall %}
+{% endblock %}

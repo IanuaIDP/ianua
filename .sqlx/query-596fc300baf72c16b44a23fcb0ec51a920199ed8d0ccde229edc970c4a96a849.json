@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a stream route: a new one is added, a known one of the same tenant\n-- takes the new values. Its tenant and creation time never change.\nINSERT INTO stream_routes\n    (id, tenant_id, name, protocol, listen_port, sni, policy, access, backends,\n     connect_timeout_secs, idle_timeout_secs, status, workflow_use, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)\nON CONFLICT (id) DO UPDATE SET\n    name = EXCLUDED.name,\n    protocol = EXCLUDED.protocol,\n    listen_port = EXCLUDED.listen_port,\n    sni = EXCLUDED.sni,\n    policy = EXCLUDED.policy,\n    access = EXCLUDED.access,\n    backends = EXCLUDED.backends,\n    connect_timeout_secs = EXCLUDED.connect_timeout_secs,\n    idle_timeout_secs = EXCLUDED.idle_timeout_secs,\n    status = EXCLUDED.status,\n    workflow_use = EXCLUDED.workflow_use,\n    updated_at = EXCLUDED.updated_at\nWHERE stream_routes.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Int4",
+        "TextArray",
+        "Text",
+        "Jsonb",
+        "Jsonb",
+        "Int4",
+        "Int4",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "596fc300baf72c16b44a23fcb0ec51a920199ed8d0ccde229edc970c4a96a849"
+}

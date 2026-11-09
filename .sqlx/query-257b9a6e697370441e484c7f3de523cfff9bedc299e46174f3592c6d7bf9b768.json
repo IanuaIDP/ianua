@@ -1,0 +1,50 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every tenant not deleted, with its organization's slug, for the gateway,\n-- which serves each of them that is open to requests.\nSELECT t.id, t.slug, t.status, t.platform_label, t.readable_address, o.slug AS organization_slug\nFROM tenants t\nJOIN organizations o ON o.id = t.organization_id\nWHERE t.status <> 'deleted'\nORDER BY t.id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "slug",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "platform_label",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "readable_address",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "organization_slug",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "257b9a6e697370441e484c7f3de523cfff9bedc299e46174f3592c6d7bf9b768"
+}

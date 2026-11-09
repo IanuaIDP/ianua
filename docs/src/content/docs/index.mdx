@@ -1,0 +1,32 @@
+---
+title: Ianua
+description: An access control plane with governed automation, for people and AI agents.
+template: splash
+hero:
+  tagline: Sign people in, put every app behind a gateway that checks each request, and give AI agents only the access a person handed them.
+  actions:
+    - text: Get started
+      link: /ianua/start/introduction/
+      icon: right-arrow
+    - text: View on GitHub
+      link: https://github.com/IanuaIDP/ianua
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<CardGrid stagger>
+	<Card title="Identity provider" icon="seti:lock">
+		Organizations, tenants, users, passwords, MFA, passkeys, sign-in through OIDC or SAML, and an LDAP directory for older tools.
+	</Card>
+	<Card title="Zero-trust gateway" icon="seti:shell">
+		Every request to a protected app is authenticated and checked against policy. Anything unclear is denied.
+	</Card>
+	<Card title="AI agents" icon="rocket">
+		Agents act on a person's behalf with narrowed, revocable authority, and can be stopped mid-run.
+	</Card>
+	<Card title="Self-host or cloud" icon="setting">
+		Two Helm commands install the whole platform, dashboard included, on your own Kubernetes cluster.
+	</Card>
+</CardGrid>

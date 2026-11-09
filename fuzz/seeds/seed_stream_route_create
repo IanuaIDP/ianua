@@ -1,0 +1,5 @@
+POST /api/v1/organizations/acme/tenants/acme-tenant/stream-routes
+content-type: application/json
+authorization: Bearer token
+
+{"name":"postgres","protocol":"tcp","listen_port":15432,"policy":"public","backends":[{"host":"db.internal","port":5432}]}

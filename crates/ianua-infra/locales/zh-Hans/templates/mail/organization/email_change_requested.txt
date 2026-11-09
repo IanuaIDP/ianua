@@ -1,0 +1,12 @@
+您好，{{ user_name | default("用户") }}：
+
+有人申请将您在 {{ organization_name | default("您的组织") }} 的账户邮箱更改为 {{ user_email }}{% if ip_address is defined %}，来源地址为 {{ ip_address }}{% endif %}。
+
+如果不是您本人操作，请立即取消更改。您的账户将保留当前邮箱地址：
+{{ action_url }}
+
+您可在 {{ expires_at }} 内取消更改。
+
+如果是您本人提出的申请，则无需任何操作。
+
+IANUA

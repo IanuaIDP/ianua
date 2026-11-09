@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Votre compte a été verrouillé{% endblock %}
+{% block preheader %}Votre compte a été verrouillé après des tentatives de connexion échouées.{% endblock %}
+{% block headline %}Votre compte a été verrouillé{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("cher utilisateur")) }}
+  {% call c.para() %}Votre compte dans <strong>{{ tenant_name | default("votre organisation") }}</strong> a été verrouillé après un trop grand nombre de tentatives de connexion échouées{% if ip_address is defined %} depuis <strong>{{ ip_address }}</strong>{% endif %}.{% endcall %}
+  {% call c.para(pad=32) %}Si c’était vous, attendez la fin du verrouillage avant de réessayer, ou demandez à votre administrateur de le lever plus tôt. Sinon, changez votre mot de passe dès que vous pourrez vous connecter.{% endcall %}
+{% endblock %}

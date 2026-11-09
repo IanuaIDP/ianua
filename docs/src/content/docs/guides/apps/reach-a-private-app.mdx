@@ -1,0 +1,105 @@
+---
+title: Reach a private app through a connector
+description: Put an app that has no public address behind the gateway by running a connector inside its network, with no inbound port opened.
+sidebar:
+  order: 2
+---
+
+Acme's wiki runs at `10.0.0.5:80` inside the office network. In this guide Ann, an admin of Acme's `main` tenant, puts it behind the gateway at `wiki.acme.example` without opening any port into the office. [Connectors](/ianua/concepts/connectors/) explains how it works.
+
+## What you need first
+
+- The operator has set up the connector authority (see [Set up the connector authority](#set-up-the-connector-authority) below). Without it, a connector cannot enroll.
+- A machine inside the network that can reach the app and can dial out to the gateway's connector address, for example `connect.ianua.example:8444`.
+- The right to add routing in the tenant.
+
+The steps use the API, with `T` and `auth` set as in the [API quickstart](/ianua/start/quickstart-api/).
+
+## 1. Create the connector
+
+Name it, and give it a **scope**: the networks and domains it may ever be asked to dial.
+
+```sh
+curl "${auth[@]}" -X POST $T/connectors -d '{
+  "name": "office",
+  "scope": {"networks": ["10.0.0.0/24"]}
+}'
+```
+
+The answer holds the connector's `id` and its `enrollment_code`. The code is shown this once, and it is good for one hour. Keep it for the next step.
+
+## 2. Start the connector
+
+On the machine inside the network, run the connector with the code and the list of targets it may dial. The allow list is the connector's own: it dials nothing else, whatever ianua asks.
+
+```sh
+docker run -d --name ianua-connector \
+  -v ianua-connector:/var/lib/ianua-connector \
+  -e CONNECTOR_API_URL=https://api.ianua.example \
+  -e CONNECTOR_TENANT=acme/main \
+  -e CONNECTOR_GATEWAY_ADDRESS=connect.ianua.example:8444 \
+  -e CONNECTOR_ENROLLMENT_CODE=<the code from step 1> \
+  -e CONNECTOR_ALLOWED_TARGETS=10.0.0.5:80 \
+  ianua-connector
+```
+
+On first start the connector makes its key, enrolls with the code, and saves its certificate in `/var/lib/ianua-connector`. From then on it renews the certificate by itself, and the code is no longer needed. Keep that folder: if it is lost, create a new connector.
+
+Check that it enrolled:
+
+```sh
+curl "${auth[@]}" $T/connectors/<id>
+```
+
+`enrollment.state` is `enrolled`, and `last_seen_at` shows when the gateway last saw its link.
+
+[The connector's README](https://github.com/IanuaIDP/ianua/blob/main/deploy/connector/README.md) lists every setting, and how to run it as a systemd service instead.
+
+## 3. Point a service at it
+
+Create the service with its upstream reached through the connector. Every address of the service must sit inside the connector's scope.
+
+```sh
+SERVICE=$(curl "${auth[@]}" -X POST $T/services -d '{
+  "name": "wiki",
+  "upstream": {
+    "url": "http://10.0.0.5:80",
+    "timeout_secs": 30,
+    "preserve_host": false,
+    "expected_audience": {"pinned": "wiki"},
+    "identity": "token",
+    "reach": {"connector": "<id>"}
+  }
+}' | jq -r .id)
+```
+
+Then add a route for it as for any other app, on a domain of the tenant. The pipeline, the sign-in rules and the signed assertion of who is calling all work the same as for an app the gateway reaches directly.
+
+## When it does not answer
+
+| What you see | What to check |
+| --- | --- |
+| `503` | No link from the connector is open. Is it running, and can it reach the gateway's connector address? |
+| `502` | The connector could not reach the app, or the target is not on its allowed targets. Its log names the target it refused. |
+| The service will not save | An address is outside the connector's scope, or the connector is revoked. |
+| The connector stops with "the enrollment code is not good" | The code was used, expired, or the connector was revoked. Create a new connector. |
+
+## Revoke a connector
+
+If the machine is lost or its key may have leaked, revoke the connector:
+
+```sh
+curl "${auth[@]}" -X POST $T/connectors/<id>/revoke
+```
+
+The gateway closes its links within seconds, and its next request for a certificate is refused. Move the services it carried to a new connector, then delete the old one.
+
+## Set up the connector authority
+
+This is the operator's step, done once per deployment. On a workstation, issue the authority and the certificate of the gateway's connector listener:
+
+```sh
+ianua connector-pki --listener-names connect.ianua.example --out ./connector-pki
+```
+
+It prints the settings each side takes. The API gets `CONNECTOR_CA_CERT_FILE` and `CONNECTOR_CA_KEY_FILE`. The gateway gets `GATEWAY_CONNECTOR_LISTEN`, `GATEWAY_CONNECTOR_CA_FILE`, `GATEWAY_CONNECTOR_TLS_CERT_FILE` and `GATEWAY_CONNECTOR_TLS_KEY_FILE`. Keep the authority's key on the API alone: it signs every connector's certificate. See the [configuration reference](/ianua/reference/configuration/).

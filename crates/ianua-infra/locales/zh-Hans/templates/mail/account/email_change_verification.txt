@@ -1,0 +1,10 @@
+您好，{{ user_name | default("用户") }}：
+
+有人申请将您的 IANUA 账户邮箱更改为 {{ user_email }}。请验证此地址以完成更改：
+{{ action_url }}
+
+此链接将在 {{ expires_at }} 后过期。
+
+如果您未提出此申请，可以忽略此邮件。
+
+IANUA

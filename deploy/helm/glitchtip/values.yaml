@@ -1,0 +1,107 @@
+# GlitchTip — self-hosted, Sentry-compatible error tracking.
+#
+# A separate Helm release from the ianua app. Point the ianua chart's
+# `secrets.sentryDsn` at a DSN from a project created in this UI, and every
+# 5xx / panic the app logs at `error` shows up here, grouped.
+#
+# Quick start:
+#   1. Set `domain`, generate `secretKey` (openssl rand -hex 32), pick a
+#      Postgres password.
+#   2. helm install glitchtip deploy/helm/glitchtip -n glitchtip --create-namespace \
+#        --set domain=glitchtip.example.com \
+#        --set secretKey=$(openssl rand -hex 32) \
+#        --set postgres.password=$(openssl rand -hex 16)
+#   3. Open the UI, register the first user (openRegistration is on), create
+#      an organization + project, copy its DSN.
+#   4. Set that DSN as ianua `secrets.sentryDsn` and redeploy ianua.
+#   5. Turn `openRegistration` off and upgrade this release.
+
+# Public hostname GlitchTip serves on. Used for the ingress host and, unless
+# `externalUrl` is set, for GLITCHTIP_DOMAIN. No scheme — https is assumed.
+domain: glitchtip.example.com
+
+# Full external base URL the browser reaches GlitchTip at (scheme + host
+# [+ port]). Defaults to https://<domain> when empty. Set this for
+# port-forward access, e.g. http://localhost:8080, so Django's allowed-hosts
+# and CSRF-trusted-origins match the URL you actually open.
+externalUrl: ""
+
+# Django SECRET_KEY. REQUIRED. Generate with: openssl rand -hex 32
+secretKey: ""
+
+# Allow the first user to self-register through the UI. Leave on for initial
+# setup, then set to false and upgrade so the instance is closed.
+openRegistration: true
+
+# Address bounced/from email uses. Cosmetic unless email is configured.
+defaultFromEmail: glitchtip@example.com
+
+image:
+  repository: glitchtip/glitchtip
+  # Pin to a released tag; verify the current version at
+  # https://gitlab.com/glitchtip/glitchtip/-/releases
+  tag: "v4.2"
+  pullPolicy: IfNotPresent
+
+web:
+  replicas: 1
+  port: 8080
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+worker:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+# Bundled Postgres. For anything beyond evaluation, point at a managed
+# database instead by disabling this and setting `externalDatabaseUrl`.
+postgres:
+  enabled: true
+  image: postgres:16-alpine
+  user: glitchtip
+  password: "" # REQUIRED when postgres.enabled=true
+  database: glitchtip
+  storage: 5Gi
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+
+# Used only when postgres.enabled=false.
+externalDatabaseUrl: ""
+
+# Bundled Redis (broker + cache). Ephemeral; losing it only drops queued
+# email/ingest tasks, not stored issues.
+redis:
+  enabled: true
+  image: redis:7-alpine
+  resources:
+    requests:
+      cpu: 25m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  tls:
+    enabled: false
+    secretName: ""
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000

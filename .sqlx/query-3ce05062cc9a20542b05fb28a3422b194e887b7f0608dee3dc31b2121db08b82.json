@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Opens the zone of a hostname one tenant claims, answering with the\n-- nameservers given. A zone already open is left as it is, and a name the\n-- tenant does not claim opens nothing.\nINSERT INTO dns_zones (hostname, tenant_id, nameservers, changed_at)\nSELECT hostname, tenant_id, $3::text[], $4::timestamptz\nFROM domain_claims\nWHERE tenant_id = $1 AND hostname = $2\nON CONFLICT (hostname) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "TextArray",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3ce05062cc9a20542b05fb28a3422b194e887b7f0608dee3dc31b2121db08b82"
+}

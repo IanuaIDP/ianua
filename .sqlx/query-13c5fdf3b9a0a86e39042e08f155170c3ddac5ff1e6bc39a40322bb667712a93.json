@@ -1,0 +1,41 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The people behind the delegations of the given approval requests of a\n-- tenant, by request and in the order each request names them.\nSELECT approval_id, account_kind, account_id, person\nFROM agent_approval_delegators\nWHERE tenant_id = $1 AND approval_id = ANY($2)\nORDER BY approval_id, place\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "approval_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "account_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "account_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "person",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "13c5fdf3b9a0a86e39042e08f155170c3ddac5ff1e6bc39a40322bb667712a93"
+}

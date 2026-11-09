@@ -1,0 +1,10 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+Le invitan a unirse a {{ organization_name | default("una organización") }} en IANUA con la dirección {{ user_email | default("de recepción de este correo") }}. Para empezar, elija una contraseña y active su cuenta:
+{{ action_url }}
+
+Esta invitación caduca en {{ expires_at }}.
+
+Si no esperaba esta invitación, puede ignorar este correo.
+
+IANUA

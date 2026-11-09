@@ -1,0 +1,27 @@
+[package]
+name = "ianua-integration-postgres"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Protected data steps for Postgres: queries run as a workflow's person through the gateway, over a stream route an admin opened to workflows"
+
+[lints]
+workspace = true
+
+[dependencies]
+ianua-domain = { workspace = true }
+ianua-integration = { workspace = true }
+async-trait = { workspace = true }
+futures-util = { workspace = true }
+serde_json = { workspace = true }
+time = { workspace = true }
+tokio = { workspace = true }
+tokio-postgres = { workspace = true }
+tokio-rustls = { workspace = true, features = ["ring"] }
+uuid = { workspace = true }
+ianua-workspace-hack = { version = "0.1", path = "../../crates/ianua-workspace-hack" }
+
+[dev-dependencies]
+ianua-integration = { workspace = true, features = ["test-support"] }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread", "net"] }

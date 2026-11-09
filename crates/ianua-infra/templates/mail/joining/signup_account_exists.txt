@@ -1,0 +1,8 @@
+Hi {{ user_name | default("there") }},
+
+Someone just asked to sign up for IANUA with this address, which already has an account. If it was you, sign in instead:
+{{ action_url }}
+
+If you forgot your password, you can reset it from the sign-in page. If it was not you, you can ignore this email: nothing changed.
+
+IANUA

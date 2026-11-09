@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Whether the given member belongs to the organization that owns the\n-- given tenant.\nSELECT EXISTS (\n    SELECT 1\n    FROM tenants t\n    JOIN org_users m ON m.organization_id = t.organization_id\n    WHERE t.id = $1 AND m.id = $2\n) AS \"exists!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exists!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "02d220256d1592005f2220d6ccf2cb4ae2b1f0d125e16acc8264ab15c38f6744"
+}

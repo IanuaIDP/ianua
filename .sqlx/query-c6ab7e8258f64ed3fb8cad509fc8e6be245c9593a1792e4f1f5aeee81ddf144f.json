@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Gives a connection of a tenant its group mapping rules, all in one\n-- statement, each at its place in the list: the provider's group, whether\n-- it brings a role or a group, and which.\nINSERT INTO connection_group_rules\n    (tenant_id, connection_id, position, provider_group, role_id, group_id)\nSELECT $1, $2, given.position::integer, given.provider_group,\n       CASE WHEN given.kind = 'role' THEN given.grant_id END,\n       CASE WHEN given.kind = 'group' THEN given.grant_id END\nFROM UNNEST($3::text[], $4::text[], $5::uuid[]) WITH ORDINALITY\n    AS given (provider_group, kind, grant_id, position)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "TextArray",
+        "TextArray",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c6ab7e8258f64ed3fb8cad509fc8e6be245c9593a1792e4f1f5aeee81ddf144f"
+}

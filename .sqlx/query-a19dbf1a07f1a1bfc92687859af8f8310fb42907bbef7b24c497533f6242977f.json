@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- One bounded round of ended jobs, skipping rows another cleanup holds.\n-- Locked tuple locations remain valid within this statement and let the\n-- delete revisit only the selected rows, without joining the whole backlog.\nWITH expired AS (\n    SELECT ctid, tenant_id\n    FROM scheduled_jobs\n    WHERE status IN ('completed', 'dead', 'superseded') AND created_at < $1\n    LIMIT $2\n    FOR UPDATE SKIP LOCKED\n)\nDELETE FROM scheduled_jobs AS jobs\nUSING expired\nWHERE jobs.ctid = expired.ctid\n  AND jobs.tenant_id IS NOT DISTINCT FROM expired.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a19dbf1a07f1a1bfc92687859af8f8310fb42907bbef7b24c497533f6242977f"
+}

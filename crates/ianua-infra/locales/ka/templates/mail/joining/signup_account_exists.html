@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}თქვენ უკვე გაქვთ ანგარიში{% endblock %}
+{% block preheader %}ამ მისამართს IANUA ანგარიში უკვე აქვს.{% endblock %}
+{% block headline %}თქვენ უკვე გაქვთ ანგარიში{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para(pad=8) %}ამ მისამართით ახლახან {{ c.brand() }}-ზე რეგისტრაცია მოითხოვეს, თუმცა მას ანგარიში უკვე აქვს. თუ ეს თქვენ იყავით, ამის ნაცვლად შედით.{% endcall %}
+  {{ c.cta(action_url, "შესვლა") }}
+  {% call c.para(pad=32) %}თუ პაროლი დაგავიწყდათ, მისი აღდგენა შესვლის გვერდიდან შეგიძლიათ. თუ ეს თქვენ არ ყოფილხართ, წერილი უგულებელყავით: არაფერი შეცვლილა.{% endcall %}
+{% endblock %}

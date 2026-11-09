@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}ადმინისტრატორი თქვენი სახელით მოქმედების ნებართვას ითხოვს{% endblock %}
+{% block preheader %}შესვლის შემდეგ დაამტკიცეთ ან უარყავით მოთხოვნა.{% endblock %}
+{% block headline %}ადმინისტრატორი თქვენი სახელით მოქმედების ნებართვას ითხოვს{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para() %}<strong>{{ requester_name | default("ადმინისტრატორი") }}</strong> ორგანიზაციიდან <strong>{{ tenant_name | default("თქვენი ორგანიზაცია") }}</strong> ითხოვს თქვენი სახელით მოქმედებას, რათა ანგარიშთან დაკავშირებით დაგეხმაროთ.{% endcall %}
+  {% if reason is defined %}{% call c.para() %}მიზეზი: {{ reason }}{% endcall %}{% endif %}
+  {% call c.para() %}შედით ანგარიშში დასამტკიცებლად ან უარსაყოფად. მოთხოვნას ვადა გაუვა {{ expires_at }}-ში.{% endcall %}
+  {% call c.para(pad=32) %}თქვენი დამტკიცების გარეშე არაფერი მოხდება. თუ ამას არ ელოდით, უარყავით მოთხოვნა და აცნობეთ ადმინისტრატორს.{% endcall %}
+{% endblock %}

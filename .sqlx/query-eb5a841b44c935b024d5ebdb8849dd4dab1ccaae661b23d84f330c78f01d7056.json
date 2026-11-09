@@ -1,0 +1,136 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every active route of one tenant open to its workflows, in priority\n-- order: the apps a Protected apps step may call.\nSELECT id, name, path_pattern, methods, service_id, policy, hosts, conditions,\n       pipeline_id, path_rewrite, status, priority, data_class, action_class,\n       reach, parameter_rules, workflow_use, attack_mode_until, created_at, updated_at\nFROM routes\nWHERE tenant_id = $1 AND status = 'active' AND workflow_use = 'open'\nORDER BY priority, id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "path_pattern",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "methods",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 4,
+        "name": "service_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "policy",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 6,
+        "name": "hosts",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 7,
+        "name": "conditions",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 8,
+        "name": "pipeline_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 9,
+        "name": "path_rewrite",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 10,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "priority",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 12,
+        "name": "data_class",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 13,
+        "name": "action_class",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 14,
+        "name": "reach",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 15,
+        "name": "parameter_rules",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 16,
+        "name": "workflow_use",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 17,
+        "name": "attack_mode_until",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 18,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 19,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "eb5a841b44c935b024d5ebdb8849dd4dab1ccaae661b23d84f330c78f01d7056"
+}

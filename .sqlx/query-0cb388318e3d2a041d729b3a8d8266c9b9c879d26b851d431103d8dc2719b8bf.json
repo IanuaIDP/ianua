@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes a tenant's runs that ended before the cutoff, oldest first, at\n-- most $3 at once. Each goes with its loop passes and what it waited on. A\n-- run still running stays however old, and so does one a later run was\n-- started again from, which goes after that run has gone: a run is never\n-- removed from under the run picking up from it. A pass goes only with its\n-- run, and a run whose pass still works waits for it.\nDELETE FROM workflow_executions\nWHERE tenant_id = $1 AND id IN (\n    SELECT run.id\n    FROM workflow_executions AS run\n    WHERE run.tenant_id = $1\n      AND run.status <> 'running'\n      AND run.pass_of IS NULL\n      AND run.updated_at < $2\n      AND NOT EXISTS (\n          SELECT 1\n          FROM workflow_executions AS again\n          WHERE again.tenant_id = run.tenant_id AND again.restarted_execution_id = run.id\n      )\n      AND NOT EXISTS (\n          SELECT 1\n          FROM workflow_executions AS pass\n          WHERE pass.tenant_id = run.tenant_id AND pass.pass_of = run.id\n            AND pass.status = 'running'\n      )\n    ORDER BY run.updated_at\n    LIMIT $3\n)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "0cb388318e3d2a041d729b3a8d8266c9b9c879d26b851d431103d8dc2719b8bf"
+}

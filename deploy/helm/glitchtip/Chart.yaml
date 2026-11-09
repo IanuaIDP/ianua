@@ -1,0 +1,6 @@
+apiVersion: v2
+name: glitchtip
+description: Self-hosted, Sentry-compatible error tracking UI for Ianua.
+type: application
+version: 0.1.0
+appVersion: "4.1"

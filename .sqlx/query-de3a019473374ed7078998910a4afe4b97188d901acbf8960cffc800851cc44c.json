@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps the provider session behind a session of a tenant. One kept\n-- already for the session is replaced.\nINSERT INTO provider_sessions (tenant_id, session_id, connection_id, subject, session_index)\nVALUES ($1, $2, $3, $4, $5)\nON CONFLICT (tenant_id, session_id) DO UPDATE SET\n    connection_id = EXCLUDED.connection_id,\n    subject = EXCLUDED.subject,\n    session_index = EXCLUDED.session_index\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "de3a019473374ed7078998910a4afe4b97188d901acbf8960cffc800851cc44c"
+}

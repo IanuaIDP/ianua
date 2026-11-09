@@ -1,0 +1,14 @@
+# Production config — applied by the CI deploy job on every push to main.
+# Non-secret only; edit and push to change production config.
+
+apiUrl: https://api.ianua.io/api/v1
+
+# ClusterIP, not LoadBalancer. Nothing reaches this from outside any more:
+# Traefik holds the cluster's one public address, terminates TLS for
+# ianua.io, and forwards here by service name. A balancer of its own would be
+# a second way in, unused, at $10/mo.
+#
+# Traefik forwards plain HTTP over TCP, so port 80 stays as it was.
+service:
+  type: ClusterIP
+  port: 80

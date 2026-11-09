@@ -1,0 +1,5 @@
+{{ user_name | default("ご利用者") }}様
+
+ご申請のとおり、{{ tenant_name | default("所属組織") }}のデータが完全に削除されました。元に戻すことはできません。
+
+IANUA

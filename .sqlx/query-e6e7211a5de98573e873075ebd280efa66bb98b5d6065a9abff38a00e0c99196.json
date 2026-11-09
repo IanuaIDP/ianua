@@ -1,0 +1,136 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The tenants with the given ids.\nSELECT id, organization_id, slug, display_name, primary_domain, contact_email,\n       status, held, archived_at, compliance, auth_config, mtls, timezone, locale,\n       residency, environment, created_at, updated_at, platform_label, readable_address\nFROM tenants\nWHERE id = ANY($1)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "slug",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "display_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "primary_domain",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "contact_email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "held",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 8,
+        "name": "archived_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "compliance",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 10,
+        "name": "auth_config",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 11,
+        "name": "mtls",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 12,
+        "name": "timezone",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 13,
+        "name": "locale",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 14,
+        "name": "residency",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 15,
+        "name": "environment",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 16,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 17,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 18,
+        "name": "platform_label",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 19,
+        "name": "readable_address",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "e6e7211a5de98573e873075ebd280efa66bb98b5d6065a9abff38a00e0c99196"
+}

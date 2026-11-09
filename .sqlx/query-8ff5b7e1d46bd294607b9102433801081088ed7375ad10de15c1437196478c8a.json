@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many trials a tenant has running, held against its plan.\nSELECT count(*) AS \"count!\"\nFROM sandbox_trials\nWHERE tenant_id = $1 AND state = 'running'\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "8ff5b7e1d46bd294607b9102433801081088ed7375ad10de15c1437196478c8a"
+}

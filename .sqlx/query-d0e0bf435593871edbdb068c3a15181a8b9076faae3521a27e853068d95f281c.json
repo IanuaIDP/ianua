@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every tenant living in a schema of its own, for a node to route by at\n-- start and when it reloads, at most as many as the node will hold.\nSELECT tenant_id, schema_name\nFROM tenant_databases\nORDER BY tenant_id\nLIMIT $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "schema_name",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "d0e0bf435593871edbdb068c3a15181a8b9076faae3521a27e853068d95f281c"
+}

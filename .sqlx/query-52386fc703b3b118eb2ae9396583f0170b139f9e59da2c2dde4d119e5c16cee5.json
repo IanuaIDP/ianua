@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many groups a tenant holds against its plan.\nSELECT count(*) AS \"count!\"\nFROM groups\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "52386fc703b3b118eb2ae9396583f0170b139f9e59da2c2dde4d119e5c16cee5"
+}

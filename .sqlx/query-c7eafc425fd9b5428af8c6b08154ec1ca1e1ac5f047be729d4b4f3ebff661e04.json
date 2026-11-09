@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Marks one tenant's pushed request used, only while it is still unused:\n-- of two browsers arriving with one request_uri, only one changes the row.\nUPDATE oauth_pushed_requests\nSET used_at = $3\nWHERE tenant_id = $1 AND id = $2 AND used_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c7eafc425fd9b5428af8c6b08154ec1ca1e1ac5f047be729d4b4f3ebff661e04"
+}

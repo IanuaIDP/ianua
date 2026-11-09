@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The oldest tokens a poll stream of the tenant holds, at most the given\n-- number, without dropping any.\nSELECT jti, token\nFROM signal_poll_events\nWHERE tenant_id = $1 AND stream_id = $2\nORDER BY queued\nLIMIT $3\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "jti",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "token",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "300a2641faf26a40510f8c4c7d4e2137e8f28c55f2037d0f99f9535bb6afe3ab"
+}

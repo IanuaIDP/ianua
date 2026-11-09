@@ -1,0 +1,59 @@
+[package]
+name = "ianua-fuzz"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[workspace]
+
+[dependencies]
+libfuzzer-sys = { version = "0.4", features = ["arbitrary-derive"] }
+ianua-domain = { path = "../crates/ianua-domain" }
+ianua-dns = { path = "../crates/ianua-dns" }
+ianua-ldap = { path = "../crates/ianua-ldap" }
+ianua-api = { path = "../crates/ianua-api", features = ["test-support"] }
+ianua-zero = { path = "../crates/ianua-zero" }
+
+axum = { version = "0.8", features = ["json", "query", "ws"] }
+http = "1"
+hyper = "1"
+tokio = { version = "1", features = ["rt", "macros"] }
+tower = { version = "0.5", features = ["util"] }
+
+[[bin]]
+name = "dns_answer_query"
+path = "fuzz_targets/dns_answer_query.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "ldap_dn"
+path = "fuzz_targets/ldap_dn.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "api_request"
+path = "fuzz_targets/api_request.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "api_request_authenticated"
+path = "fuzz_targets/api_request_authenticated.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "zero_surface"
+path = "fuzz_targets/zero_surface.rs"
+test = false
+doc = false
+bench = false

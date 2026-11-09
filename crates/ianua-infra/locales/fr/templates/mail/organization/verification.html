@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Confirmez votre adresse e-mail{% endblock %}
+{% block preheader %}Confirmez votre adresse e-mail pour terminer la configuration de votre compte.{% endblock %}
+{% block headline %}Confirmez votre adresse e-mail{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("cher utilisateur")) }}
+  {% call c.para(pad=8) %}Un compte a été créé pour vous dans <strong>{{ organization_name | default("votre organisation") }}</strong> sur {{ c.brand() }}. Avant de vous connecter, confirmez votre adresse e-mail .{% endcall %}
+  {{ c.cta(action_url, "Confirmer l’adresse e-mail") }}
+  {% call c.para(pad=0) %}Ce lien expire dans {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Si vous n’attendiez pas cet e-mail, vous pouvez l’ignorer.{% endcall %}
+{% endblock %}

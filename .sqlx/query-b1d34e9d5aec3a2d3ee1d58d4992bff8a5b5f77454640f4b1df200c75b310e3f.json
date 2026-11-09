@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Notes when the gateway last saw a link of one enrolled connector. A\n-- later sighting already noted is kept, and one dated before the\n-- enrollment, from a gateway whose clock runs behind, is dropped.\nUPDATE connectors\nSET last_seen_at = $3\nWHERE tenant_id = $1\n  AND id = $2\n  AND enrolled_at <= $3\n  AND (last_seen_at IS NULL OR last_seen_at < $3)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b1d34e9d5aec3a2d3ee1d58d4992bff8a5b5f77454640f4b1df200c75b310e3f"
+}

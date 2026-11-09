@@ -1,0 +1,49 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- One memory's texts whose vectors are nearest $3 by cosine, nearest first,\n-- at most $4, with how alike each is (1 for the same direction) and when it\n-- was kept.\nSELECT id, text, exposure, created_at AS kept_at,\n       (1 - (embedding <=> $3::text::vector))::float4 AS \"similarity!\"\nFROM memory_entries\nWHERE tenant_id = $1 AND memory_id = $2\nORDER BY embedding <=> $3::text::vector, id\nLIMIT $4\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "text",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "exposure",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "kept_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "similarity!",
+        "type_info": "Float4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "e7845c2e07f02e2a4c1db1b2cafc23a7acc4944c9a5ec798cf6f6c083f873ef5"
+}

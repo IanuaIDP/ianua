@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes the template one tenant keeps for one email and locale, or for\n-- every locale when no locale is given.\nDELETE FROM email_templates\nWHERE tenant_id = $1 AND template_type = $2 AND locale IS NOT DISTINCT FROM $3\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d81b1ed8b7e6afdd4f672a02bb25a80be553ab28b980a319daf4f906c317eb9b"
+}

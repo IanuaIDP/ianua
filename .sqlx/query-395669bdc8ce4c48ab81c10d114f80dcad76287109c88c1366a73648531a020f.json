@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Saves a change to one channel already kept.\nUPDATE workflow_account_channels SET\n    secret_sealed = $3,\n    status = $4,\n    remote = $5,\n    lapses_at = $6,\n    history_cursor = $7,\n    updated_at = $8\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "395669bdc8ce4c48ab81c10d114f80dcad76287109c88c1366a73648531a020f"
+}

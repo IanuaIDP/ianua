@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The counts the last snapshot of the tenant at or before the given moment\n-- kept.\nSELECT users_count, active_sessions_count\nFROM tenant_metric_snapshots\nWHERE tenant_id = $1 AND captured_at <= $2\nORDER BY captured_at DESC\nLIMIT 1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "users_count",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "active_sessions_count",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "96d45807e5383b27ebc873e944d51361c0b356f4802b9aa3bc2242853fe89543"
+}

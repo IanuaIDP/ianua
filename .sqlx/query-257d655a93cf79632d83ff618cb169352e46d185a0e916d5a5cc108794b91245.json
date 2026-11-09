@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps, at the given moment, the counts of every tenant in the platform\n-- database that is not archived or deleted, those with a database of\n-- their own left out: its people, every account not deactivated or\n-- closing, and its active sessions not yet expired.\nINSERT INTO tenant_metric_snapshots (tenant_id, captured_at, users_count, active_sessions_count)\nSELECT t.id, $1,\n       (SELECT count(*) FROM users u\n        WHERE u.tenant_id = t.id\n            AND u.status IN ('invited', 'pending_verification', 'active', 'locked')),\n       (SELECT count(*) FROM sessions s\n        WHERE s.tenant_id = t.id AND s.status = 'active' AND s.expires_at > $1)\nFROM tenants t\nWHERE t.status NOT IN ('archived', 'deleted') AND NOT (t.id = ANY($2))\nON CONFLICT (tenant_id, captured_at) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "257d655a93cf79632d83ff618cb169352e46d185a0e916d5a5cc108794b91245"
+}

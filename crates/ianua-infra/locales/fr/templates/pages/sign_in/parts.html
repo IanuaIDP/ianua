@@ -1,0 +1,48 @@
+{#-
+  The parts every sign-in page is built from, imported as `p`:
+    {% import "sign_in/parts.html" as p %}
+-#}
+
+{#- The notice above the form: `note` is `none` or `{code, tone}`, and
+    `own` holds the texts this page words its own way. -#}
+{% macro note(note, own) -%}
+{%- set texts = {
+  "check_email": "Consultez vos e-mails. Si cette adresse peut s’inscrire, un lien de confirmation est en cours d’envoi.",
+  "verified": "Votre adresse est confirmée. Vous pouvez maintenant vous connecter.",
+  "password_reset": "Votre nouveau mot de passe est défini. Vous pouvez maintenant vous connecter avec celui-ci.",
+  "password_change_required": "Votre mot de passe est correct, mais il doit d’abord être changé. Choisissez-en un nouveau.",
+  "not_accepted": "Cette adresse e-mail et ce mot de passe ne correspondent pas.",
+  "locked": "Trop de tentatives échouées. Réessayez plus tard.",
+  "not_verified": "Confirmez d’abord votre adresse e-mail. Le lien se trouve dans votre boîte de réception.",
+  "too_many": "Trop de tentatives depuis cette adresse. Attendez une minute et réessayez.",
+  "not_allowed": "La connexion par mot de passe est désactivée ici.",
+  "invalid": "Vérifiez votre saisie et réessayez.",
+  "link_expired": "Ce lien a expiré.",
+  "code_needed": "Votre compte dispose d’un second facteur. Saisissez aussi un code de votre application d’authentification.",
+  "unavailable": "La connexion est indisponible pour le moment. Réessayez bientôt.",
+  "failed": "Un problème est survenu. Réessayez."
+} -%}
+{%- if note -%}
+<p class="note{% if note.tone == 'refused' %} refused{% endif %}" role="status">{% if note.code in own %}{{ own[note.code] }}{% else %}{{ texts[note.code] }}{% endif %}</p>
+{%- endif -%}
+{%- endmacro %}
+
+{#- A required input with its label. -#}
+{% macro field(name, label, kind, autocomplete) -%}
+<label for="{{ name }}">{{ label }}</label><input id="{{ name }}" name="{{ name }}" type="{{ kind }}" autocomplete="{{ autocomplete }}" required>
+{%- endmacro %}
+
+{#- Where to go after signing in, carried in the form, or nothing. -#}
+{% macro return_to(path) -%}
+{%- if path -%}<input type="hidden" name="return_to" value="{{ path }}">{%- endif -%}
+{%- endmacro %}
+
+{#- The form's button. -#}
+{% macro submit(text) -%}
+<button type="submit">{{ text }}</button>
+{%- endmacro %}
+
+{#- A line under the form linking to another step. -#}
+{% macro link(text, path, label) -%}
+<p class="footer">{{ text }} <a href="{{ path }}">{{ label }}</a></p>
+{%- endmacro %}

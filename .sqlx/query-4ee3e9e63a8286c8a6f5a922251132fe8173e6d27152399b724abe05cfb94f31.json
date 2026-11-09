@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many notifications of a tenant user's inbox are not yet read and\n-- show to them: those on their own account or sent to them by name, and\n-- those in a category they may see.\nSELECT count(*) AS \"count!\"\nFROM tenant_notifications\nWHERE tenant_id = $1 AND user_id = $2 AND NOT read\n  AND (reach IN ('own_account', 'addressed') OR category = ANY($3))\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "4ee3e9e63a8286c8a6f5a922251132fe8173e6d27152399b724abe05cfb94f31"
+}

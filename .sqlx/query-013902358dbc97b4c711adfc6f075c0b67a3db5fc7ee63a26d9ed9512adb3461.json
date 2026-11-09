@@ -1,0 +1,106 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every organization's account at the given address, one per organization.\nSELECT id, organization_id, email, display_name, password_hash, status, role,\n       email_standing, locale, timezone, joined_at, credentials_changed_at,\n       route_vouches, created_at, updated_at\nFROM org_users\nWHERE email = $1\nORDER BY organization_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "display_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "password_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "role",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "email_standing",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "locale",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "timezone",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "joined_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 11,
+        "name": "credentials_changed_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 12,
+        "name": "route_vouches",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 13,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 14,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "013902358dbc97b4c711adfc6f075c0b67a3db5fc7ee63a26d9ed9512adb3461"
+}

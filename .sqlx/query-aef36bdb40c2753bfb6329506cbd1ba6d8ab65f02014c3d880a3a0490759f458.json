@@ -1,0 +1,77 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The integration accounts of one tenant that the ids name.\nSELECT id, integration, name, credential_sealed, owner, sharing, operations, status,\n    created_at, updated_at\nFROM integration_accounts\nWHERE tenant_id = $1 AND id = ANY($2)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "integration",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "credential_sealed",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "owner",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 5,
+        "name": "sharing",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "operations",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 7,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "aef36bdb40c2753bfb6329506cbd1ba6d8ab65f02014c3d880a3a0490759f458"
+}

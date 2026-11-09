@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes one agent flow of one tenant, and with it its version, its run\n-- and its webhook secret. A designed workflow is never deleted, so one is\n-- left as it is.\nDELETE FROM workflows\nWHERE tenant_id = $1 AND id = $2 AND origin = 'flow'\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e667f01e31413641d8d44e93d10046f685925416ba3ea2e2a6c3af370ae2ecb3"
+}

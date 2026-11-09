@@ -1,0 +1,165 @@
+{{- if include "ianua.egressGatewayOn" . }}
+{{- $gw := .Values.agentSandboxes.egressGateway }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ianua.fullname" . }}-egress
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: egress
+spec:
+  replicas: {{ $gw.replicas }}
+  selector:
+    matchLabels:
+      {{- include "ianua.selectorLabels" (dict "root" . "component" "egress") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "ianua.selectorLabels" (dict "root" . "component" "egress") | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: egress
+          image: {{ include "ianua.egressImage" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- /*
+          The data plane's database role, the shared root and the sealing
+          keys, each by name: never the chart Secret whole, which may hold the
+          app's DATABASE_URL, a login the egress gateway refuses to start
+          with.
+          */}}
+          env:
+            - name: EGRESS_LISTEN
+              value: "0.0.0.0:{{ $gw.port }}"
+            - name: EGRESS_STATUS_LISTEN
+              value: "0.0.0.0:{{ $gw.statusPort }}"
+            - name: EGRESS_TLS_CERT_FILE
+              value: /etc/egress/tls.crt
+            - name: EGRESS_TLS_KEY_FILE
+              value: /etc/egress/tls.key
+            - name: EGRESS_CLIENT_CA_FILE
+              value: /etc/egress/ca.crt
+            {{- with $gw.privateNetworks }}
+            - name: EGRESS_PRIVATE_NETWORKS
+              value: {{ join "," . | quote }}
+            {{- end }}
+            {{- include "ianua.gatewayLoginEnv" . | nindent 12 }}
+            - name: HMAC_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ianua.secretName" . }}
+                  key: HMAC_SECRET
+            - name: ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ianua.secretName" . }}
+                  key: ENCRYPTION_KEY
+          envFrom:
+            - configMapRef:
+                name: {{ include "ianua.fullname" . }}-config
+          ports:
+            - name: egress
+              containerPort: {{ $gw.port }}
+            - name: status
+              containerPort: {{ $gw.statusPort }}
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: status
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: status
+            periodSeconds: 15
+          volumeMounts:
+            - name: egress-tls
+              mountPath: /etc/egress
+              readOnly: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml $gw.resources | nindent 12 }}
+      volumes:
+        - name: egress-tls
+          secret:
+            secretName: {{ required "agentSandboxes.egressGateway.tlsSecret is required" $gw.tlsSecret }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ianua.fullname" . }}-egress
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: egress
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "ianua.selectorLabels" (dict "root" . "component" "egress") | nindent 4 }}
+  ports:
+    - name: egress
+      port: {{ $gw.port }}
+      targetPort: egress
+---
+{{- /*
+Only locked upstream services may connect. The gateway itself reaches DNS,
+the platform's database in its namespace, and public addresses, never a
+private range, so a listed name pointed at an internal address is refused by
+the network as well as by the gateway.
+*/}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "ianua.fullname" . }}-egress
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: egress
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "ianua.selectorLabels" (dict "root" . "component" "egress") | nindent 6 }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              ianua.io/agent-upstream: "true"
+      ports:
+        - port: {{ $gw.port }}
+  egress:
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - to:
+        - podSelector: {}
+      ports:
+        - port: 5432
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+              - 169.254.0.0/16
+              - 100.64.0.0/10
+              - 127.0.0.0/8
+    {{- with $gw.extraEgress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- end }}

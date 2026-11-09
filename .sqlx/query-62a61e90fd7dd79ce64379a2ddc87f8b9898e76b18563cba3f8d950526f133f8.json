@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many entries a tenant's permission catalogue holds against its plan.\nSELECT count(*) AS \"count!\"\nFROM resource_types\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "62a61e90fd7dd79ce64379a2ddc87f8b9898e76b18563cba3f8d950526f133f8"
+}

@@ -1,0 +1,88 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every connector of one tenant, by name.\nSELECT id, name, scope, code_hash, code_expires_at, public_key,\n       certificate_expires_at, enrolled_at, status, last_seen_at, created_at,\n       updated_at\nFROM connectors\nWHERE tenant_id = $1\nORDER BY name, id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "scope",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 3,
+        "name": "code_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "code_expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "public_key",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "certificate_expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "enrolled_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "last_seen_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 11,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "dc9b751a4bc9c53feae068b7f76ba1e3b9ac9f82f0a13ce21ff65e128210c2e9"
+}

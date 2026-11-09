@@ -1,0 +1,11 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}{{ notice_title }}{% endblock %}
+{% block preheader %}{{ notice_title }}{% endblock %}
+{% block headline %}{{ notice_title }}{% endblock %}
+
+{% block content %}
+  {% call c.para() %}{{ notice_body | default(notice_title) }}{% endcall %}
+  {% call c.para(pad=32, color="#6b6c68") %}Vous recevez cet e-mail parce que vous avez choisi de recevoir les notifications de ce type par e-mail. Vous pouvez modifier ce choix dans vos paramètres de notification.{% endcall %}
+{% endblock %}

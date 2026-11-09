@@ -1,0 +1,179 @@
+[package]
+name = "ianua-scenarios"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+# One test binary per area; each scenario is a whole flow through the real
+# platform, started in the test's own process.
+[[test]]
+name = "operate_platform"
+path = "tests/operations/operate_platform/main.rs"
+
+[[test]]
+name = "people"
+path = "tests/people/main.rs"
+
+[[test]]
+name = "keep_boundaries"
+path = "tests/operations/keep_boundaries/main.rs"
+
+[[test]]
+name = "sign_up"
+path = "tests/accounts/sign_up/main.rs"
+
+[[test]]
+name = "sign_in"
+path = "tests/accounts/sign_in/main.rs"
+
+[[test]]
+name = "manage_account"
+path = "tests/accounts/manage_account/main.rs"
+
+[[test]]
+name = "manage_team"
+path = "tests/accounts/manage_team/main.rs"
+
+[[test]]
+name = "manage_company"
+path = "tests/accounts/manage_company/main.rs"
+
+[[test]]
+name = "manage_tenants"
+path = "tests/accounts/manage_tenants/main.rs"
+
+[[test]]
+name = "manage_users"
+path = "tests/accounts/manage_users/main.rs"
+
+[[test]]
+name = "use_applications"
+path = "tests/accounts/use_applications/main.rs"
+
+[[test]]
+name = "integrations"
+path = "tests/accounts/integrations/main.rs"
+
+[[test]]
+name = "automate_work"
+path = "tests/accounts/automate_work/main.rs"
+
+[[test]]
+name = "stay_available"
+path = "tests/operations/stay_available/main.rs"
+
+[[test]]
+name = "organizations"
+path = "tests/organizations/main.rs"
+
+[[test]]
+name = "agents"
+path = "tests/agents/main.rs"
+
+[[test]]
+name = "gateway"
+path = "tests/gateway/main.rs"
+
+[[test]]
+name = "connect_application"
+path = "tests/identity_access/connect_application/main.rs"
+
+[[test]]
+name = "connect_identity_provider"
+path = "tests/identity_access/connect_identity_provider/main.rs"
+
+[[test]]
+name = "sync_directory"
+path = "tests/identity_access/sync_directory/main.rs"
+
+[[test]]
+name = "control_access"
+path = "tests/identity_access/control_access/main.rs"
+
+[[test]]
+name = "review_activity"
+path = "tests/communication_data/review_activity/main.rs"
+
+[[test]]
+name = "protect_data"
+path = "tests/communication_data/protect_data/main.rs"
+
+[[test]]
+name = "receive_updates"
+path = "tests/communication_data/receive_updates/main.rs"
+
+[[test]]
+name = "customize_experience"
+path = "tests/communication_data/customize_experience/main.rs"
+
+[[test]]
+name = "exchange_security_events"
+path = "tests/communication_data/exchange_security_events/main.rs"
+
+[[test]]
+name = "connect_service"
+path = "tests/applications/connect_service/main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+# Only to start the platform, through its own composition root, and to
+# give it a test database cloned from the migrated template. Nothing else
+# of ours: every request and answer goes over the wire in this crate's own
+# types.
+ianua-server = { workspace = true }
+ianua-zero = { workspace = true }
+ianua-dns = { workspace = true }
+ianua-boot = { workspace = true }
+ianua-infra = { workspace = true, features = ["test-support"] }
+
+base64 = { workspace = true }
+bytes = { workspace = true }
+# A stand-in npm registry packs the tarballs it serves, as npm packs them.
+flate2 = { workspace = true }
+tar = { workspace = true }
+# The stack's name server, which answers the records a tenant writes to
+# prove a domain it brings.
+hickory-proto = { workspace = true }
+# GitHub's stand-in signs what it delivers with the registration's secret,
+# as GitHub does.
+hmac = { workspace = true }
+http = { workspace = true }
+http-body-util = { workspace = true }
+hyper = { workspace = true }
+hyper-util = { workspace = true }
+# The person's own devices: a passkey's P-256 key and the hashes WebAuthn
+# signs over, and an authenticator app's codes.
+p256 = { workspace = true }
+rand = { workspace = true }
+rcgen = { workspace = true, features = ["x509-parser"] }
+reqwest = { workspace = true, features = ["cookies"] }
+rsa = { workspace = true, features = ["sha2"] }
+# An outside SAML app reads the platform's documents and checks their
+# signatures with code of its own, against the certificates it published.
+roxmltree = { workspace = true }
+# An application's LDAP client to the tenant directory, framing the
+# protocol as the directory itself reads it.
+ldap3_proto = "0.8"
+tokio-util = { workspace = true, features = ["codec"] }
+futures-util = { workspace = true, features = ["sink"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+# The breach service's stand-in hashes the passwords it lists, as the
+# Pwned Passwords range service does.
+sha1 = { workspace = true }
+sha2 = { workspace = true }
+tempfile = { workspace = true }
+thiserror = { workspace = true }
+time = { workspace = true }
+tokio = { workspace = true }
+tokio-rustls = { workspace = true, features = ["ring"] }
+totp-rs = { workspace = true }
+tracing = { workspace = true }
+url = { workspace = true }
+uuid = { workspace = true }
+x509-cert = { workspace = true }
+ianua-workspace-hack = { version = "0.1", path = "../ianua-workspace-hack" }

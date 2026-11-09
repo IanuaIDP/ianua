@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}აღდგენის ახალი კოდები შეიქმნა{% endblock %}
+{% block preheader %}თქვენი ანგარიშისთვის აღდგენის კოდების ახალი ნაკრები შეიქმნა.{% endblock %}
+{% block headline %}აღდგენის ახალი კოდები შეიქმნა{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para() %}თქვენი ანგარიშისთვის <strong>{{ tenant_name | default("თქვენი ორგანიზაცია") }}</strong>-ში აღდგენის კოდების ახალი ნაკრები შეიქმნა{% if remaining_codes is defined %}. გამოუყენებელი კოდების რაოდენობაა <strong>{{ remaining_codes }}</strong>{% endif %}. ძველი კოდები აღარ მოქმედებს.{% endcall %}
+  {% call c.para(pad=32) %}კოდები უსაფრთხო ადგილას შეინახეთ: თითოეული ერთხელ შეგიყვანთ, თუ მეორე ფაქტორს დაკარგავთ. თუ ეს თქვენ არ გაგიკეთებიათ, აცნობეთ ადმინისტრატორს.{% endcall %}
+{% endblock %}

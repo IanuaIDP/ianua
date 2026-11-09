@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Forgets the order to stop a run of a tenant, once the run has ended.\nDELETE FROM agent_run_cancellations\nWHERE tenant_id = $1 AND run_id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "94a0ab001bad2c12c5c0fd13f45129309b974c507d532811857cfa52dc448d07"
+}

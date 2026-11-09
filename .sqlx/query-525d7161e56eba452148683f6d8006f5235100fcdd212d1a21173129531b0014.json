@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Forgets the login of one stream route closed to workflows.\nDELETE FROM stream_route_logins\nWHERE tenant_id = $1 AND stream_route_id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "525d7161e56eba452148683f6d8006f5235100fcdd212d1a21173129531b0014"
+}

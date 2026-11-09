@@ -1,0 +1,280 @@
+{{- $root := . }}
+{{- $prefix := include "ianua.fullname" . | upper | replace "-" "_" }}
+{{- $identity := .Values.agentSandboxes.identity }}
+{{- if not (has $identity (list "spiffe" "key")) }}
+{{- fail "agentSandboxes.identity must be spiffe or key" }}
+{{- end }}
+{{- if and .Values.agentSandboxes.agents (eq $identity "spiffe") }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ianua.fullname" . }}-spiffe-helper
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: agent-sandbox
+data:
+  helper.conf: |
+    agent_address = "{{ .Values.agentSandboxes.spiffe.socketPath }}"
+    cert_dir = "/run/svid"
+    svid_file_name = "svid.pem"
+    svid_key_file_name = "svid_key.pem"
+    svid_bundle_file_name = "bundle.pem"
+    daemon_mode = true
+{{- end }}
+{{- if .Values.agentSandboxes.agents }}
+---
+{{- /*
+The runners' own identity. SPIRE registration entries select on it, so a pod
+that is not a runner cannot be issued the runner's SPIFFE ID.
+*/}}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "ianua.fullname" . }}-agent-runner
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: agent-runner
+automountServiceAccountToken: false
+{{- end }}
+{{- range .Values.agentSandboxes.agents }}
+{{- $runner := printf "%s-runner-%s" (include "ianua.fullname" $root) .name }}
+{{- $runnerEnv := $runner | upper | replace "-" "_" }}
+---
+{{- /*
+The agent alone, in a pod of its own. It reaches its runner and nothing
+else: the runner holds every credential, and keeping them in separate pods is
+what lets the network policy tell the two apart.
+*/}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ianua.fullname" $root }}-agent-{{ .name }}
+  labels:
+    {{- include "ianua.labels" $root | nindent 4 }}
+    app.kubernetes.io/component: agent-sandbox
+    ianua.io/sandbox: agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "ianua.selectorLabels" (dict "root" $root "component" "agent-sandbox") | nindent 6 }}
+      ianua.io/agent: {{ .name }}
+  template:
+    metadata:
+      labels:
+        {{- include "ianua.selectorLabels" (dict "root" $root "component" "agent-sandbox") | nindent 8 }}
+        ianua.io/agent: {{ .name }}
+        ianua.io/sandbox: agent
+    spec:
+      runtimeClassName: {{ required "agentSandboxes.runtimeClassName is required" $root.Values.agentSandboxes.runtimeClassName }}
+      {{- /*
+      Agents sharing a machine share its caches and memory, which two of them
+      could signal through by timing. These keep them on machines of their
+      own: every agent's, or one agent's alone.
+      */}}
+      {{- with (.nodeSelector | default $root.Values.agentSandboxes.nodeSelector) }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (.tolerations | default $root.Values.agentSandboxes.tolerations) }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- /*
+      No Kubernetes API token: it is a credential, and the agent would hold it.
+      Service links stay on only because the agent addresses its runner
+      through them, which keeps DNS out of the pod entirely.
+      */}}
+      automountServiceAccountToken: false
+      enableServiceLinks: true
+      securityContext:
+        {{- toYaml $root.Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: agent
+          image: {{ required "each agent needs an image" .image }}
+          env:
+            - name: IANUA_RUNNER_URL
+              value: "http://$({{ $runnerEnv }}_SERVICE_HOST):$({{ $runnerEnv }}_SERVICE_PORT)"
+            {{- range $name, $value := .env }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          {{- with .resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $runner }}
+  labels:
+    {{- include "ianua.labels" $root | nindent 4 }}
+    app.kubernetes.io/component: agent-runner
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "ianua.selectorLabels" (dict "root" $root "component" "agent-runner") | nindent 4 }}
+    ianua.io/agent: {{ .name }}
+  ports:
+    - name: runner
+      port: {{ $root.Values.agentSandboxes.runner.port }}
+      targetPort: runner
+---
+{{- /*
+The runner for one agent: it attests, holds the agent's key in memory, and
+calls ianua for it. Only its own agent's pod may reach it.
+*/}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $runner }}
+  labels:
+    {{- include "ianua.labels" $root | nindent 4 }}
+    app.kubernetes.io/component: agent-runner
+    ianua.io/sandbox: runner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "ianua.selectorLabels" (dict "root" $root "component" "agent-runner") | nindent 6 }}
+      ianua.io/agent: {{ .name }}
+  template:
+    metadata:
+      labels:
+        {{- include "ianua.selectorLabels" (dict "root" $root "component" "agent-runner") | nindent 8 }}
+        ianua.io/agent: {{ .name }}
+        ianua.io/sandbox: runner
+    spec:
+      serviceAccountName: {{ include "ianua.fullname" $root }}-agent-runner
+      automountServiceAccountToken: false
+      enableServiceLinks: true
+      securityContext:
+        {{- toYaml $root.Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: runner
+          image: {{ include "ianua.runnerImage" $root }}
+          imagePullPolicy: {{ $root.Values.image.pullPolicy }}
+          ports:
+            - name: runner
+              containerPort: {{ $root.Values.agentSandboxes.runner.port }}
+          readinessProbe:
+            tcpSocket:
+              port: runner
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: runner
+            periodSeconds: 15
+          env:
+            - name: RUNNER_LISTEN
+              value: "0.0.0.0:{{ $root.Values.agentSandboxes.runner.port }}"
+            - name: RUNNER_AGENT_ID
+              value: {{ required "each agent needs an agentId" .agentId | quote }}
+            - name: RUNNER_API_URL
+              value: "http://$({{ $prefix }}_SERVER_SERVICE_HOST):$({{ $prefix }}_SERVER_SERVICE_PORT)/api/v1/organizations/{{ required "agentSandboxes.organization is required" $root.Values.agentSandboxes.organization }}/tenants/{{ required "agentSandboxes.tenant is required" $root.Values.agentSandboxes.tenant }}/agents"
+            {{- /*
+            The gateway's runner listener serves TLS with a certificate of
+            the internal authority, which the runner trusts alone for it,
+            checked for the Service's name while reached by its address, so
+            the pod makes no name lookup; every request sent there also
+            carries a proof made with the agent's key. The API is reached in
+            the clear inside the cluster, where the network policies below
+            let only this runner reach it.
+            */}}
+            - name: RUNNER_GATEWAY_URL
+              value: "https://$({{ $prefix }}_ZERO_INTERNAL_SERVICE_HOST):$({{ $prefix }}_ZERO_INTERNAL_SERVICE_PORT)"
+            - name: RUNNER_GATEWAY_NAME
+              value: {{ include "ianua.runnerHost" $root | quote }}
+            - name: RUNNER_GATEWAY_CA_FILE
+              value: /run/ianua-internal/ca-cert.pem
+            - name: RUNNER_PLAIN_HTTP
+              value: in_cluster
+            - name: RUNNER_UPSTREAM_HOST
+              value: {{ required "each agent needs an upstreamHost" .upstreamHost | quote }}
+            - name: RUNNER_TOKEN_AUDIENCE
+              value: {{ required "agentSandboxes.tokenAudience is required" $root.Values.agentSandboxes.tokenAudience | quote }}
+            - name: RUNNER_GRANTED
+              value: {{ required "each agent needs granted" .granted | quote }}
+            - name: RUNNER_IDENTITY
+              value: {{ $identity }}
+            {{- if eq $identity "spiffe" }}
+            - name: RUNNER_SVID_FILE
+              value: /run/svid/svid.pem
+            - name: RUNNER_SVID_KEY_FILE
+              value: /run/svid/svid_key.pem
+            {{- else }}
+            - name: RUNNER_KEY_FILE
+              value: /run/ianua/key.pem
+            - name: RUNNER_KEY_ID
+              value: {{ required "each agent needs a keyId with identity: key" .keyId | quote }}
+            {{- end }}
+          volumeMounts:
+            - name: internal-links
+              mountPath: /run/ianua-internal
+              readOnly: true
+            {{- if eq $identity "spiffe" }}
+            - name: svid
+              mountPath: /run/svid
+              readOnly: true
+            {{- else }}
+            - name: agent-key
+              mountPath: /run/ianua
+              readOnly: true
+            {{- end }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml $root.Values.agentSandboxes.runner.resources | nindent 12 }}
+        {{- if eq $identity "spiffe" }}
+        - name: spiffe-helper
+          image: {{ $root.Values.agentSandboxes.spiffe.helperImage }}
+          args: ["-config", "/etc/spiffe-helper/helper.conf"]
+          volumeMounts:
+            - name: spiffe-workload-api
+              mountPath: {{ dir $root.Values.agentSandboxes.spiffe.socketPath }}
+              readOnly: true
+            - name: svid
+              mountPath: /run/svid
+            - name: spiffe-helper-config
+              mountPath: /etc/spiffe-helper
+              readOnly: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+        {{- end }}
+      volumes:
+        {{- include "ianua.internalLinksVolume" (dict "root" $root "files" (list "ca-cert.pem")) | nindent 8 }}
+        {{- if eq $identity "spiffe" }}
+        - name: svid
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Mi
+        - name: spiffe-workload-api
+          csi:
+            driver: csi.spiffe.io
+            readOnly: true
+        - name: spiffe-helper-config
+          configMap:
+            name: {{ include "ianua.fullname" $root }}-spiffe-helper
+        {{- else }}
+        - name: agent-key
+          secret:
+            secretName: {{ required "each agent needs a keySecret with identity: key" .keySecret }}
+            defaultMode: 0400
+            items:
+              - key: key.pem
+                path: key.pem
+        {{- end }}
+{{- end }}

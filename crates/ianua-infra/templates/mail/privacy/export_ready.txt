@@ -1,0 +1,9 @@
+Hi {{ user_name | default("there") }},
+
+The copy of your data in {{ tenant_name | default("your organization") }} that you asked for is ready.
+
+Sign in to your account and open your privacy settings to download it. You can download it until {{ expires_at }}.
+
+This email holds no download link. If you did not ask for a copy, tell your administrator.
+
+IANUA

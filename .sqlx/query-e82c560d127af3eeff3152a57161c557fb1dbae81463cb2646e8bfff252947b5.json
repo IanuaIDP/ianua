@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes one certificate of one tenant, with its sealed key.\nDELETE FROM domain_certificates\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e82c560d127af3eeff3152a57161c557fb1dbae81463cb2646e8bfff252947b5"
+}

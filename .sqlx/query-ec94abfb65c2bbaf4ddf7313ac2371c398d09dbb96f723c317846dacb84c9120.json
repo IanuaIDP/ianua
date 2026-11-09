@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Serializes changes that can remove an active organization owner. Acquire\n-- before reading owners or locking member rows, and retain until the unit of\n-- work commits. A separate following read sees the preceding holder's commit.\nSELECT pg_advisory_xact_lock(hashtextextended('ianua.org_ownership:' || $1::uuid::text, 0))::text\n    AS \"held!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "held!",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "ec94abfb65c2bbaf4ddf7313ac2371c398d09dbb96f723c317846dacb84c9120"
+}

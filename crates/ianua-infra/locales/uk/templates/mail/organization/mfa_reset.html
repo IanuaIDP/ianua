@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ваш другий фактор скинуто{% endblock %}
+{% block preheader %}Власник {{ organization_name | default("вашої організації") }} скинув ваш другий фактор.{% endblock %}
+{% block headline %}Ваш другий фактор скинуто{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("користувачу")) }}
+  {% call c.para() %}Власник <strong>{{ organization_name | default("вашої організації") }}</strong> скинув другий фактор вашого облікового запису {{ c.brand() }}, і всі ваші сеанси завершено. Увійдіть знову з паролем і налаштуйте новий другий фактор.{% endcall %}
+  {% call c.para(pad=32) %}Якщо ви не надсилали цей запит, негайно повідомте власника вашої організації.{% endcall %}
+{% endblock %}

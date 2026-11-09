@@ -1,0 +1,122 @@
+[package]
+name = "ianua-infra"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "test_setup_bus"
+path = "src/test_support/setup_bus.rs"
+required-features = ["test-support"]
+
+[[bin]]
+name = "test_setup_cache"
+path = "src/test_support/setup_cache.rs"
+required-features = ["test-support"]
+
+[[bin]]
+name = "test_setup_objects"
+path = "src/test_support/setup_objects.rs"
+required-features = ["test-support"]
+
+[[bin]]
+name = "test_setup_postgres"
+path = "src/test_support/setup_postgres.rs"
+required-features = ["test-support"]
+
+[features]
+# The Kafka message-plane ACL-sync adapter. Empty until that adapter is
+# rebuilt here; the previous one is in git history at fad68319
+# (legacy/ianua-infra). The server already asks for it.
+kafka = []
+# The test database and the nextest setup script, for this crate's tests
+# and the e2e tests.
+test-support = ["ianua-domain/test-support"]
+
+[lints]
+workspace = true
+
+[dependencies]
+ianua-domain = { workspace = true }
+ianua-app = { workspace = true }
+ianua-integration = { workspace = true }
+async-graphql-parser = { workspace = true }
+hickory-resolver = { workspace = true }
+instant-acme = { workspace = true }
+jiff = { workspace = true }
+lettre = { workspace = true }
+maxminddb = { workspace = true }
+minijinja = { workspace = true }
+# Renders a refusal's message key in the caller's language from the
+# generated Fluent resources in `locales/`.
+fluent-bundle = { workspace = true }
+unic-langid = { workspace = true }
+openidconnect = { workspace = true }
+percent-encoding = { workspace = true }
+prometheus = { workspace = true }
+psl = { workspace = true }
+reqwest = { workspace = true }
+url = { workspace = true }
+webauthn-rs = { workspace = true }
+webauthn-rs-proto = { workspace = true }
+aes-gcm = { workspace = true }
+argon2 = { workspace = true }
+aws-lc-rs = { workspace = true }
+bcrypt = { workspace = true }
+pbkdf2 = { workspace = true }
+scrypt = { workspace = true }
+async-nats = { workspace = true }
+async-trait = { workspace = true }
+base64 = { workspace = true }
+data-encoding = { workspace = true }
+der = { workspace = true }
+ed25519-dalek = { workspace = true }
+futures-util = { workspace = true }
+hmac = { workspace = true }
+p256 = { workspace = true }
+rand = { workspace = true }
+bytes = { workspace = true }
+flate2 = { workspace = true }
+tar = { workspace = true }
+zip = { workspace = true }
+# A sandbox bundle is unpacked and packed in a folder that goes with it.
+tempfile = { workspace = true }
+http = { workspace = true }
+# The sandbox gate speaks the Docker Engine API over its local socket.
+http-body-util = { workspace = true }
+hyper = { workspace = true }
+hyper-util = { workspace = true }
+jsonschema = { workspace = true }
+k8s-openapi = { workspace = true }
+kube = { workspace = true }
+md-5 = { workspace = true }
+rcgen = { workspace = true, features = ["x509-parser"] }
+redis = { workspace = true }
+roxmltree = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha1 = { workspace = true }
+sha2 = { workspace = true, features = ["oid"] }
+sqlx = { workspace = true }
+# The network filter compares a ticket's signature in constant time.
+subtle = { workspace = true }
+thiserror = { workspace = true }
+time = { workspace = true }
+tokio = { workspace = true }
+tokio-rustls = { workspace = true, features = ["ring"] }
+totp-rs = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+webpki-roots = { workspace = true }
+x509-cert = { workspace = true }
+zeroize = { workspace = true }
+ianua-workspace-hack = { version = "0.1", path = "../ianua-workspace-hack" }
+
+[dev-dependencies]
+hkdf = { workspace = true }
+proptest = { workspace = true }
+wiremock = { workspace = true }
+ianua-app = { workspace = true, features = ["test-support"] }
+ianua-infra = { path = ".", features = ["test-support"] }
+syn = { workspace = true }

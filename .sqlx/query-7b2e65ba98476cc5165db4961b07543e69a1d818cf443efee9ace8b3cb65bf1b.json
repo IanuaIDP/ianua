@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many subscriptions a tenant's message topics hold against its plan,\n-- paused ones too.\nSELECT count(*) AS \"count!\"\nFROM topic_subscriptions\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "7b2e65ba98476cc5165db4961b07543e69a1d818cf443efee9ace8b3cb65bf1b"
+}

@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}サインイン用リンク{% endblock %}
+{% block preheader %}このリンクでアカウントにサインインしてください。{% endblock %}
+{% block headline %}{{ tenant_name | default("アカウント") }}にサインイン{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para(pad=8) %}下のボタンからサインインしてください。パスワードは不要です。{% endcall %}
+  {{ c.cta(action_url, "サインイン") }}
+  {% call c.para(pad=0) %}このリンクの有効期間は{{ expires_at }}です。{% endcall %}
+  {% call c.para(pad=32) %}この申請に心当たりがない場合は、このメールを無視してください。{% endcall %}
+{% endblock %}

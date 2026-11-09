@@ -1,0 +1,10 @@
+Hallo{% if user_name is defined and user_name %} {{ user_name | default("") }}{% endif %}!
+
+Melden Sie sich über diesen Link bei {{ tenant_name | default("Ihrem Konto") }} an. Ein Passwort ist nicht erforderlich:
+{{ action_url }}
+
+Dieser Link läuft in {{ expires_at }} ab.
+
+Wenn Sie dies nicht angefordert haben, können Sie diese E-Mail ignorieren.
+
+IANUA

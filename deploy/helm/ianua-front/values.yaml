@@ -1,0 +1,46 @@
+# Default values for the ianua-front chart.
+
+image:
+  registry: ghcr.io
+  repository: ianuaidp
+  name: ianua-front
+  # Empty falls back to Chart.appVersion ("latest"). Pin to a commit SHA in prod.
+  tag: ''
+  pullPolicy: IfNotPresent
+
+# GHCR is private. Reference a pull secret that exists in the namespace.
+imagePullSecret:
+  existingSecret: ianua-ghcr
+
+replicas: 1
+port: 3000
+
+# Server-side API base URL — the Next.js route handlers proxy to the backend
+# with this. The browser-facing NEXT_PUBLIC_API_URL is baked into the image at
+# build time (see the Dockerfile build arg), not set here.
+apiUrl: https://api.ianua.io/api/v1
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 160Mi
+  limits:
+    memory: 384Mi
+
+# The apex (ianua.io) enters here. LoadBalancer provisions a cloud LB on LKE;
+# put Cloudflare in front for TLS. Port 80 so the proxy can reach it.
+service:
+  type: LoadBalancer
+  port: 80
+  annotations: {}
+
+serviceAccount:
+  create: true
+  name: ''
+
+podSecurityContext:
+  runAsNonRoot: true
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

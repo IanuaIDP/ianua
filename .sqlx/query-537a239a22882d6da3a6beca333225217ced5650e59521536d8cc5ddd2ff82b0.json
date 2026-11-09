@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Holds who holds what in one tenant (its roles given straight, its\n-- groups' places and roles, its group tree) for the running transaction,\n-- waiting while another transaction holds it, so a change checked against\n-- what the grants would become is never raced by another such change.\n-- Inside a unit of work it holds until the unit settles. The lock answers\n-- nothing; it is read as text only so the statement has a column.\nSELECT pg_advisory_xact_lock(hashtextextended('ianua.access_grants:' || $1::uuid::text, 0))::text\n    AS \"held!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "held!",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "537a239a22882d6da3a6beca333225217ced5650e59521536d8cc5ddd2ff82b0"
+}

@@ -1,0 +1,7 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+Se creó un conjunto nuevo de códigos de recuperación para su cuenta en {{ tenant_name | default("su organización") }}{% if remaining_codes is defined %}. Códigos sin usar: {{ remaining_codes }}{% endif %}. Sus códigos anteriores ya no funcionan.
+
+Guarde los códigos en un lugar seguro: cada uno permite iniciar sesión una vez si pierde el segundo factor. Si no lo hizo usted, avise a su administrador.
+
+IANUA

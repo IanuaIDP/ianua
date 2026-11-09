@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many federation connections a tenant holds against its plan,\n-- disabled ones too.\nSELECT count(*) AS \"count!\"\nFROM federation_connections\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "fab147497ab233f54170515f8ca01c9bd80c60d4861d200808d12b5a9110adf4"
+}

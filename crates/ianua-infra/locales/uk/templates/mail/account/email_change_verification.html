@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Підтвердьте нову адресу електронної пошти{% endblock %}
+{% block preheader %}Підтвердьте нову адресу, щоб завершити зміну.{% endblock %}
+{% block headline %}Підтвердьте нову адресу електронної пошти{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("користувачу")) }}
+  {% call c.para() %}Надійшов запит на зміну адреси вашого облікового запису {{ c.brand() }} на <strong>{{ user_email }}</strong>.{% endcall %}
+  {% call c.para(pad=8) %}Щоб завершити зміну, підтвердьте цю адресу.{% endcall %}
+  {{ c.cta(action_url, "Підтвердити нову адресу") }}
+  {% call c.para(pad=0) %}Строк дії цього посилання: {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Якщо ви не надсилали цей запит, проігноруйте цей лист.{% endcall %}
+{% endblock %}

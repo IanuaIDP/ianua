@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many of the tenant's users signed in at least once in the window.\nSELECT count(DISTINCT actor_id) AS \"count!\"\nFROM audit_records\nWHERE tenant_id = $1 AND event_type = 'authentication.login_succeeded'\n    AND actor_kind = 'tenant_user' AND occurred_at >= $2 AND occurred_at < $3\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "7161dceee1f0fce060a403028c9ecefcdf9511ddfcb6499ea71f135f3db7b2b5"
+}

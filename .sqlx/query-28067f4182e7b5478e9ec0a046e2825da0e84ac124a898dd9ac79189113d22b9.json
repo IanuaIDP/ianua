@@ -1,0 +1,101 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The delegation requests of a tenant with the given ids.\nSELECT id, agent_id, asked_of_kind, asked_of_id, asked_of_person, granted, limits, reason,\n       state, delegation_id, decided_at, created_at, expires_at, updated_at\nFROM delegation_requests\nWHERE tenant_id = $1 AND id = ANY($2)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "agent_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "asked_of_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "asked_of_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "asked_of_person",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "granted",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 6,
+        "name": "limits",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 7,
+        "name": "reason",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "state",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "delegation_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 10,
+        "name": "decided_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 11,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 12,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 13,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "28067f4182e7b5478e9ec0a046e2825da0e84ac124a898dd9ac79189113d22b9"
+}

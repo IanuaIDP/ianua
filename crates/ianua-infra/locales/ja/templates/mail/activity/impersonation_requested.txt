@@ -1,0 +1,11 @@
+{{ user_name | default("ご利用者") }}様
+
+{{ tenant_name | default("所属組織") }}の{{ requester_name | default("管理者") }}が、アカウントの問題をサポートするため、あなたの代理での操作を申請しています。
+{% if reason is defined %}
+理由：{{ reason }}
+{% endif %}
+アカウントにサインインして、承認または拒否してください。申請の有効期間は{{ expires_at }}です。
+
+承認するまで何も行われません。心当たりがない場合は、申請を拒否し、管理者に連絡してください。
+
+IANUA

@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The oldest organization and platform records still to be published,\n-- with what the bus carries of them, locked for this relay; another relay\n-- passes over them.\nSELECT o.record_id AS id, r.organization_id, r.actor, r.event_type, r.payload, r.occurred_at\nFROM platform_event_outbox o\nJOIN platform_audit_records r ON r.id = o.record_id\nORDER BY o.queued_at, o.record_id\nLIMIT $1\nFOR UPDATE OF o SKIP LOCKED\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "actor",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "event_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "payload",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 5,
+        "name": "occurred_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "f25e53422f2e0b2e52f1f44d50de1a0f716785d9571ef27b84127fee54d5b505"
+}

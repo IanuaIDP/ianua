@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Reconcile the desired roots in bulk, preserving existing leases and certificates.\nINSERT INTO platform_certificates (root, tenant_id, readable, nameservers, address)\nSELECT wanted.root, wanted.tenant_id, wanted.readable, $4, $5\nFROM unnest($1::text[], $2::uuid[], $3::boolean[]) AS wanted(root, tenant_id, readable)\nJOIN tenants t ON t.id = wanted.tenant_id\nWHERE t.status IN ('active', 'provisioning') AND (NOT wanted.readable OR t.readable_address)\nON CONFLICT (root) DO UPDATE SET nameservers = EXCLUDED.nameservers, address = EXCLUDED.address\nWHERE platform_certificates.tenant_id = EXCLUDED.tenant_id\n    AND platform_certificates.readable = EXCLUDED.readable\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "TextArray",
+        "UuidArray",
+        "BoolArray",
+        "TextArray",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9a164f80848609d0712b483eab7de1b248e34e263023d7bbd0ddc1a03bb7eea9"
+}

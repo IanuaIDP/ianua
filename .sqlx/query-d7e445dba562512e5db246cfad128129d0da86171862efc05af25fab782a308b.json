@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Marks one tenant's authorization code used, only while it is still\n-- unused: of two exchanges of one code arriving together, only one changes\n-- the row.\nUPDATE oauth_codes\nSET consumed_at = $3\nWHERE tenant_id = $1 AND code_hash = $2 AND consumed_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d7e445dba562512e5db246cfad128129d0da86171862efc05af25fab782a308b"
+}

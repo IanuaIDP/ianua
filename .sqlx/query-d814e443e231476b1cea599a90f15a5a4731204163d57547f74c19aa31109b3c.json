@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a user's passkey: a new one is added, a known one of the same\n-- tenant and user takes its new name, counter and last use. Its credential\n-- id, public key and registration time never change. The counter and the\n-- last use only move forward, so a save of a copy read before a later\n-- sign-in never lowers the counter a cloned key is caught by.\nINSERT INTO passkey_credentials\n    (id, tenant_id, user_id, credential_id, public_key, sign_count,\n     authenticator_type, attestation, name, last_used_at, created_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\nON CONFLICT (id) DO UPDATE SET\n    sign_count = GREATEST(passkey_credentials.sign_count, EXCLUDED.sign_count),\n    name = EXCLUDED.name,\n    last_used_at = GREATEST(passkey_credentials.last_used_at, EXCLUDED.last_used_at)\nWHERE passkey_credentials.tenant_id = EXCLUDED.tenant_id\n    AND passkey_credentials.user_id = EXCLUDED.user_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Bytea",
+        "Bytea",
+        "Int8",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d814e443e231476b1cea599a90f15a5a4731204163d57547f74c19aa31109b3c"
+}

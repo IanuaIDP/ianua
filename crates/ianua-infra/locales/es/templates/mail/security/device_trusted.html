@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Se ha marcado un dispositivo nuevo como de confianza{% endblock %}
+{% block preheader %}Se añadió un dispositivo a los dispositivos de confianza de su cuenta.{% endblock %}
+{% block headline %}Se ha marcado un dispositivo nuevo como de confianza{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para() %}{% if device_name is defined %}<strong>{{ device_name }}</strong>{% else %}Un dispositivo nuevo{% endif %} se añadió a los dispositivos de confianza de su cuenta en <strong>{{ tenant_name | default("su organización") }}</strong>{% if ip_address is defined %}, desde {{ ip_address }}{% endif %}. Un dispositivo de confianza puede omitir el segundo paso de inicio de sesión.{% endcall %}
+  {% call c.para(pad=32) %}Si no reconoce este dispositivo, elimínelo en los ajustes de su cuenta y cambie su contraseña.{% endcall %}
+{% endblock %}

@@ -1,0 +1,10 @@
+error[E0624]: associated function `spent` is private
+ --> tests/compile_fail/refusal_made_up.rs:7:34
+  |
+7 |     let _refused = TokenRefused::spent();
+  |                                  ^^^^^ private associated function
+  |
+ ::: src/types/lifecycle/token_state.rs
+  |
+  |     pub(crate) fn spent() -> Self {
+  |     ----------------------------- private associated function defined here

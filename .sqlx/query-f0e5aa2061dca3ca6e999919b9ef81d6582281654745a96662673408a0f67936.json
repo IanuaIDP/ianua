@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an organization API key: a new one is added, a known one takes the\n-- new values. Its organization, secret, creator, parent and creation time\n-- never change.\nINSERT INTO org_api_keys\n    (id, organization_id, name, key_prefix, key_hash, scopes, created_by, parent_key_id,\n     expires_at, last_used_at, status, created_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)\nON CONFLICT (id) DO UPDATE SET\n    name = EXCLUDED.name,\n    scopes = EXCLUDED.scopes,\n    expires_at = EXCLUDED.expires_at,\n    last_used_at = EXCLUDED.last_used_at,\n    status = EXCLUDED.status\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "TextArray",
+        "Uuid",
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f0e5aa2061dca3ca6e999919b9ef81d6582281654745a96662673408a0f67936"
+}

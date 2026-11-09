@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes the group an organization keeps under one address; its links go\n-- with it.\nDELETE FROM org_linked_identities\nWHERE organization_id = $1 AND email = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "47581931e755c8c0483fd9dfa2cfbfb4a57bc9295412cb6ca557cad78610e330"
+}

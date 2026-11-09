@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Locks the zone one tenant holds for one hostname until the transaction\n-- ends, so changes to the values of its sets run one after another.\n-- Answers the hostname when the tenant holds the zone.\nSELECT hostname\nFROM dns_zones\nWHERE tenant_id = $1 AND hostname = $2\nFOR UPDATE\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "hostname",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "8b7a0f1312af48b17b7197a45e10079041e1e31809ce0f6df5c817a63c9b5dde"
+}

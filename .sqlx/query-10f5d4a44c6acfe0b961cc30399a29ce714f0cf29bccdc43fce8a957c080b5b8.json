@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Takes every role off the record of what a connection's mapping gave an\n-- account of a tenant.\nDELETE FROM mapped_holding_roles\nWHERE tenant_id = $1 AND connection_id = $2 AND user_id = $3\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "10f5d4a44c6acfe0b961cc30399a29ce714f0cf29bccdc43fce8a957c080b5b8"
+}

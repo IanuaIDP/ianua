@@ -1,0 +1,47 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The countries a user of a tenant signed in from, each with the place and\n-- time of the latest sign-in from it, the latest first.\nSELECT country_code, latitude, longitude, city, signed_in_at\nFROM sign_in_countries\nWHERE tenant_id = $1 AND user_id = $2\nORDER BY signed_in_at DESC, country_code\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "country_code",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "latitude",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 2,
+        "name": "longitude",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 3,
+        "name": "city",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "signed_in_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "c48c8f68d57e2d25763a8255ff97b19f50b829a73bceb3b704c185c2b9ea5e4c"
+}

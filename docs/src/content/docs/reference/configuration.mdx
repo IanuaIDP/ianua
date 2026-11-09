@@ -1,0 +1,934 @@
+---
+title: Configuration
+description: Every environment variable ianua reads, what it does and its default.
+sidebar:
+  order: 1
+---
+
+Ianua is configured only through environment variables. Each process reads them once, when it starts, and checks them all before anything runs.
+
+- **Unset or blank** means the default in the tables below. A setting with no default, marked **required**, stops the process when it is missing.
+- **A wrong value stops the process**, with a message naming the variable. A typo is never quietly replaced by the default. A number outside its range is refused the same way.
+- **Units are in the name.** `_SECONDS`, `_MS`, `_MINUTES`, `_HOURS`, `_DAYS`, `_BYTES` and `_KIB` say what the number means.
+- **Addresses hold no user or password.** A URL setting with a credential in it is refused, since the address is printed with the configuration. Credentials have settings of their own. A refused address is never repeated in the message.
+- **On or off** settings take `true`, `1`, `yes` or `on`, and `false`, `0`, `no` or `off`. Choices, such as `MODE`, match in any case.
+- **Lists** are comma-separated. Blank entries are dropped.
+- A `.env` file in the working directory is read too. A variable the process was given wins over the file's.
+- At start the server logs the names of the settings that were set. It never logs their values.
+
+## Secrets in files
+
+Every secret can be given in its variable, or as a file. Set `NAME_FILE` to the path of a file holding the value, for secrets mounted by Kubernetes or Docker. One trailing line break is dropped. Setting both `NAME` and `NAME_FILE` is refused, and so is an empty file.
+
+These take a `_FILE` variant: `DATABASE_URL`, `MIGRATION_DATABASE_URL`, `AUDIT_PURGE_DATABASE_URL`, `GATEWAY_DATABASE_URL`, `NAMESERVER_DATABASE_URL`, `HMAC_SECRET`, `EVENT_SIGNING_SECRET`, `ENCRYPTION_KEY`, `ENCRYPTION_RETIRED_KEYS`, `CACHE_URL`, `BUS_TOKEN`, `FILES_OBJECTS_SECRET_ACCESS_KEY`, `SMTP_PASSWORD`, `SENDGRID_API_KEY`, `POSTMARK_SERVER_TOKEN`, `MAILGUN_API_KEY`, `SES_SECRET_ACCESS_KEY`, `TWILIO_AUTH_TOKEN`, `TWILIO_API_KEY_SECRET`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `TURNSTILE_SECRET_KEY`, `AGENT_INTENT_EMBEDDING_API_KEY`, `CLOUD_AWS_SECRET_ACCESS_KEY`, `CLOUD_AWS_SESSION_TOKEN`, `INSTALL_OWNER_PASSWORD` and `OPERATOR_PASSWORD`. The gateway's `VAULT_TOKEN` and `LOG_SINK_AUTH` take one too, and so does the agent runner's `RUNNER_KEY`.
+
+No refusal ever repeats a secret's value.
+
+## Setting them
+
+**With Helm.** The chart sets the common variables from its own values (`config.baseDomain`, `config.email`, `secrets.*` and so on). Anything else goes under `config.env`, by variable name. Every component gets it:
+
+```yaml
+config:
+  env:
+    MFA_LOCKOUT_SECONDS: "1800"
+    GATEWAY_MAX_CONNECTIONS: "20000"
+```
+
+Don't repeat a variable the chart already sets from another value. The chart refuses to render if you do.
+
+**Anywhere else** (Docker, systemd, a shell), set them as normal environment variables.
+
+## Processes
+
+| Process | Binary | Reads |
+| --- | --- | --- |
+| API and worker | `ianua` (`ianua-server`) | Every section from [Commands and modes](#commands-and-modes) to [Connectors](#connectors) |
+| Gateway | `ianua-zero` | [Gateway](#gateway) |
+| Agent runner | `ianua-runner` | [Agent runner](#agent-runner) |
+| Egress gateway | `ianua-egress` | [Egress gateway](#egress-gateway) |
+| Connector | `ianua-connector` | [Connector](#connector) |
+| Nameserver | `ianua-dns` | [Nameserver](#nameserver) |
+
+## Commands and modes
+
+The `ianua` binary runs one command. With none it serves.
+
+| Command | What it does | What it reads |
+| --- | --- | --- |
+| `ianua` or `ianua serve` | Serves the API, runs the worker, or both, as `MODE` says. | Everything |
+| `ianua migrate` | Brings the schema up to date as the database owner, makes the app's and the audit purge's roles, and the gateway's and the nameservers' where their logins are set, and exits. | `APP_ENV`, the logging settings and the database settings only |
+| `ianua install` | Makes a self-hosted installation's organization, first tenant and owner, then exits. | Everything, and the `INSTALL_*` settings |
+| `ianua operator create --email <address>` | Makes the platform's first operator, then exits. | Everything, and `OPERATOR_PASSWORD` |
+| `ianua demo` | Seeds a demonstration organization, then exits. Development only. | Everything |
+| `ianua link-pki --server-name <host> --nameservers <ns1,ns2> --out <folder>` | Issues the private authority, the listener's certificate and one certificate per nameserver for the [nameserver link](#domains-and-certificates), writes them to the folder, and exits. Refuses to write over any of them. | Nothing |
+| `ianua internal-pki --gateway-name <host> --api-name <host> --out <folder>` | Issues the internal authority, the certificates of the gateway's workflow and runner listeners for the name the worker and runners dial it by, the certificate of the API's relay listener for the name the gateway dials it by, and the worker's and the gateway's certificates, writes them to the folder, prints the settings the gateway, the API and the worker take, and exits. Refuses to write over any of them. | Nothing |
+| `ianua connector-pki --listener-names <host,...> --out <folder>` | Issues the connector authority and the certificate of the gateway's connector listener for the names connectors dial it by, writes them to the folder, prints the settings each side takes, and exits. Refuses to write over any of them. See [Connectors](#connectors). | Nothing |
+
+`MODE` picks what `serve` runs: `api`, `worker` or `all` (the default). Every command but `migrate` reads and checks every setting, whatever `MODE` says, except the two only one command reads: `INSTALL_*` and `OPERATOR_PASSWORD`. A setting only matters where its part runs:
+
+- **API nodes** (`api`, `all`) use the public listener, sign-in, the [LDAP directory](#ldap-directory) and the rest of the API's settings.
+- **Worker nodes** (`worker`, `all`) use the [worker](#worker) settings, and migrate as they start.
+- **Every node** uses the database, the keys, the bus, the cache, the file store and the internal listener, which answers `/health/live`, `/health/ready` and `/metrics` on every node. Every node's probes go to `INTERNAL_PORT`; the public listener serves no probe.
+
+## Start-up checks
+
+Besides each value on its own, the server checks the settings against each other and against the command. Each of these stops it with a message naming the setting:
+
+- **Privileged logins.** The worker (`MODE=worker` or `all`) and the `migrate`, `install` and `operator create` commands need both `MIGRATION_DATABASE_URL` and `AUDIT_PURGE_DATABASE_URL`. A node serving `MODE=api` must hold neither: the server refuses to start an API node with either set.
+- **Roles apart.** `DATABASE_URL`, `MIGRATION_DATABASE_URL` and `AUDIT_PURGE_DATABASE_URL` must sign in as three different roles, `GATEWAY_DATABASE_URL`, where set, as a fourth, and `NAMESERVER_DATABASE_URL`, where set, as a fifth. An API node must not hold `GATEWAY_DATABASE_URL` or `NAMESERVER_DATABASE_URL` either.
+- **Shared bus and cache.** A split deployment (`MODE=api` or `worker`) needs `BUS_URL` and `CACHE_URL`, so the nodes share events, counts and cache versions. `BUS_URL` without `CACHE_URL` is refused too.
+- **Two roots.** `EVENT_SIGNING_SECRET` must not be the same key as `HMAC_SECRET`, in any spelling.
+- **Certificate orders.** On worker nodes, `JOB_TLS_TIMEOUT_SECONDS` must be longer than `ACME_DNS_PROPAGATION_TIMEOUT_SECONDS`, or every order over DNS would be stopped while it still waits.
+- **Event waits.** `WORKER_EVENT_RETRY_DELAY_SECONDS` must be shorter than `WORKER_EVENT_ACK_WAIT_SECONDS`.
+- **Command fits the deployment.** `ianua demo` is refused when `APP_ENV` is production. `ianua install` is refused unless `DEPLOYMENT=self_hosted`.
+- **Settings nothing would read.** These are refused rather than ignored, so nobody believes they did something:
+  - `INSTALL_*` for `serve`, `operator create` and `demo`.
+  - `TRUSTED_DOMAINS` without `DEPLOYMENT=self_hosted`.
+  - `OPERATOR_PASSWORD` for `serve`, `install` and `demo`.
+  - Another mail provider's settings than `EMAIL_PROVIDER` names, and any provider's settings with `none`.
+  - `FILES_OBJECTS_*` with `FILES_STORE=disk`, and `FILES_DIR` with `objects`.
+  - `BUS_TOKEN` or `BUS_CREDENTIALS_FILE` without `BUS_URL`.
+  - `ACME_CONTACT_EMAIL` without `ACME_DIRECTORY_URL`.
+  - The `GRPC_*` files without `GRPC_LISTEN`, `GRPC_LISTEN` on a worker node, and the LDAP certificate or `LDAP_TLS_TERMINATED_UPSTREAM` without `LDAP_BIND_ADDR`.
+  - Agent attestation settings for an attestation `AGENT_ATTESTATION_ALLOWLIST` does not list, and embedding settings without `AGENT_INTENT_EMBEDDING_URL`.
+- **Half a set.** A provider's settings come whole or not at all: Stripe needs its key and its signing secret; Twilio needs an account, one way to sign in and one sender; the AWS keys need both halves; Turnstile needs its secret and its hostnames; SMTP takes a username and a password together; a certificate and its key come together.
+- **Unsafe in production.** `SMTP_TLS=none`, a plain `http` `TWILIO_API_URL` or `PASSWORD_BREACH_URL`, a plain LDAP directory, `OUTBOUND_DELIVERY_CA_FILE`, and a site with a port in `JIRA_SITES` or `SALESFORCE_SITES` are refused when `APP_ENV` is production. Without ACME or upstream TLS termination, custom domains require uploaded certificates.
+
+## Deployment
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `APP_ENV` | `production` | `production` or `development` (also `prod`, `dev`). Development puts internal error chains in answers and relaxes the checks meant for production, so it is asked for by name. |
+| `MODE` | `all` | `api`, `worker` or `all`. See [Commands and modes](#commands-and-modes). |
+| `DEPLOYMENT` | `cloud` | `cloud`, the hosted service, or `self_hosted` (also `self-hosted`), one organization's own installation. |
+| `APP_BASE_URL` | **required** | The dashboard's public `https` address. Emailed links and identity providers point here. File download links and tenants' logos are made under it too, at `{APP_BASE_URL}/api/v1/files/...`, so whatever serves this address must send `/api/v1` to the API. |
+| `PROXY_BASE_DOMAIN` | **required** | The domain tenants' platform subdomains sit under. |
+| `PLATFORM_ADDRESSING` | chosen from TLS settings | `off`, `flat` or `nested`. Self-hosted installations with an operator wildcard default to `flat`, with apps at `wiki-k7f3q9.apps.example.com`. Cloud deployments with ACME, nameservers and a proxy address default to `nested`, at `wiki.k7f3q9.apps.example.com`. Otherwise platform addresses are off and startup reports custom domains only. |
+| `PLATFORM_WILDCARD_TLS` | `false` | Confirms the operator supplies a certificate covering `*.PROXY_BASE_DOMAIN`. Required for `flat`; the operator obtains and renews it with their own tooling. |
+| `PLATFORM_HOSTS` | empty | Additional deployment hostnames, comma-separated. Their first labels are reserved against organization slugs, alongside configured public URLs, nameservers, the apps domain and `app`, `api`, `www`, `ns1`, `ns2`. The Helm chart includes its ingress and Traefik hosts. Sixteen-character hexadecimal slugs are also reserved for random tenant labels. |
+| `EMAIL_LOGO_URL` | `https://api.ianua.io/email-logo.png` | The logo shown in mail. |
+| `OAUTH_DEVICE_VERIFICATION_URI` | `{APP_BASE_URL}/device` | Where the device sign-in flow sends a person to type their code. |
+| `TRUSTED_DOMAINS` | empty | Parent domains whose names tenants may use without a DNS proof. Only with `DEPLOYMENT=self_hosted`: on a shared deployment it would let any tenant claim any name beneath them. |
+
+### Self-hosted installation
+
+Read by `ianua install` alone, which makes the organization from them and runs only with `DEPLOYMENT=self_hosted`. Every other command refuses them, so give them to the install run only: the owner's first password never stays in a server's environment. Changing them after the install changes nothing.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `INSTALL_ORGANIZATION_NAME` | **required** | Name of the one organization. |
+| `INSTALL_TENANT_NAME` | `Main` | Name of its first tenant. |
+| `INSTALL_OWNER_EMAIL` | **required** | The owner's address, which they sign in with. |
+| `INSTALL_OWNER_NAME` | `Owner` | The owner's name, as the dashboard shows it. |
+| `INSTALL_OWNER_PASSWORD` | **required** | The owner's first password. |
+
+The first install prints a one-time setup token. Sending it to `POST /api/v1/users/confirm-installer` within a day confirms the owner's address, so they can sign in without a mail server. If their first sign-in after it comes from a new device, they set up a second factor there. Later sign-ins from a new device ask for it.
+
+### First operator
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `OPERATOR_PASSWORD` | **required** for `operator create` | The first operator's password. Read only by `ianua operator create --email <address>`, and refused by `serve`, `install` and `demo`: a password left in a server's environment outlives the one run that needed it. The command makes nobody once any operator exists. |
+
+## Logging
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `LOG_LEVEL` | `info` | Which log lines are written, as a filter such as `info,ianua_infra=debug`. |
+| `LOG_FORMAT` | `json` in production, `text` in development | `json`, one object a line for a log collector, or `text`. |
+
+## Database
+
+The platform signs in to Postgres as three roles, and makes a fourth for the gateway and a fifth for the nameservers where each is deployed. Each URL must name its role and hold its password. Role names take lowercase letters, digits and underscores only.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `DATABASE_URL` | **required** | The app's role. It owns nothing, and row-level security confines it to one tenant at a time. |
+| `MIGRATION_DATABASE_URL` | **required** on the worker and for `migrate`, `install` and `operator create`; refused on `MODE=api` | The database owner. It migrates, makes the app's and the audit purge's roles with the passwords their URLs hold, and makes tenants' own schemas. A process that holds it migrates as it starts; one that does not waits until the schema is current. |
+| `AUDIT_PURGE_DATABASE_URL` | Required and refused like `MIGRATION_DATABASE_URL` | The audit retention purge's own role, the only one that may remove audit records. |
+| `GATEWAY_DATABASE_URL` | none; refused on `MODE=api` | The gateway's role, such as `ianua_gateway`. Set it on worker nodes, and for `migrate` and `install`, where a gateway is deployed: the migrations then make that role with the password the URL holds and its narrow grants, and open tenants' own schemas to it. The server never signs in as it. The gateway signs in with the same setting and the same value. |
+| `NAMESERVER_DATABASE_URL` | none; refused on `MODE=api` | The nameservers' role, such as `ianua_nameserver`. Set it on worker nodes, and for `migrate` and `install`, where `ianua-dns` is deployed: the migrations then make that role with the password the URL holds. It reads the zones, their records, and of each claim on a name only who holds it and whether it was proved, and nothing else. The server never signs in as it. `ianua-dns` signs in with the same setting and the same value. |
+| `DATABASE_MAX_CONNECTIONS` | `10` | Connection pool size, from 1 to 1000. |
+| `TENANT_DB_MAX_CONNECTIONS` | `5` | Pool size for each tenant's own database, from 1 to 1000. |
+| `DATABASE_ACQUIRE_TIMEOUT_SECONDS` | `5` | Longest wait for a free connection. |
+| `AUDIT_PURGE_MAX_CONNECTIONS` | `2` | The purge's pool, from 1 to 100. |
+| `AUDIT_REQUIRE_SEALED` | on in production | Refuse to start unless the app's role can neither change nor remove an audit record. The gateway does not read it. |
+| `DATABASE_READY_POLL_SECONDS` | `3` | How often a starting process asks again whether the schema is current. |
+| `TENANT_DB_RELOAD_SECONDS` | `300` | How often each node reads every tenant's database route again. The gateway does not read it; it reloads on `GATEWAY_RELOAD_SECONDS`. |
+
+## Keys
+
+The three keys are each exactly 32 bytes, written as 64 hex characters or as base64. `openssl rand -hex 32` makes one.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `HMAC_SECRET` | **required** | The shared root. It keys the digests of handed-out secrets, such as API keys and codes, and the data-plane checks. The gateway holds it too, with the same value. |
+| `EVENT_SIGNING_SECRET` | **required** | The control root. It keys the seals on events, live updates, the audit chain and delivery receipts, the passkey ceremonies, file links, the pairwise IDs SAML apps are sent, and the sign-in puzzles. The gateway never holds it, so it cannot forge any of them. Must not be `HMAC_SECRET`. |
+| `ENCRYPTION_KEY` | **required** | The key stored secrets are sealed under now. Never lose it: what was sealed under it cannot be read without it. |
+| `ENCRYPTION_KEY_ID` | `k1` | The id the current key is filed under. |
+| `ENCRYPTION_RETIRED_KEYS` | empty | Earlier keys, as `id:key` pairs, comma-separated. Values sealed under them are still opened. No id twice, and none the current key's. |
+| `ARGON2_MEMORY_KIB` | `65536` | Memory for one password hash. |
+| `ARGON2_ITERATIONS` | `3` | Passes for one password hash. |
+| `ARGON2_LANES` | `4` | Lanes for one password hash. |
+| `ARGON2_MAX_CONCURRENCY` | `0` | Password hashes run at once on a node. `0` means one per CPU. It also sets how many sign-ins a node works on at once, never more than half of `DATABASE_MAX_CONNECTIONS`, so a crowd of sign-ins always leaves connections for everybody else. |
+| `ARGON2_PERMIT_WAIT_MS` | `500` | How long a sign-in waits for a free place, and then for a free hash, before it is told the server is busy. |
+
+## Bus
+
+Events go out over a NATS bus. Without `BUS_URL` the bus lives inside the process, which only a single node (`MODE=all`) may use.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `BUS_URL` | unset | The bus server, as `nats://`, `tls://`, `ws://` or `wss://`. It must not hold a user or password. **Required** with `MODE=api` or `worker`. |
+| `BUS_TOKEN` | unset | A token to sign in to the bus with. |
+| `BUS_CREDENTIALS_FILE` | unset | Or a NATS credentials file. Not both. |
+| `BUS_TIMEOUT_SECONDS` | `5` | Longest one call to the bus may take. |
+| `BUS_MEMORY_EVENTS` | `10000` | Events the in-process bus keeps, from 1 to 10,000,000. |
+
+## Cache
+
+Rate limit counts, cache versions and spent sign-in puzzles are shared through a Redis cache. Without `CACHE_URL` they live inside the process.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `CACHE_URL` | unset | The cache server, as `redis://` or `rediss://`. It may hold a password, so it is read as a secret. **Required** with `MODE=api` or `worker`, and whenever `BUS_URL` is set. |
+| `CACHE_TIMEOUT_SECONDS` | `5` | Longest one call or connection attempt to the cache may take. |
+| `CACHE_MEMORY_ENTRIES` | `100000` | Entries the in-process cache holds, from 1 to 100,000,000. |
+| `STORE_CACHE_LIFETIME_SECONDS` | `20` | How long a resolved caller and its access records are kept in front of the database, from 1 to 300. It is how long a revoked grant may still be served. |
+| `STORE_CACHE_CALLERS` | `50000` | Resolved callers kept, from 1 to 10,000,000. |
+| `STORE_CACHE_HOLDINGS` | `20000` | Holders' access records kept, from 1 to 10,000,000. |
+
+After a connection loss, the cache client reconnects automatically with bounded,
+randomized delays. A short outage does not require restarting the server or gateway.
+
+## Namespace
+
+Every name the platform uses on the bus server and the cache server starts with its namespace: the event subjects (`<namespace>.tenant.<id>.<event type>`), the streams (`<namespace>-events`, `<namespace>-messages`, `<namespace>-dead-letters`), the worker's consumers inside those streams, live updates, and every cache key (`<namespace>:<key>`). Two deployments with different namespaces, such as staging and production, can share one bus server and one cache server and never hear each other's events or count each other's limits. Give each its own `HMAC_SECRET` and `EVENT_SIGNING_SECRET` as well.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `NAMESPACE` | `ianua` | What every bus and cache name starts with. 1 to 32 lower-case letters, digits and dashes, starting and ending with a letter or digit. The default keeps the names the platform has always used. The server and the gateway of one deployment must hold the same value. |
+
+## Files
+
+Data exports, audit log exports and tenants' logos.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `FILES_STORE` | `disk` | `disk`, a directory of the node, or `objects`, an S3-compatible bucket every node reaches. With `disk`, the API and the worker must share the directory. |
+| `FILES_DIR` | `files` | The directory, with `disk`. Relative to the working directory. |
+| `FILES_OBJECTS_ENDPOINT` | **required** with `objects` | The bucket service's `http` or `https` address. |
+| `FILES_OBJECTS_REGION` | **required** with `objects` | Its region. |
+| `FILES_OBJECTS_BUCKET` | **required** with `objects` | The bucket. |
+| `FILES_OBJECTS_ACCESS_KEY_ID` | **required** with `objects` | The access key's id. |
+| `FILES_OBJECTS_SECRET_ACCESS_KEY` | **required** with `objects` | Its secret. |
+| `FILES_OBJECTS_ADDRESSING` | `virtual_host` | `virtual_host`, or `path` for MinIO and bucket names with dots. |
+
+Give the bucket a lifecycle rule that aborts unfinished multipart uploads after a day.
+
+## Listeners
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `HOST` | `0.0.0.0` | Address every listener binds to. |
+| `PORT` | `3000` | The public API. It answers `/health` with `ok` too, and serves no probe. |
+| `INTERNAL_PORT` | `3001` | The internal listener: `/health/live`, `/health/ready` and the Prometheus metrics at `/metrics` on every node. Point your orchestrator's probes here. Only the probes and your metrics scraper should reach it. Must differ from `PORT`. |
+| `RELAY_PORT` | `3002` | The relay listener on API nodes: the gateway's app sign-in relay and its questions about agent approvals. Only the gateway should reach it. Must differ from `PORT` and `INTERNAL_PORT`. |
+| `RELAY_CA_FILE` | unset | The internal authority's certificate. Only a client whose certificate chains to it, the gateway's, completes the handshake. `ianua internal-pki` issues it. |
+| `RELAY_TLS_CERT_FILE`, `RELAY_TLS_KEY_FILE` | unset | The relay listener's certificate and key, for the name the gateway dials it by. Set all three files or none. Production refuses to start without them; elsewhere, with none set, the relay serves plain HTTP. |
+| `API_MAX_CONCURRENCY` | `500` | Requests the public listener serves at once. |
+| `API_MAX_BODY_BYTES` | `1048576` | Largest public request body. |
+| `API_REQUEST_TIMEOUT_SECONDS` | `30` | Longest one public request may take. |
+| `INTERNAL_MAX_CONCURRENCY` | `200` | Requests the internal listener serves at once. |
+| `INTERNAL_MAX_BODY_BYTES` | `16384` | Largest internal request body. |
+| `INTERNAL_REQUEST_TIMEOUT_SECONDS` | `15` | Longest one internal request may take. |
+| `TRUSTED_PROXIES` | empty | Proxies whose `X-Forwarded-For` is believed, as addresses or CIDR blocks. Empty trusts nobody. An entry that does not read is refused. |
+| `CORS_ORIGIN` | unset | The one browser origin that may call the API, such as `https://app.example.com`. `*` allows any, without credentials. Unset allows none. |
+| `ENABLE_API_DOCS` | off | Serve the OpenAPI docs at `/api/v1/docs`. |
+| `UPSTREAM_NETWORKS` | empty | Internal networks that routes, identity providers and other addresses tenants chose may reach, as CIDR blocks. Empty allows public addresses only. The gateway reads the same setting. |
+| `SHUTDOWN_GRACE_SECONDS` | `30` | How long a stop waits for requests and jobs in flight. |
+| `GEOIP_DB_PATH` | unset | A MaxMind City database, for sign-in risk by country. Unset reads no country. |
+| `WS_MAX_STREAMS_PER_OWNER` | `32` | Live streams one person may hold open on a node. |
+| `STREAM_RECHECK_SECONDS` | `30` | How often a live stream asks again whether its caller may still read it. |
+| `STREAM_LIFETIME_SECONDS` | `1800` | Longest a live stream stays open before its client connects again. |
+
+## Calls out
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `OUTBOUND_DELIVERY_TIMEOUT_SECONDS` | `10` | One webhook try, signal push, audit stream post or log shipment. |
+| `OIDC_PROVIDER_TIMEOUT_SECONDS` | `10` | One call to an identity provider. |
+| `OIDC_PROVIDER_CA_FILE` | unset | A PEM certificate authority trusted instead of public roots for all OIDC discovery, key and token requests. Use for deployments whose identity providers use a private authority. An unreadable or invalid file stops API startup. Hostname verification and upstream network screening remain enforced. |
+| `SAML_METADATA_CA_FILE` | unset | A PEM certificate authority trusted instead of public roots when a SAML connection's metadata is fetched from its address. Use for identity providers that publish their metadata under a private authority. An unreadable or invalid file stops startup. Hostname verification and upstream network screening remain enforced. |
+| `OUTBOUND_DELIVERY_CA_FILE` | unset | A PEM certificate authority trusted beside the public roots for webhooks, signal pushes, audit streams, message pushes, notification destinations and integrations, with names looked up through `DNS_RESOLVERS`. For a test deployment that proves what an outside receiver gets. Hostname verification and upstream network screening remain enforced, so a private address is reached only where `UPSTREAM_NETWORKS` lists it. An unreadable or invalid file stops startup, and setting it when `APP_ENV` is production stops startup. Unset leaves these calls on the public roots and the host's resolvers. |
+| `WORKFLOW_HTTP_TIMEOUT_SECONDS` | `10` | One call of a workflow's HTTP request step. |
+| `WORKFLOW_HTTP_MAX_ANSWER_BYTES` | `349000` | The most of an answer that step reads, at most 349000, so its text fits in the workflow's data. |
+| `WORKFLOW_HTTP_DATA_CEILING` | `internal` | The most sensitive data that step may send: `public`, `internal`, `confidential` or `restricted`. An answer counts as that sensitive, since it may echo what it was sent. |
+| `GATEWAY_WORKFLOW_URL` | unset | Where the worker reaches the gateway's `GATEWAY_WORKFLOW_LISTEN` listener, such as `https://gateway.ianua.svc:8082`. With it, the Protected apps and Protected data steps are offered: they call apps, and reach databases behind stream routes, as the person a run acts for, held to the HTTP request step's timeout and data ceiling. An `https` address needs the three files below. A plain `http` one is taken outside production only, with none of them. Unset leaves Protected apps and Protected data out. |
+| `GATEWAY_WORKFLOW_CA_FILE` | unset | The internal authority's certificate. The workflow listener's certificate must chain to it, and no public authority is trusted in its place. |
+| `GATEWAY_WORKFLOW_CLIENT_CERT_FILE`, `GATEWAY_WORKFLOW_CLIENT_KEY_FILE` | unset | The worker's certificate and key, which it presents to the workflow listener. `ianua internal-pki --gateway-name <host> --api-name <host> --out <folder>` issues them with the authority and the listener's certificate, and prints every setting. |
+| `INTEGRATION_TIMEOUT_SECONDS` | `10` | One call of a workflow step to an outside service such as GitHub or Twilio, one exchange of a Google grant for a token, and one check of an account's credential. |
+| `GITHUB_API_URL` | `https://api.github.com/` | Where the GitHub steps send their calls: a GitHub Enterprise server's API, or a stand-in in tests. Must be `https` in production, since every call carries an account's token. |
+| `GITHUB_DATA_CEILING` | `internal` | The most sensitive data a step may send to GitHub, with the same values as `WORKFLOW_HTTP_DATA_CEILING`. A workflow started by a GitHub event counts its data as this sensitive too. |
+| `GITHUB_CLIENT_ID` | unset | The client id of the deployment's OAuth app at GitHub. With it, people connect a GitHub account by signing in at GitHub instead of pasting a token. Set together with `GITHUB_CLIENT_SECRET`, or startup stops. The app's callback address is `/api/v1/integrations/callback` under `APP_BASE_URL`. |
+| `GITHUB_CLIENT_SECRET` | unset | The OAuth app's client secret, or `GITHUB_CLIENT_SECRET_FILE` naming a file that holds it. |
+| `GITHUB_AUTHORIZE_URL` | `https://github.com/login/oauth/authorize` | Where people are sent to sign in at GitHub: a GitHub Enterprise server's, or a stand-in in tests. Must be `https` in production. |
+| `GITHUB_TOKEN_URL` | `https://github.com/login/oauth/access_token` | Where GitHub's code is swapped for a token. Must be `https` in production, since the swap carries the app's secret. |
+| `SLACK_API_URL` | `https://slack.com/api/` | Where the Slack step sends its calls. Must be `https` in production. |
+| `SLACK_DATA_CEILING` | `internal` | The most sensitive data a step may post to Slack. A workflow started by a Slack event counts its data as this sensitive too. |
+| `SLACK_CLIENT_ID` | unset | The client id of the platform's Slack app. With it, people connect a Slack workspace by signing in at Slack instead of pasting a bot token. Set once for the whole platform: every tenant connects its own workspace through it. Set together with `SLACK_CLIENT_SECRET`, or startup stops. The app's redirect address is `/api/v1/integrations/callback` under `APP_BASE_URL`. |
+| `SLACK_CLIENT_SECRET` | unset | The Slack app's client secret, or `SLACK_CLIENT_SECRET_FILE` naming a file that holds it. |
+| `SLACK_SIGNING_SECRET` | unset | The Slack app's signing secret, or `SLACK_SIGNING_SECRET_FILE`. With it, workflows may start on Slack events, which Slack sends to `/api/v1/integrations/slack/events` under `APP_BASE_URL`: set that as the app's Events API request address. |
+| `SLACK_AUTHORIZE_URL` | `https://slack.com/oauth/v2/authorize` | Where people are sent to sign in at Slack, or a stand-in in tests. Must be `https` in production. |
+| `SLACK_TOKEN_URL` | `https://slack.com/api/oauth.v2.access` | Where Slack's code is swapped for a bot token. Must be `https` in production. |
+| `JIRA_SITES` | `.atlassian.net` | The sites a Jira account may name, separated by commas: an exact host such as `jira.acme.example`, or `.suffix` for every host under it. A Jira account holds its own site, so a token is only sent to a site listed here, over `https`. An exact host may name a port, `jira.acme.example:8443`, which an account is then reached on; outside production only. A suffix as wide as a top-level domain, such as `.net`, stops startup. |
+| `JIRA_DATA_CEILING` | `internal` | The most sensitive data a step may send to Jira. A workflow started by a Jira event counts its data as this sensitive too. |
+| `JIRA_CLIENT_ID` | unset | The client id of the platform's Atlassian app (OAuth 2.0, three-legged). With it, people connect Jira by signing in at Atlassian and naming their site, such as `acme.atlassian.net`, instead of pasting an email and API token. Only an account connected this way may start workflows on Jira events. Set once for the whole platform, together with `JIRA_CLIENT_SECRET`, or startup stops. The app's callback address is `/api/v1/integrations/callback` under `APP_BASE_URL`. |
+| `JIRA_CLIENT_SECRET` | unset | The Atlassian app's client secret, or `JIRA_CLIENT_SECRET_FILE`. |
+| `JIRA_AUTHORIZE_URL` | `https://auth.atlassian.com/authorize` | Where people are sent to sign in at Atlassian, or a stand-in in tests. Must be `https` in production. |
+| `JIRA_TOKEN_URL` | `https://auth.atlassian.com/oauth/token` | Where Atlassian's codes are swapped and grants exchanged before each call. Must be `https` in production. |
+| `JIRA_GATEWAY_URL` | `https://api.atlassian.com/` | Atlassian's gateway, which an account that signed in reaches its site through. Must be `https` in production. |
+| `AZURE_DEVOPS_API_URL` | `https://dev.azure.com/` | Where Azure DevOps steps send their calls, before an account's organization name. Must be `https` in production. |
+| `AZURE_DEVOPS_DATA_CEILING` | `internal` | The most sensitive data a step may send to Azure DevOps. A workflow started by an Azure DevOps event counts its data as this sensitive too. |
+| `AZURE_DEVOPS_CLIENT_ID` | unset | The client id of the platform's app in Microsoft Entra, with Azure DevOps among its permissions. With it, people connect Azure DevOps by signing in with their work account and naming their organization, instead of pasting a personal access token. Personal Microsoft accounts cannot sign in this way. Set once for the whole platform, together with `AZURE_DEVOPS_CLIENT_SECRET`, or startup stops. |
+| `AZURE_DEVOPS_CLIENT_SECRET` | unset | The Entra app's client secret, or `AZURE_DEVOPS_CLIENT_SECRET_FILE`. |
+| `AZURE_DEVOPS_AUTHORIZE_URL` | `https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize` | Where people are sent to sign in with Microsoft, or a stand-in in tests. Must be `https` in production. |
+| `AZURE_DEVOPS_TOKEN_URL` | `https://login.microsoftonline.com/organizations/oauth2/v2.0/token` | Where Microsoft's codes are swapped and grants exchanged before each call. Must be `https` in production. |
+| `GITLAB_CLIENT_ID` | unset | The application id of the deployment's OAuth application at GitLab, with the `api` scope. With it, people connect GitLab by signing in instead of pasting an access token; the account keeps a grant, and the two-hour token it is exchanged for is reused until a minute before it runs out. Set together with `GITLAB_CLIENT_SECRET`, or startup stops. The application's callback address is `/api/v1/integrations/callback` under `APP_BASE_URL`. |
+| `GITLAB_CLIENT_SECRET` | unset | The GitLab application's secret, or `GITLAB_CLIENT_SECRET_FILE`. |
+| `GITLAB_AUTHORIZE_URL` | `https://gitlab.com/oauth/authorize` | Where people are sent to sign in at GitLab: a self-managed GitLab's `/oauth/authorize`, or a stand-in in tests. Must be `https` in production. |
+| `GITLAB_TOKEN_URL` | `https://gitlab.com/oauth/token` | Where GitLab's codes are swapped and grants exchanged. Must be `https` in production. |
+| `MAILGUN_API_URL` | `https://api.mailgun.net/` | Where Mailgun steps send their calls for accounts in Mailgun's US region, and for accounts naming no region. Must be `https` in production. |
+| `MAILGUN_EU_API_URL` | `https://api.eu.mailgun.net/` | Where Mailgun steps send their calls for accounts naming the `eu` region. Must be `https` in production. |
+| `MAILGUN_DATA_CEILING` | `internal` | The most sensitive data a step may send to Mailgun. |
+| `TWILIO_API_URL` | `https://api.twilio.com/` | Where Twilio steps send their calls, before an account's own place. Must be `https` in production. |
+| `TWILIO_DATA_CEILING` | `internal` | The most sensitive data a step may send to Twilio. |
+| `GOOGLE_CALENDAR_API_URL` | `https://www.googleapis.com/calendar/v3/` | Where Google Calendar steps send their calls. Must be `https` in production. |
+| `GOOGLE_TOKEN_URL` | `https://oauth2.googleapis.com/token` | Where a Google Calendar account's grant is exchanged for a token before each call. Must be `https` in production, since every exchange carries the grant. |
+| `GOOGLE_CALENDAR_DATA_CEILING` | `internal` | The most sensitive data a step may send to Google Calendar. A workflow started by a calendar change counts its data as this sensitive too. |
+| `GOOGLE_CLIENT_ID` | unset | The client id of the platform's OAuth client at Google. With it, people connect Google Calendar by signing in at Google instead of pasting a client and a grant. Set once for the whole platform. Set together with `GOOGLE_CLIENT_SECRET`, or startup stops. Its redirect address is `/api/v1/integrations/callback` under `APP_BASE_URL`; codes are swapped at `GOOGLE_TOKEN_URL`. |
+| `GOOGLE_CLIENT_SECRET` | unset | The OAuth client's secret, or `GOOGLE_CLIENT_SECRET_FILE`. An account connected by signing in keeps it, sealed, beside its grant, as a pasted one does. |
+| `GOOGLE_AUTHORIZE_URL` | `https://accounts.google.com/o/oauth2/v2/auth` | Where people are sent to sign in at Google, or a stand-in in tests. Must be `https` in production. |
+| `NPM_REGISTRY_URL` | `https://registry.npmjs.org` | Where a sandbox version's JavaScript packages and their fingerprints are fetched from: the npm registry, or a mirror of it. Must be `https` in production, since a package and its fingerprint come from the same place. |
+| `PYPI_INDEX_URL` | `https://pypi.org` | Where a sandbox version's Python packages are looked up: the Python package index, or a mirror of it. Must be `https` in production. |
+| `PYPI_FILE_HOSTS` | `files.pythonhosted.org` | The hosts the index's package files may come from, separated by commas. A file is only fetched over `https` from a host listed here. |
+| `PACKAGE_FETCH_TIMEOUT_SECONDS` | `120` | The longest one package's lookup or download may take while a sandbox version's bundle is built. |
+| `SANDBOX_CONTAINER_COMMAND` | unset | The container command code steps run through, such as `docker` or `podman`, on the worker's path. Unset, no code runs and every code step fails at once as `code_not_run`. |
+| `SANDBOX_CONTAINER_RUNTIME` | unset | The runtime containers run under, such as `runsc` for gVisor, which keeps tenants' code off the host's kernel. Required in production whenever `SANDBOX_CONTAINER_COMMAND` is set, or startup stops. |
+| `SANDBOX_IMAGE_PYTHON_3_11`, `SANDBOX_IMAGE_PYTHON_3_12`, `SANDBOX_IMAGE_PYTHON_3_13`, `SANDBOX_IMAGE_NODE_20`, `SANDBOX_IMAGE_NODE_22`, `SANDBOX_IMAGE_NODE_24` | the official slim image, pinned by its content | The image each runtime is offered in for new versions, named by its content as `name@sha256:<64 hex digits>`, such as a copy in the operator's own registry. A tag alone stops startup, since it may move. It must hold `python3` or `node`, and `timeout`. A version keeps the image it was saved with, so changing this affects only versions saved after. |
+| `SANDBOX_RETIRED_RUNTIMES` | unset | Runtimes no longer offered for new versions, separated by commas, such as `python-3.11`. Versions saved under them still run in their image. A name that is no runtime stops startup. |
+| `SANDBOX_START_GRACE_SECONDS` | `120` | How long a container or pod may take to start, or its image to be pulled, beyond the code's own time limit, before it is killed. |
+| `SANDBOX_WORK_DIR` | the system's temporary folder | Where each run's files are laid out before they are mounted. The container command must be able to mount from it. |
+| `SANDBOX_CLUSTER_NAMESPACE` | unset | The Kubernetes namespace code steps run in, one pod per run, which should hold nothing else. Set instead of `SANDBOX_CONTAINER_COMMAND`: setting both stops startup. The worker's account needs to create, get, list, update and delete pods and to attach to them there, and, with `SANDBOX_OWN_IMAGES`, to create, list, patch and delete the pull secrets companies' images are pulled with. The Helm chart sets this up with `codeSandboxes.enabled`. |
+| `SANDBOX_CLUSTER_RUNTIME_CLASS` | unset | The runtime class code pods run under, such as `gvisor`. Required in production whenever `SANDBOX_CLUSTER_NAMESPACE` is set, or startup stops. |
+| `SANDBOX_CLUSTER_CONTEXT` | unset | The kubeconfig context a worker outside the cluster reaches it through, such as `orbstack` in development. Required outside a cluster, so a worker never reaches whichever cluster happens to be current. Inside a cluster, the worker uses its own service account. |
+| `SANDBOX_CLUSTER_MOST_AT_ONCE` | `8` | The most code runs one worker holds at once, from 1 to 256. |
+| `SANDBOX_CLUSTER_WARM` | `2` | How many pods of each runtime and memory size one worker keeps started and waiting, once that kind has run, so its next run does not wait for a pod to start. From 0 to 16; `0` keeps none. Waiting pods count against the namespace's quota. |
+| `SANDBOX_CLUSTER_WARM_MINUTES` | `15` | How long a waiting pod may wait for a run, from 1 to 120 minutes, before it is removed. |
+| `SANDBOX_GATE_SOCKET` | unset | On the worker: the sandbox gate's socket, through which code steps run, so the worker never holds the container engine. Setting it beside `SANDBOX_CONTAINER_COMMAND` or `SANDBOX_CLUSTER_NAMESPACE` stops startup. On the gate (`ianua sandbox-gate`): the socket it listens on, required. |
+| `SANDBOX_ENGINE_SOCKET` | `/var/run/docker.sock` | On the gate: the container engine's socket. Only the gate may hold it. |
+| `SANDBOX_GATE_MOST_AT_ONCE` | `8` | On the gate: the most code runs it holds at once, from 1 to 256. |
+| `SANDBOX_GATE_PROXY_NETWORK` | unset | On the gate: the container engine's network that reaches only the network filter, which a run whose version names allowed hosts joins. Unset, the gate refuses such runs. |
+| `SANDBOX_GATE_TENANT_REGISTRIES` | unset | On the gate: the registries it pulls companies' own images from, separated by commas, such as `registry.acme.example`, beside the runtimes' repositories. Only images pinned by digest are taken. Unset, the gate runs no company image. |
+| `SANDBOX_OWN_IMAGES` | `false` | On the API and the worker: whether tenants may run their own container images as code steps, from registries their administrators allow. Off, no image sandbox is made, saved or run. |
+| `IMAGE_SCAN_COMMAND` | unset | On the worker: the program that scans a company's image before it first runs, run as `<command> <image>` with the registry's login in `REGISTRY_USERNAME` and `REGISTRY_PASSWORD`, printing its findings as SARIF 2.1, such as a small script around Trivy or Grype. A finding tagged `CRITICAL`, or with a `security-severity` of 9.0 or more, refuses the image. Unset, no company image is cleared to run. |
+| `IMAGE_SCAN_TIMEOUT_SECONDS` | `600` | On the worker: the longest one scan may take before it is stopped and tried again later. |
+| `SANDBOX_CONTAINER_PROXY_NETWORK` | unset | With `SANDBOX_CONTAINER_COMMAND`: the container command's network that reaches only the network filter, as for the gate. |
+| `SANDBOX_PROXY_ADDRESS` | unset | On the worker: the network filter's `host:port` as sandboxes reach it, such as `172.31.0.2:3128`. With `SANDBOX_PROXY_KEY`, both or neither. Unset, a version naming allowed hosts does not run. On Kubernetes the worker looks the name up, since pods may not. |
+| `SANDBOX_PROXY_KEY` | unset | On the worker and on the filter: the key each run's ticket is signed with, 32 bytes written as 64 hex characters or as base64, or `SANDBOX_PROXY_KEY_FILE`. Required on the filter. |
+| `SANDBOX_PROXY_LISTEN` | `0.0.0.0:3128` | On the filter (`ianua sandbox-proxy`): where sandboxes reach it. |
+| `SANDBOX_PROXY_MOST_AT_ONCE` | `256` | On the filter: the most connections it holds at once, from 1 to 4096. |
+
+### Memory
+
+| Setting | Default | What it does |
+| --- | --- | --- |
+| `EMBEDDING_URL` | unset | The platform's own embedding server, speaking OpenAI's embeddings API, such as `http://embeddings:8080/v1`. With `EMBEDDING_MODEL`, both or neither. Unset, a memory is filled only through a tenant's provider. |
+| `EMBEDDING_MODEL` | unset | The model the embedding server serves, such as `BAAI/bge-small-en-v1.5`. A memory keeps the model it was filled with, so changing it stops existing memories taking new texts. |
+| `EMBEDDING_TIMEOUT_SECONDS` | `30` | The longest one embedding call may take, at the platform's server or a tenant's provider. A provider's endpoint is reached only where `ALLOW_PRIVATE_MODEL_ENDPOINTS` permits, as for model calls. |
+| `VECTOR_STORE_URL` | unset | A vector server speaking Qdrant's REST API, such as `http://vectors:6333`, keeping the memories' texts and vectors in place of pgvector. Unset, they are kept with pgvector in the platform's Postgres, searched exactly within one memory, which suits memories of up to some hundred thousand texts. |
+| `VECTOR_STORE_API_KEY` | unset | The key the vector server takes, or `VECTOR_STORE_API_KEY_FILE`. Refused without `VECTOR_STORE_URL`. |
+
+The platform's Postgres needs the pgvector extension: the Docker Compose file and the chart's standalone database use the `pgvector/pgvector` image, the chart's CloudNativePG image includes it, and managed services such as AWS RDS offer it. The chart starts the embedding server with `embeddings.enabled`, Hugging Face's text-embeddings-inference on CPU, which downloads its model when it starts; its CPU image is built for x86 machines.
+
+The gate reads `SANDBOX_CONTAINER_RUNTIME` too, required in production, and `SANDBOX_START_GRACE_SECONDS`. It starts images only from the repositories of the runtimes' pinned images and of every `SANDBOX_IMAGE_<RUNTIME>` it is given. Each container gets the version's memory plus 300 MiB, since its unpacked packages sit in its memory.
+
+## Mail
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `EMAIL_PROVIDER` | `smtp` | `smtp`, `sendgrid`, `postmark`, `mailgun`, `ses`, or `none` for a deployment with no mail server. |
+| `EMAIL_FROM` | **required** | The sender address, a bare address such as `noreply@example.com`. |
+| `EMAIL_FROM_NAME` | unset | The sender name mail shows. |
+| `SMTP_HOST` | **required** with `smtp` | The SMTP server. |
+| `SMTP_PORT` | `587` | Its port. |
+| `SMTP_TLS` | `starttls` | `starttls`, `implicit`, or `none` in development only. |
+| `SMTP_USERNAME`, `SMTP_PASSWORD` | unset | The SMTP login, both or neither. |
+| `SENDGRID_API_KEY` | **required** with `sendgrid` | The SendGrid key. |
+| `POSTMARK_SERVER_TOKEN` | **required** with `postmark` | The Postmark server token. |
+| `MAILGUN_DOMAIN` | **required** with `mailgun` | The Mailgun sending domain. |
+| `MAILGUN_REGION` | `us` | `us` or `eu`. |
+| `MAILGUN_API_KEY` | **required** with `mailgun` | The Mailgun key. |
+| `SES_REGION`, `SES_ACCESS_KEY_ID`, `SES_SECRET_ACCESS_KEY` | **required** with `ses` | The Amazon SES region and keys. |
+| `EMAIL_SEND_TIMEOUT_SECONDS` | `10` | One delivery. |
+| `MAIL_COOLDOWN_SECONDS` | `60` | Least time between two links of one kind to one address. `0` mails every request. |
+| `MAIL_RESEND_COOLDOWN_SECONDS` | `60` | Least time before an expired link can be swapped for a new one again. |
+| `MAIL_DELIVERY_ATTEMPTS` | `5` | Tries a mail gets before it is recorded as undelivered, from 1 to 50. |
+
+With `EMAIL_PROVIDER=none` no mail goes out, and every mail is recorded as undelivered. A sign-in from a new device, or one that looks risky in another way, then asks for the person's second factor instead of a mailed link. Someone with no factor is refused, and an administrator must send them an invitation. The one exception is the first sign-in after the install's setup token or an accepted invitation: that route already proved the person, so they set up an authenticator app there and then. `EMAIL_FROM` is still needed, for tenants that send through their own mail provider. Such a deployment also offers no mailed sign-in codes, no magic links, no password reset by email (an administrator sets the password instead), no self sign-up and no address confirmation links; an administrator lets new accounts in at once. An invitation hands its accept link to whoever sent it, to pass on to the invitee, and accepting it leaves the address unconfirmed, since no mailbox was proved; changing an address is refused. An account still waiting to confirm its address stays waiting until an administrator activates it by hand. A person whose address was never confirmed still signs in, the address left unconfirmed, and a password that expired is replaced inside the sign-in, as on every deployment. A password an administrator set can be replaced there only by someone with a second factor; anyone else is refused, and an administrator should send an invitation instead.
+
+### Emailed links
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `EMAIL_PASSWORD_RESET_TTL_SECONDS` | `3600` | A password reset link. |
+| `EMAIL_MAGIC_LINK_TTL_SECONDS` | `900` | A sign-in link. |
+| `EMAIL_VERIFICATION_TTL_SECONDS` | `3600` | An address check link. |
+| `EMAIL_ORG_VERIFICATION_TTL_SECONDS` | `86400` | An address check link for organization members. |
+| `INVITATION_TTL_SECONDS` | `86400` | A tenant invitation, from 1 second to 30 days. |
+| `ORG_INVITATION_TTL_SECONDS` | `86400` | An organization invitation, from 1 second to 30 days. |
+| `EMAIL_CHANGE_TTL_SECONDS` | `86400` | An address change link. |
+
+## Text messages
+
+Second-factor codes sent by text go through Twilio. With no Twilio setting at all, texted codes are refused. Once any is set, the account must be whole.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `TWILIO_ACCOUNT_SID` | **required** with Twilio | The account. |
+| `TWILIO_AUTH_TOKEN` | unset | Sign in with the account's Auth Token. |
+| `TWILIO_API_KEY_SID`, `TWILIO_API_KEY_SECRET` | unset | Or with an API key and its secret. Exactly one way to sign in. |
+| `TWILIO_FROM` | unset | The number texts come from. |
+| `TWILIO_MESSAGING_SERVICE_SID` | unset | Or the Messaging Service they come from. Exactly one sender. |
+| `TWILIO_API_URL` | `https://api.twilio.com/` | Where Twilio's API answers. Change it only for a stand-in, such as the one the end-to-end tests run. Part of the account, so it is refused set alone, and refused unless `https` in production. |
+| `TEXT_SEND_TIMEOUT_SECONDS` | `5` | One text, never more than five seconds. |
+
+## Billing
+
+Organizations are billed through Stripe. With no Stripe setting at all, billing is off, and every checkout and every notice from Stripe is refused. Once any is set, the key and the signing secret are required.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `STRIPE_SECRET_KEY` | **required** with Stripe | The account's secret API key. |
+| `STRIPE_WEBHOOK_SECRET` | **required** with Stripe | The signing secret of the endpoint Stripe posts events to. |
+| `STRIPE_CURRENCY` | `eur` | The currency organizations are charged in, three lowercase letters. |
+| `STRIPE_SUCCESS_URL` | `APP_BASE_URL` | Where a member lands after saving a payment method. |
+| `STRIPE_CANCEL_URL` | `APP_BASE_URL` | Where a member lands after leaving the checkout. |
+| `STRIPE_TIMEOUT_SECONDS` | `10` | One call to Stripe. |
+
+## Sign-in
+
+### Tokens and sessions
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `OAUTH_ACCESS_TOKEN_TTL_SECONDS` | `3600` | An OAuth access token, at most a day. |
+| `OAUTH_ID_TOKEN_TTL_SECONDS` | `3600` | An OIDC ID token, at most a day. |
+| `OAUTH_REFRESH_TOKEN_IDLE_SECONDS` | `604800` | How long a refresh token lasts unless used, at most 90 days and no longer than its family. |
+| `OAUTH_REFRESH_TOKEN_FAMILY_SECONDS` | `2592000` | How long a family of refresh tokens lasts from its first, at most 90 days. |
+| `OAUTH_DEVICE_CODE_TTL_SECONDS` | `600` | A device sign-in code, at most an hour. |
+| `OAUTH_DEVICE_POLL_INTERVAL_SECONDS` | `5` | How often a device may ask whether it is signed in, at most a minute. |
+| `JWKS_ROTATION_GRACE_SECONDS` | `86400` | How long a rotated signing key stays published, and so how long tokens it signed still check. At most 30 days. |
+| `AUTH_APP_SIGN_IN_ACCESS_TTL_SECONDS` | `300` | Access a sign-in on one app grants on another app's host. |
+| `AUTH_HANDOFF_CODE_TTL_SECONDS` | `60` | A one-time session handoff code. |
+| `AUTH_SIGN_IN_CODE_TTL_SECONDS` | `60` | A one-time sign-in code. |
+| `AUTH_FEDERATION_FLOW_TTL_SECONDS` | `600` | A sign-in at an identity provider, and the cookie holding its secret. |
+| `AUTH_SIGN_IN_CONFIRMATION_TTL_SECONDS` | `900` | A mailed link confirming a sign-in. |
+| `OPERATOR_KEY_TTL_SECONDS` | `43200` | The key an operator's password sign-in makes, from 1 minute to 1 day. |
+| `AUTH_BREAK_GLASS_MAX_SECONDS` | `86400` | Longest emergency access grant. |
+| `CREDENTIAL_USE_INTERVAL_SECONDS` | `60` | How often a credential's last use is written down, at most. A tenant API key's country is still checked on every request, and a new one is written at once. |
+
+### Passwords and devices
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `AUTH_PASSWORD_HISTORY_COUNT` | `5` | Earlier passwords a new one may not repeat, from 0 to 50. |
+| `AUTH_PASSWORD_MIN_AGE_SECONDS` | `0` | Least time between two password changes. |
+| `AUTH_PASSWORD_BREACH_POLICY` | `step_up` | What a sign-in with a breached password must do: `step_up`, `record` or `off`. |
+| `PASSWORD_BREACH_URL` | `https://api.pwnedpasswords.com` | The Pwned Passwords range service a new password and a sign-in are checked against. Only the first five characters of the password's SHA-1 hash are sent. Change it for a mirror you run, or the stand-in the end-to-end tests run. Refused unless `https` in production. |
+| `AUTH_MAX_TRUSTED_DEVICES_PER_USER` | `10` | Devices one person may trust, from 1 to 100. |
+| `AUTH_DEVICE_TRUST_DAYS` | `30` | How long a remembered device may go unused, from 1 to 365. |
+
+### Second factors
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `MFA_MAX_ATTEMPTS` | `5` | Wrong codes before a factor locks, from 1 to 100. |
+| `MFA_LOCKOUT_SECONDS` | `900` | How long a lock lasts, at most a day. |
+| `MFA_CHALLENGE_TTL_SECONDS` | `300` | An app sign-in's second-factor step, at most an hour. |
+| `MFA_SENT_CODE_TTL_SECONDS` | `600` | A mailed or texted code, at most ten minutes. |
+| `MFA_SENT_CODE_RESEND_SECONDS` | `30` | The wait before another code may be sent. |
+| `MFA_ISSUER` | `Ianua` | The name an authenticator app shows beside a code. |
+
+### Passkeys
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `WEBAUTHN_RP_ID` | **required** | The domain passkeys are bound to. |
+| `WEBAUTHN_RP_ORIGIN` | **required** | The `http` or `https` origin passkeys are used from. |
+| `WEBAUTHN_RP_NAME` | `Ianua` | The name a passkey prompt shows. |
+| `WEBAUTHN_OTHER_ORIGINS` | empty | More origins passkeys may be used from. |
+| `WEBAUTHN_SUBDOMAINS` | off | Accept origins on subdomains of the relying party too. |
+| `AUTH_PASSKEY_CEREMONY_TTL_SECONDS` | `300` | How long a passkey prompt stays open. |
+| `AUTH_MAX_PASSKEYS_PER_USER` | `10` | Passkeys one person may register, from 1 to 100. |
+
+### Sign-in challenge
+
+While a tenant's password sign-in is under pressure from many failed attempts, a device nobody trusted must pass a challenge first. With Turnstile set up, the challenge is a Turnstile check. Without it, it is the platform's own puzzle, which the browser solves with some work.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `TURNSTILE_SECRET_KEY` | unset | The Turnstile secret. Set, Turnstile is used instead of the puzzle. |
+| `TURNSTILE_HOSTNAMES` | empty | The hostnames the sign-in page is served on. **Required** with the secret. |
+| `TURNSTILE_TIMEOUT_SECONDS` | `5` | One check of a solved challenge, which a sign-in waits for. |
+| `SIGN_IN_PUZZLE_DIFFICULTY_BITS` | `18` | How hard the puzzle is, from 8 to 32. Each bit doubles the browser's work. |
+| `SIGN_IN_PUZZLE_TTL_SECONDS` | `300` | How long a puzzle may be solved and spent, at most an hour. Each is spent once. |
+| `SIGN_IN_FAILURE_WINDOW_SECONDS` | `300` | The sliding window failed password sign-ins are counted over, per tenant and per organization. |
+| `SIGN_IN_FAILURE_THRESHOLD` | `200` | Failed sign-ins, across every sign-in that names no organization, that put those sign-ins under pressure. From 10 to 1,000,000. |
+
+## Rate limits and caps
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `RATE_LIMIT_LOGIN_PER_MINUTE` | `20` | Sign-in requests one address may make a minute. Agents signing in as themselves (asking for a token, bootstrapping, passing a delegation on, asking for one) are held to it too. A request past it is refused with `429` and a `Retry-After` header naming the seconds until one more may come. |
+| `RATE_LIMIT_AGENT_RELAY_PER_MINUTE` | `600` | Agent relay requests one address may make a minute, refused past it with `429` and `Retry-After` the same way. |
+| `RATE_LIMIT_SCIM_PER_MINUTE` | `600` | SCIM requests one address may make a minute. |
+| `RATE_LIMIT_SSO_PER_WINDOW` | `60` | Single sign-on requests one address may make in a window. |
+| `RATE_LIMIT_SSO_WINDOW_SECONDS` | `300` | Length of that window. |
+| `RATE_LIMIT_SENSITIVE_PER_WINDOW` | `10` | Sensitive requests, such as password resets, one address may make in a window. |
+| `RATE_LIMIT_SENSITIVE_WINDOW_SECONDS` | `300` | Length of that window. |
+| `RATE_LIMIT_USER_PER_WINDOW` | `10` | Sensitive requests one signed-in person may make in a window. |
+| `RATE_LIMIT_USER_WINDOW_SECONDS` | `300` | Length of that window. |
+| `RATE_LIMIT_MAX_TRACKED_IPS` | `100000` | Addresses the per-address limits track at once. |
+| `RATE_LIMIT_DEFAULT_PER_MINUTE` | `200` | API requests a tenant may make a minute when its own limit can't be read. |
+| `RATE_LIMIT_CACHE_SECONDS` | `60` | How long a tenant's request limit is remembered. |
+| `WEBHOOK_SENDS_PER_WINDOW` | `10` | Resends and tests one webhook takes in a window, on a node. |
+| `WEBHOOK_SEND_WINDOW_SECONDS` | `60` | Length of that window. |
+| `SIGNAL_VERIFICATIONS_PER_WINDOW` | `5` | Verification events one signal stream's receiver may ask for in a window, on a node. |
+| `SIGNAL_VERIFICATION_WINDOW_SECONDS` | `60` | Length of that window. |
+| `NOTIFICATION_MAX_FANOUT` | `500` | People one event may notify. |
+| `SCIM_GROUP_MEMBER_CAP` | `1000` | Members one SCIM group write may name. |
+| `AUDIT_EXPORTS_PENDING_PER_LOG` | `3` | Exports one audit log may have waiting for the worker, from 1 to 100. |
+| `WASM_MODULE_MAX_BYTES` | `1048576` | The largest proxy stage module a tenant may upload, at most 64 MiB. |
+
+## Worker
+
+Jobs run on five lanes, so a slow kind of work never holds up another: mail, certificate orders, agent runs, long work (tenants' setup and teardown, clones, user imports and audit log exports), and every other job. A claimed job is held for its lane's longest timeout and half a minute more, so a job whose worker died is taken again once that hold has passed.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `JOB_POLL_INTERVAL_SECONDS` | `2` | How long a lane that found nothing due waits before it asks again. |
+| `JOB_PER_TENANT` | `10` | Jobs of one tenant a lane takes in one claim, so one tenant's flood does not starve the others. |
+| `JOB_TIMEOUT_SECONDS` | `120` | Longest a mail or general job may run before it is stopped and tried again. |
+| `JOB_TLS_TIMEOUT_SECONDS` | `600` | Longest a certificate order may run. Must be longer than `ACME_DNS_PROPAGATION_TIMEOUT_SECONDS` on worker nodes. |
+| `JOB_LONG_TIMEOUT_SECONDS` | `1800` | Longest a long job may run. |
+| `JOB_CONCURRENCY` | `16` | Jobs run at once on the general lane. |
+| `JOB_MAIL_CONCURRENCY` | `8` | Mail jobs run at once. |
+| `JOB_TLS_CONCURRENCY` | `2` | Certificate orders run at once. |
+| `JOB_AGENT_RUN_CONCURRENCY` | `8` | Agent runs driven at once. An agent run's timeout comes from the agent settings: its most steps, each a model call and a tool call. |
+| `JOB_LONG_CONCURRENCY` | `4` | Long jobs run at once. |
+| `JOB_MAX_ATTEMPTS` | `5` | Tries a job gets before it is given up and left for an operator to see, where the work sets no count of its own. |
+| `JOB_RETRY_BACKOFF_SECONDS` | `300,900,3600,21600,86400` | The waits before each retry, in order. The last one repeats. |
+| `WORKER_OUTBOX_SWEEP_INTERVAL_SECONDS` | `1` | How often recorded events are relayed to the bus. A pass that sent anything is followed by another at once. |
+| `WORKER_OUTBOX_BATCH_SIZE` | `100` | Events relayed from each database in one pass. |
+| `WORKER_INBOX_INTERVAL_SECONDS` | `1` | How often the events the gateway kept are checked and moved onto the audit trail. A pass that took anything is followed by another at once. |
+| `WORKER_INBOX_BATCH_SIZE` | `100` | Gateway events taken from each database in one pass, from 1 to 10000. |
+| `WORKER_EVENT_MAX_DELIVER` | `5` | Times an event is handed to a consumer before it is set aside. |
+| `WORKER_EVENT_RETRY_DELAY_SECONDS` | `5` | The wait before a consumer is handed an event again after it failed on it. Must be shorter than the ack wait. |
+| `WORKER_EVENT_ACK_WAIT_SECONDS` | `60` | How long a consumer may take over one event before the bus hands it to another. |
+| `WORKER_SWEEP_TICK_SECONDS` | `15` | How often each worker asks which sweeps are due, at most 60. One worker claims each round and runs it. |
+| `WORKER_RECONCILE_STALE_AFTER_SECONDS` | `900` | How long an agent run, a tenant's setup or teardown, or a clone may stand unchanged before it is handed out again. |
+| `WORKER_RECONCILE_BATCH` | `100` | The most of each kind one round hands out again. |
+| `PRIVACY_ERASURE_GRACE_DAYS` | `30` | The time a person has to cancel an erasure before it is carried out. |
+| `WORKFLOW_RUNS_KEPT_DAYS` | `90` | How long a workflow run that ended is kept before the worker removes it, from 60 to 3650. |
+
+Counts are at least 1 and intervals at least a second. How often each sweep runs is not a setting: every worker must agree on it.
+
+## Domains and certificates
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `PROXY_PUBLIC_ADDRESS` | unset | The gateway's public address, for a domain at a zone apex and a delegated one. |
+| `DNS_NAMESERVERS` | empty | The nameservers a tenant delegates a name to. Empty keeps every domain managed by its tenant. |
+| `DNS_RESOLVERS` | empty | The recursive resolvers a domain proof asks, such as `1.1.1.1, 9.9.9.9`, each on port 53 unless it names one (`10.0.0.2:5353`). A `TXT` or `CNAME` proof is read through them, and a delegation's parent zone is found through them before its own servers are asked. A SAML connection's metadata address is looked up through them too, and so are outgoing deliveries when `OUTBOUND_DELIVERY_CA_FILE` is set. Empty asks the host's resolvers. Set it when the host's resolver answers differently from the public DNS, such as a split-horizon resolver inside a cluster. |
+| `ACME_DIRECTORY_URL` | unset | The public or private certificate authority's directory. Nested platform addresses require it, `DNS_NAMESERVERS` and `PROXY_PUBLIC_ADDRESS`, with the apps domain delegated to the bundled nameserver. With neither ACME nor upstream TLS termination, production uses uploaded custom-domain certificates only; development signs custom-domain certificates itself. |
+| `TLS_TERMINATED_UPSTREAM` | `false` | `true` when TLS for tenants' domains ends in front of the gateway, at a load balancer that holds the real certificates. The platform then signs its own for the hop behind it. Refused beside `ACME_DIRECTORY_URL`. |
+| `ACME_CONTACT_EMAIL` | unset | Where the authority writes about expiry and revocation. Needs `ACME_DIRECTORY_URL`. |
+| `ACME_DNS_PROPAGATION_TIMEOUT_SECONDS` | `120` | Longest wait for a DNS proof to be seen. |
+| `ACME_DNS_POLL_INTERVAL_SECONDS` | `3` | How often it is looked for. |
+| `DOMAIN_UNPROVED_CLAIM_TTL_DAYS` | `7` | How long a claim never proved holds its name against other tenants. |
+| `DOMAIN_FAILED_CLAIM_GRACE_DAYS` | `14` | How long a claim whose proof failed keeps its name. |
+| `TLS_RENEWAL_THRESHOLD_DAYS` | `30` | How long before expiry a certificate is renewed. |
+| `TLS_PENDING_STALE_MINUTES` | `30` | How long an order may sit before it is tried again. |
+| `GRPC_LISTEN` | unset | The address nameservers outside the cluster follow the zones on, over mutual TLS, such as `0.0.0.0:50051`. API nodes open it; a worker node with it set is refused. |
+| `GRPC_TLS_CERT_PATH`, `GRPC_TLS_KEY_PATH`, `GRPC_CLIENT_CA_PATH` | **required** with `GRPC_LISTEN` | Its certificate chain, its key, and the deployment's own authority the nameservers' certificates chain to. `ianua link-pki` makes all three. |
+
+A caller without a certificate that authority signed never completes the handshake. The stream sends proved custom zones and enabled platform zones, the whole catalog again whenever it changes. At most 16 streams are open at once, a handshake must finish within 5 seconds, and a call must start answering within 10.
+
+Nested platform addresses use a separate certificate for each tenant's random root and its wildcard. The tenant may enable `readable_address` through its settings API to add `<tenant>.<organization>.<base>` and its wildcard. This defaults off, every change is audited, and public authorities publish these readable names in certificate transparency logs. A newly enabled name becomes usable after background certificate issuance and the gateway's reload. Turning the setting off stops serving the names; it cannot erase earlier transparency entries. Flat deployments do not offer readable names.
+
+## LDAP directory
+
+The LDAP directory runs on API nodes when `LDAP_BIND_ADDR` is set. It takes passwords, so it never takes plain connections by accident: in production it needs its own certificate, or `LDAP_TLS_TERMINATED_UPSTREAM=true` to say TLS is ended in front of it. Plain LDAP is refused in production otherwise. With TLS ended in front, no client certificate reaches the directory, so no person can bind; service accounts still can.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `LDAP_BIND_ADDR` | unset | Address the directory listens on, such as `0.0.0.0:636`. Unset starts no directory. |
+| `LDAP_TLS_CERT_PATH`, `LDAP_TLS_KEY_PATH` | unset | The directory's certificate and key, both or neither. Set, it serves LDAPS. A `SIGHUP` reloads them. |
+| `LDAP_TLS_TERMINATED_UPSTREAM` | off | Take plain connections because TLS is ended in front. Not with a certificate. |
+| `LDAP_CLIENT_CA_CERT_PATH`, `LDAP_CLIENT_CA_KEY_PATH` | unset | The authority client certificates are issued from and checked against, both or neither. Unset refuses every write. |
+| `LDAP_CLIENT_CERT_VALIDITY_DAYS` | `90` | How long an issued client certificate is valid. |
+| `LDAP_MAX_CONNECTIONS` | `256` | Connections served at once. |
+| `LDAP_IDLE_TIMEOUT_SECONDS` | `300` | How long a connection may sit idle. |
+| `LDAP_HANDSHAKE_TIMEOUT_SECONDS` | `10` | Longest a TLS handshake may take. |
+| `LDAP_BINDS_PER_IP_PER_MINUTE` | `30` | Binds one address may try a minute. |
+| `LDAP_MAX_BIND_ATTEMPTS_PER_MINUTE` | `30` | Binds one tenant may receive a minute. |
+
+In development, with neither a certificate nor the word that TLS ends upstream, the directory takes plain connections and logs a warning at start.
+
+## Agents
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `AGENT_TOKEN_AUDIENCE` | `APP_BASE_URL` | The audience agents sign their assertions for. |
+| `AGENT_PROXY_BASE_URL` | unset | The gateway agents' tool calls go through. Unset refuses every tool call. |
+| `ALLOW_PRIVATE_MODEL_ENDPOINTS` | empty | Private ranges a tenant's model endpoint may point into, as CIDR blocks. Empty allows public addresses only. Metadata addresses stay refused. |
+| `AGENT_MODEL_TIMEOUT_SECONDS` | `30` | One model call. |
+| `AGENT_TOOL_TIMEOUT_SECONDS` | `30` | One tool call. |
+| `AGENT_RUN_DEFAULT_MAX_STEPS` | `8` | Steps an agent run gets when none are asked for, from 1 to 1000. Not more than the most. |
+| `AGENT_RUN_MAX_STEPS` | `20` | Most steps an agent run may have, from 1 to 1000. |
+| `AGENT_APPROVAL_MAX_PER_HOUR` | `30` | Approvals one person may give in an hour. |
+| `AGENT_APPROVAL_MAX_OPEN_PER_DELEGATION` | `20` | Undecided requests the gateway may open under one delegation, from 1 to 1000. Past it the agent's action is refused without asking anyone. |
+| `SIGNAL_DISABLE_AFTER_FAILURES` | `20` | Failed pushes after which a signal stream is switched off. |
+
+### Credentials and approvals
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `AGENT_CREDENTIAL_TTL_SECONDS` | `3600` | A credential minted from an attestation, from 1 to 86400. |
+| `AGENT_CREDENTIAL_DEFAULT_TTL_DAYS` | `30` | A credential when no lifetime is asked for. At least a day, and not more than the most. |
+| `AGENT_CREDENTIAL_MAX_TTL_DAYS` | `90` | Longest lifetime a credential may have. |
+| `AGENT_CREDENTIAL_ROTATION_GRACE_SECONDS` | `300` | How long a replaced credential keeps working. |
+| `AGENT_TASK_TOKEN_MAX_TTL_SECONDS` | `3600` | Longest lifetime of a task token. |
+| `AGENT_ATTESTATION_CHALLENGE_TTL_SECONDS` | `120` | Time an agent has to answer an attestation challenge. |
+| `AGENT_APPROVAL_MAX_TTL_SECONDS` | `86400` | Longest an approval request stays open. |
+| `AGENT_APPROVAL_DECISION_WINDOW_SECONDS` | `900` | Time a person has to decide an agent action the gateway paused for approval, from 60 to 86400. |
+| `AGENT_RUN_APPROVAL_TTL_SECONDS` | `86400` | Time a person has to decide a paused agent run. |
+| `AGENT_APPROVAL_FACTS_WINDOW_HOURS` | `24` | How far back the facts shown to an approver go. |
+| `AGENT_CONVERGENCE_WINDOW_HOURS` | `24` | Window in which several agents acting on one resource are noticed. |
+
+### Attestation
+
+Each platform attestation is trusted only when `AGENT_ATTESTATION_ALLOWLIST` lists it, and each needs what it is checked against. A setting for an attestation not listed is refused.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `AGENT_ATTESTATION_ALLOWLIST` | empty | `spiffe`, `tpm`, `gcp` and `aws`. Empty trusts none. `azure` is refused by name: nothing it signs can bind a challenge to the key being enrolled. |
+| `AGENT_SPIFFE_TRUST_DOMAIN` | **required** with `spiffe` | The trust domain whose SVIDs agents may attest with. |
+| `AGENT_SPIFFE_TRUST_BUNDLE_PATH` | **required** with `spiffe` | A file of PEM authorities for that trust domain. |
+| `AGENT_TPM_TRUST_BUNDLE_PATH` | **required** with `tpm` | The authorities that issue the trusted machines' attestation identity keys. Not the TPM makers' endorsement certificates. |
+| `AGENT_GCP_JWKS_URL` | Google's own keys | Where Google's instance identity keys are read, with `gcp`. |
+| `AGENT_ISSUER_KEYS_TTL_SECONDS` | `600` | How long an issuer's keys are kept. |
+| `AGENT_ISSUER_KEYS_RENEW_SECONDS` | `60` | Least time between two fetches of them. |
+
+`aws` takes a signed `sts:GetCallerIdentity` request, which AWS answers, and needs no setting.
+
+### Reading a declared purpose
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `AGENT_INTENT_EMBEDDING_URL` | unset | An embeddings API, such as `https://api.openai.com/v1`, to compare what an agent says it will do with what it does. Unset reads the purpose by keyword. |
+| `AGENT_INTENT_EMBEDDING_API_KEY` | unset | Its key, for an API that takes one. |
+| `AGENT_INTENT_EMBEDDING_MODEL` | `text-embedding-3-small` | The embedding model. |
+| `AGENT_INTENT_SIMILARITY_THRESHOLD` | `0.35` | Lowest similarity still counted as a match, from 0 to 1. |
+
+## Customers' clouds
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `CLOUD_AWS_ACCESS_KEY_ID`, `CLOUD_AWS_SECRET_ACCESS_KEY` | unset | The platform's own AWS keys, which assume customers' roles. Both or neither. Unset leaves customers' AWS accounts unreachable; other clouds work with the customer's own credential alone. |
+| `CLOUD_AWS_SESSION_TOKEN` | unset | A session token, when the keys are temporary. Needs the keys. |
+| `CLOUD_CONSOLE_TEMPLATE` | unset | A link opening a customer's console with the onboarding template loaded. Must hold `{external_id}`. Unset offers written steps only. |
+
+## Connectors
+
+The API signs the certificate each [connector](/ianua/concepts/connectors/) holds its link to the gateway with, when it enrolls and every day after. Make the files with `ianua connector-pki`.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `CONNECTOR_CA_CERT_FILE`, `CONNECTOR_CA_KEY_FILE` | unset | The connector authority's certificate and key, as file paths. Both or neither. Unset refuses every enrollment and renewal, so services behind a connector stay unreachable. Keep the key on the API nodes alone: the gateway refuses to start with it. |
+
+## Gateway
+
+`ianua-zero` reads the settings below and nothing else. It reads them once, when it starts, and checks them all before it serves anything, the same way the server does.
+
+### Shared with the server
+
+These are read exactly as the server reads them, so their sections above say what each does. The ones marked *same value* must hold the value the server's nodes hold.
+
+| Variable | Section | Notes |
+| --- | --- | --- |
+| `APP_ENV` | [Deployment](#deployment) | |
+| `PROXY_BASE_DOMAIN` | [Deployment](#deployment) | **Required.** Same value. |
+| `APP_BASE_URL` | [Deployment](#deployment) | **Required.** Same value. Tenants' tokens name their issuer from it, and the gateway refuses a token whose issuer is not the tenant's. |
+| `JWKS_ROTATION_GRACE_SECONDS` | [Tokens and sessions](#tokens-and-sessions) | Same value. How long a token signed with a key rotated out is still believed. |
+| `SHUTDOWN_GRACE_SECONDS` | [Listeners](#listeners) | How long a stop waits for the requests and streams in flight, `30` by default, from 1 to 3600. |
+| `LOG_LEVEL`, `LOG_FORMAT` | [Logging](#logging) | |
+| `GATEWAY_DATABASE_URL` | [Database](#database) | **Required.** The gateway signs in as its own role, never the app's. |
+| `DATABASE_MAX_CONNECTIONS`, `TENANT_DB_MAX_CONNECTIONS`, `DATABASE_ACQUIRE_TIMEOUT_SECONDS`, `DATABASE_READY_POLL_SECONDS` | [Database](#database) | The gateway's own pools. |
+| `HMAC_SECRET` | [Keys](#keys) | **Required.** Same value. |
+| `ENCRYPTION_KEY`, `ENCRYPTION_KEY_ID`, `ENCRYPTION_RETIRED_KEYS` | [Keys](#keys) | `ENCRYPTION_KEY` is **required**. Same values. |
+| `BUS_URL`, `BUS_TOKEN`, `BUS_CREDENTIALS_FILE`, `BUS_TIMEOUT_SECONDS`, `BUS_MEMORY_EVENTS` | [Bus](#bus) | `BUS_URL` is **required** in production. The same bus as the server's. |
+| `CACHE_URL`, `CACHE_TIMEOUT_SECONDS`, `CACHE_MEMORY_ENTRIES`, `STORE_CACHE_LIFETIME_SECONDS`, `STORE_CACHE_CALLERS`, `STORE_CACHE_HOLDINGS` | [Cache](#cache) | `CACHE_URL` is **required** in production. The same cache as the server's. |
+| `NAMESPACE` | [Namespace](#namespace) | Same value. With another, the gateway hears none of the server's changes. |
+| `UPSTREAM_NETWORKS` | [Listeners](#listeners) | Same value. |
+| `TRUSTED_PROXIES` | [Listeners](#listeners) | Whose `X-Forwarded-For` the gateway believes. |
+| `GEOIP_DB_PATH` | [Listeners](#listeners) | The country database the geo fence reads. Without it no country is known, so a geo fence with an allow list refuses everyone. |
+
+Secrets take a `_FILE` variant here too: `GATEWAY_DATABASE_URL`, `HMAC_SECRET`, `ENCRYPTION_KEY`, `ENCRYPTION_RETIRED_KEYS`, `BUS_TOKEN`, `CACHE_URL`, `VAULT_TOKEN` and `LOG_SINK_AUTH`.
+
+### Gateway start-up checks
+
+Besides each value on its own, the gateway refuses to start when:
+
+- **It holds a control plane secret.** `EVENT_SIGNING_SECRET`, `DATABASE_URL`, `MIGRATION_DATABASE_URL`, `AUDIT_PURGE_DATABASE_URL` and `CONNECTOR_CA_KEY_FILE`, or their `_FILE` forms, are refused. The gateway faces the internet, so it never holds the key that seals events or another role's login.
+- **Production has no shared bus or cache.** Without `BUS_URL` the gateway hears no configuration change and shares no blocked address. Without `CACHE_URL` each gateway counts rate limits, budgets and replayed DPoP proofs on its own, so each lets the same request through. `BUS_URL` without `CACHE_URL` is refused in development too.
+- **Plain HTTP in production.** The main listener always ends TLS itself in production.
+- **Two listeners share a port.**
+- **A wait is as long as what it waits inside.** `GATEWAY_COUNTER_TIMEOUT_MS` and `GATEWAY_APP_SESSION_CHECK_TIMEOUT_MS` must be shorter than `GATEWAY_PIPELINE_TIMEOUT_MS`. `GATEWAY_TUNNEL_RECHECK_TIMEOUT_SECONDS` must be shorter than `GATEWAY_TUNNEL_RECHECK_SECONDS`.
+- **A setting nothing would read**, such as `VAULT_TOKEN` without `VAULT_ADDR`, `LOG_SINK_AUTH` without `LOG_SINK_URL`, `OTLP_SERVICE_NAME` without `OTLP_ENDPOINT`, or `API_INTERNAL_TIMEOUT_SECONDS` without `API_INTERNAL_URL`.
+
+### Listeners and connections
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `GATEWAY_LISTEN` | `0.0.0.0:8080` | The main listener. It ends TLS with the certificate stored for each name it serves. |
+| `GATEWAY_TLS_CERT`, `GATEWAY_TLS_KEY` | unset | The platform's own certificate, as file paths, served for `PROXY_BASE_DOMAIN` and every name one label under it, where tenants' platform subdomains live. Both or neither. It is never served for any other name: a name no certificate covers is refused at the handshake. |
+| `GATEWAY_PLAIN_HTTP` | `false` | Serve plain HTTP on the main listener instead. Development only, and not beside a certificate. |
+| `GATEWAY_PROXY_PROTOCOL_PEERS` | empty | The peers whose connections begin with a PROXY protocol v2 header naming the real client, as addresses and CIDR blocks. Use it when the ingress passes TLS through. A connection from any other peer is refused. Empty expects no header. |
+| `GATEWAY_ACME_LISTEN` | unset | The plain HTTP listener a certificate authority fetches its challenges from, usually port 80. Unset leaves tenants' own domains uncertifiable over HTTP. |
+| `GATEWAY_RUNNER_LISTEN` | unset | The listener agent runners inside the cluster send through. It never takes a PROXY header and asks no client certificate. Each key proof sent on it must name the address the runner sent the request to, and a key-bound token without a valid proof is refused. |
+| `GATEWAY_RUNNER_TLS_CERT_FILE`, `GATEWAY_RUNNER_TLS_KEY_FILE` | unset | The runner listener's certificate and key, of the internal authority `ianua internal-pki` issues. Production refuses the runner listener without them; elsewhere, with neither set, it serves plain HTTP. |
+| `GATEWAY_WORKFLOW_LISTEN` | unset | The listener inside the cluster that Protected apps and Protected data steps call from the worker, over mutual TLS. A request there must carry a run pass. It reaches only the route the pass names, and only while that route is open to workflows. A `CONNECT` reaches only the stream route its pass names, as the run's person, while that stream route is open to workflows. No host is looked at, and it never takes a PROXY header. A public address stops startup. Every address of the host (`0.0.0.0`), loopback, private and link-local addresses are taken. Keep it unreachable from outside the cluster and from agents' sandboxes. Unset leaves Protected apps and Protected data unreachable. |
+| `GATEWAY_WORKFLOW_CA_FILE` | unset | The internal authority's certificate. Only a client whose certificate chains to it, the worker's, completes the handshake. `ianua internal-pki` issues it. |
+| `GATEWAY_WORKFLOW_TLS_CERT_FILE`, `GATEWAY_WORKFLOW_TLS_KEY_FILE` | unset | The certificate the workflow listener serves, and its key, issued under the same authority. All three files are set together. Without them the listener serves plain HTTP outside production, and stops startup in production. |
+| `GATEWAY_STATUS_LISTEN` | `0.0.0.0:9090` | `/health/live`, `/health/ready` and the Prometheus metrics at `/metrics`. Keep it private: the metrics describe the deployment. |
+| `GATEWAY_HANDSHAKE_TIMEOUT_SECONDS` | `10` | Longest a TLS handshake may take, from 1 to 120. |
+| `GATEWAY_HEADER_TIMEOUT_SECONDS` | `10` | Longest the PROXY header and a request's head may take to arrive, from 1 to 120. |
+| `GATEWAY_IDLE_TIMEOUT_SECONDS` | `30` | How long a connection may do nothing before it is closed, from 1 to 3600. |
+| `GATEWAY_MAX_CONNECTIONS` | `10000` | Connections served at once. More wait. |
+| `GATEWAY_MAX_HEADERS` | `100` | Headers one request may carry, from 1 to 1000. |
+| `GATEWAY_PIPELINE_TIMEOUT_MS` | `10000` | Longest the checks may take on one request before it is refused. |
+| `GATEWAY_COUNTER_TIMEOUT_MS` | `250` | Longest one request waits on a shared count (rate limits, budgets, DPoP replays) before it is refused, from 1 to 5000. |
+| `GATEWAY_FLEET_ID` | `default` | Gateways in one fleet share blocked addresses and reputation flags. The name is part of the bus subject and of the seal on each flag, so another fleet on the same bus neither hears them nor can use them. Lowercase letters, digits, `-` and `_`, up to 64. |
+
+### Long-lived connections
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `GATEWAY_TUNNEL_MAX_LIFETIME_SECONDS` | `3600` | Longest a WebSocket stays open. |
+| `GATEWAY_TUNNEL_IDLE_SECONDS` | `300` | How long a WebSocket may carry nothing. |
+| `GATEWAY_TUNNEL_RECHECK_SECONDS` | `30` | How often access is checked again while a WebSocket or stream stays open, for the agent or person who opened it. |
+| `GATEWAY_TUNNEL_RECHECK_TIMEOUT_SECONDS` | `5` | Longest that check may take before the connection is closed. |
+| `GATEWAY_STREAM_MAX_CONNECTIONS` | `512` | Connections each TCP route carries at once. |
+| `GATEWAY_STREAM_RECONCILE_SECONDS` | `30` | How often TCP and UDP route ports are matched to the configuration. |
+
+### Connectors
+
+The gateway takes [connectors'](/ianua/concepts/connectors/) links on a listener of its own. Without it, a service reached through a connector answers `503`.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `GATEWAY_CONNECTOR_LISTEN` | unset | Where connectors dial in, such as `0.0.0.0:8444`. Each link is mutual TLS carrying HTTP/2. |
+| `GATEWAY_CONNECTOR_CA_FILE` | **required** with a listener | The connector authority's certificate. A link without a certificate it signed is refused at the handshake. |
+| `GATEWAY_CONNECTOR_TLS_CERT_FILE`, `GATEWAY_CONNECTOR_TLS_KEY_FILE` | **required** with a listener | The listener's certificate and key, as `ianua connector-pki` issued them. Set without a listener, they are refused. |
+| `GATEWAY_CONNECTOR_MAX_LINKS` | `4096` | Links held at once, across every tenant. One past it is closed. |
+| `GATEWAY_CONNECTOR_LINKS_PER_CONNECTOR` | `16` | Links one connector may hold at once. One past it is refused. |
+| `GATEWAY_CONNECTOR_STREAMS_PER_LINK` | `256` | Connections open down one link at once. One past it is answered `503`. |
+| `GATEWAY_CONNECTOR_HANDSHAKE_TIMEOUT_SECONDS` | `10` | Longest a link's TLS and HTTP/2 handshake may take. |
+| `GATEWAY_CONNECTOR_OPEN_TIMEOUT_SECONDS` | `10` | Longest opening one connection down a link may take, the connector's own dial included. |
+| `GATEWAY_CONNECTOR_KEEPALIVE_SECONDS` | `20` | How often a link is pinged, and how long an answer may take before the link is dropped. |
+| `GATEWAY_CONNECTOR_SIGHTING_SECONDS` | `300` | How often an open link is noted as seen. |
+
+### Configuration and backends
+
+The gateway reads a tenant again as soon as it hears on the bus that its configuration changed. The seal on those events is made from a key the gateway never holds, so it takes each one only as a reason to read the stores again: an event never changes what the gateway serves by itself. When it misses some or loses the bus, it reads everything again, and it does so on a timer too.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `GATEWAY_RELOAD_SECONDS` | `300` | How often every tenant, route, certificate and sign-in host is read again, from 10 to 86400. It bounds how long a change can go unserved. |
+| `GATEWAY_DISCOVERY_REFRESH_SECONDS` | `5` | How often backends found by DNS are checked for a lookup that is due. |
+| `GATEWAY_DNS_LOOKUP_TIMEOUT_SECONDS` | `3` | Longest one backend lookup may take, from 1 to 30. |
+| `GATEWAY_CONNECT_TIMEOUT_SECONDS` | `5` | Longest opening one connection to a backend may take, from 1 to 60. |
+| `GATEWAY_RESPONSE_DEADLINE_SECONDS` | `300` | Longest a whole answer may take to arrive, its body included, from 1 to 86400. A service's own timeout bounds its first byte. |
+| `GATEWAY_LONG_LIVED_IDLE_SECONDS` | `60` | How long a long-lived answer, such as server-sent events, may send nothing before it is cut off. It is held to this instead of the response deadline. |
+| `GATEWAY_POOL_IDLE_SECONDS` | `90` | How long an idle connection to a backend is kept for reuse. |
+| `GATEWAY_POOL_MAX_IDLE_PER_BACKEND` | `32` | Idle connections kept per backend, from 0 to 1024. |
+| `GATEWAY_MAX_TUNNELS` | `4096` | WebSockets and other upgraded connections open at once, across every route. |
+
+### Credentials and devices
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `GATEWAY_CONSUMER_KEYS_TTL_SECONDS` | `600` | How long the keys a consumer's own token issuer publishes are used before they are fetched again. |
+| `GATEWAY_CONSUMER_KEYS_RENEW_SECONDS` | `60` | Shortest time between two fetches of one issuer's keys, even for a token naming a key the kept set lacks. |
+| `GATEWAY_CONSUMER_KEYS_TIMEOUT_SECONDS` | `5` | Longest one fetch may take, from 1 to 30. Keys are fetched only from addresses `UPSTREAM_NETWORKS` allows. |
+| `DEVICE_POSTURE_URL`, `DEVICE_POSTURE_TOKEN` | unset | The device service a route's device posture rule is asked of, such as an MDM, and the bearer token the gateway asks with. Both or neither; `https` in production. Unset, a route with a posture rule answers unavailable. |
+| `DEVICE_POSTURE_TIMEOUT_MS` | `2000` | Longest one question may take, from 1 to 2000. |
+
+### Bodies and the response cache
+
+Every read of a body is held in memory, so each read is from 1 byte to 16 MiB. Only the largest body taken may be larger, up to 16 GiB, since it streams.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `GATEWAY_DEFAULT_MAX_BODY_BYTES` | `10485760` | Largest request body, unless the route's firewall sets its own. |
+| `GATEWAY_WAF_BODY_SCAN_MAX_BYTES` | `65536` | How much of a request body the firewall scans. |
+| `GATEWAY_REQUEST_SIGN_MAX_BYTES` | `65536` | How much of a request body is signed. |
+| `GATEWAY_MCP_BODY_MAX_BYTES` | `262144` | Largest MCP request read to check the tool call. Larger ones are refused. |
+| `GATEWAY_GRAPHQL_BODY_MAX_BYTES` | `262144` | Largest GraphQL request read to check its cost. Larger ones are refused. |
+| `GATEWAY_PARAMETER_RULES_MAX_BYTES` | `262144` | How much of a request body a route's parameter rules read. A body they cannot read whole is refused. |
+| `GATEWAY_CANARY_SCAN_MAX_BYTES` | `65536` | How much of a response is scanned for leaked canary tokens. A longer answer on a route that scans is withheld, since its rest could carry one. |
+| `GATEWAY_RESPONSE_STAGE_MAX_BYTES` | `65536` | How much of a response redaction, transforms, signing, token charges and the cache read. The gateway reads an answer up to the larger of the two caps its route's stages ask for and refuses a longer one. A route with no response stage streams answers of any length. |
+| `GATEWAY_CACHE_MAX_BODY_BYTES` | `1048576` | Largest response the cache stores. |
+| `GATEWAY_CACHE_MAX_ENTRIES` | `50000` | Responses the cache holds at once, across every gateway and tenant. Past it nothing new is stored, and nothing held is pushed out. A place comes free when its response lapses. |
+
+### App sign-in and approvals
+
+App sign-in actions and agents' approval requests go to the API's relay listener over mutual TLS, inside a channel sealed with keys made from `HMAC_SECRET`. How long a person has to decide an approval is the API's setting.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `API_INTERNAL_URL` | unset | The API's relay listener, such as `https://ianua-server-relay:3002`. Unset, apps' sign-in addresses answer unavailable and every agent action waiting for an approval is refused. Production refuses an `http` address. |
+| `API_INTERNAL_CA_FILE` | unset | The internal authority's certificate, the only one the relay listener's certificate may chain to. Needed with an `https` address. |
+| `API_INTERNAL_CLIENT_CERT_FILE`, `API_INTERNAL_CLIENT_KEY_FILE` | unset | The gateway's certificate and key, which it presents to the relay listener. Needed with an `https` address and refused beside an `http` one. |
+| `API_INTERNAL_TIMEOUT_SECONDS` | `10` | Longest one call to it may take, from 1 to 60. |
+| `GATEWAY_APP_SESSION_CACHE_SECONDS` | `5` | How long a confirmed app session is trusted, from 0 to 60. A signed-out session works at most this long, and a sign-out on another node ends it on every node at once. A session past its end is refused from that very moment, however recently it was confirmed. `0` checks every request. |
+| `GATEWAY_APP_SESSION_CHECK_TIMEOUT_MS` | `2000` | Longest an app session check may take before the request is refused. |
+
+### Secrets, logs and tracing
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `GATEWAY_SECRETS_DIR` | `/run/secrets` | The only folder `file://` secret references may read from. Must be an absolute path. |
+| `VAULT_ADDR`, `VAULT_TOKEN` | unset | The Vault `vault://` secret references are read from. Both or neither. The address holds no user or password, and is `https` in production. |
+| `VAULT_NAMESPACE` | unset | The Vault namespace, for Vault Enterprise. |
+| `VAULT_TIMEOUT_SECONDS` | `5` | Longest one Vault read may take, from 1 to 60. |
+| `GATEWAY_REQUEST_RECORD_BUFFER` | `10000` | Request records held before new ones are dropped. |
+| `GATEWAY_REQUEST_RECORD_BATCH_SIZE` | `256` | Request records written at once. No larger than the buffer. |
+| `GATEWAY_REQUEST_RECORD_FLUSH_MS` | `500` | Longest a record waits to be written. |
+| `LOG_SINK_URL` | unset | Where finished requests are sent, as JSON batches. No user or password in it. |
+| `LOG_SINK_AUTH` | unset | The header sent to that endpoint, as `Name: value`. Read as a secret. |
+| `OTLP_ENDPOINT` | unset | Where spans are sent, as an OTLP/HTTP address. No user or password in it. |
+| `OTLP_SERVICE_NAME` | `ianua-zero` | Name spans are recorded under. |
+
+## Agent runner
+
+`ianua-runner` runs beside one agent's sandbox and holds that agent's key. It reads the settings below and nothing else. It holds no secret of the platform's, so it refuses to start when it is given `EVENT_SIGNING_SECRET`, `HMAC_SECRET`, `ENCRYPTION_KEY`, `CACHE_URL` or any database login, or their `_FILE` forms.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `RUNNER_AGENT_ID` | **required** | The agent the runner acts for. |
+| `RUNNER_API_URL` | **required** | The tenant's agents collection on the API, such as `https://ianua.example/api/v1/organizations/acme/tenants/prod/agents`. The runner attests and exchanges task tokens there, and sends the agent's messages to `messages/{topic}` under it. |
+| `RUNNER_GATEWAY_URL` | **required** | Where the gateway is reached, usually its `GATEWAY_RUNNER_LISTEN` listener. Production requires `https`. |
+| `RUNNER_GATEWAY_CA_FILE` | unset | The internal authority's certificate, the only one the gateway's certificate may chain to. Unset, the gateway is checked against the public roots. Refused beside an `http` address. |
+| `RUNNER_GATEWAY_NAME` | unset | The name the gateway's certificate is for, when `RUNNER_GATEWAY_URL` names it by address, so the runner needs no name lookup. Needs `RUNNER_GATEWAY_CA_FILE`. |
+| `RUNNER_UPSTREAM_HOST` | **required** | The app's host the agent's requests name on the gateway. |
+| `RUNNER_PLAIN_HTTP` | `refused` | `in_cluster` lets `RUNNER_API_URL` be plain HTTP in production, for a cluster whose network policy lets only runners reach it. `RUNNER_GATEWAY_URL` must be `https` in production either way. Development takes plain HTTP whatever this says. |
+| `RUNNER_TOKEN_AUDIENCE` | **required** | The audience its assertions name: the server's `AGENT_TOKEN_AUDIENCE`. |
+| `RUNNER_GRANTED` | **required** | What the runner asks for in each token exchange, as the API's JSON, such as `{"http":["routing:view"]}`. The platform grants no more than people delegated to the agent. |
+| `RUNNER_TOKEN_TTL_SECONDS` | `600` | How long each task token lives, from 60 to 86400. The runner exchanges a new one a fifth of that early, at most a minute early. |
+| `RUNNER_IDENTITY` | `spiffe` | How the runner proves it acts for the agent: `spiffe`, by attesting its workload with its SVID, or `key`, with a key mounted into it. |
+| `RUNNER_SVID_FILE`, `RUNNER_SVID_KEY_FILE` | **required** with `spiffe` | The SVID, leaf first, and its private key, as a SPIFFE helper writes them. They are read again at each attestation. |
+| `RUNNER_KEY`, `RUNNER_KEY_ID`, `RUNNER_KEY_ALGORITHM` | **required** with `key`; `EdDSA` | The private key enrolled on the agent's credential, as PKCS#8 PEM, its id on the credential, and `EdDSA` or `ES256`. A key that does not read stops the runner at start. |
+| `RUNNER_LISTEN` | `127.0.0.1:8480` | Where the agent talks to the runner. |
+| `RUNNER_REQUEST_TIMEOUT_SECONDS` | `60` | Longest one request may take, its answer streamed to the end included. |
+| `RUNNER_CALL_TIMEOUT_SECONDS` | `10` | Longest an attestation or a token exchange may take. |
+| `RUNNER_HEADER_TIMEOUT_SECONDS` | `10` | Longest the agent may take to send a request's head. |
+| `RUNNER_MAX_IN_FLIGHT` | `64` | Requests in flight at once, from 1 to 10000. One past it is answered `503`. |
+| `RUNNER_MAX_CONNECTIONS` | `128` | Connections from the agent held at once, from 1 to 10000. One past it is closed. |
+| `RUNNER_SHUTDOWN_GRACE_SECONDS` | `10` | How long a stop waits for the requests in flight. |
+| `APP_ENV`, `LOG_LEVEL`, `LOG_FORMAT` | | As for the server. |
+
+## Egress gateway
+
+`ianua-egress` is part of the data plane. It signs in as the gateway's database role and holds the shared root and the sealing keys, never the control plane's. Like the gateway, it refuses to start when it is given `EVENT_SIGNING_SECRET`, `DATABASE_URL`, `MIGRATION_DATABASE_URL` or `AUDIT_PURGE_DATABASE_URL`, or their `_FILE` forms.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `GATEWAY_DATABASE_URL` | **required** | The data plane's role, as the gateway signs in (see [Database](#database)). It reads the egress policies, the assertion keys and the agents' data marks, and adds refusals to the gateway's sealed inbox. |
+| `DATABASE_MAX_CONNECTIONS`, `TENANT_DB_MAX_CONNECTIONS`, `DATABASE_ACQUIRE_TIMEOUT_SECONDS` | `10`, `5`, `5` | Its own pools, as for the server. |
+| `TENANT_DB_RELOAD_SECONDS` | `300` | How often every tenant's database route is read again. It is not ready while a reading fails. |
+| `HMAC_SECRET` | **required** | Same value as the server's. Its refusals are sealed under the data plane's key made from it. |
+| `ENCRYPTION_KEY`, `ENCRYPTION_KEY_ID`, `ENCRYPTION_RETIRED_KEYS` | `ENCRYPTION_KEY` is **required** | Same values as the server's. |
+| `EGRESS_LISTEN` | `0.0.0.0:3128` | Where services connect, over TLS with a client certificate. |
+| `EGRESS_TLS_CERT_FILE`, `EGRESS_TLS_KEY_FILE` | **required** | The certificate it serves and its key. |
+| `EGRESS_CLIENT_CA_FILE` | **required** | The authorities a service's client certificate must chain to, such as the SPIRE trust bundle. A service without one is refused at the handshake. |
+| `EGRESS_PRIVATE_NETWORKS` | empty | Internal networks a listed name may resolve to, as CIDR blocks. Empty reaches public addresses only. Link-local addresses and the clouds' metadata addresses stay refused whatever is listed. |
+| `EGRESS_STATUS_LISTEN` | `0.0.0.0:9902` | `/health/live` and `/health/ready`. |
+| `EGRESS_MAX_CONNECTIONS` | `1024` | Service connections held at once, from 1 to 100000. One past it is closed. |
+| `EGRESS_MAX_TUNNELS` | `1024` | Tunnels open at once, from 1 to 100000. One past it is answered `503`. |
+| `EGRESS_HANDSHAKE_TIMEOUT_SECONDS` | `10` | Longest a TLS handshake may take. |
+| `EGRESS_HEADER_TIMEOUT_SECONDS` | `10` | Longest a request's head may take to arrive. |
+| `EGRESS_DECISION_TIMEOUT_SECONDS` | `5` | Longest the decision on one connection may take. Past it the connection is refused. |
+| `EGRESS_CONNECT_TIMEOUT_SECONDS` | `10` | Longest resolving and connecting to a destination may take. |
+| `EGRESS_REQUEST_TIMEOUT_SECONDS` | `60` | Longest a plain HTTP exchange may take, its answer included. |
+| `EGRESS_IDLE_TIMEOUT_SECONDS` | `300` | How long a tunnel may carry nothing before it is closed. |
+| `EGRESS_SHUTDOWN_GRACE_SECONDS` | `10` | How long a stop waits for the connections in flight. |
+| `APP_ENV`, `LOG_LEVEL`, `LOG_FORMAT` | | As for the server. |
+
+## Connector
+
+`ianua-connector` runs inside a tenant's own network. It dials out to the gateway's connector listener and opens connections only to the targets it lists. It holds no platform secret, and refuses to start when given one: `HMAC_SECRET`, `ENCRYPTION_KEY`, `EVENT_SIGNING_SECRET`, `DATABASE_URL`, `GATEWAY_DATABASE_URL`, `MIGRATION_DATABASE_URL`, `AUDIT_PURGE_DATABASE_URL`, `CONNECTOR_CA_KEY_FILE`, `BUS_URL` or `CACHE_URL`, or their `_FILE` forms.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `CONNECTOR_API_URL` | **required** | The ianua API. HTTPS, unless the API runs on the same machine. |
+| `CONNECTOR_TENANT` | **required** | The organization and tenant slugs, as `organization/tenant`. |
+| `CONNECTOR_GATEWAY_ADDRESS` | **required** | The gateway's connector listener, as `host:port`. The listener's certificate is checked against the host. One link is held to each address the name resolves to. |
+| `CONNECTOR_ENROLLMENT_CODE`, `CONNECTOR_ENROLLMENT_CODE_FILE` | unset | The one-time code. Needed only until the connector has enrolled. |
+| `CONNECTOR_ALLOWED_TARGETS` | **required** | The only targets it opens connections to, comma-separated: `host:port`, `address:port` or `network/bits:port`. A listed name that resolves to a loopback or link-local address is refused unless that address is listed too. |
+| `CONNECTOR_STATE_DIR` | `/var/lib/ianua-connector` | Where its key and certificate are kept. Refused when other users can read it. |
+| `CONNECTOR_MAX_LINKS` | `8` | Gateway addresses linked at once. |
+| `CONNECTOR_MAX_STREAMS` | `256` | Connections carried at once on one link. |
+| `CONNECTOR_DIAL_TIMEOUT_SECONDS` | `10` | Longest opening a connection to a target may take. |
+| `CONNECTOR_IDLE_TIMEOUT_SECONDS` | `300` | How long a connection may carry nothing before it is closed. |
+| `CONNECTOR_HANDSHAKE_TIMEOUT_SECONDS` | `10` | Longest reaching the gateway and the TLS handshake may take. |
+| `CONNECTOR_REQUEST_TIMEOUT_SECONDS` | `30` | Longest one call to the API may take. |
+| `CONNECTOR_RESOLVE_SECONDS` | `30` | How often the gateway's name is looked up again. |
+| `CONNECTOR_BACKOFF_MAX_SECONDS` | `60` | Longest wait before trying again after a failure. |
+| `CONNECTOR_SHUTDOWN_GRACE_SECONDS` | `10` | How long a stop waits for open connections. |
+| `APP_ENV`, `LOG_LEVEL`, `LOG_FORMAT` | | As for the server. |
+
+## Nameserver
+
+`ianua-dns` reads its zones from one of two places. In the cluster it reads the database, signed in as the nameservers' own role. On a host of its own, which cannot reach the database, it follows the control plane's stream over mutual TLS and holds no database login. `NAMESERVER_DATABASE_URL` picks the first and `CONTROL_PLANE_ENDPOINT` the second; one of them is required, and both together are refused.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `NAMESERVER_DATABASE_URL` | unset | Read the database as the nameservers' role, the same value the worker holds (see [Database](#database)). The app's `DATABASE_URL` is not read. |
+| `DNS_REFRESH_SECONDS` | `15` | With the database: how often the zones are read again, from 1 to 3600. A tenant's change answers within this, plus the record's own time to live. |
+| `DATABASE_MAX_CONNECTIONS` | `10` | With the database: pool size, from 1 to 1000. One load runs at a time, so a pool of 2 is plenty. |
+| `DATABASE_ACQUIRE_TIMEOUT_SECONDS` | `5` | With the database: longest wait for a free connection. |
+| `CONTROL_PLANE_ENDPOINT` | unset | Follow the control plane's stream at this `https` address, such as `https://grpc.ianua.io:50051`. |
+| `CONTROL_PLANE_SERVER_NAME` | the endpoint's host | The name the control plane's certificate is checked against. |
+| `CONTROL_PLANE_CLIENT_CERT`, `CONTROL_PLANE_CLIENT_KEY`, `CONTROL_PLANE_CA_CERT` | **required** with an endpoint | Files holding this host's certificate and key, and the deployment's own authority the control plane is checked against. |
+| `DNS_HOSTMASTER` | **required** | The contact every zone names, written with a dot where an address has an `@`, such as `hostmaster.example.com`. |
+| `DNS_BIND` | `0.0.0.0:53` | Address the nameserver listens on, over UDP and TCP alike. |
+| `SHUTDOWN_GRACE_SECONDS` | `10` | How long a stop waits for the queries in flight. |
+| `APP_ENV` | `production` | As for the server. |
+| `LOG_LEVEL`, `LOG_FORMAT` | `info`, `json` in production | As for the server. Nothing is logged per query; failed replies and timed-out connections are logged at `debug`, which a stranger can cause at will, so keep `info` on a public host. |
+
+Until its first catalog the nameserver refuses every query. A load that fails, or a stream that ends, keeps the zones it holds, and it tries again: the database sooner after a failure, doubling up to the refresh interval; the stream after a second, doubling up to a minute.
+
+## Fixed on purpose
+
+A few values are not settings, because changing them would break something:
+
+- How often each worker sweep runs. Every worker must agree on it, or two would count a sweep's rounds differently and each run it.
+- Format limits on input, like the longest name or slug.
+- The 30-second code step of authenticator apps.
+- How long a SAML sign-in request from an app waits for its answer: 10 minutes.
+- How old a DPoP proof may be: 60 seconds, with 5 seconds allowed for clocks that run ahead.
+- Certificate lifetimes, which the certificate authority decides.

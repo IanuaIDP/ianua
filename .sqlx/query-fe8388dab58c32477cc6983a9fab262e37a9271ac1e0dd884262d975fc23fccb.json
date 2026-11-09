@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The stored state word of one tenant's refresh token whose hash is the\n-- given one, read after a rotation was turned down to tell a token another\n-- refresh rotated first from one revoked meanwhile.\nSELECT state\nFROM oauth_refresh_tokens\nWHERE tenant_id = $1 AND token_hash = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "state",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "fe8388dab58c32477cc6983a9fab262e37a9271ac1e0dd884262d975fc23fccb"
+}

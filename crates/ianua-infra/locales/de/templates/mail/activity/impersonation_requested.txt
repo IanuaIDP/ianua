@@ -1,0 +1,11 @@
+Hallo{% if user_name is defined and user_name %} {{ user_name | default("") }}{% endif %}!
+
+{{ requester_name | default("Ein Administrator") }} bei {{ tenant_name | default("Ihrer Organisation") }} möchte in Ihrem Namen handeln, um Ihnen mit Ihrem Konto zu helfen.
+{% if reason is defined %}
+Begründung: {{ reason }}
+{% endif %}
+Melden Sie sich an, um zuzustimmen oder abzulehnen. Die Anfrage läuft in {{ expires_at }} ab.
+
+Ohne Ihre Zustimmung geschieht nichts. Wenn Sie dies nicht erwartet haben, lehnen Sie die Anfrage ab und informieren Sie Ihren Administrator.
+
+IANUA

@@ -1,0 +1,11 @@
+Hallo{% if user_name is defined and user_name %} {{ user_name | default("") }}{% endif %}!
+
+Geben Sie diesen Code ein, um die Anmeldung bei {{ tenant_name | default("Ihrem Konto") }} fortzusetzen:
+
+{{ one_time_code }}
+
+Der Code läuft in {{ expires_at }} ab.
+
+Wenn Sie sich gerade nicht anmelden, kennt möglicherweise jemand Ihr Passwort. Ändern Sie es und geben Sie diesen Code an niemanden weiter.
+
+IANUA

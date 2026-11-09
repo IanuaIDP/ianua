@@ -1,0 +1,7 @@
+error[E0277]: the trait bound `CanonicalPath: From<&str>` is not satisfied
+ --> tests/compile_fail/path_matched_unread.rs:7:50
+  |
+7 |     let _path: CanonicalPath = "/admin/../admin".into();
+  |                                                  ^^^^ the trait `From<&str>` is not implemented for `CanonicalPath`
+  |
+  = note: required for `&str` to implement `Into<CanonicalPath>`

@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% import "sign_in/parts.html" as p %}
+
+{% block title %}在 {{ workspace }} 创建账户{% endblock %}
+
+{% block content %}
+      <h1>创建您的账户</h1>
+      <p class="subtitle">加入 {{ workspace }}。我们将通过邮件发送链接以确认您的邮箱地址。</p>
+      {{ p.note(note, {
+        "not_allowed": "此租户不接受注册。",
+        "invalid": "请检查输入内容。密码可能过短或过于常见。"
+      }) }}
+      <form method="post" action="{{ form_path }}">
+        {{ p.field("display_name", "您的姓名", "text", "name") }}
+        {{ p.field("email", "邮箱地址", "email", "email") }}
+        {{ p.field("password", "密码", "password", "new-password") }}
+        {{ p.submit("创建账户") }}
+      </form>
+      {{ p.link("已有账户？", log_in_path, "登录") }}
+{% endblock %}

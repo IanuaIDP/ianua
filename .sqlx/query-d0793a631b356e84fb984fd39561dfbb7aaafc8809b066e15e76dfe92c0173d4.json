@@ -1,0 +1,36 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many records of the given tenants fell on each UTC day of the window,\n-- by event type.\nSELECT (occurred_at AT TIME ZONE 'UTC')::date AS \"day!\", event_type, count(*) AS \"count!\"\nFROM audit_records\nWHERE tenant_id = ANY($1) AND occurred_at >= $2 AND occurred_at < $3\nGROUP BY 1, 2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "day!",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 1,
+        "name": "event_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null,
+      false,
+      null
+    ]
+  },
+  "hash": "d0793a631b356e84fb984fd39561dfbb7aaafc8809b066e15e76dfe92c0173d4"
+}

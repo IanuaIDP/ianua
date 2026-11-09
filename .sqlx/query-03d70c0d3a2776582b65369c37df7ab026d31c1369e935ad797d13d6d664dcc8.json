@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Forgets one registration, only if it is still waiting on its service.\nDELETE FROM workflow_service_subscriptions\nWHERE tenant_id = $1 AND id = $2 AND status = 'registering'\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "03d70c0d3a2776582b65369c37df7ab026d31c1369e935ad797d13d6d664dcc8"
+}

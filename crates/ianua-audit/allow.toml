@@ -1,0 +1,129 @@
+# Intentional exceptions to ianua-audit findings.
+#
+# Each entry names a check id (see `ianua-audit checks`) and a reason.
+# `subject` matches a finding's subject exactly, or by prefix with a
+# trailing `*`. `path` matches findings in files whose path starts with it.
+# An entry that matches nothing is reported, so stale exceptions show up.
+#
+# [[allow]]
+# check = "reach.behaviour"
+# subject = "Topic::*"
+# path = "crates/ianua-domain/src/domains/messaging/"
+# reason = "Why this is intended."
+#
+# A `[[parked]]` crate waits for a rebuild: its findings are left out of the
+# list and of `--fail-on`, and counted on one line per crate. Both `crate`
+# and `reason` are required; an entry naming no crate is reported.
+
+[[parked]]
+crate = "ianua-zero"
+reason = "the gateway is rebuilt after the server"
+
+[[allow]]
+check = "reach.behaviour"
+subject = "LoginAttemptTracker::new"
+reason = "A tracker for a network not locked out of the account; sign-in reads the standing from the shared counts, and tests and fakes start fresh ones. No person makes one."
+
+[[allow]]
+check = "reach.behaviour"
+subject = "SigningKeySet::from_keys"
+reason = "Storage reads a tenant's keys back as one set; the keys themselves are made and rotated by use cases."
+
+[[allow]]
+check = "reach.behaviour"
+subject = "ScheduledJob::mark_running"
+reason = "`JobQueue::poll_due` claims due jobs atomically in storage and hands each back running; the app settles them."
+
+[[allow]]
+check = "reach.behaviour"
+subject = "AcmeChallenge::open"
+reason = "The ACME solver opens the challenge the certificate authority set while a certificate is issued; nobody acts."
+
+[[allow]]
+check = "limits.path-missing"
+subject = "ApprovalRequest::request in agents::ReviseCallUseCase (PendingApprovals)"
+reason = "A revision withdraws the pending request it replaces and opens the new one in the same unit of work, so the pending requests do not grow."
+
+[[allow]]
+check = "rules.weaker-when-off"
+subject = "InvitationRoute::under HandedOver when off"
+reason = "The route says how the link travelled, not what is asked of the person. Without mail the link can only be handed over, and accepting it then claims nothing about the mailbox: `accepted_address` leaves the address unproven, so the weaker proof grants less."
+
+[[allow]]
+check = "limits.path-missing"
+subject = "Role::starting in tenant::RunStepUseCase (Roles)"
+reason = "Tenant setup makes each starting role once, skipping one the tenant holds already: these are the roles every tenant begins with, counted, not added past the limit."
+
+[[allow]]
+check = "flow.data-class-uncompared"
+subject = "PipelineContext.classification_levels"
+reason = "The data classification stage only tags the request for the upstream, custom stages and the audit trail; the Redact stage enforces."
+
+# Events kept for the audit trail only. Each context's `is_notifiable`
+# leaves them out of colleagues' feeds on purpose, with its reason beside
+# it in the domain; nothing else needs to act on them. Each is named, so a
+# new event is still reported until someone decides about it.
+
+[[allow]]
+check = "flow.event-unheard"
+subjects = ["AgentsEvent::TokenIssued", "AgentsEvent::MessageAuthorized", "AgentsEvent::ModelProviderTested", "AgentsEvent::AttestationChallengeIssued"]
+reason = "An agent's own steps, one per request or call: the trail keeps them, a feed of them would be noise."
+
+[[allow]]
+check = "flow.event-unheard"
+subjects = ["AuthenticationEvent::LoginSucceeded", "AuthenticationEvent::TokenRefreshed", "AuthenticationEvent::SignInCheckUnavailable", "AuthenticationEvent::PasswordResetRequested", "AuthenticationEvent::DirectoryBindSucceeded", "AuthenticationEvent::DirectorySearchPerformed", "AuthenticationEvent::AppSessionHandedOver", "AuthenticationEvent::AppTokenIssued", "AuthenticationEvent::MfaEnrollmentStarted", "AuthenticationEvent::PasskeyRegistrationStarted", "AuthenticationEvent::SingleSignOnStarted", "AuthenticationEvent::SignInCodeExchanged", "AuthenticationEvent::SignInPressureEased", "AuthenticationEvent::PasskeySignInStarted", "AuthenticationEvent::PasskeyChallengeIssued", "AuthenticationEvent::MagicLinkRequested", "AuthenticationEvent::MfaCodeSent", "AuthenticationEvent::DirectoryServiceBound", "AuthenticationEvent::DirectoryServiceSearchPerformed"]
+reason = "A person's or a directory client's own sign-in steps, many a day each: the trail keeps them for an investigation, colleagues are not told."
+
+[[allow]]
+check = "flow.event-unheard"
+subjects = ["AuthorizationEvent::PolicySimulated", "AuthorizationEvent::RelationshipAdded", "AuthorizationEvent::RelationshipRemoved", "AuthorizationEvent::AccessReviewDecided", "AuthorizationEvent::AccessReviewSuggested"]
+reason = "Simulations anyone may run per request, and fine-grained relationship and review steps whose outcome reaches people through the grants and reviews they change; suggestions are told by the workflow that makes them."
+
+[[allow]]
+check = "flow.event-unheard"
+subjects = ["BrandingEvent::MailProviderTested", "FederationEvent::SamlAssertionIssued", "FederationEvent::LogoutRequestSent", "FederationEvent::LogoutResponseTaken"]
+reason = "A test send an admin made themselves, and a person's own SAML sign-in and logout messages: the trail keeps them."
+
+[[allow]]
+check = "flow.event-unheard"
+subjects = ["IdentityEvent::ConsentGranted", "IdentityEvent::ConsentRevoked", "IdentityEvent::UserPreferencesUpdated", "IdentityEvent::EmailChangeRequested", "IdentityEvent::EmailChangeLinkResent", "IdentityEvent::ManagementEmailChangeRequested", "IdentityEvent::ManagementEmailChangeLinkResent", "IdentityEvent::VerificationEmailSent", "IdentityEvent::WelcomeEmailSent", "IdentityEvent::UserProfileUpdated", "IdentityEvent::UserImported", "IdentityEvent::UserImportStarted", "IdentityEvent::DataExportRequested", "IdentityEvent::DataExportReady", "IdentityEvent::DataExportDownloaded", "IdentityEvent::DataExportExpired"]
+reason = "A person's own account activity, mails sent to them, and import and export steps: the person is told directly where it matters, and the trail keeps the rest."
+
+[[allow]]
+check = "flow.event-unheard"
+subjects = ["NotificationsEvent::NotificationRead", "NotificationsEvent::AllNotificationsRead", "NotificationsEvent::PreferencesUpdated", "NotificationsEvent::DestinationAdded", "NotificationsEvent::DestinationChanged", "NotificationsEvent::DestinationPaused", "NotificationsEvent::DestinationResumed", "NotificationsEvent::DestinationRemoved", "NotificationsEvent::MemberPreferencesUpdated", "NotificationsEvent::OperatorPreferencesUpdated"]
+reason = "Changes to how someone is notified: telling them about it through the notifications it changes would loop."
+
+[[allow]]
+check = "flow.event-unheard"
+subjects = ["OAuthEvent::AuthorizationCodeIssued", "OAuthEvent::AuthorizationCodeExchanged", "OAuthEvent::AccessTokenIssued", "OAuthEvent::TokenRevoked", "OAuthEvent::DeviceAuthorizationRequested", "OAuthEvent::DeviceAuthorizationApproved", "OAuthEvent::DeviceAuthorizationDenied", "OAuthEvent::DeviceAuthorizationCollected", "OAuthEvent::ConsentGranted", "OAuthEvent::ConsentRevoked", "OAuthEvent::TokenExchanged", "OAuthEvent::AuthorizationRequestPushed", "OAuthEvent::BackChannelLogoutSent"]
+reason = "Steps of OAuth flows, one per sign-in or token: the trail keeps them; changes to clients and keys do reach colleagues."
+
+[[allow]]
+check = "flow.event-unheard"
+subjects = ["OperatorEvent::AuditLogExportRequested", "OperatorEvent::AuditLogExportDownloaded", "OrganizationEvent::AuditLogExportRequested", "OrganizationEvent::AuditLogExportDownloaded"]
+reason = "Asking for and fetching an audit log export: who read the trail is itself kept in the trail."
+
+[[allow]]
+check = "flow.event-unheard"
+subjects = ["OrganizationEvent::CheckoutStarted", "OrganizationEvent::OrgMfaEnrollmentStarted", "OrganizationEvent::OrgMfaVerified", "OrganizationEvent::OrgPasskeyRegistrationStarted", "OrganizationEvent::OrgLoginSucceeded", "OrganizationEvent::OrgLoginFailed", "OrganizationEvent::OrgSessionMoved", "OrganizationEvent::OrgPasskeySignInStarted", "OrganizationEvent::OrgPasskeyChallengeIssued", "OrganizationEvent::OrgMagicLinkRequested", "OrganizationEvent::OrgSsoSignInStarted", "OrganizationEvent::OrgVerificationEmailSent", "OrganizationEvent::OrgWelcomeEmailSent", "OrganizationEvent::OrgUserConsentGranted", "OrganizationEvent::OrgUserConsentRevoked"]
+reason = "A member's own sign-in steps and account activity, and a checkout begun: the trail keeps them, colleagues are not told."
+
+[[allow]]
+check = "flow.event-unheard"
+subjects = ["SignalsEvent::SubjectAdded", "SignalsEvent::SubjectRemoved", "SignalsEvent::VerificationRequested", "WebhooksEvent::DeliveryAttempted"]
+reason = "Per-subject and per-delivery steps of a stream or webhook a receiver drives: the trail keeps them; a failing destination is reported by its own events."
+
+[[allow]]
+check = "flow.event-unheard"
+subjects = ["WorkflowsEvent::DraftRenamed", "WorkflowsEvent::DraftStepsReplaced", "WorkflowsEvent::DraftTriggerChanged", "WorkflowsEvent::DraftRunLimitChanged", "WorkflowsEvent::ExecutionStarted", "WorkflowsEvent::StepStarted", "WorkflowsEvent::StepSucceeded", "WorkflowsEvent::StepCallTurnedAway", "WorkflowsEvent::StepDeferred", "WorkflowsEvent::StepSkipped", "WorkflowsEvent::StepAbandoned", "WorkflowsEvent::GuardrailFound", "WorkflowsEvent::FlowCreated", "WorkflowsEvent::FlowDeleted"]
+reason = "Edits to an unpublished draft and the steps of a run: publishing, failures and approvals reach people through their own events."
+
+# Use cases only a crate waiting for its rebuild will call. Each is named,
+# so a use case added later with nobody calling it is still reported, and
+# each entry is reported once its use case is wired.
+
+[[allow]]
+check = "adapters.use-case-unwired"
+subjects = ["ObserveAgentUseCase", "AppConfirmByEmailUseCase", "AppSignUpUseCase", "AppVerifyEmailUseCase", "AppPasskeyBeginUseCase", "AppPasskeyConfirmUseCase", "AppCompleteMfaUseCase", "AppForgotPasswordUseCase", "AppLogInUseCase", "AppResetPasswordUseCase", "PageUseCase", "AppIssueTokenUseCase", "AppLogOutUseCase", "AppSsoCallbackUseCase", "AppSsoStartUseCase", "SuspendUseCase", "GetHeldPermissionsUseCase", "ResolveAccessTokenUseCase"]
+reason = "A step of a request through the gateway, app sign-in on an app's own domain, or the gateway's batches of request records: the gateway calls it, and the gateway is rebuilt after the server."

@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many agent identities a tenant holds against its plan: every one not\n-- revoked, suspended ones too, since a revoked agent never acts again.\nSELECT count(*) AS \"count!\"\nFROM agents\nWHERE tenant_id = $1 AND status <> 'revoked'\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "eefda3182120ce5f3a08904586c9c41a1d7aa56d7b502faa1521bed995e1a7c0"
+}

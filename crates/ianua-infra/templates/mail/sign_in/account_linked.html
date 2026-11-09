@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Your account was linked to {{ provider_name | default("a sign-in provider") }}{% endblock %}
+{% block preheader %}A sign-in provider can now sign you in.{% endblock %}
+{% block headline %}Your account was linked{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("there")) }}
+  {% call c.para() %}Your account in <strong>{{ tenant_name | default("your organization") }}</strong> was signed in to through <strong>{{ provider_name | default("a sign-in provider") }}</strong> for the first time{% if ip_address is defined %}, from {{ ip_address }}{% endif %}. From now on that provider can sign you in.{% endcall %}
+  {% call c.para(pad=32) %}If this was not you, tell your administrator straight away.{% endcall %}
+{% endblock %}

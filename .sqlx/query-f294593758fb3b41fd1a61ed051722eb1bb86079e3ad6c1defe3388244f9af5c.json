@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many principals were given one role of a tenant straight.\nSELECT count(*) AS \"count!\"\nFROM role_assignments\nWHERE tenant_id = $1 AND role_id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "f294593758fb3b41fd1a61ed051722eb1bb86079e3ad6c1defe3388244f9af5c"
+}

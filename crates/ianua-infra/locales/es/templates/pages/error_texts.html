@@ -1,0 +1,39 @@
+{#-
+  What an error page tells a person, by the kind of trouble, imported as
+  `e`: a title, and one line of what to do. A kind not listed here fails
+  the render, so no page goes out without its words.
+-#}
+
+{#- The page's title for `kind`. -#}
+{% macro title(kind) -%}
+{%- set titles = {
+  "unauthenticated": "Inicie sesión para continuar",
+  "forbidden": "No tiene acceso",
+  "not_found": "Página no encontrada",
+  "content_too_large": "Solicitud demasiado grande",
+  "too_many_requests": "Demasiadas solicitudes",
+  "misdirected_request": "Dirección incorrecta para esta conexión",
+  "bad_gateway": "La aplicación no responde",
+  "gateway_timeout": "La aplicación tardó demasiado en responder",
+  "unavailable": "Temporalmente no disponible",
+  "bad_request": "Hay un problema con la solicitud"
+} -%}
+{{ titles[kind] }}
+{%- endmacro %}
+
+{#- What the person can do about `kind`. -#}
+{% macro advice(kind) -%}
+{%- set lines = {
+  "unauthenticated": "Debe iniciar sesión antes de abrir esta página. Inicie sesión y vuelva a abrirla.",
+  "forbidden": "Su cuenta no tiene permiso para abrir esta página. Si cree que debería tenerlo, consulte a su administrador e indíquele la referencia de abajo.",
+  "not_found": "Aquí no hay nada. Compruebe la dirección o vuelva a la página anterior.",
+  "content_too_large": "Lo que envió supera el tamaño que admite esta aplicación. Inténtelo con menos datos.",
+  "too_many_requests": "Ha enviado muchas solicitudes en poco tiempo. Espere un minuto y vuelva a intentarlo.",
+  "misdirected_request": "Esta conexión se creó para otra dirección. Cierre la pestaña y abra la dirección de nuevo.",
+  "bad_gateway": "No se pudo acceder a la aplicación de esta dirección. Inténtelo de nuevo en unos minutos.",
+  "gateway_timeout": "La aplicación de esta dirección no respondió a tiempo. Inténtelo de nuevo en unos minutos.",
+  "unavailable": "Esta dirección no puede recibir solicitudes ahora. Inténtelo de nuevo en unos minutos.",
+  "bad_request": "No se pudo leer la solicitud. Vuelva atrás, revise los datos introducidos y vuelva a intentarlo."
+} -%}
+{{ lines[kind] }}
+{%- endmacro %}

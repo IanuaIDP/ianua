@@ -1,0 +1,10 @@
+{{ user_name | default("ご利用者") }}様
+
+{{ tenant_name | default("所属組織") }}からのデータ削除申請を受け付けました{% if erasure_date is defined %}。削除は{{ erasure_date }}に開始します{% endif %}。
+{% if action_url is defined %}
+開始前に考えが変わった場合は、こちらから取り消せます：
+{{ action_url }}
+{% endif %}
+申請に心当たりがない場合は、直ちに管理者に連絡してください。
+
+IANUA

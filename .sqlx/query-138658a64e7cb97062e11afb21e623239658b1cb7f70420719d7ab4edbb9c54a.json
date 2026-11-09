@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Withdraws every grant an organization member holds in one tenant.\nDELETE FROM org_tenant_grants\nWHERE tenant_id = $2 AND org_user_id = $1\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "138658a64e7cb97062e11afb21e623239658b1cb7f70420719d7ab4edbb9c54a"
+}

@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a handover offer: a new one is added, one the giving tenant made\n-- of the same domain before is replaced by it, and an accepted one is kept\n-- spent.\nINSERT INTO domain_handover_offers (tenant_id, domain, to_tenant_id, offered_at, accepted_at)\nVALUES ($1, $2, $3, $4, $5)\nON CONFLICT (tenant_id, domain) DO UPDATE SET\n    to_tenant_id = EXCLUDED.to_tenant_id,\n    offered_at = EXCLUDED.offered_at,\n    accepted_at = EXCLUDED.accepted_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "609fbe6bf2c41a6ffd7be1ae9bf9b3c1421e65ef02c55f72e1dcb0cfa5419b33"
+}

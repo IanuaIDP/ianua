@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every API key of one operator, revoked or not, oldest first.\nSELECT key_prefix, operator_id, key_hash, expires_at, revoked_at, created_at\nFROM operator_api_keys\nWHERE operator_id = $1\nORDER BY created_at, key_prefix\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "key_prefix",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "operator_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "key_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "revoked_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "c2c11f430ab1c86e23bd8444eaead2022836a9d6cd25d28935c913fe1a7b1a03"
+}

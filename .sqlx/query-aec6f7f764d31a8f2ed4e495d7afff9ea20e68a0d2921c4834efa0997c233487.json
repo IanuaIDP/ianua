@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Lowers the mark of one agent of a tenant to the given rank, only while\n-- it still holds the rank the person saw and the agent is still stopped.\nUPDATE agent_exposure e\nSET level = $4\nFROM agents a\nWHERE e.tenant_id = $1 AND e.agent_id = $2 AND e.level = $3\n  AND a.tenant_id = e.tenant_id AND a.id = e.agent_id AND a.status <> 'active'\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int2",
+        "Int2"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "aec6f7f764d31a8f2ed4e495d7afff9ea20e68a0d2921c4834efa0997c233487"
+}

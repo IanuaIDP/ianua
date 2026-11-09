@@ -1,0 +1,8 @@
+-- Adds a notification to a tenant user's inbox; adding it again changes
+-- nothing.
+INSERT INTO tenant_notifications (
+    id, tenant_id, user_id, event_type, category, severity, title, body, resource_id, reach,
+    read, created_at
+)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+ON CONFLICT (id) DO NOTHING

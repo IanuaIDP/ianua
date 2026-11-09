@@ -1,0 +1,98 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The due pending jobs of a lane, oldest first, at most $4 of any one\n-- tenant's and $5 in all. The oldest $3 are locked first, so two claims\n-- never take the same job, then shared out between tenants.\nWITH candidates AS (\n    SELECT id, tenant_id, run_at\n    FROM scheduled_jobs\n    WHERE status = 'pending' AND job_type = ANY($1) AND run_at <= $2\n    ORDER BY run_at, id\n    LIMIT $3\n    FOR UPDATE SKIP LOCKED\n), ranked AS (\n    SELECT id, run_at, row_number() OVER (PARTITION BY tenant_id ORDER BY run_at, id) AS place\n    FROM candidates\n)\nSELECT j.id, j.tenant_id AS \"tenant_id?\", j.job_type, j.job_key, j.key_hold, j.payload, j.run_at, j.attempt,\n       j.max_attempts, j.status, j.error, j.created_at, j.last_attempted_at\nFROM ranked r\nJOIN scheduled_jobs j ON j.id = r.id\nWHERE r.place <= $4\nORDER BY r.run_at, r.id\nLIMIT $5\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "tenant_id?",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "job_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "job_key",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "key_hold",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "payload",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "run_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "attempt",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "max_attempts",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "error",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 12,
+        "name": "last_attempted_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "TextArray",
+        "Timestamptz",
+        "Int8",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "d4812580bb25b16ced2e5677af4b6f400799f667d72cfda10f0c20b52c692f8d"
+}

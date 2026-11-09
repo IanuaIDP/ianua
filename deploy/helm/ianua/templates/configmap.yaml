@@ -1,0 +1,136 @@
+{{- define "ianua.configData" -}}
+APP_ENV: {{ .Values.config.appEnv | quote }}
+PORT: {{ .Values.server.port | quote }}
+INTERNAL_PORT: {{ .Values.server.internalPort | quote }}
+RELAY_PORT: {{ .Values.server.relayPort | quote }}
+APP_BASE_URL: {{ required "config.appBaseUrl is required: it is the dashboard address emailed links and file links point at" .Values.config.appBaseUrl | quote }}
+{{- with .Values.config.emailLogoUrl }}
+EMAIL_LOGO_URL: {{ . | quote }}
+{{- end }}
+{{- if include "ianua.selfHosted" . }}
+{{- $installation := .Values.selfHosted }}
+{{- /* INSTALL_* go to the install Job alone: every other command refuses them. */}}
+DEPLOYMENT: self_hosted
+{{- with $installation.trustedDomains }}
+TRUSTED_DOMAINS: {{ join "," . | quote }}
+{{- end }}
+{{- with $installation.upstreamNetworks }}
+UPSTREAM_NETWORKS: {{ join "," . | quote }}
+{{- end }}
+{{- end }}
+PROXY_BASE_DOMAIN: {{ .Values.config.baseDomain | quote }}
+{{- with .Values.config.platformAddressing }}
+PLATFORM_ADDRESSING: {{ . | quote }}
+{{- end }}
+PLATFORM_WILDCARD_TLS: {{ .Values.config.platformWildcardTls | quote }}
+{{- $hosts := .Values.config.platformHosts }}
+{{- if .Values.server.ingress.enabled }}
+{{- $hosts = append $hosts .Values.server.ingress.host }}
+{{- end }}
+{{- if .Values.traefik.enabled }}
+{{- $hosts = concat $hosts .Values.traefik.appHosts }}
+{{- range .Values.traefik.terminated }}
+{{- $hosts = append $hosts .host }}
+{{- end }}
+{{- end }}
+PLATFORM_HOSTS: {{ join "," (uniq $hosts) | quote }}
+WEBAUTHN_RP_ID: {{ .Values.config.webauthn.rpId | quote }}
+WEBAUTHN_RP_ORIGIN: {{ .Values.config.webauthn.rpOrigin | quote }}
+EMAIL_FROM: {{ .Values.config.email.from | quote }}
+{{- with .Values.config.email.fromName }}
+EMAIL_FROM_NAME: {{ . | quote }}
+{{- end }}
+EMAIL_PROVIDER: {{ .Values.config.email.provider | quote }}
+{{- if eq .Values.config.email.provider "smtp" }}
+{{- $smtp := .Values.config.email.smtp }}
+SMTP_HOST: {{ required "config.email.smtp.host is required with config.email.provider=smtp" $smtp.host | quote }}
+SMTP_PORT: {{ $smtp.port | quote }}
+SMTP_TLS: {{ $smtp.tls | quote }}
+{{- with $smtp.username }}
+SMTP_USERNAME: {{ . | quote }}
+{{- end }}
+{{- else if eq .Values.config.email.provider "mailgun" }}
+MAILGUN_DOMAIN: {{ .Values.config.email.mailgun.domain | quote }}
+MAILGUN_REGION: {{ .Values.config.email.mailgun.region | quote }}
+{{- else }}
+{{- fail (printf "config.email.provider must be smtp or mailgun, got %q; for another provider the server takes, set it through config.env and existingSecret" .Values.config.email.provider) }}
+{{- end }}
+DATABASE_MAX_CONNECTIONS: {{ .Values.config.databaseMaxConnections | quote }}
+{{- if .Values.config.apiDocs }}
+ENABLE_API_DOCS: "true"
+{{- end }}
+{{- with .Values.config.corsOrigin }}
+CORS_ORIGIN: {{ . | quote }}
+{{- end }}
+{{- with include "ianua.trustedProxies" . }}
+TRUSTED_PROXIES: {{ . | quote }}
+{{- end }}
+{{- /* The server and the gateway read the same bus and cache. */}}
+BUS_URL: {{ include "ianua.busUrl" . | quote }}
+{{- if .Values.embeddings.enabled }}
+EMBEDDING_URL: {{ printf "http://%s-embeddings/v1" (include "ianua.fullname" .) | quote }}
+EMBEDDING_MODEL: {{ .Values.embeddings.model | quote }}
+{{- else if .Values.embeddings.externalUrl }}
+EMBEDDING_URL: {{ .Values.embeddings.externalUrl | quote }}
+EMBEDDING_MODEL: {{ required "embeddings.externalModel is required with embeddings.externalUrl" .Values.embeddings.externalModel | quote }}
+{{- end }}
+{{- with .Values.vectorStore.url }}
+VECTOR_STORE_URL: {{ . | quote }}
+{{- end }}
+CACHE_URL: {{ include "ianua.cacheUrl" . | quote }}
+{{- if include "ianua.filesOnDisk" . }}
+FILES_STORE: disk
+FILES_DIR: {{ include "ianua.filesDir" . | quote }}
+{{- else }}
+{{- $objects := .Values.files.objects }}
+FILES_STORE: objects
+FILES_OBJECTS_ENDPOINT: {{ required "files.objects.endpoint is required with files.store=objects" $objects.endpoint | quote }}
+FILES_OBJECTS_REGION: {{ required "files.objects.region is required with files.store=objects" $objects.region | quote }}
+FILES_OBJECTS_BUCKET: {{ required "files.objects.bucket is required with files.store=objects" $objects.bucket | quote }}
+FILES_OBJECTS_ACCESS_KEY_ID: {{ required "files.objects.accessKeyId is required with files.store=objects" $objects.accessKeyId | quote }}
+FILES_OBJECTS_ADDRESSING: {{ $objects.addressing | quote }}
+{{- end }}
+{{- with .Values.acme.directoryUrl }}
+ACME_DIRECTORY_URL: {{ . | quote }}
+{{- end }}
+{{- with .Values.acme.contactEmail }}
+ACME_CONTACT_EMAIL: {{ . | quote }}
+{{- end }}
+{{- if .Values.acme.terminatedUpstream }}
+TLS_TERMINATED_UPSTREAM: "true"
+{{- end }}
+{{- with .Values.acme.proxyAddress }}
+PROXY_PUBLIC_ADDRESS: {{ . | quote }}
+{{- end }}
+{{- if .Values.dns.nameservers }}
+{{/*
+Keyed on the nameservers being named, not on dns.enabled — that switch says
+whether they run *here*, and the server needs their names either way. Tied
+to it, a deployment running its nameservers on their own hosts (the usual
+arrangement, see deploy/nameserver/) would never learn what they are called,
+so it would never offer a tenant delegation, and every domain would stay
+self-managed with nothing reporting a fault.
+*/}}
+DNS_NAMESERVERS: {{ include "ianua.dnsNameservers" . | quote }}
+{{- end }}
+{{- end -}}
+{{- $managed := include "ianua.configData" . | fromYaml -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ianua.fullname" . }}-config
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+  annotations:
+    # Created before the migrate, install and operator hooks, which read it.
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-20"
+    "helm.sh/hook-delete-policy": before-hook-creation
+data:
+  {{- include "ianua.configData" . | nindent 2 }}
+  {{- range $name, $value := .Values.config.env }}
+  {{- if hasKey $managed $name }}
+  {{- fail (printf "config.env.%s is set by the chart from its own values; change it there instead" $name) }}
+  {{- end }}
+  {{ $name }}: {{ $value | toString | quote }}
+  {{- end }}

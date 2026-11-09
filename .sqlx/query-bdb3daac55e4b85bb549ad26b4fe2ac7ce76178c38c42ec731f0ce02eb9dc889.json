@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many domains a tenant registered against its plan, proved or not,\n-- since a registration claims its name either way.\nSELECT count(*) AS \"count!\"\nFROM registered_domains\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "bdb3daac55e4b85bb549ad26b4fe2ac7ce76178c38c42ec731f0ce02eb9dc889"
+}

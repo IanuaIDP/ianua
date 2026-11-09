@@ -1,0 +1,9 @@
+Hallo{% if user_name is defined and user_name %} {{ user_name | default("") }}{% endif %}!
+
+Die angeforderte Kopie Ihrer Daten bei {{ tenant_name | default("Ihrer Organisation") }} ist bereit.
+
+Melden Sie sich an und öffnen Sie Ihre Datenschutzeinstellungen, um die Kopie herunterzuladen. Der Download ist bis {{ expires_at }} möglich.
+
+Diese E-Mail enthält keinen Download-Link. Wenn Sie keine Kopie angefordert haben, informieren Sie Ihren Administrator.
+
+IANUA

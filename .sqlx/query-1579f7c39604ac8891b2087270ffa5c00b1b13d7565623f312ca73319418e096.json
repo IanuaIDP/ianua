@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Adds a separation rule to a tenant.\nINSERT INTO separation_rules (id, tenant_id, name, first_role_id, second_role_id, created_at)\nVALUES ($1, $2, $3, $4, $5, $6)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "1579f7c39604ac8891b2087270ffa5c00b1b13d7565623f312ca73319418e096"
+}

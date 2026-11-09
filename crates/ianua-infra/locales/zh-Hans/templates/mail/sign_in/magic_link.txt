@@ -1,0 +1,10 @@
+您好，{{ user_name | default("用户") }}：
+
+使用此链接登录 {{ tenant_name | default("您的账户") }}，无需密码：
+{{ action_url }}
+
+此链接将在 {{ expires_at }} 后过期。
+
+如果您未提出此申请，可以忽略此邮件。
+
+IANUA

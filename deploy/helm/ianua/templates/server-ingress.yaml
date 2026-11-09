@@ -1,0 +1,39 @@
+{{- if .Values.server.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "ianua.fullname" . }}-server
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: server
+  {{- if or .Values.server.ingress.certManagerClusterIssuer .Values.server.ingress.annotations }}
+  annotations:
+    {{- with .Values.server.ingress.certManagerClusterIssuer }}
+    cert-manager.io/cluster-issuer: {{ . | quote }}
+    {{- end }}
+    {{- with .Values.server.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+spec:
+  {{- with .Values.server.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- if .Values.server.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .Values.server.ingress.host | quote }}
+      secretName: {{ .Values.server.ingress.tls.secretName }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.server.ingress.host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "ianua.fullname" . }}-server
+                port:
+                  name: http
+{{- end }}

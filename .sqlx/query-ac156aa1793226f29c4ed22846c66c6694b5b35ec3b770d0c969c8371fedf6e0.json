@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes every operator's notifications made before the given moment, read\n-- or not.\nDELETE FROM platform_notifications\nWHERE created_at < $1\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ac156aa1793226f29c4ed22846c66c6694b5b35ec3b770d0c969c8371fedf6e0"
+}

@@ -1,0 +1,10 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+Inicie sesión en {{ tenant_name | default("su cuenta") }} con este enlace. No necesita contraseña:
+{{ action_url }}
+
+Este enlace caduca en {{ expires_at }}.
+
+Si no lo solicitó, puede ignorar este correo.
+
+IANUA

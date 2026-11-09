@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ihr Konto wurde gesperrt{% endblock %}
+{% block preheader %}Ihr Konto wurde nach fehlgeschlagenen Anmeldeversuchen gesperrt.{% endblock %}
+{% block headline %}Ihr Konto wurde gesperrt{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("")) }}
+  {% call c.para() %}Ihr Konto bei <strong>{{ tenant_name | default("Ihrer Organisation") }}</strong> wurde nach zu vielen fehlgeschlagenen Anmeldeversuchen gesperrt{% if ip_address is defined %}, die von <strong>{{ ip_address }}</strong> kamen{% endif %}.{% endcall %}
+  {% call c.para(pad=32) %}Wenn Sie das waren, warten Sie auf das Ende der Sperre und versuchen Sie es erneut oder bitten Sie Ihren Administrator um eine frühere Entsperrung. Wenn Sie das nicht waren, ändern Sie Ihr Passwort, sobald Sie sich anmelden können.{% endcall %}
+{% endblock %}

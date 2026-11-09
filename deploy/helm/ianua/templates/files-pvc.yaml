@@ -1,0 +1,25 @@
+{{- if include "ianua.filesOnDisk" . }}
+{{/*
+The disk file store: data exports, audit log exports and tenants' logos. The
+worker writes exports and the API serves them, so both mount this one volume.
+Kept when the release is uninstalled, like the database.
+*/}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "ianua.fullname" . }}-files
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: files
+  annotations:
+    "helm.sh/resource-policy": keep
+spec:
+  accessModes:
+    - {{ .Values.files.disk.accessMode }}
+  {{- with .Values.files.disk.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.files.disk.size }}
+{{- end }}

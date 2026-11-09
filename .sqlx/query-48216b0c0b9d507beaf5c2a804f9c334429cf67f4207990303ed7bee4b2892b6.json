@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a delegation request: a new one is added, a known one of the same\n-- tenant takes its answer. The agent asking, the person asked, what it\n-- asks for and when it asked never change. A known one is written over\n-- only while it still waits, or with the same answer again, so a copy\n-- read before an answer never grants a request already refused or grants\n-- one twice.\nINSERT INTO delegation_requests\n    (id, tenant_id, agent_id, asked_of_kind, asked_of_id, asked_of_person, granted, limits,\n     reason, state, delegation_id, decided_at, created_at, expires_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)\nON CONFLICT (id) DO UPDATE SET\n    state = EXCLUDED.state,\n    delegation_id = EXCLUDED.delegation_id,\n    decided_at = EXCLUDED.decided_at,\n    expires_at = EXCLUDED.expires_at,\n    updated_at = EXCLUDED.updated_at\nWHERE delegation_requests.tenant_id = EXCLUDED.tenant_id\n  AND (\n      delegation_requests.state = 'pending'\n      OR (delegation_requests.state = EXCLUDED.state\n          AND delegation_requests.delegation_id IS NOT DISTINCT FROM EXCLUDED.delegation_id\n          AND delegation_requests.decided_at IS NOT DISTINCT FROM EXCLUDED.decided_at)\n  )\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Text",
+        "Jsonb",
+        "Jsonb",
+        "Text",
+        "Text",
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "48216b0c0b9d507beaf5c2a804f9c334429cf67f4207990303ed7bee4b2892b6"
+}

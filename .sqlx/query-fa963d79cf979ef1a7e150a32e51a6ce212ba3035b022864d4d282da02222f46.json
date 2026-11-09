@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Clears away a role of a tenant given straight to one principal, only\n-- while its end has still come by the given time. One given again since,\n-- in force once more, is left.\nDELETE FROM role_assignments\nWHERE tenant_id = $1 AND role_id = $2 AND principal_kind = $3 AND principal_id = $4\n  AND expires_at IS NOT NULL AND expires_at <= $5\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fa963d79cf979ef1a7e150a32e51a6ce212ba3035b022864d4d282da02222f46"
+}

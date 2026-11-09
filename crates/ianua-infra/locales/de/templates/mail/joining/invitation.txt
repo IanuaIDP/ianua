@@ -1,0 +1,10 @@
+Hallo{% if user_name is defined and user_name %} {{ user_name | default("") }}{% endif %}!
+
+Sie sind eingeladen, {{ tenant_name | default("einem Team") }} auf IANUA beizutreten{% if role_name is defined %}, mit der Rolle {{ role_name }}{% endif %} und der Adresse {{ user_email | default("dieser E-Mail") }}. Wählen Sie zunächst ein Passwort und aktivieren Sie Ihr Konto:
+{{ action_url }}
+
+Diese Einladung läuft in {{ expires_at }} ab.
+
+Wenn Sie dies nicht erwartet haben, können Sie diese E-Mail ignorieren.
+
+IANUA

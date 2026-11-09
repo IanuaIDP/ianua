@@ -1,0 +1,39 @@
+{#-
+  What an error page tells a person, by the kind of trouble, imported as
+  `e`: a title, and one line of what to do. A kind not listed here fails
+  the render, so no page goes out without its words.
+-#}
+
+{#- The page's title for `kind`. -#}
+{% macro title(kind) -%}
+{%- set titles = {
+  "unauthenticated": "Melden Sie sich an, um fortzufahren",
+  "forbidden": "Sie haben keinen Zugriff",
+  "not_found": "Seite nicht gefunden",
+  "content_too_large": "Anfrage zu groß",
+  "too_many_requests": "Zu viele Anfragen",
+  "misdirected_request": "Falsche Adresse für diese Verbindung",
+  "bad_gateway": "Die App antwortet nicht",
+  "gateway_timeout": "Die App hat zu lange zum Antworten gebraucht",
+  "unavailable": "Vorübergehend nicht verfügbar",
+  "bad_request": "Mit der Anfrage stimmt etwas nicht"
+} -%}
+{{ titles[kind] }}
+{%- endmacro %}
+
+{#- What the person can do about `kind`. -#}
+{% macro advice(kind) -%}
+{%- set lines = {
+  "unauthenticated": "Sie müssen sich anmelden, bevor Sie diese Seite öffnen können. Melden Sie sich an und öffnen Sie sie erneut.",
+  "forbidden": "Ihr Konto darf diese Seite nicht öffnen. Wenn Sie Zugriff haben sollten, wenden Sie sich an Ihren Administrator und nennen Sie die Referenz unten.",
+  "not_found": "Hier gibt es nichts. Prüfen Sie die Adresse oder kehren Sie zur vorherigen Seite zurück.",
+  "content_too_large": "Die gesendeten Daten sind größer, als diese App zulässt. Versuchen Sie es mit weniger Daten erneut.",
+  "too_many_requests": "Sie haben in kurzer Zeit viele Anfragen gesendet. Warten Sie eine Minute und versuchen Sie es erneut.",
+  "misdirected_request": "Diese Verbindung wurde für eine andere Adresse hergestellt. Schließen Sie den Tab und öffnen Sie die Adresse erneut.",
+  "bad_gateway": "Die App hinter dieser Adresse konnte nicht erreicht werden. Versuchen Sie es in wenigen Minuten erneut.",
+  "gateway_timeout": "Die App hinter dieser Adresse hat nicht rechtzeitig geantwortet. Versuchen Sie es in wenigen Minuten erneut.",
+  "unavailable": "Diese Adresse kann derzeit keine Anfragen annehmen. Versuchen Sie es in wenigen Minuten erneut.",
+  "bad_request": "Die Anfrage konnte nicht gelesen werden. Gehen Sie zurück, prüfen Sie Ihre Eingaben und versuchen Sie es erneut."
+} -%}
+{{ lines[kind] }}
+{%- endmacro %}

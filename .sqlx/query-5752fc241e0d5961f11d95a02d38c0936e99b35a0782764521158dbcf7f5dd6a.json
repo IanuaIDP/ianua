@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Gives a principal a role of a tenant. One they hold still in force when\n-- this one is given is left as it is; one whose end had come by then, not\n-- yet cleared by the sweep, is replaced by this one.\nINSERT INTO role_assignments\n    (tenant_id, role_id, principal_kind, principal_id, assigned_by, assigned_at, expires_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nON CONFLICT (tenant_id, role_id, principal_kind, principal_id) DO UPDATE SET\n    assigned_by = EXCLUDED.assigned_by,\n    assigned_at = EXCLUDED.assigned_at,\n    expires_at = EXCLUDED.expires_at\nWHERE role_assignments.expires_at IS NOT NULL\n  AND role_assignments.expires_at <= EXCLUDED.assigned_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Jsonb",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5752fc241e0d5961f11d95a02d38c0936e99b35a0782764521158dbcf7f5dd6a"
+}

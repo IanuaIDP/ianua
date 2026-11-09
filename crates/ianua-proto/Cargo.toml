@@ -1,0 +1,21 @@
+[package]
+name = "ianua-proto"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+prost = { workspace = true }
+tonic = { workspace = true }
+tonic-prost = { workspace = true }
+ianua-workspace-hack = { version = "0.1", path = "../ianua-workspace-hack" }
+
+[build-dependencies]
+tonic-prost-build = { workspace = true }
+# protoc is vendored rather than required on the machine. Without it the
+# workspace would not build on a box that happens not to have the protobuf
+# compiler installed — including the Docker builder stage, where adding an
+# apt package to fix it would invalidate the dependency cache layer for every
+# image on every change to it.
+protoc-bin-vendored = { workspace = true }

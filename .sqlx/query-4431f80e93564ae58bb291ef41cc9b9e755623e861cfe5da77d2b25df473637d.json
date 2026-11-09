@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many routes of one tenant forward to the given service.\nSELECT count(*) AS \"count!\"\nFROM routes\nWHERE tenant_id = $1 AND service_id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "4431f80e93564ae58bb291ef41cc9b9e755623e861cfe5da77d2b25df473637d"
+}

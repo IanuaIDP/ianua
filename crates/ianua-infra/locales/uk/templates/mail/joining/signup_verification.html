@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Підтвердьте адресу електронної пошти{% endblock %}
+{% block preheader %}Підтвердьте адресу електронної пошти, щоб створити організацію.{% endblock %}
+{% block headline %}Ласкаво просимо до IANUA{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("користувачу")) }}
+  {% call c.para() %}Дякуємо за реєстрацію в {{ c.brand() }}.{% endcall %}
+  {% call c.para(pad=8) %}Залишився один крок до створення <strong>{{ organization_name | default("вашої організації") }}</strong>. Підтвердьте адресу електронної пошти, щоб завершити.{% endcall %}
+  {{ c.cta(action_url, "Підтвердити адресу") }}
+  {% call c.para(pad=0) %}Строк дії цього посилання: {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Якщо ви не реєструвалися, проігноруйте цей лист.{% endcall %}
+{% endblock %}

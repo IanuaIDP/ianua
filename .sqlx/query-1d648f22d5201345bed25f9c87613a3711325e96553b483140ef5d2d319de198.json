@@ -1,0 +1,59 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The account of a tenant at the given address that has a password, as a\n-- password sign-in needs it: its standing, its password's hash, whether an\n-- accepted invitation still vouches for it, whether it holds a confirmed\n-- second factor answered with a code, and how many passkeys it holds.\nSELECT u.id, u.status, u.email_verified, u.route_vouches, p.password_hash,\n       EXISTS (\n           SELECT 1 FROM mfa_enrollments m\n           WHERE m.tenant_id = u.tenant_id AND m.user_id = u.id AND m.status = 'verified'\n       ) AS \"code_factor!\",\n       (\n           SELECT count(*) FROM passkey_credentials k\n           WHERE k.tenant_id = u.tenant_id AND k.user_id = u.id\n       ) AS \"passkeys!\"\nFROM users u\nJOIN user_passwords p ON p.tenant_id = u.tenant_id AND p.user_id = u.id\nWHERE u.tenant_id = $1 AND u.email = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "email_verified",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "route_vouches",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
+        "name": "password_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "code_factor!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "passkeys!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "1d648f22d5201345bed25f9c87613a3711325e96553b483140ef5d2d319de198"
+}

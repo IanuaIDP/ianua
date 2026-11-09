@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}削除申請を受け付けました{% endblock %}
+{% block preheader %}データ削除申請を受け付けました。{% endblock %}
+{% block headline %}削除申請を受け付けました{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para() %}<strong>{{ tenant_name | default("所属組織") }}</strong>からのデータ削除申請を受け付けました{% if erasure_date is defined %}。削除は<strong>{{ erasure_date }}</strong>に開始します{% endif %}。{% endcall %}
+  {% if action_url is defined %}{% call c.para(pad=8) %}開始前に考えが変わった場合は、取り消せます。{% endcall %}{{ c.cta(action_url, "削除を取り消す") }}{% endif %}
+  {% call c.para(pad=32) %}申請に心当たりがない場合は、直ちに管理者に連絡してください。{% endcall %}
+{% endblock %}

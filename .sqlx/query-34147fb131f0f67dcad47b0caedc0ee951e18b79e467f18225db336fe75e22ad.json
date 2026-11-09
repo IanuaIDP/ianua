@@ -1,0 +1,42 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- What a connection's group mapping gave one account of a tenant: the\n-- roles and the groups, each in the order they were given.\nSELECT h.connection_id, h.user_id,\n       ARRAY(\n           SELECT r.role_id\n           FROM mapped_holding_roles r\n           WHERE r.tenant_id = h.tenant_id AND r.connection_id = h.connection_id\n             AND r.user_id = h.user_id\n           ORDER BY r.position\n       ) AS \"role_ids!\",\n       ARRAY(\n           SELECT g.group_id\n           FROM mapped_holding_groups g\n           WHERE g.tenant_id = h.tenant_id AND g.connection_id = h.connection_id\n             AND g.user_id = h.user_id\n           ORDER BY g.position\n       ) AS \"group_ids!\"\nFROM mapped_holdings h\nWHERE h.tenant_id = $1 AND h.connection_id = $2 AND h.user_id = $3\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "connection_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "role_ids!",
+        "type_info": "UuidArray"
+      },
+      {
+        "ordinal": 3,
+        "name": "group_ids!",
+        "type_info": "UuidArray"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "34147fb131f0f67dcad47b0caedc0ee951e18b79e467f18225db336fe75e22ad"
+}

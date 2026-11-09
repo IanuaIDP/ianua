@@ -1,0 +1,26 @@
+{{- if and (not .Values.zero.tls.secretName) .Values.zero.tls.generateSelfSigned }}
+{{/*
+zero's fallback certificate, generated once and then read back on every
+upgrade. A new one each upgrade would be harmless to browsers, which refuse it
+either way, but would restart zero for no reason every time.
+*/}}
+{{- $name := include "ianua.zeroTlsSecretName" . }}
+{{- $live := lookup "v1" "Secret" .Release.Namespace $name }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: zero
+type: kubernetes.io/tls
+data:
+{{- if $live }}
+  tls.crt: {{ index $live.data "tls.crt" }}
+  tls.key: {{ index $live.data "tls.key" }}
+{{- else }}
+{{- $cert := genSelfSignedCert (printf "*.%s" .Values.config.baseDomain) nil (list (printf "*.%s" .Values.config.baseDomain)) 3650 }}
+  tls.crt: {{ $cert.Cert | b64enc }}
+  tls.key: {{ $cert.Key | b64enc }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,7 @@
+Hallo{% if user_name is defined and user_name %} {{ user_name | default("") }}{% endif %}!
+
+Für Ihr Konto bei {{ tenant_name | default("Ihrer Organisation") }} wurden neue Wiederherstellungscodes erstellt{% if remaining_codes is defined %}. Anzahl unbenutzter Codes: {{ remaining_codes }}{% endif %}. Ihre bisherigen Codes funktionieren nicht mehr.
+
+Bewahren Sie die Codes sicher auf: Jeder ermöglicht eine einmalige Anmeldung, falls Sie Ihren zweiten Faktor verlieren. Wenn Sie das nicht veranlasst haben, informieren Sie Ihren Administrator.
+
+IANUA

@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% import "sign_in/parts.html" as p %}
+
+{% block title %}{{ workspace }}のコードを入力{% endblock %}
+
+{% block content %}
+      <h1>認証が必要です</h1>
+      <p class="subtitle">アカウントを保護するため、認証アプリの確認コードを入力してください。</p>
+      {{ p.note(note, {
+        "not_accepted": "コードが受け付けられませんでした。再試行し、失敗が続く場合はサインインし直してください。"
+      }) }}
+      <form method="post" action="{{ form_path }}">
+        <label for="code">認証アプリのコード</label><input id="code" name="code" inputmode="numeric" autocomplete="one-time-code" required autofocus>
+        <label class="choice" for="remember_device"><input id="remember_device" name="remember_device" type="checkbox" value="yes"> このデバイスを記憶する</label>
+        {{ p.return_to(return_to) }}
+        {{ p.submit("続行") }}
+      </form>
+      {{ p.link("コードを紛失しましたか？", log_in_path, "最初からやり直す") }}
+{% endblock %}

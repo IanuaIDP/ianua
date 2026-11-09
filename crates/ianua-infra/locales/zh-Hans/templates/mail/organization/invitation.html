@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}您受邀加入 {{ organization_name | default("一个组织") }}{% endblock %}
+{% block preheader %}您已受邀加入 IANUA 上的 {{ organization_name | default("一个组织") }}。{% endblock %}
+{% block headline %}您受邀加入 {{ organization_name | default("一个组织") }}{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("用户")) }}
+  {% call c.para() %}您受邀使用邮箱 {{ user_email | default("当前邮箱") }} 加入 {{ c.brand() }} 上的 <strong>{{ organization_name | default("一个组织") }}</strong>。{% endcall %}
+  {% call c.para(pad=8) %}请先设置密码并激活账户。{% endcall %}
+  {{ c.cta(action_url, "接受邀请") }}
+  {% call c.para(pad=0) %}此邀请将在 {{ expires_at }} 后过期。{% endcall %}
+  {% call c.para(pad=32) %}如果您未预期收到此邀请，可以忽略此邮件。{% endcall %}
+{% endblock %}

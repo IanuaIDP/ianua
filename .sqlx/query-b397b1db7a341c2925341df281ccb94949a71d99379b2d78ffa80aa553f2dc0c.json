@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Claims a hostname for a new registration of one tenant, only while no\n-- other registration holds the name itself and no other tenant's claim\n-- that still holds its name sits at it, above it or below it: the keys at\n-- and above, and the keys between the two bounds below. A claim still\n-- holds its name while it is proved, never proved and made after the first\n-- cutoff, or its proof lost after the second. Nothing is written when one\n-- stands in the way.\nINSERT INTO domain_claims\n    (hostname, overlap_key, tenant_id, domain_id, verified, claimed_at, failed_at)\nSELECT $1::text, $2::text, $3::uuid, $4::uuid, $5::boolean, $6::timestamptz, $7::timestamptz\nWHERE NOT EXISTS (\n    SELECT 1\n    FROM domain_claims held\n    WHERE held.tenant_id <> $3::uuid\n      AND (held.overlap_key = ANY($8::text[])\n        OR (held.overlap_key > $9::text AND held.overlap_key < $10::text))\n      AND (held.verified\n        OR (held.failed_at IS NULL AND held.claimed_at > $11::timestamptz)\n        OR held.failed_at > $12::timestamptz)\n)\nON CONFLICT (hostname) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Uuid",
+        "Uuid",
+        "Bool",
+        "Timestamptz",
+        "Timestamptz",
+        "TextArray",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b397b1db7a341c2925341df281ccb94949a71d99379b2d78ffa80aa553f2dc0c"
+}

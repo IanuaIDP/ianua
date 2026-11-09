@@ -1,0 +1,7 @@
+Hi {{ user_name | default("there") }},
+
+A second factor was added to your account in {{ tenant_name | default("your organization") }}. From now on you are asked for it when you sign in.
+
+If you did not do this, tell your administrator straight away: someone else may have reached your account.
+
+IANUA

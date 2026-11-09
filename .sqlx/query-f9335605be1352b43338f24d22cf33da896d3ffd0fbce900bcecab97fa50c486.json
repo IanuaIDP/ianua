@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The oldest events in the gateway's inbox, as the gateway sealed them,\n-- locked for this drain; another drain passes over them.\nSELECT id, tenant_id, event_type, subject, payload, seal\nFROM gateway_events\nORDER BY written_at, id\nLIMIT $1\nFOR UPDATE SKIP LOCKED\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "event_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "subject",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "payload",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "seal",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "f9335605be1352b43338f24d22cf33da896d3ffd0fbce900bcecab97fa50c486"
+}

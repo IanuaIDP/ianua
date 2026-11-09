@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ein neues Gerät wurde als vertrauenswürdig eingestuft{% endblock %}
+{% block preheader %}Ein Gerät wurde zu den vertrauenswürdigen Geräten Ihres Kontos hinzugefügt.{% endblock %}
+{% block headline %}Ein neues Gerät wurde als vertrauenswürdig eingestuft{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("")) }}
+  {% call c.para() %}{% if device_name is defined %}<strong>{{ device_name }}</strong>{% else %}Ein neues Gerät{% endif %} wurde zu den vertrauenswürdigen Geräten Ihres Kontos bei <strong>{{ tenant_name | default("Ihrer Organisation") }}</strong> hinzugefügt{% if ip_address is defined %}, von {{ ip_address }} aus{% endif %}. Ein vertrauenswürdiges Gerät kann den zweiten Anmeldeschritt überspringen.{% endcall %}
+  {% call c.para(pad=32) %}Wenn Sie dieses Gerät nicht kennen, entfernen Sie es in Ihren Kontoeinstellungen und ändern Sie Ihr Passwort.{% endcall %}
+{% endblock %}

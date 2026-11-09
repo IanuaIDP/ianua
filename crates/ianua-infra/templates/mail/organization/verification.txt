@@ -1,0 +1,10 @@
+Hi {{ user_name | default("there") }},
+
+An account was created for you in {{ organization_name | default("your organization") }} on IANUA. Before you can sign in, verify your email address:
+{{ action_url }}
+
+This link expires in {{ expires_at }}.
+
+If you did not expect this email, you can ignore it.
+
+IANUA

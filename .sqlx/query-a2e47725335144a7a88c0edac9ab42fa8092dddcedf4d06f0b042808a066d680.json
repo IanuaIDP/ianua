@@ -1,0 +1,59 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The groups of a tenant with the given ids and every group above them,\n-- each once, with the roles it carries.\nWITH RECURSIVE lineage (id) AS (\n    SELECT start.id\n    FROM groups start\n    WHERE start.tenant_id = $1 AND start.id = ANY($2)\n    UNION\n    SELECT above.parent_id\n    FROM groups above\n    JOIN lineage ON above.id = lineage.id\n    WHERE above.tenant_id = $1 AND above.parent_id IS NOT NULL\n)\nSELECT g.id, g.name, g.origin, g.parent_id,\n       ARRAY(\n           SELECT gr.role_id\n           FROM group_roles gr\n           WHERE gr.tenant_id = g.tenant_id AND gr.group_id = g.id\n           ORDER BY gr.position\n       ) AS \"role_ids!\",\n       g.created_at, g.updated_at\nFROM groups g\nWHERE g.tenant_id = $1 AND g.id IN (SELECT id FROM lineage)\nORDER BY g.created_at, g.id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "origin",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "parent_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "role_ids!",
+        "type_info": "UuidArray"
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      null,
+      false,
+      false
+    ]
+  },
+  "hash": "a2e47725335144a7a88c0edac9ab42fa8092dddcedf4d06f0b042808a066d680"
+}

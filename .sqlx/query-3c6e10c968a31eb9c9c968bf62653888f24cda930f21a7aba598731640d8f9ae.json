@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a signal stream without its subjects: a new one is added, a known\n-- one of the same tenant takes the new values. Its tenant and its creation\n-- time never change.\n--\n-- The endpoint's challenge is none once the endpoint is verified; while it\n-- waits, it is the one just issued, or else the one already kept for the\n-- same endpoint. A stream waiting on its endpoint with neither is not\n-- written at all, so a row never waits on a challenge nobody sent.\nWITH kept AS (\n    SELECT endpoint_challenge\n    FROM signal_streams\n    WHERE tenant_id = $2 AND id = $1 AND endpoint = $3\n),\nchallenge AS (\n    SELECT CASE WHEN $4::text = 'verified' THEN NULL\n                ELSE coalesce($5::text, (SELECT kept.endpoint_challenge FROM kept))\n           END AS value\n)\nINSERT INTO signal_streams\n    (id, tenant_id, endpoint, endpoint_challenge, delivery_method, authorization_sealed,\n     receiver_key_hash, signal_types, default_subjects, status, consecutive_failures,\n     created_at, updated_at)\nSELECT $1::uuid, $2::uuid, $3::text, challenge.value, $6::text, $7::text, $8::text,\n       $9::text[], $10::text, $11::text, $12::bigint, $13::timestamptz, $14::timestamptz\nFROM challenge\nWHERE $4::text = 'verified' OR challenge.value IS NOT NULL\nON CONFLICT (id) DO UPDATE SET\n    endpoint = EXCLUDED.endpoint,\n    endpoint_challenge = EXCLUDED.endpoint_challenge,\n    delivery_method = EXCLUDED.delivery_method,\n    authorization_sealed = EXCLUDED.authorization_sealed,\n    receiver_key_hash = EXCLUDED.receiver_key_hash,\n    signal_types = EXCLUDED.signal_types,\n    default_subjects = EXCLUDED.default_subjects,\n    status = EXCLUDED.status,\n    consecutive_failures = EXCLUDED.consecutive_failures,\n    updated_at = EXCLUDED.updated_at\nWHERE signal_streams.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "TextArray",
+        "Text",
+        "Text",
+        "Int8",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3c6e10c968a31eb9c9c968bf62653888f24cda930f21a7aba598731640d8f9ae"
+}

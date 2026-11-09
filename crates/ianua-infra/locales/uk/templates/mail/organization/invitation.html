@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Вас запрошено приєднатися до {{ organization_name | default("організації") }}{% endblock %}
+{% block preheader %}Вас запрошено приєднатися до {{ organization_name | default("організації") }} на IANUA.{% endblock %}
+{% block headline %}Вас запрошено приєднатися до {{ organization_name | default("організації") }}{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("користувачу")) }}
+  {% call c.para() %}Вас запрошено приєднатися до <strong>{{ organization_name | default("організації") }}</strong> на {{ c.brand() }} з адресою {{ user_email | default("одержувача цього листа") }}.{% endcall %}
+  {% call c.para(pad=8) %}Щоб почати, виберіть пароль і активуйте обліковий запис.{% endcall %}
+  {{ c.cta(action_url, "Прийняти запрошення") }}
+  {% call c.para(pad=0) %}Строк дії цього запрошення: {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Якщо ви не очікували цього, проігноруйте цей лист.{% endcall %}
+{% endblock %}

@@ -1,0 +1,12 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+Se ha solicitado cambiar la dirección de su cuenta en {{ tenant_name | default("su organización") }} a {{ user_email }}{% if ip_address is defined %}, desde {{ ip_address }}{% endif %}.
+
+Si no fue usted, detenga el cambio ahora. Su cuenta conservará esta dirección:
+{{ action_url }}
+
+Puede detener el cambio durante {{ expires_at }}.
+
+Si lo solicitó usted, no necesita hacer nada.
+
+IANUA

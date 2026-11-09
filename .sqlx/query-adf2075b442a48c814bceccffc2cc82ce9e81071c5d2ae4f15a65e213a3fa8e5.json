@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a role: a new one is added, a known one takes the new values. Its\n-- tenant and creation time never change.\nINSERT INTO roles\n    (id, tenant_id, name, system_permissions, custom_permissions, is_default,\n     created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nON CONFLICT (id) DO UPDATE SET\n    name = EXCLUDED.name,\n    system_permissions = EXCLUDED.system_permissions,\n    custom_permissions = EXCLUDED.custom_permissions,\n    is_default = EXCLUDED.is_default,\n    updated_at = EXCLUDED.updated_at\nWHERE roles.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "TextArray",
+        "TextArray",
+        "Bool",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "adf2075b442a48c814bceccffc2cc82ce9e81071c5d2ae4f15a65e213a3fa8e5"
+}

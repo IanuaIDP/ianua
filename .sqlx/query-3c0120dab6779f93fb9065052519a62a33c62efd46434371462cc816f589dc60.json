@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The templates of one tenant with the given ids.\nSELECT id, template_type, locale, subject, body_html, body_text\nFROM email_templates\nWHERE tenant_id = $1 AND id = ANY($2)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "template_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "locale",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "subject",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "body_html",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "body_text",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "3c0120dab6779f93fb9065052519a62a33c62efd46434371462cc816f589dc60"
+}

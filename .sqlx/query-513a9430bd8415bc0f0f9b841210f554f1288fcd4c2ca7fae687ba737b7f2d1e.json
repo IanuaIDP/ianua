@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a sandbox: a new one is added, a known one of the same tenant takes\n-- its name, status, latest version number and when it changed. Its kind,\n-- language, maker and when it was made never change.\nINSERT INTO sandboxes\n    (id, tenant_id, name, kind, language, status, latest_version, created_by, created_at,\n     updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\nON CONFLICT (id) DO UPDATE SET\n    name = EXCLUDED.name,\n    status = EXCLUDED.status,\n    latest_version = EXCLUDED.latest_version,\n    updated_at = EXCLUDED.updated_at\nWHERE sandboxes.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Int4",
+        "Jsonb",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "513a9430bd8415bc0f0f9b841210f554f1288fcd4c2ca7fae687ba737b7f2d1e"
+}

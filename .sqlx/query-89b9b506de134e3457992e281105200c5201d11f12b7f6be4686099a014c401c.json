@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many sign-ins of the given tenants succeeded and failed in the\n-- window, from their audit records.\nSELECT count(*) FILTER (WHERE event_type = 'authentication.login_succeeded') AS \"succeeded!\",\n       count(*) FILTER (WHERE event_type = 'authentication.login_failed') AS \"failed!\"\nFROM audit_records\nWHERE tenant_id = ANY($1)\n    AND event_type IN ('authentication.login_succeeded', 'authentication.login_failed')\n    AND occurred_at >= $2 AND occurred_at < $3\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "succeeded!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "failed!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "89b9b506de134e3457992e281105200c5201d11f12b7f6be4686099a014c401c"
+}

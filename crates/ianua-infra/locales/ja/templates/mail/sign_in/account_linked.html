@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}アカウントが{{ provider_name | default("サインインプロバイダー") }}に関連付けられました{% endblock %}
+{% block preheader %}サインインプロバイダーでサインインできるようになりました。{% endblock %}
+{% block headline %}アカウントが関連付けられました{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para() %}<strong>{{ tenant_name | default("所属組織") }}</strong>のアカウントに、<strong>{{ provider_name | default("サインインプロバイダー") }}</strong>から初めてサインインがありました{% if ip_address is defined %}。送信元は{{ ip_address }}です{% endif %}。今後はこのプロバイダーでサインインできます。{% endcall %}
+  {% call c.para(pad=32) %}心当たりがない場合は、直ちに管理者に連絡してください。{% endcall %}
+{% endblock %}

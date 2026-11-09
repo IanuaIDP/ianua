@@ -1,0 +1,12 @@
+Hi {{ user_name | default("there") }},
+
+Someone asked to move your account in {{ organization_name | default("your organization") }} to {{ user_email }}{% if ip_address is defined %}, from {{ ip_address }}{% endif %}.
+
+If this was not you, stop the move now. Your account stays at this address:
+{{ action_url }}
+
+You can stop it for {{ expires_at }}.
+
+If you asked for this yourself, you do not need to do anything.
+
+IANUA

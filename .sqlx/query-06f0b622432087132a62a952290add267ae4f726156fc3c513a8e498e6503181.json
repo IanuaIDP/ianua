@@ -1,0 +1,130 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every attribute a tenant declared, archived ones too, in the order they\n-- were declared.\nSELECT id, namespace, key, kind, control, display_name, description, options,\n       max_length, minimum, maximum, required, sensitive, filterable, sortable,\n       listed, archived, created_at, updated_at\nFROM user_attribute_definitions\nWHERE tenant_id = $1\nORDER BY created_at, id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "namespace",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "key",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "control",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "display_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "options",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 8,
+        "name": "max_length",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "minimum",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 10,
+        "name": "maximum",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 11,
+        "name": "required",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 12,
+        "name": "sensitive",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 13,
+        "name": "filterable",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 14,
+        "name": "sortable",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 15,
+        "name": "listed",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 16,
+        "name": "archived",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 17,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 18,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "06f0b622432087132a62a952290add267ae4f726156fc3c513a8e498e6503181"
+}

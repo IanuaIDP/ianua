@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The mark of one agent of a tenant, if it has touched anything.\nSELECT level\nFROM agent_exposure\nWHERE tenant_id = $1 AND agent_id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "level",
+        "type_info": "Int2"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "ccfa4838de6b9d52464ca8623e2e7e838e840de13b6055226b453ca532a7eb31"
+}

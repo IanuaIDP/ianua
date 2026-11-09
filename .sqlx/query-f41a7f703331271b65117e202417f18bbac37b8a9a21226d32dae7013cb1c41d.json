@@ -1,0 +1,83 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- An organization's connection to one cloud, its secrets still sealed.\nSELECT organization_id, provider, external_id_sealed, state, credential_sealed, checked_at,\n    verified_identity, failure_reason, bound_identity, created_at, updated_at\nFROM org_cloud_accounts\nWHERE organization_id = $1 AND provider = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "provider",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "external_id_sealed",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "state",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "credential_sealed",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "checked_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "verified_identity",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "failure_reason",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "bound_identity",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "f41a7f703331271b65117e202417f18bbac37b8a9a21226d32dae7013cb1c41d"
+}

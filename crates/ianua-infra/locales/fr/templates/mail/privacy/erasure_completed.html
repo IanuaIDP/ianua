@@ -1,0 +1,11 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Vos données ont été supprimées{% endblock %}
+{% block preheader %}Votre demande de suppression a été exécutée.{% endblock %}
+{% block headline %}Vos données ont été supprimées{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("cher utilisateur")) }}
+  {% call c.para(pad=32) %}Vos données dans <strong>{{ tenant_name | default("votre organisation") }}</strong> ont été supprimées définitivement, comme demandé. Cette opération est irréversible.{% endcall %}
+{% endblock %}

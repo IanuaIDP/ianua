@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every active tenant holding no assertion key in this database: one made\n-- before assertion keys were, whose setup never made one. For the sweep\n-- that gives it a first key. A tenant living in a database of its own is\n-- listed too, and its own database is asked before it is given one.\nSELECT tenants.id AS \"tenant_id!\"\nFROM tenants\nWHERE tenants.status = 'active'\n  AND NOT EXISTS (\n      SELECT 1 FROM assertion_keys WHERE assertion_keys.tenant_id = tenants.id\n  )\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id!",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "d1e2357833328487b1aa3fa135de52a81f67cdc68300467ce8f137e08549605d"
+}

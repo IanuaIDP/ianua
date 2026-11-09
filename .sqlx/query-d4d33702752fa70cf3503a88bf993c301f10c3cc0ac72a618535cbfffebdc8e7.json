@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Withdraws every recovery code of a user's set, before the set's codes\n-- are written again.\nDELETE FROM recovery_codes\nWHERE tenant_id = $1 AND user_id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d4d33702752fa70cf3503a88bf993c301f10c3cc0ac72a618535cbfffebdc8e7"
+}

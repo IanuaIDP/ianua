@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an access token: a new one is added, a known one of the same tenant\n-- takes its revocation. What it was issued for never changes, and a\n-- revocation is never undone: a token revoked keeps its first time.\nINSERT INTO oauth_access_tokens\n    (tenant_id, token_hash, client_id, user_id, scopes, audience_client_id,\n     audience_stream_route_id, delegation, binding, binding_thumbprint, created_at, expires_at,\n     revoked_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)\nON CONFLICT (tenant_id, token_hash) DO UPDATE SET\n    revoked_at = coalesce(oauth_access_tokens.revoked_at, EXCLUDED.revoked_at)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Uuid",
+        "TextArray",
+        "Uuid",
+        "Uuid",
+        "Jsonb",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d7e7808807dcbd56bafabf02342c7b3dd3493d2620d4f0aeff418fc4e4531a33"
+}

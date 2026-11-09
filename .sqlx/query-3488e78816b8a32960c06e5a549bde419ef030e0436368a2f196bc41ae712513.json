@@ -1,0 +1,100 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The organizations with the given ids, each with the tenants it holds:\n-- every one not deleted.\nSELECT o.id, o.slug, o.name, o.contact_email, o.display_name, o.plan, o.negotiated_limits,\n       o.status, o.suspended_by_member, o.suspended_by_platform, o.auth_config,\n       ARRAY(\n           SELECT t.id FROM tenants t\n           WHERE t.organization_id = o.id AND t.status <> 'deleted'\n           ORDER BY t.id\n       ) AS \"tenant_ids!\",\n       o.created_at, o.updated_at\nFROM organizations o\nWHERE o.id = ANY($1)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "slug",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "contact_email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "display_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "plan",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "negotiated_limits",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 7,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "suspended_by_member",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 9,
+        "name": "suspended_by_platform",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "auth_config",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 11,
+        "name": "tenant_ids!",
+        "type_info": "UuidArray"
+      },
+      {
+        "ordinal": 12,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 13,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      false,
+      null,
+      false,
+      false
+    ]
+  },
+  "hash": "3488e78816b8a32960c06e5a549bde419ef030e0436368a2f196bc41ae712513"
+}

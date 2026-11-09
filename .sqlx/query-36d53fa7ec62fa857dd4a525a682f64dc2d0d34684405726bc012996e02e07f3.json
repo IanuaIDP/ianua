@@ -1,0 +1,54 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The roles of a tenant given straight to any of the given principals,\n-- each named by its kind and id at the same place in the two lists.\nSELECT role_id, principal_kind, principal_id, assigned_by, assigned_at, expires_at\nFROM role_assignments\nWHERE tenant_id = $1\n  AND (principal_kind, principal_id) IN (\n      SELECT wanted.kind, wanted.id\n      FROM UNNEST($2::text[], $3::uuid[]) AS wanted (kind, id)\n  )\nORDER BY assigned_at, role_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "role_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "principal_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "principal_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "assigned_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "assigned_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "TextArray",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "36d53fa7ec62fa857dd4a525a682f64dc2d0d34684405726bc012996e02e07f3"
+}

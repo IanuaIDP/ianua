@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a review assignment: a new one is added, a known one of the same\n-- tenant takes its end. The two agents, who assigned it and when never\n-- change.\nINSERT INTO agent_review_assignments\n    (id, tenant_id, reviewer_id, reviewed_id, assigned_by_kind, assigned_by_id, assigned_at,\n     ended_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nON CONFLICT (id) DO UPDATE SET\n    ended_at = EXCLUDED.ended_at\nWHERE agent_review_assignments.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "248ec78d652ebdde8d3f91996ff8d9bc84761f374a590e796668e6bbf9acdc12"
+}

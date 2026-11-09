@@ -1,0 +1,247 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ianua-api",
+    "description": "",
+    "license": {
+      "name": "LicenseRef-Ianua-Source-Use-1.0",
+      "identifier": "LicenseRef-Ianua-Source-Use-1.0"
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/health/live": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Is the process running",
+        "description": "Answers `200` with `ok` for as long as the process runs, whatever its\ndependencies say: an orchestrator restarts a process that stops\nanswering here. Served on the internal listener only, and asks nothing\nof anyone.",
+        "operationId": "live",
+        "responses": {
+          "200": {
+            "description": "The process is running",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "May the process take traffic",
+        "description": "Asks the database, the message bus and the cache, and answers `200`\nwhen every one answers and `503` when one does not or the check runs\nout of time. Neither answer has a body: which dependency failed, and\nwhy, goes to the operator's logs, never to the caller. Served on the\ninternal listener only, with no credentials asked of the orchestrator's\nprobe: on the public one, anyone could make the platform ask all three\nas often as they liked, and learn which of them is down.",
+        "operationId": "ready",
+        "responses": {
+          "200": {
+            "description": "Ready to take traffic"
+          },
+          "503": {
+            "description": "Not ready to take traffic"
+          }
+        }
+      }
+    },
+    "/internal/agent-approvals": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "Answer the gateway's question about an approval (gateway only)",
+        "description": "The gateway never writes approvals. When an agent's action needs a\nperson's approval it asks here, sealed, either to hold the action (find\nthe request a person decides for exactly that action, or open one,\nunless the delegation already has too many open) or to spend the\napproval a person gave, once. Opening a request records\n`agents.approval_requested`.\n\nServed only on the internal listener, which no ingress routes to. The\nquestion must carry the gateway's seal, under the key of this channel\nalone, a recent timestamp and a nonce not seen before. Every answer is\n`200` with a typed result; anything that fails, an unsealed, stale or\nrepeated question included, is answered `refused`, and the gateway\nrefuses the action.\n\nThe answer goes back sealed in `x-ianua-seal`, under the same channel's\nkey and bound to the question's nonce; a question that did not open gets\nits refusal unsealed. The gateway takes no answer without a seal for its\nown question, so nobody else on the internal network can admit an\nagent's action, nor replay an earlier answer.",
+        "operationId": "relay_question",
+        "requestBody": {
+          "description": "The sealed question, exactly as the gateway sealed it",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The answer, or a refusal, for the gateway to act on, sealed for the question it answers",
+            "headers": {
+              "x-ianua-seal": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "The API's seal over the answer, bound to the question's nonce; absent when the question did not open"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal/app-sign-in": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Relay an app sign-in (gateway only)",
+        "description": "Serves app-host password, factor, mail and provider sign-ins, passkeys,\npassword resets, signup, address verification, sign-out, service tokens,\nsign-in pages and cross-host session handoffs through the gateway.\nRuns only on the internal listener, outside ingress routing. Unsealed,\nstale or replayed requests receive an empty `401`; other requests receive\n`200` with a typed outcome, including refusals. Client address and user\nagent come from the sealed body. `Accepted` replies use the dashboard's\ntiming floor to conceal whether an address has an account.\nReplies carry `x-ianua-seal`, signed with the channel key and bound to\nthe request nonce; the gateway refuses unsigned or substituted answers.",
+        "operationId": "relay",
+        "requestBody": {
+          "description": "The sealed request, exactly as the gateway sealed it",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The outcome, or the refusal, for the gateway to act on, sealed for the request it answers",
+            "headers": {
+              "x-ianua-seal": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "The API's seal over the answer, bound to the request's nonce"
+              }
+            }
+          },
+          "401": {
+            "description": "Unsealed, stale or seen before; the body is empty"
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Scrape the process's metrics",
+        "description": "The process's own metrics in the Prometheus text format: how it runs,\nnever what any tenant holds. Served on the internal listener only, where\nthe scraper calls; the public listener has no such route.",
+        "operationId": "metrics",
+        "responses": {
+          "200": {
+            "description": "The process's metrics, in the Prometheus text format",
+            "content": {
+              "text/plain; version=0.0.4": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The metrics could not be written out",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ChallengeCode": {
+        "type": "string",
+        "description": "A kind of challenge a sign-in may be asked to solve.",
+        "enum": [
+          "proof_of_work",
+          "turnstile"
+        ]
+      },
+      "ErrorBody": {
+        "type": "object",
+        "description": "Structured JSON error body returned to API consumers.",
+        "required": [
+          "error",
+          "message"
+        ],
+        "properties": {
+          "challenge": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ChallengeCode",
+                "description": "The challenge to solve before signing in again, on\n`challenge_required` when one can be set. Absent when none can: only\na trusted device or single sign-on gets in until the pressure eases."
+              }
+            ]
+          },
+          "details": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Internal error details (only present in development mode)."
+          },
+          "error": {
+            "$ref": "#/components/schemas/ErrorCode",
+            "description": "Machine-readable error code."
+          },
+          "key": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The message key of `message`, when it has one, such as\n`routing-cannot-move-a-route-from-to`: a client may show the\nmessage in its own words from the key and `params`."
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable message, in the first language of `Accept-Language`\nthe platform words it in, else in English."
+          },
+          "params": {
+            "type": "object",
+            "description": "The values `message` was filled with, by name.",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ErrorCode": {
+        "type": "string",
+        "description": "Fixed set of machine-readable error codes.",
+        "enum": [
+          "domain_error",
+          "not_found",
+          "forbidden",
+          "conflict",
+          "unauthenticated",
+          "step_up_required",
+          "account_locked",
+          "email_not_verified",
+          "rate_limit_exceeded",
+          "link_expired",
+          "tenant_unavailable",
+          "internal_error",
+          "upstream_failed",
+          "challenge_required",
+          "malformed_body",
+          "invalid_body",
+          "unsupported_media_type",
+          "body_too_large",
+          "invalid_query"
+        ]
+      }
+    }
+  }
+}

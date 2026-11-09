@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes the passkey with the given id.\nDELETE FROM org_passkey_credentials\nWHERE id = $1\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8668daeb4c2efdf10d93c17d25bbdbf96ad033735c6eada48f404cb9c8fdb0ce"
+}

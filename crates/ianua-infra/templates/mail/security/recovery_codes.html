@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}New recovery codes made{% endblock %}
+{% block preheader %}A new set of recovery codes was made for your account.{% endblock %}
+{% block headline %}New recovery codes made{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("there")) }}
+  {% call c.para() %}A new set of recovery codes was made for your account in <strong>{{ tenant_name | default("your organization") }}</strong>{% if remaining_codes is defined %}. You have <strong>{{ remaining_codes }}</strong> unused codes{% endif %}. Your earlier codes no longer work.{% endcall %}
+  {% call c.para(pad=32) %}Keep them somewhere safe: each one signs you in once if you lose your second factor. If you did not do this, tell your administrator.{% endcall %}
+{% endblock %}

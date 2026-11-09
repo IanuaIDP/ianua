@@ -1,0 +1,131 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The delegations of a tenant with the given ids, each with the\n-- delegations a minted one was cut from, in their order.\nSELECT d.id, d.delegator_kind, d.delegator_id, d.delegate_id, d.granted, d.limits, d.lineage,\n       d.parent_id, d.minted_delegator_kind, d.minted_delegator_id, d.minted_credential_id,\n       ARRAY(\n           SELECT s.source_id\n           FROM delegation_sources s\n           WHERE s.tenant_id = d.tenant_id AND s.delegation_id = d.id\n           ORDER BY s.position\n       ) AS \"minted_from!\",\n       d.depth, d.status, d.issued_at, d.expires_at, d.renewed_at, d.updated_at, d.name\nFROM agent_delegations d\nWHERE d.tenant_id = $1 AND d.id = ANY($2)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "delegator_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "delegator_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "delegate_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "granted",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 5,
+        "name": "limits",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 6,
+        "name": "lineage",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "parent_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "minted_delegator_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "minted_delegator_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 10,
+        "name": "minted_credential_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 11,
+        "name": "minted_from!",
+        "type_info": "UuidArray"
+      },
+      {
+        "ordinal": 12,
+        "name": "depth",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 13,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 14,
+        "name": "issued_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 15,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 16,
+        "name": "renewed_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 17,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 18,
+        "name": "name",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      null,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "14766ec3c0f07d803760dbe820fa19fc6f64a3edc2d5c1f184ec954c007c5767"
+}

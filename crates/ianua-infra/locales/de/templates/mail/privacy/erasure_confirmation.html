@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ihr Löschantrag ist eingegangen{% endblock %}
+{% block preheader %}Ihr Antrag auf Löschung Ihrer Daten ist eingegangen.{% endblock %}
+{% block headline %}Ihr Löschantrag ist eingegangen{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("")) }}
+  {% call c.para() %}Ihr Antrag auf Löschung Ihrer Daten bei <strong>{{ tenant_name | default("Ihrer Organisation") }}</strong> ist eingegangen{% if erasure_date is defined %}. Die Löschung beginnt am <strong>{{ erasure_date }}</strong>{% endif %}.{% endcall %}
+  {% if action_url is defined %}{% call c.para(pad=8) %}Falls Sie es sich vorher anders überlegen, können Sie den Antrag zurückziehen.{% endcall %}{{ c.cta(action_url, "Löschung abbrechen") }}{% endif %}
+  {% call c.para(pad=32) %}Wenn Sie dies nicht angefordert haben, informieren Sie umgehend Ihren Administrator.{% endcall %}
+{% endblock %}

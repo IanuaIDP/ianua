@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many of the tenant's API keys still work at the given moment. A\n-- revoked key is deleted, so every key kept and not expired works.\nSELECT count(*) AS \"count!\"\nFROM api_keys\nWHERE tenant_id = $1 AND (expires_at IS NULL OR expires_at > $2)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "3d575cfc8e25852414f4234b4d0347c60f04de3e4423998a8d6fcfaf24927dd7"
+}

@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% import "sign_in/parts.html" as p %}
+
+{% block title %}Créez un compte sur {{ workspace }}{% endblock %}
+
+{% block content %}
+      <h1>Créez votre compte</h1>
+      <p class="subtitle">Rejoignez {{ workspace }}. Nous vous enverrons par e-mail un lien pour confirmer votre adresse.</p>
+      {{ p.note(note, {
+        "not_allowed": "Cet espace de travail n’accepte pas les inscriptions.",
+        "invalid": "Vérifiez votre saisie. Le mot de passe est peut-être trop court ou trop courant."
+      }) }}
+      <form method="post" action="{{ form_path }}">
+        {{ p.field("display_name", "Votre nom", "text", "name") }}
+        {{ p.field("email", "Adresse e-mail", "email", "email") }}
+        {{ p.field("password", "Mot de passe", "password", "new-password") }}
+        {{ p.submit("Créer le compte") }}
+      </form>
+      {{ p.link("Vous avez déjà un compte ?", log_in_path, "Se connecter") }}
+{% endblock %}

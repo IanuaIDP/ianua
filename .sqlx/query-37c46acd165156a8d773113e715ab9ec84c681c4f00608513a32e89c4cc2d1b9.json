@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Adds organization and platform audit records in one statement. A record\n-- is only ever added, never written again.\nINSERT INTO platform_audit_records\n    (id, organization_id, actor, actor_kind, actor_id, event_type, target_id, ip_address,\n     user_agent, payload, acted_through, through_operator_id, through_admin_id, as_user_id,\n     support_impersonation_id, occurred_at, through_execution_id)\nSELECT added.id, added.organization_id, added.actor, added.actor_kind, added.actor_id,\n       added.event_type, added.target_id, added.ip_address, added.user_agent, added.payload,\n       added.acted_through, added.through_operator_id, added.through_admin_id, added.as_user_id,\n       added.support_impersonation_id, added.occurred_at, added.through_execution_id\nFROM UNNEST($1::uuid[], $2::uuid[], $3::text[], $4::text[], $5::uuid[], $6::text[],\n            $7::text[], $8::text[], $9::text[], $10::jsonb[], $11::text[], $12::uuid[],\n            $13::uuid[], $14::uuid[], $15::uuid[], $16::timestamptz[], $17::uuid[])\n    AS added (id, organization_id, actor, actor_kind, actor_id, event_type, target_id,\n              ip_address, user_agent, payload, acted_through, through_operator_id,\n              through_admin_id, as_user_id, support_impersonation_id, occurred_at,\n              through_execution_id)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "UuidArray",
+        "TextArray",
+        "TextArray",
+        "UuidArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "JsonbArray",
+        "TextArray",
+        "UuidArray",
+        "UuidArray",
+        "UuidArray",
+        "UuidArray",
+        "TimestamptzArray",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "37c46acd165156a8d773113e715ab9ec84c681c4f00608513a32e89c4cc2d1b9"
+}

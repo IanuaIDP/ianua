@@ -1,0 +1,94 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every tool of a tenant, oldest first.\nSELECT id, name, description, input_schema, method, path, route_id, declared_action,\n       action_class, data_class, status, created_at, updated_at\nFROM agent_tools\nWHERE tenant_id = $1\nORDER BY created_at, id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "input_schema",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "method",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "path",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "route_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "declared_action",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "action_class",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "data_class",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 12,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "696a1f9b164f989de017de6597742f2f183fa9a8084761c72bde4f2df588ce00"
+}

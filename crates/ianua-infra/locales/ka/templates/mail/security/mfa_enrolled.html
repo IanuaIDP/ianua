@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}ორსაფეხურიანი შესვლა ჩაირთო{% endblock %}
+{% block preheader %}თქვენს ანგარიშს მეორე ფაქტორი დაემატა.{% endblock %}
+{% block headline %}ორსაფეხურიანი შესვლა ჩაირთო{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para() %}თქვენს ანგარიშს <strong>{{ tenant_name | default("თქვენი ორგანიზაცია") }}</strong>-ში მეორე ფაქტორი დაემატა. ამიერიდან შესვლისას ის მოგეთხოვებათ.{% endcall %}
+  {% call c.para(pad=32) %}თუ ეს თქვენ არ გაგიკეთებიათ, დაუყოვნებლივ აცნობეთ ადმინისტრატორს: შესაძლოა სხვამ თქვენს ანგარიშზე წვდომა მოიპოვა.{% endcall %}
+{% endblock %}

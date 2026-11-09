@@ -1,0 +1,6 @@
+გამარჯობა, {{ user_name | default("მომხმარებელო") }}!
+
+თქვენი ანგარიში {{ tenant_name | default(organization_name | default("თქვენი ორგანიზაცია")) }}-ში მზადაა გამოსაყენებლად. შედით აქ:
+{{ action_url }}
+
+IANUA

@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Bestätigen Sie Ihre neue E-Mail-Adresse{% endblock %}
+{% block preheader %}Bestätigen Sie Ihre neue Adresse, um die Änderung abzuschließen.{% endblock %}
+{% block headline %}Bestätigen Sie Ihre neue E-Mail-Adresse{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("")) }}
+  {% call c.para() %}Es wurde beantragt, die Adresse Ihres {{ c.brand() }}-Kontos zu <strong>{{ user_email }}</strong> zu ändern.{% endcall %}
+  {% call c.para(pad=8) %}Bestätigen Sie diese Adresse, um die Änderung abzuschließen.{% endcall %}
+  {{ c.cta(action_url, "Neue Adresse bestätigen") }}
+  {% call c.para(pad=0) %}Dieser Link läuft in {{ expires_at }} ab.{% endcall %}
+  {% call c.para(pad=32) %}Wenn Sie dies nicht angefordert haben, können Sie diese E-Mail ignorieren.{% endcall %}
+{% endblock %}

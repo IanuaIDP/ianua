@@ -1,0 +1,55 @@
+[package]
+name = "ianua-zero"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "ianua-zero"
+path = "src/main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+ianua-domain = { workspace = true }
+ianua-app = { workspace = true }
+ianua-infra = { workspace = true }
+ianua-boot = { workspace = true }
+
+hyper = { workspace = true }
+hyper-util = { workspace = true }
+hyper-rustls = { workspace = true }
+tower-service = { workspace = true }
+http-body-util = { workspace = true }
+http = { workspace = true }
+tokio = { workspace = true }
+tokio-util = { workspace = true, features = ["rt"] }
+sha2 = { workspace = true }
+regex = { workspace = true }
+tokio-rustls = { workspace = true }
+rustls-pemfile = { workspace = true }
+arc-swap = { workspace = true }
+async-trait = { workspace = true }
+base64 = { workspace = true }
+futures-util = { workspace = true }
+prometheus = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+time = { workspace = true }
+tracing = { workspace = true }
+url = { workspace = true }
+uuid = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+wasmtime = { workspace = true }
+ianua-workspace-hack = { version = "0.1", path = "../ianua-workspace-hack" }
+
+[dev-dependencies]
+ianua-app = { workspace = true, features = ["test-support"] }
+ianua-domain = { workspace = true, features = ["test-support"] }
+ianua-infra = { workspace = true, features = ["test-support"] }
+proptest = { workspace = true }
+rcgen = { workspace = true }
+tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread", "test-util"] }

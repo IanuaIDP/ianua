@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Marks every unread notification of a tenant user's inbox read, whatever\n-- it needs to be seen.\nUPDATE tenant_notifications\nSET read = true\nWHERE tenant_id = $1 AND user_id = $2 AND NOT read\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3e884dce27ada67fb31d0d980c827918ad1a997a64d968d50f9b5764913411dd"
+}

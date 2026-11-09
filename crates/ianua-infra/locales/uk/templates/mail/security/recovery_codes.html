@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Створено нові коди відновлення{% endblock %}
+{% block preheader %}Для вашого облікового запису створено новий набір кодів відновлення.{% endblock %}
+{% block headline %}Створено нові коди відновлення{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("користувачу")) }}
+  {% call c.para() %}Для вашого облікового запису в <strong>{{ tenant_name | default("вашій організації") }}</strong> створено новий набір кодів відновлення{% if remaining_codes is defined %}. Невикористаних кодів: <strong>{{ remaining_codes }}</strong>{% endif %}. Попередні коди більше не діють.{% endcall %}
+  {% call c.para(pad=32) %}Коди слід зберігати в безпечному місці: кожен дає змогу ввійти один раз, якщо ви втратите другий фактор. Якщо ви цього не робили, повідомте адміністратора.{% endcall %}
+{% endblock %}

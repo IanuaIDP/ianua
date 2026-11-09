@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes an event schema of the tenant for good, with every version of\n-- it.\nDELETE FROM event_schemas\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5167268384a0e45035849e074767fe26c6f79ea30bd28a0d1d9fdc757dbd1f40"
+}

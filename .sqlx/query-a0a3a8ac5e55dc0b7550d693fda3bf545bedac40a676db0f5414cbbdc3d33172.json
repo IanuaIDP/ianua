@@ -1,0 +1,32 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Which of the given relations on named resources a principal of a tenant\n-- holds, each relation at the same place in the two lists as its\n-- resource.\nSELECT g.relation, g.object_ref\nFROM resource_grants g\nWHERE g.tenant_id = $1 AND g.subject_kind = $2 AND g.subject_id = $3\n  AND (g.relation, g.object_ref) IN (\n      SELECT wanted.relation, wanted.object_ref\n      FROM UNNEST($4::text[], $5::text[]) AS wanted (relation, object_ref)\n  )\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "relation",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "object_ref",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid",
+        "TextArray",
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "a0a3a8ac5e55dc0b7550d693fda3bf545bedac40a676db0f5414cbbdc3d33172"
+}

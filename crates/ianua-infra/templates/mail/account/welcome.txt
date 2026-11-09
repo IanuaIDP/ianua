@@ -1,0 +1,6 @@
+Hi {{ user_name | default("there") }},
+
+An account was created for you in {{ tenant_name | default("your organization") }} on IANUA{% if role_name is defined %} as {{ role_name }}{% endif %}. You are all set. Sign in here:
+{{ action_url }}
+
+IANUA

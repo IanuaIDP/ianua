@@ -1,0 +1,35 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Up to a page of the live registrations that lapse before a moment, the\n-- soonest first, in whichever tenants the read may see.\nSELECT tenant_id, id, lapses_at AS \"lapses_at!\"\nFROM workflow_service_subscriptions\nWHERE status = 'live' AND lapses_at IS NOT NULL AND lapses_at < $1\nORDER BY lapses_at, id\nLIMIT $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "lapses_at!",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "bfab034c66a12e111098e210a27a30e2ed7d1b03901c347d97074f3be8ea139c"
+}

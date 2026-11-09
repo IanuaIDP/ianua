@@ -1,0 +1,120 @@
+---
+title: Development
+description: Prerequisites, running the platform directly, tests, the dashboard and the Docker images.
+---
+
+## Prerequisites
+
+- **Rust**, at the version in `rust-toolchain.toml`.
+- **Docker**. Integration and end-to-end tests start Postgres in containers.
+- **[`just`](https://just.systems)**, the task runner. `just` lists every recipe.
+- **[`cargo-nextest`](https://nexte.st)**, the test runner. `just install-tools` installs it.
+
+Postgres is required, and the job queue lives in it. NATS JetStream (`BUS_URL`) and Redis (`CACHE_URL`) are optional for a single `MODE=all` process: with both unset, the server keeps its bus and cache in memory. `MODE=api` and `MODE=worker` need both.
+
+## Run the platform directly
+
+```sh
+just install-tools
+export DATABASE_URL=postgres://postgres:postgres@localhost:5432/ianua
+# set the other required values, listed in the configuration reference
+just run             # MODE=all by default; `just run api` for the API only
+```
+
+The commands are `ianua` (serve), `ianua migrate`, `ianua install`, `ianua operator create --email <address>` and `ianua demo`. The server stops at startup on a missing, invalid or contradictory value. Every setting is in the [configuration reference](/ianua/reference/configuration/).
+
+## Tests
+
+Tests start their own Postgres, so you do not need one running.
+
+```sh
+just test                   # all workspace tests except end-to-end
+just test-e2e               # the end-to-end scenarios
+just test-one rotate_key    # tests matching a regular expression
+just test-crate ianua-domain
+just clean-db               # remove the shared test container if it lingers
+just ci                     # formatting, lint and all tests
+```
+
+Each test runs in its own process under nextest. A setup script (`test_setup_postgres`) starts one Postgres container for the run and builds a migrated template database. Every test then clones a fresh database from that template. Other setup scripts start a shared cache, bus and object store for the tests that need them.
+
+To run without network access, use the committed query metadata:
+
+```sh
+SQLX_OFFLINE=true CARGO_NET_OFFLINE=true cargo nextest run --offline --workspace --no-fail-fast
+```
+
+### See agent limits at work
+
+```sh
+# Reporter gets its own key and part of Ann's authority, hands part of it on
+# to Helper, waits on Tess for approval, and is refused everywhere the moment
+# Ann revokes its key.
+cargo nextest run -p ianua-scenarios --test agents an_agent_lives_from_its_key_to_its_revocation --no-capture
+
+# A ticket tells the agent to delete everything. The model obeys, the call is
+# refused because the run was given only a read, and nothing is deleted.
+cargo nextest run -p ianua-scenarios --test agents a_planted_instruction_is_refused_and_nothing_is_deleted --no-capture
+
+# Another agent's name or token is refused at the gateway.
+cargo nextest run -p ianua-scenarios --test agents another_agents_name_or_token_is_refused --no-capture
+```
+
+## Dashboard
+
+`dashboard/` is a Next.js app. It holds no data of its own: the browser calls the dashboard's `/api/...` routes, which forward to the platform API, so you need a running backend.
+
+```sh
+cd dashboard
+npm install
+cp .env.local.example .env.local
+npm run dev
+```
+
+| Setting | Meaning |
+| :-- | :-- |
+| `NEXT_PUBLIC_API_URL` | Where the browser sends API calls. Keep `/api`. It is fixed at build time. |
+| `API_URL` | The backend the dashboard's proxy routes forward to. |
+| `NEXT_PUBLIC_WS_URL` | The WebSocket base for live notifications. |
+
+Before pushing a dashboard change, run `npm run check-messages`, `npm run lint`, `npm run type-check` and `npm run format:check` in `dashboard/`. `npm run build` needs network, because it regenerates the icon font.
+
+## Docker images
+
+Every Dockerfile is in `docker/`. Build the backend from the repository root and the dashboard from `dashboard/`:
+
+```sh
+docker build -f docker/Dockerfile --target server .
+docker build -f docker/Dockerfile.dashboard dashboard
+```
+
+`docker/Dockerfile` is a multi-stage build with three targets, each running as a non-root `ianua` user on `debian:bookworm-slim`:
+
+| Target | What it runs | Port |
+| :-- | :-- | :-- |
+| `server` | The platform (`ianua`) | `3000` |
+| `zero` | The gateway (`ianua-zero`) | `8080` |
+| `dns` | The nameservers (`ianua-dns`) | `5353`, UDP and TCP |
+
+`dns` binds `5353` because a port below 1024 needs root or `CAP_NET_BIND_SERVICE`. The Kubernetes Service maps `53` onto it. Override it with `DNS_BIND`.
+
+`docker/Dockerfile.dev` is for local work only. It holds the full toolchain and `cargo-watch`, runs as root, and rebuilds on change with the source mounted in.
+
+## Where code goes
+
+- New behaviour starts in the domain and is reached by a use case in `ianua-app` through a port.
+- Talking to the outside world is an adapter in `ianua-infra` or `ianua-api`, never in the domain or application.
+- If the domain seems to need `sqlx` or `reqwest`, a port is missing. Define the trait inside and implement it outside.
+
+Dependencies point inward only:
+
+| Crate | Layer | Holds |
+| :-- | :-- | :-- |
+| `ianua-domain` | Domain | Aggregates, value objects, events and rules. Pure Rust. |
+| `ianua-app` | Application | Use cases and the ports they need. |
+| `ianua-api` | Adapter | HTTP handlers, DTOs and routing. |
+| `ianua-infra` | Adapter | Storage, the bus, the cache, crypto, federation, files and mail. |
+| `ianua-server` | Composition | Wires adapters into ports. One binary, with `MODE` picking its role. |
+| `ianua-zero` | Data plane | The gateway. |
+| `ianua-scenarios` | Tests | End-to-end scenarios against the real platform. |
+| `ianua-translate` | Tooling | Collects messages and tracks translations. |

@@ -1,0 +1,10 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+Se ha creado una cuenta para usted en {{ organization_name | default("su organización") }} en IANUA. Antes de iniciar sesión, verifique su dirección de correo:
+{{ action_url }}
+
+Este enlace caduca en {{ expires_at }}.
+
+Si no esperaba este correo, puede ignorarlo.
+
+IANUA

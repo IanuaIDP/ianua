@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Saves a new tenant setup, and answers its tenant. A tenant that has one\n-- already keeps it, and nothing comes back: of two starts at once, the\n-- first one's setup is kept.\nINSERT INTO tenant_setups (\n    tenant_id, planned, done, failed_step, failed_reason, started_at, updated_at\n)\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nON CONFLICT (tenant_id) DO NOTHING\nRETURNING tenant_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "TextArray",
+        "TextArray",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "186c10dec389193b2aad6048b16f007da1b87821ec92774c76d8bd40c35e2d92"
+}

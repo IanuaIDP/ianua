@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes the passkey ceremonies of one tenant, read from the database of\n-- its own it lives in, that lapsed before the given time without an\n-- answer, and counts them.\nWITH purged AS (\n    DELETE FROM passkey_ceremonies\n    WHERE tenant_id = $1 AND expires_at < $2 AND consumed_at IS NULL\n    RETURNING tenant_id\n)\nSELECT count(*) AS \"purged!\" FROM purged\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "purged!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "9b22a44431fa4003bd0c276a0003ede42d3e97f147f80486bddceddf6c27ce1a"
+}

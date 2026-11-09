@@ -1,0 +1,7 @@
+Guten Tag!
+
+Die E-Mail-Adresse Ihres IANUA-Kontos wurde zu {{ user_email }} geändert.
+
+Wenn Sie diese Änderung nicht vorgenommen haben, informieren Sie umgehend Ihren Administrator.
+
+IANUA

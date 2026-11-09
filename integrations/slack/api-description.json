@@ -1,0 +1,323 @@
+{
+  "endpoints": {
+    "get /chat.getPermalink": {
+      "answer": [
+        "channel",
+        "ok",
+        "permalink"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "channel": true,
+        "message_ts": true,
+        "token": true
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /conversations.history": {
+      "answer": [
+        "channel_actions_count",
+        "channel_actions_ts",
+        "has_more",
+        "messages",
+        "ok",
+        "pin_count"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "channel": false,
+        "cursor": false,
+        "inclusive": false,
+        "latest": false,
+        "limit": false,
+        "oldest": false,
+        "token": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /conversations.list": {
+      "answer": [
+        "channels",
+        "ok",
+        "response_metadata"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "cursor": false,
+        "exclude_archived": false,
+        "limit": false,
+        "token": false,
+        "types": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /users.info": {
+      "answer": [
+        "ok",
+        "user"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "include_locale": false,
+        "token": true,
+        "user": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /users.lookupByEmail": {
+      "answer": [
+        "ok",
+        "user"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "email": true,
+        "token": true
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /chat.delete": {
+      "answer": [
+        "channel",
+        "ok",
+        "ts"
+      ],
+      "body": [
+        "as_user",
+        "channel",
+        "ts"
+      ],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /chat.postEphemeral": {
+      "answer": [
+        "message_ts",
+        "ok"
+      ],
+      "body": [
+        "as_user",
+        "attachments",
+        "blocks",
+        "channel",
+        "icon_emoji",
+        "icon_url",
+        "link_names",
+        "parse",
+        "text",
+        "thread_ts",
+        "user",
+        "username"
+      ],
+      "body_required": [
+        "channel",
+        "user"
+      ],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /chat.postMessage": {
+      "answer": [
+        "channel",
+        "message",
+        "ok",
+        "ts"
+      ],
+      "body": [
+        "as_user",
+        "attachments",
+        "blocks",
+        "channel",
+        "icon_emoji",
+        "icon_url",
+        "link_names",
+        "mrkdwn",
+        "parse",
+        "reply_broadcast",
+        "text",
+        "thread_ts",
+        "unfurl_links",
+        "unfurl_media",
+        "username"
+      ],
+      "body_required": [
+        "channel"
+      ],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /chat.scheduleMessage": {
+      "answer": [
+        "channel",
+        "message",
+        "ok",
+        "post_at",
+        "scheduled_message_id"
+      ],
+      "body": [
+        "as_user",
+        "attachments",
+        "blocks",
+        "channel",
+        "link_names",
+        "parse",
+        "post_at",
+        "reply_broadcast",
+        "text",
+        "thread_ts",
+        "unfurl_links",
+        "unfurl_media"
+      ],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /chat.update": {
+      "answer": [
+        "channel",
+        "message",
+        "ok",
+        "text",
+        "ts"
+      ],
+      "body": [
+        "as_user",
+        "attachments",
+        "blocks",
+        "channel",
+        "link_names",
+        "parse",
+        "text",
+        "ts"
+      ],
+      "body_required": [
+        "channel",
+        "ts"
+      ],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /conversations.archive": {
+      "answer": [
+        "ok"
+      ],
+      "body": [
+        "channel"
+      ],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /conversations.create": {
+      "answer": [
+        "channel",
+        "ok"
+      ],
+      "body": [
+        "is_private",
+        "name"
+      ],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /conversations.invite": {
+      "answer": [
+        "channel",
+        "ok"
+      ],
+      "body": [
+        "channel",
+        "users"
+      ],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /conversations.open": {
+      "answer": [
+        "already_open",
+        "channel",
+        "no_op",
+        "ok"
+      ],
+      "body": [
+        "channel",
+        "return_im",
+        "users"
+      ],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /conversations.setTopic": {
+      "answer": [
+        "channel",
+        "ok"
+      ],
+      "body": [
+        "channel",
+        "topic"
+      ],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /reactions.add": {
+      "answer": [
+        "ok"
+      ],
+      "body": [
+        "channel",
+        "name",
+        "timestamp"
+      ],
+      "body_required": [
+        "channel",
+        "name",
+        "timestamp"
+      ],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    }
+  },
+  "version": "1.7.0"
+}

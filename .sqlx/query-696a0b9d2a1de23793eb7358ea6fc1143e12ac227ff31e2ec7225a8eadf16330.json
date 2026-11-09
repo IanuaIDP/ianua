@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Writes the codes of a user's set, all in one statement: each code's hash\n-- with when it was used, NULL for one still unused.\nINSERT INTO recovery_codes (tenant_id, user_id, code_hash, used_at)\nSELECT $1, $2, code.code_hash, code.used_at\nFROM UNNEST($3::text[], $4::timestamptz[]) AS code (code_hash, used_at)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "TextArray",
+        "TimestamptzArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "696a0b9d2a1de23793eb7358ea6fc1143e12ac227ff31e2ec7225a8eadf16330"
+}

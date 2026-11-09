@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Someone asked to move your account{% endblock %}
+{% block preheader %}A move of your account to another address was asked for.{% endblock %}
+{% block headline %}Someone asked to move your account{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("there")) }}
+  {% call c.para() %}Someone asked to move your account in <strong>{{ tenant_name | default("your organization") }}</strong> to <strong>{{ user_email }}</strong>{% if ip_address is defined %}, from {{ ip_address }}{% endif %}.{% endcall %}
+  {% call c.para(pad=8) %}If this was not you, stop the move now. Your account stays at this address.{% endcall %}
+  {{ c.cta(action_url, "Stop the move") }}
+  {% call c.para(pad=0) %}You can stop it for {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}If you asked for this yourself, you do not need to do anything.{% endcall %}
+{% endblock %}

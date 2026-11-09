@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Su cuenta está lista{% endblock %}
+{% block preheader %}Su cuenta está lista. Inicie sesión para empezar.{% endblock %}
+{% block headline %}Su cuenta está lista{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para(pad=8) %}Su cuenta en <strong>{{ tenant_name | default(organization_name | default("su organización")) }}</strong> está configurada y lista para usar.{% endcall %}
+  {{ c.cta(action_url, "Iniciar sesión") }}
+{% endblock %}

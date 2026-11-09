@@ -1,0 +1,47 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every record set of the zone one tenant holds for one hostname.\nSELECT hostname, name, kind, ttl, record_values\nFROM dns_records\nWHERE tenant_id = $1 AND hostname = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "hostname",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "ttl",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "record_values",
+        "type_info": "TextArray"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "c6496d17062bc217760c71221a8321e1bbe5ed0eee5ffb593b7ea4f6b7118575"
+}

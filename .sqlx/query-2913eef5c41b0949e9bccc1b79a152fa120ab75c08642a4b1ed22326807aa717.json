@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Revokes keys of one operator still in force, each at its own time, the\n-- prefixes and times given as two arrays of the same order. Run after the\n-- keys were locked, so every one named is written.\nUPDATE operator_api_keys AS kept\nSET revoked_at = revoked.at\nFROM unnest($2::text[], $3::timestamptz[]) AS revoked(key_prefix, at)\nWHERE kept.operator_id = $1\n    AND kept.key_prefix = revoked.key_prefix\n    AND kept.revoked_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "TextArray",
+        "TimestamptzArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2913eef5c41b0949e9bccc1b79a152fa120ab75c08642a4b1ed22326807aa717"
+}

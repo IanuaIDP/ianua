@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes an organization member for good; what is kept about them goes\n-- with them, by the foreign keys that cascade.\nDELETE FROM org_users\nWHERE id = $1\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6f21a97ec6311224b46192734771b6766204ddc057852f32999b7541594223e9"
+}

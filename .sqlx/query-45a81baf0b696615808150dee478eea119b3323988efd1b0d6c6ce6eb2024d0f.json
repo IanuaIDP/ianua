@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Writes a new relationship of a tenant. The same fact twice is refused by\n-- relationships_fact_key.\nINSERT INTO relationships\n    (id, tenant_id, object_type, object_key, link, relation, subject_kind, subject_id,\n     parent_type, parent_key, created_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Uuid",
+        "Text",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "45a81baf0b696615808150dee478eea119b3323988efd1b0d6c6ce6eb2024d0f"
+}

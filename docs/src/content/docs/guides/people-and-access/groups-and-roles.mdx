@@ -1,0 +1,39 @@
+---
+title: Use roles and groups
+description: Define what people may do with roles, and hand roles out by group membership.
+sidebar:
+  order: 2
+---
+
+A **role** is a named set of permissions. A **group** bundles roles together, so you hand them out by membership rather than one at a time.
+
+## Roles
+
+Open **Roles** and choose **Create Role**. Give it a name and pick its permissions.
+
+![The Roles list](../../../../assets/guides/roles/list.png)
+
+![The Create role form](../../../../assets/guides/roles/create.png)
+
+Use the row's **...** menu to change a role or delete it. A deleted role can no longer be assigned.
+
+![The Edit role form](../../../../assets/guides/roles/edit.png)
+
+## Groups
+
+1. Open **Groups** and choose **Create Group**.
+2. Give it a name. To nest it, pick a parent: members of this group also hold everything the parent grants.
+
+![The Create group form](../../../../assets/guides/groups/create.png)
+
+Open a group to manage it.
+
+- **Roles**: every member holds these roles, and so does every member of the groups beneath it.
+
+  ![A group's Roles tab](../../../../assets/guides/groups/roles.png)
+
+- **Members**: everyone here holds the roles this group carries, and the roles of every group above it.
+
+  ![A group's Members tab with one member added](../../../../assets/guides/groups/members-added.png)
+
+Deleting a group removes the grants that came with it. Nobody is deleted.

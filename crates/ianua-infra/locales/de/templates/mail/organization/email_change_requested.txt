@@ -1,0 +1,12 @@
+Hallo{% if user_name is defined and user_name %} {{ user_name | default("") }}{% endif %}!
+
+Es wurde beantragt, die Adresse Ihres Kontos bei {{ organization_name | default("Ihrer Organisation") }} zu {{ user_email }} zu ändern{% if ip_address is defined %}, von {{ ip_address }} aus{% endif %}.
+
+Wenn Sie das nicht waren, brechen Sie die Änderung jetzt ab. Ihr Konto behält diese Adresse:
+{{ action_url }}
+
+Sie können die Änderung innerhalb von {{ expires_at }} abbrechen.
+
+Wenn Sie die Änderung selbst beantragt haben, müssen Sie nichts tun.
+
+IANUA

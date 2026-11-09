@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Saves a clone, new or changed.\nINSERT INTO tenant_clones (\n    id, tenant_id, source_tenant_id, organization_id, parts, copied, state, failure,\n    ended_at, started_at\n)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\nON CONFLICT (id) DO UPDATE\nSET copied = EXCLUDED.copied,\n    state = EXCLUDED.state,\n    failure = EXCLUDED.failure,\n    ended_at = EXCLUDED.ended_at\nWHERE tenant_clones.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "TextArray",
+        "TextArray",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "74fefe66cf2bf92cb1478b9028f416b33bb324ad5badcf72c2ec33a66a81d2d0"
+}

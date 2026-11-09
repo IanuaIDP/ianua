@@ -1,0 +1,22 @@
+{{- if .Values.demoJob.enabled }}
+{{/*
+`ianua demo`: seeds a demonstration organization through the use cases, then
+exits. Every step looks first and makes only what is missing, so it runs
+again safely, and it refuses a database that holds any other organization.
+
+The server refuses the demo when APP_ENV is production, so the chart refuses
+it there too rather than leaving a Job that fails the release.
+*/}}
+{{- if not (has (lower .Values.config.appEnv) (list "development" "dev")) }}
+{{- fail "demoJob.enabled needs config.appEnv=development: the demo seeds made-up people, keys and settings, and the server refuses it in production" }}
+{{- end }}
+{{ include "ianua.commandJob" (dict
+    "root" .
+    "name" "demo"
+    "args" (list "demo")
+    "hook" "post-install,post-upgrade"
+    "weight" 10
+    "backoffLimit" 3
+    "env" ""
+) }}
+{{- end }}

@@ -1,0 +1,155 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The highest-numbered version of each workflow of one tenant named, with\n-- where each workflow came from.\nSELECT v.workflow_id, v.version, v.name, v.graph, v.trigger_kind, v.trigger_schedule,\n    v.trigger_event, v.trigger_service, v.trigger_change, v.run_limit_secs, v.status, v.created_by, v.edited_by, v.authors,\n    v.published_by, v.hold, v.description, v.layout, v.failure_alert, w.origin, w.flow_description, v.created_at, v.updated_at\nFROM workflow_versions v\nJOIN workflows w ON w.tenant_id = v.tenant_id AND w.id = v.workflow_id\nWHERE v.tenant_id = $1 AND v.workflow_id = ANY($2)\n    AND NOT EXISTS (\n        SELECT 1 FROM workflow_versions later\n        WHERE later.tenant_id = v.tenant_id AND later.workflow_id = v.workflow_id\n            AND later.version > v.version\n    )\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "workflow_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "version",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "graph",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "trigger_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "trigger_schedule",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "trigger_event",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "trigger_service",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 8,
+        "name": "trigger_change",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "run_limit_secs",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 10,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "created_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 12,
+        "name": "edited_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 13,
+        "name": "authors",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 14,
+        "name": "published_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 15,
+        "name": "hold",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 16,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 17,
+        "name": "layout",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 18,
+        "name": "failure_alert",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 19,
+        "name": "origin",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 20,
+        "name": "flow_description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 21,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 22,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "16a870cea2761912b84e38749be4aab6f58c78d3f4942aa16dc9c4f05910e86a"
+}

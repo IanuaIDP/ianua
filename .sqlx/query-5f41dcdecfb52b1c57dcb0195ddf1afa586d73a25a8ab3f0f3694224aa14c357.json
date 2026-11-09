@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Whether a tenant of the organization already has the given slug.\nSELECT EXISTS (\n    SELECT 1 FROM tenants WHERE slug = $1 AND organization_id = $2\n) AS \"taken!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "taken!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "5f41dcdecfb52b1c57dcb0195ddf1afa586d73a25a8ab3f0f3694224aa14c357"
+}

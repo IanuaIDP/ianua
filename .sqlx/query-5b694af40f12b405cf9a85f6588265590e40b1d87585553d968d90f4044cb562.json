@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a log shipping target: a new one is added, a known one takes the\n-- new values. Its tenant and creation time never change.\nINSERT INTO log_shipping_targets\n    (id, tenant_id, name, destination, credential, records, sample_percent, format, status,\n     created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\nON CONFLICT (id) DO UPDATE SET\n    name = EXCLUDED.name,\n    destination = EXCLUDED.destination,\n    credential = EXCLUDED.credential,\n    records = EXCLUDED.records,\n    sample_percent = EXCLUDED.sample_percent,\n    format = EXCLUDED.format,\n    status = EXCLUDED.status,\n    updated_at = EXCLUDED.updated_at\nWHERE log_shipping_targets.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Jsonb",
+        "Text",
+        "Text",
+        "Int2",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5b694af40f12b405cf9a85f6588265590e40b1d87585553d968d90f4044cb562"
+}

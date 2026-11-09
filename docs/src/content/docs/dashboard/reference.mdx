@@ -1,0 +1,109 @@
+---
+title: Utilities and libraries
+description: "Everything in the dashboard that is not a component, hook or API call: helpers, constants, schemas, types, scripts."
+sidebar:
+  order: 6
+---
+
+This page lists the parts of the dashboard that are not components, hooks or API calls.
+
+## Helpers
+
+The helpers live in `src/utils`. They are plain functions: no React, no API calls.
+
+| File | Main exports | What it is for |
+| --- | --- | --- |
+| `cn.ts` | `cn` | Joins class names (`clsx`) and settles clashing Tailwind classes (`tailwind-merge`). |
+| `dashboard-routes.ts` | `getTenantPath`, `getTenantManagementPath`, `getTenantScopedPath`, `getTenantRouteContext`, `getManagedTenantSlug`, `isTenantLoginRoute`, `isTenantSubDetailRoute`, and path builders for agents, domains, flows and more | Builds and reads dashboard addresses, at either way into a tenant. |
+| `dashboard-nav.ts` | `getTenantNavItems`, `getTenantManagementNavItems`, `getAgentDetailNavItems`, `getTenantSettingsNavItems`, `getTenantCryptoNavItems`, `buildNavSegments`, `isNavItemActive` | The sidebar's items and groups. |
+| `tenant-section-permissions.ts` | `getTenantSectionResource`, `filterTenantNavItemsByPermission` | Which permission each tenant section needs. It hides sidebar items and blocks pages. |
+| `date.ts` | `parseBackendTimestamp`, `formatBackendDate`, `formatBackendDateTime`, `formatDateTime`, `formatDurationShort`, `formatCountdown` | Reads and shows dates. Each takes a language if given, else the one `i18n/active-locale.ts` reads from `<html lang>`. |
+| `not-available.ts` | `notAvailable`, `isNotAvailable` | The "N/A" text for a missing value, in the current language. |
+| `countdown.ts` | `formatCountdown` | A countdown such as `4:05`. |
+| `initials.ts` | `getInitials` | Two initials from a name. |
+| `format-status-label.ts` | `formatStatusLabel` | Turns `PendingVerification` into "Pending Verification". |
+| `badge-colors.ts` | `getBadgeColorClass`, `getBadgeSoftColorClass` | The same colour for the same label every time, for roles, scopes and tags. |
+| `object.ts` | `isPlainObject` | Tells a plain object from anything else. |
+| `password-policy.ts` | `getPasswordRequirementsHint(policy, translation?)`, `generatePasswordForPolicy` | The live password hint (in English without `translation`), and a generated password that meets the rules. |
+| `help-center.ts` | `getHelpArticleBySlugPath`, `getHelpArticleHref`, `getDefaultHelpArticleRef`, `getAdjacentHelpArticleRefs`, `isHelpArticleWritten`, `localizeHelpCategories`, `localizeHelpArticleRef` | Finds Help Center articles. |
+| `activity.ts` | `formatActivityTitle`, `getActivityIcon`, `getActivitySummary` | The rows of an agent's activity. |
+| `attribute-format.ts` | `isNumericKind`, `formatAttributeNumber`, `formatAttributeDay`, `formatAttributeDateTime` | Shows custom user fields. |
+| `classification.ts` | `toDataClassLevel` | Data sensitivity levels. |
+| `credential.ts` | `normalizeAttestationMethods`, `truncatePublicKey` | Agent credentials. |
+| `crypto.ts` | `getCryptoMigrationActionClassName` | The look of a key migration's actions. |
+| `delegation.ts` | `getDelegationPurpose`, `getCapabilityBadges` | Shows delegations. |
+| `dns-record.ts` | Checks for each record type, and empty values | The DNS record editor. |
+| `domain.ts` | `getDnsInstructions` | The DNS steps that verify a domain. |
+| `flow.ts` | `getFlowNodes`, `getFlowNodeCounts`, `getFlowStageDisplay`, `getFlowStageProgress`, `getFlowStageStatus` and more | Shows a flow and how far it got. |
+| `model-provider.ts` | `deriveTestState`, `getFailureMessage` | The result of testing a model provider. |
+| `policy.ts` | `getConditionKind`, `getConditionValue`, `getActionKind`, `getDenyReason`, `getRequiredAal`, `describeCondition` | Reads and describes access policy rules. |
+| `route.ts` | `getRoutePolicyKind`, `getRoutePolicySystemPermissions`, `getRoutePolicyCustomPermissions`, `getRoutePolicyScopes` | A route's policy and path rewrite. |
+| `run.ts` | `getRunDisplayId` | The short name of an agent's run. |
+| `service.ts` | `formatServiceTarget` | Shows a service. |
+| `stream.ts` | `toStreamFormValues` | The signal stream form's starting values. |
+| `tenant-agent.ts` | `shortId`, `encodeOwnerValue`, `decodeOwnerValue` | Agents. |
+| `user-attribute.ts` | `getAttributeId`, `deriveAttributeKey`, `toAttributeFormValues`, `isBlankAttributeValue`, `isSameAttributeValue`, `getDeletedFieldMessage`, `formatOptionCount` | Custom user fields: ids, internal names, form values, and comparing values. |
+
+## Libraries
+
+These live in `src/lib`.
+
+| File | What it does |
+| --- | --- |
+| `lib/providers/app-providers.tsx` | `AppProviders`: the React Query provider and the toast provider, set up in the root layout. |
+| `lib/providers/query-provider.tsx`, `query-client.ts` | Make one `QueryClient` per browser session, with the dashboard's defaults. |
+| `lib/query-keys.ts` | Shared query keys and helpers that refresh them, for notifications, the audit log and domains. |
+| `lib/auth/device.ts` | `getDeviceFingerprint` and `getDeviceName`. A random id per browser, kept in `localStorage`, for "trust this device". |
+| `lib/auth/webauthn.ts` | WebAuthn helpers: finding support, base64url encoding, making and reading passkey credentials. |
+| `lib/auth/email.ts` | `isValidEmail`. |
+| `lib/auth/slug.ts` | `getDisplayNameFromSlug`. |
+| `lib/audit/audit-log-details.ts`, `date-filter-value.ts` | Shows an audit record's details, and the values of the date filter. |
+| `lib/overview/metrics.ts`, `activity.ts` | Shows numbers (trends, tones, percentages, periods) and the activity calendar. |
+| `lib/roles/catalogue.ts`, `permission-format.ts` | Turn system and custom permissions into picker groups and readable labels. |
+| `lib/notifications/realtime-notifications.ts` | WebSocket addresses, reading messages, and what each toast says. |
+| `lib/settings/settings-routes.ts` | `getSettingsTabHref`. |
+| `lib/fonts.ts` | Loads the local Material Symbols icon font (`next/font/local`) for the root layout. |
+
+## Constants
+
+The constants live in `src/constants`: option lists, labels and fixed text for forms and pages.
+
+| File | Holds |
+| --- | --- |
+| `api.ts` | `API_URL`, the platform API the server forwards to. |
+| `dashboard.ts` | The organization sidebar's items and the rows-per-page choices. |
+| `auth.ts`, `auth-config.ts` | The password message, the cookie names of the status pages, the ways to sign in and their order, and the second-factor and assurance choices. |
+| `help-center.ts` | Every Help Center article. |
+| `help-center-uk/` | The Ukrainian text of every article, by article path (`category/topic[/sub-topic]`). Slugs, section ids and dates stay in `help-center.ts`. |
+| `landing.ts`, `legal.ts`, `pricing.ts` | The landing page's links, the legal pages, and the pricing page's fallback content. |
+| `notification.ts` | The notification page size, when toasts show, and how long to wait before the WebSocket reconnects. |
+| `pipeline.ts`, `policy.ts`, `route.ts`, `service.ts`, `stream.ts`, `stream-route.ts` | Gateway choices: stage kinds, policy conditions and actions, route policies and methods, sign-in addresses on an app's own host, signal types, port limits. |
+| `delegation.ts`, `credential.ts`, `tenant-agent.ts`, `tool.ts`, `model-provider.ts` | Agent choices: delegation lifetimes and budgets, credential algorithms and expiry, tool methods, provider kinds. |
+| `cloud.ts`, `countries.ts`, `dns-record.ts`, `domain.ts`, `classification.ts`, `crypto.ts`, `user-attribute.ts`, `role.ts`, `tenant.ts`, `settings.ts`, `activity.ts`, `connection.ts`, `icon-names.ts` | Choices and labels for their areas. |
+| `example-route.ts`, `example-tools.ts` | What the "add an example" buttons on Routes and Tools create. |
+
+## Schemas
+
+The Zod schemas live in `src/schemas`, one file per form area. React Hook Form uses them through `zodResolver`.
+
+Each file exports its schemas and the input types they give. Where the rules depend on data only known while the page runs, it exports a builder instead, such as `buildAddTenantUserSchema(passwordPolicy)`.
+
+The sign-in schemas are builders, such as `createLoginSchema`, `createSignUpSchema` and `buildAcceptInviteSchema`. They take their error messages as an argument, so the forms can show them in the visitor's language. `useAuthValidationMessages` supplies the messages. `buildPasswordSchema(policy, message?)` takes an optional message and is in English without one.
+
+The files are `app-sign-in`, `auth`, `auth-config`, `classification`, `cloud`, `connection`, `contact`, `credential`, `crypto`, `delegation`, `domain`, `flow`, `group`, `model-provider`, `mtls`, `oauth-client`, `password`, `reset-password`, `resource-type`, `role`, `route`, `run`, `service`, `settings`, `stream`, `stream-route`, `team-member`, `tenant`, `tenant-agent`, `tenant-api-key`, `tenant-user`, `tool` and `user-attribute`.
+
+## Types
+
+The shared types live in `src/types`, in camelCase, one file per area: `auth`, `tenant`, `team`, `role`, `permission`, `route`, `pipeline`, `delegation`, `tenant-agent` and more. The API's own snake_case shapes are usually declared in the matching service file, and turned into these types there.
+
+`types/permission.ts` lists what a tenant permission can be about (`Users`, `Roles`, `Routing`, `Agents` and more) and its actions (`View`, `Create`, `Update`, `Delete`, `Manage` and more). `useTenantPermissions` checks against these.
+
+## Build and deployment
+
+| Path | What it does |
+| --- | --- |
+| `dashboard/scripts/build-icons.mjs` | Runs before `npm run build`. It remakes `src/assets/material-symbols-rounded.woff2` with only the icons the code uses, downloaded from Google's Material Symbols font service. So a build needs network. |
+| `dashboard/scripts/check-messages.mjs` | `npm run check-messages`: every language file must have exactly the keys of `messages/en.json`. |
+| `docker/Dockerfile.dashboard` | Builds the image in three stages (packages, build, a standalone runtime) and runs it as a non-root user on port 3000. `NEXT_PUBLIC_API_URL` is passed when building. Its ignore list is `docker/Dockerfile.dashboard.dockerignore`. |
+| `deploy/helm/ianua-front` | The Helm chart for Kubernetes (`values.yaml`, `values-prod.yaml`). |
+| `.github/workflows/dashboard.yml` | Runs only when something under `dashboard/` changed. It checks the messages, runs lint and the type check, and builds. On `main` it builds and pushes the image and deploys it with Helm. |

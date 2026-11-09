@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Settles a passkey ceremony at the given time, only if nothing settled it\n-- before: a row changed means this call settled it.\nUPDATE org_passkey_ceremonies\nSET consumed_at = $2\nWHERE id = $1 AND consumed_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8d55c5e2a4098108b4dd06759bd778f6a105f82429fd0562477ca8fba8317ece"
+}

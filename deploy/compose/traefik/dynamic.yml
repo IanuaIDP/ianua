@@ -1,0 +1,97 @@
+# How traffic reaches the right service. Host names come from .env through
+# the environment Traefik is started with.
+#
+# The dashboard and API hosts are HTTP routers: Traefik ends their TLS and
+# passes the client address on in X-Forwarded-For. Every other name is a
+# tenant's own and goes to zero still encrypted, because zero holds that
+# name's certificate and picks it from the handshake.
+#
+# The tenant router is TCP and excludes the two hosts by name. Traefik tries
+# TCP routers before HTTP ones on the same port, so a plain catch-all would
+# swallow the dashboard and API as well.
+
+http:
+  routers:
+    dashboard:
+      entryPoints: [websecure]
+      rule: Host(`{{ env "IANUA_DASHBOARD_HOST" }}`)
+      service: dashboard
+      tls:
+        certResolver: letsencrypt
+
+    api:
+      entryPoints: [websecure]
+      rule: Host(`{{ env "IANUA_API_HOST" }}`)
+      service: api
+      tls:
+        certResolver: letsencrypt
+
+    # File download links and tenants' logos are made under APP_BASE_URL,
+    # the dashboard's address, at /api/v1/files/... So /api/v1 on the
+    # dashboard host goes straight to the API. The longer rule wins over the
+    # dashboard router's.
+    dashboard-api:
+      entryPoints: [websecure]
+      rule: Host(`{{ env "IANUA_DASHBOARD_HOST" }}`) && PathPrefix(`/api/v1`)
+      service: api
+      tls:
+        certResolver: letsencrypt
+
+    # A certificate authority proving a tenant's domain fetches
+    # http://<domain>/.well-known/acme-challenge/<token>. It must be answered
+    # here rather than redirected: before the first certificate exists there
+    # is nothing on :443 to redirect it to.
+    acme-challenge:
+      entryPoints: [web]
+      rule: PathPrefix(`/.well-known/acme-challenge/`)
+      priority: 1000
+      service: zero-acme
+
+    to-https:
+      entryPoints: [web]
+      rule: PathPrefix(`/`)
+      priority: 1
+      middlewares: [to-https]
+      service: noop@internal
+
+  middlewares:
+    to-https:
+      redirectScheme:
+        scheme: https
+        permanent: true
+
+  services:
+    dashboard:
+      loadBalancer:
+        servers:
+          - url: http://dashboard:3000
+    api:
+      loadBalancer:
+        servers:
+          - url: http://ianua:3000
+    zero-acme:
+      loadBalancer:
+        servers:
+          - url: http://zero:8081
+
+tcp:
+  routers:
+    tenants:
+      entryPoints: [websecure]
+      rule: >-
+        HostSNI(`*`)
+        && !HostSNI(`{{ env "IANUA_DASHBOARD_HOST" }}`)
+        && !HostSNI(`{{ env "IANUA_API_HOST" }}`)
+      service: zero
+      tls:
+        passthrough: true
+
+  services:
+    zero:
+      loadBalancer:
+        # Names the real client before the encrypted stream starts, or zero
+        # would record every visitor as Traefik.
+        proxyProtocol:
+          version: 2
+        servers:
+          - address: zero:8443

@@ -1,0 +1,30 @@
+[package]
+name = "ianua-grpc"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+ianua-app = { workspace = true }
+ianua-domain = { workspace = true }
+ianua-proto = { workspace = true }
+
+async-stream = { workspace = true }
+futures-util = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tokio-rustls = { workspace = true, features = ["ring"] }
+tokio-util = { workspace = true }
+tonic = { workspace = true }
+tracing = { workspace = true }
+ianua-workspace-hack = { version = "0.1", path = "../ianua-workspace-hack" }
+
+[dev-dependencies]
+async-trait = { workspace = true }
+ianua-domain = { workspace = true, features = ["test-support"] }
+time = { workspace = true }
+tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }

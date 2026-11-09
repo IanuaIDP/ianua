@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a directory service account: a new one is added, a known one of\n-- the same tenant takes the new values. Its tenant and creation time never\n-- change.\nINSERT INTO directory_service_accounts\n    (id, tenant_id, name, secret_hash, access, base_dns, status, created_at,\n     secret_changed_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\nON CONFLICT (id) DO UPDATE SET\n    name = EXCLUDED.name,\n    secret_hash = EXCLUDED.secret_hash,\n    access = EXCLUDED.access,\n    base_dns = EXCLUDED.base_dns,\n    status = EXCLUDED.status,\n    secret_changed_at = EXCLUDED.secret_changed_at\nWHERE directory_service_accounts.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "TextArray",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "312d35917277f59626c812cee2d52942785c4de379dc978b4431ad7405c857c6"
+}

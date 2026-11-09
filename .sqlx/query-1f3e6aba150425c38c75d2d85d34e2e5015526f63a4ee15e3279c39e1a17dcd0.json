@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The last verdict of the sweep on the tenant's audit chain, with its seal.\nSELECT verified_at, standing, broken_at_seq, checkpoint_seq, checkpoint_hash, seal\nFROM audit_chain_verdicts\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "verified_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "standing",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "broken_at_seq",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "checkpoint_seq",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "checkpoint_hash",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 5,
+        "name": "seal",
+        "type_info": "Bytea"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "1f3e6aba150425c38c75d2d85d34e2e5015526f63a4ee15e3279c39e1a17dcd0"
+}

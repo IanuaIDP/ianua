@@ -1,0 +1,12 @@
+{{ user_name | default("ご利用者") }}様
+
+{{ organization_name | default("所属組織") }}のアカウントのメールアドレスを{{ user_email }}へ変更する申請がありました{% if ip_address is defined %}。送信元は{{ ip_address }}です{% endif %}。
+
+心当たりがない場合は、今すぐ変更を取り消してください。アカウントは現在のアドレスのままになります：
+{{ action_url }}
+
+変更を取り消せる期間は{{ expires_at }}です。
+
+ご自身で申請した場合は、対応は不要です。
+
+IANUA

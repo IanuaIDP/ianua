@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Verifique su dirección de correo{% endblock %}
+{% block preheader %}Verifique su dirección de correo para crear su organización.{% endblock %}
+{% block headline %}Le damos la bienvenida a IANUA{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para() %}Gracias por registrarse en {{ c.brand() }}.{% endcall %}
+  {% call c.para(pad=8) %}Solo falta un paso para crear <strong>{{ organization_name | default("su organización") }}</strong>. Verifique su dirección de correo para terminar.{% endcall %}
+  {{ c.cta(action_url, "Verificar correo") }}
+  {% call c.para(pad=0) %}Este enlace caduca en {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Si no se registró, puede ignorar este correo.{% endcall %}
+{% endblock %}

@@ -1,0 +1,30 @@
+{{- if and .Values.postgresql.enabled (eq .Values.postgresql.provider "cloudnativepg") }}
+# Managed by the CloudNativePG operator (must be installed in the cluster).
+# CNPG provisions the database, handles failover and rolling upgrades, and
+# creates the Secret "<name>-pg-app" with a ready-to-use connection `uri`.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: {{ include "ianua.fullname" . }}-pg
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgresql
+spec:
+  instances: {{ .Values.postgresql.instances }}
+  imageName: {{ .Values.postgresql.imageName }}
+  storage:
+    size: {{ .Values.postgresql.storage }}
+  resources:
+    {{- toYaml .Values.postgresql.resources | nindent 4 }}
+  enableSuperuserAccess: {{ .Values.postgresql.sealAuditLog }}
+  bootstrap:
+    initdb:
+      database: {{ .Values.postgresql.database }}
+      owner: {{ .Values.postgresql.owner }}
+      # pgvector keeps the memories' vectors. Creating an extension needs
+      # the superuser, which the owner the migrations run as is not, so it
+      # is created once here; the migration's own CREATE EXTENSION IF NOT
+      # EXISTS then finds it and does nothing.
+      postInitApplicationSQL:
+        - CREATE EXTENSION IF NOT EXISTS vector
+{{- end }}

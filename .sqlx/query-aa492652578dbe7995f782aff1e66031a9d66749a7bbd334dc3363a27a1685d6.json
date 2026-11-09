@@ -1,0 +1,103 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The export with the given id of the given log, found only under the log\n-- it exports.\nSELECT id, log, organization_id, tenant_id, requested_by, record_filter, format, status,\n       state_at, available_until, row_count, requested_at, file_sha256, seal\nFROM audit_exports\nWHERE id = $1 AND log = $2\n    AND organization_id IS NOT DISTINCT FROM $3 AND tenant_id IS NOT DISTINCT FROM $4\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "log",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "requested_by",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "record_filter",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 6,
+        "name": "format",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "state_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "available_until",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "row_count",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 11,
+        "name": "requested_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 12,
+        "name": "file_sha256",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 13,
+        "name": "seal",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "aa492652578dbe7995f782aff1e66031a9d66749a7bbd334dc3363a27a1685d6"
+}

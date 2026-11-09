@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Notes that one monitor of one tenant acted on one event, answering the\n-- event's id only when this statement made the note.\nINSERT INTO event_reactions (tenant_id, reaction, record_id, noted_at)\nVALUES ($1, $2, $3, now())\nON CONFLICT (tenant_id, reaction, record_id) DO NOTHING\nRETURNING record_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "record_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "3dbca3b2402282036d30cf59e12904d8ac0c6a6013772c25ebb37faebf858ae3"
+}

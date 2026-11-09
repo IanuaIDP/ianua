@@ -1,0 +1,11 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}თქვენი მონაცემები წაიშალა{% endblock %}
+{% block preheader %}თქვენი წაშლის მოთხოვნა შესრულებულია.{% endblock %}
+{% block headline %}თქვენი მონაცემები წაიშალა{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para(pad=32) %}თქვენი მონაცემები <strong>{{ tenant_name | default("თქვენი ორგანიზაცია") }}</strong>-ში, თქვენი მოთხოვნის შესაბამისად, სამუდამოდ წაიშალა. ამის გაუქმება შეუძლებელია.{% endcall %}
+{% endblock %}

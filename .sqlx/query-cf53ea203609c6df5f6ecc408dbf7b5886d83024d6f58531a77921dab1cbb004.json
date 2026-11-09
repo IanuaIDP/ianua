@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every tenant in this database holding an assertion key rotated out and\n-- not yet retired, for the sweep that retires it once its overlap is over.\nSELECT DISTINCT tenant_id AS \"tenant_id!\"\nFROM assertion_keys\nWHERE status = 'rotated'\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id!",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "cf53ea203609c6df5f6ecc408dbf7b5886d83024d6f58531a77921dab1cbb004"
+}

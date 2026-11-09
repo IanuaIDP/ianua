@@ -1,0 +1,1 @@
+Ihr Konto wurde mit {{ provider_name | default("einem Anmeldeanbieter") }} verknüpft

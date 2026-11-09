@@ -1,0 +1,18 @@
+[package]
+name = "ianua-macros"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lib]
+proc-macro = true
+
+[lints]
+workspace = true
+
+[dependencies]
+syn = { version = "2", features = ["full"] }
+quote = "1"
+proc-macro2 = "1"
+ianua-workspace-hack = { version = "0.1", path = "../ianua-workspace-hack" }

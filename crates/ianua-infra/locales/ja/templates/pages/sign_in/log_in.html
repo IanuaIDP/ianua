@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% import "sign_in/parts.html" as p %}
+
+{% block title %}{{ workspace }}にサインイン{% endblock %}
+
+{% block content %}
+      <h1>おかえりなさい</h1>
+      <p class="subtitle">続けるには{{ workspace }}にサインインしてください</p>
+      {{ p.note(note, {}) }}
+      <form method="post" action="{{ form_path }}">
+        {{ p.field("email", "メールアドレス", "email", "username") }}
+        {{ p.field("password", "パスワード", "password", "current-password") }}
+        {{ p.return_to(return_to) }}
+        {{ p.submit("サインイン") }}
+      </form>
+      {%- for choice in single_sign_on %}
+      <p class="footer"><a href="{{ choice.href }}">{{ choice.name }}で続行</a></p>
+      {%- endfor %}
+      {%- if passkey_path and passkey_script_path %}
+      <p class="footer"><button type="button" id="passkey" data-address="{{ passkey_path }}"{% if return_to %} data-return-to="{{ return_to }}"{% endif %} hidden>パスキーでサインイン</button></p>
+      <script src="{{ passkey_script_path }}" defer></script>
+      {%- endif %}
+      {%- if forgot_password_path %}
+      {{ p.link("パスワードをお忘れですか？", forgot_password_path, "リセットする") }}
+      {%- endif %}
+      {%- if sign_up_path %}
+      {{ p.link("初めてご利用ですか？", sign_up_path, "アカウントを作成") }}
+      {%- endif %}
+{% endblock %}

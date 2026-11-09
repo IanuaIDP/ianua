@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every operator who chose a channel for one category, with the channel.\nSELECT operator_id AS holder, channel\nFROM operator_notification_preferences\nWHERE category = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "holder",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "channel",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "40c4e01e31f835256e797e1f720f1c62ec3cd520c057c0d0a0992bdb3309fe02"
+}

@@ -1,0 +1,7 @@
+您好，{{ user_name | default("用户") }}：
+
+您在 {{ tenant_name | default("您的组织") }} 的账户因登录失败次数过多而被锁定{% if ip_address is defined %}，尝试来自 {{ ip_address }}{% endif %}。
+
+如果是您本人操作，请等待锁定解除后重试，或联系管理员提前解锁。如果不是您本人操作，请在能够登录后立即更改密码。
+
+IANUA

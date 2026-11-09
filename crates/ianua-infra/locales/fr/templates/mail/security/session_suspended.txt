@@ -1,0 +1,7 @@
+Bonjour {{ user_name | default("cher utilisateur") }},
+
+Une session de votre compte dans {{ tenant_name | default("votre organisation") }} a été arrêtée après une activité jugée inhabituelle{% if ip_address is defined %}, depuis {{ ip_address }}{% endif %}.
+
+Si c’était vous, reconnectez-vous pour continuer. Sinon, changez votre mot de passe maintenant et examinez vos sessions actives.
+
+IANUA

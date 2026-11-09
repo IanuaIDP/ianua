@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every assertion key of a tenant, oldest first, without its private half:\n-- the side that rotates and publishes keys never reads one back.\nSELECT kid, algorithm, public_key, status, rotated_at, created_at\nFROM assertion_keys\nWHERE tenant_id = $1\nORDER BY created_at, kid\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "kid",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "algorithm",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "public_key",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "rotated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "c9040ef3e6ee6c135ef213db6fda85fc3a7c2cbbfe30daed11208ba19fd96a0e"
+}

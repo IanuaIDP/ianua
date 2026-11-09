@@ -1,0 +1,173 @@
+//! Breaks every domain convention once, so the conventions test can show
+//! each of its checks still finds what it looks for. Parsed by the test,
+//! never compiled; nothing here is meant to work.
+
+use tokio::sync::Mutex;
+use uuid::Uuid;
+
+use super::helpers::*;
+use crate::domains::tenant::lifecycle::Tenant;
+
+fn planted_import_inside() {
+    use std::fmt::Write;
+}
+
+fn planted_climb() -> super::super::Planted {
+    todo!()
+}
+
+pub struct PlantedRecord {
+    pub owner_id: Uuid,
+    pub token_hash: String,
+    pub note: String,
+    status: PlantedStatus,
+    archived: bool,
+    closed_at: Option<OffsetDateTime>,
+}
+
+#[derive(serde::Deserialize)]
+pub struct PlantedNote(String);
+
+#[derive(Debug)]
+pub struct InvalidPlantedTransition {
+    pub from: PlantedStatus,
+    pub to: PlantedStatus,
+}
+
+pub struct PlantedEvent;
+
+impl SecureToken {
+    pub fn consume(&mut self) {}
+}
+
+impl VerifiedEmail {
+    pub fn new(email: Email) -> Self {
+        Self(email)
+    }
+}
+
+pub struct PlantedApproval {
+    pub requested_by_person: Option<PersonKey>,
+}
+
+text_value! {
+    pub struct HeaderValue;
+}
+
+#[derive(Clone, PartialEq, Eq)]
+pub struct TokenHash(String);
+
+pub struct Human {
+    pub person: PersonKey,
+}
+
+impl SignInProgress {
+    pub fn reconstitute(row: SignInProgressRow) -> Self {
+        Self::from(row)
+    }
+}
+
+impl DomainEventCore for PlantedEvent {}
+
+impl PlantedEvent {
+    pub fn observed(tenant_id: TenantId) -> DomainEvent {
+        scoped(tenant_id, PlantedEvent)
+    }
+}
+
+impl PlantedRecord {
+    // ── Planted indented section ──
+    // Planted — an em dash.
+
+    pub fn reconstitute(owner_id: Uuid) -> Self {
+        Self::from(owner_id)
+    }
+
+    pub fn transition_to(self) {}
+
+    pub fn parse(raw: &str) -> Result<Uuid, DomainError> {
+        if raw.is_empty() {
+            return Err(DomainError::Validation(ValidationError::Rule {
+                message: "empty".to_owned(),
+            }));
+        }
+        Err(DomainError::infra_msg(raw))
+    }
+
+    #[allow(dead_code)]
+    pub fn close(&mut self, early: bool, forced: bool) -> Uuid {
+        // closing early skips the grace period
+        if early {
+            if forced {
+                self.status = PlantedStatus::Closed;
+            }
+        }
+        Uuid::now_v7()
+    }
+}
+
+#[derive(serde::Deserialize)]
+pub struct PlantedLimit {
+    cap: u32,
+}
+
+impl PlantedLimit {
+    pub fn new(cap: u32) -> Result<Self, DomainError> {
+        Ok(Self { cap })
+    }
+}
+
+impl PlantedLimit {
+    pub fn cap(&self) -> u32 {
+        self.cap
+    }
+}
+
+pub struct PlantedOrigin {
+    run: u32,
+}
+
+impl PlantedOrigin {
+    pub fn stored(run: u32) -> Self {
+        Self { run }
+    }
+
+    pub fn set_run(&mut self, run: u32) {
+        self.run = run;
+    }
+}
+
+pub struct PlantedWindow {
+    /// When the window closes; `None` when it never does.
+    pub closes: Expiry,
+}
+
+pub struct PlantedEventMissing {
+    pub kind: u8,
+}
+
+tenant_event! {
+    PlantedEventMissing => crate::types::event_type::PlantedEvent::Missing,
+    fn payload(&self) -> EventData {
+        EventData::new().field("kind", format!("{:?}", self.kind))
+    }
+}
+
+pub fn planted_repeat(values: &[&str]) -> bool {
+    let mut seen = HashSet::new();
+    values.iter().any(|value| !seen.insert(value))
+}
+
+pub fn planted_option(limit: Option<u32>) -> u32 {
+    limit.unwrap_or(0)
+}
+
+#[cfg(test)]
+mod tests {
+    fn every_event(tenant: TenantId) -> Vec<Box<dyn TenantDomainEvent>> {
+        vec![Box::new(PlantedEvent {})]
+    }
+}
+
+#[cfg(test)]
+mod more_tests {}

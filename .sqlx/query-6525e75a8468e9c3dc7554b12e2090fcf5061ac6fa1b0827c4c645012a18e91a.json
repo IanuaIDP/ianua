@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many tenants of an organization, not deleted, live in the customer's\n-- own account at the given cloud.\nSELECT count(*) AS \"count!\"\nFROM tenants\nWHERE organization_id = $1 AND customer_cloud = $2 AND status <> 'deleted'\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "6525e75a8468e9c3dc7554b12e2090fcf5061ac6fa1b0827c4c645012a18e91a"
+}

@@ -1,0 +1,50 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Read public DNS data and live proofs for currently served tenant roots.\nSELECT p.root, p.tenant_id, p.nameservers, p.address, p.changed_at,\n    ARRAY(SELECT d.value FROM platform_dns_proofs d WHERE d.root = p.root AND d.expires_at > now()\n          ORDER BY d.value LIMIT 16) AS \"proofs!\"\nFROM platform_certificates p JOIN tenants t ON t.id = p.tenant_id\nWHERE t.status IN ('active', 'provisioning') AND (NOT p.readable OR t.readable_address)\nORDER BY p.root LIMIT 100000\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "root",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "nameservers",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 3,
+        "name": "address",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "changed_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "proofs!",
+        "type_info": "TextArray"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "bae855dca6aa26c8f747fbd7a25f17b40a1643768157ce5c8991cec0123645b5"
+}

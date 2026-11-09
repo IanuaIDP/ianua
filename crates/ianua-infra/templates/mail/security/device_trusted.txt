@@ -1,0 +1,7 @@
+Hi {{ user_name | default("there") }},
+
+{% if device_name is defined %}{{ device_name }}{% else %}A new device{% endif %} was added to the trusted devices of your account in {{ tenant_name | default("your organization") }}{% if ip_address is defined %}, from {{ ip_address }}{% endif %}. A trusted device can skip the second step of signing in.
+
+If you do not know this device, remove it in your account settings and change your password.
+
+IANUA

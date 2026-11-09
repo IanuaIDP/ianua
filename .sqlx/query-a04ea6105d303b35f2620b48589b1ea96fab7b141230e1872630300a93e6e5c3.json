@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a sighting: a new one is added, a known one of the same tenant\n-- takes the new values. A new one whose source and fingerprint another\n-- sighting holds is refused by agent_sightings_fingerprint_key. Where it\n-- was seen, what tells it apart and when it was first seen never change.\nINSERT INTO agent_sightings\n    (id, tenant_id, source, fingerprint, calls_itself, seen_count, first_seen_at, last_seen_at,\n     state, registered_agent_id, decided_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)\nON CONFLICT (id) DO UPDATE SET\n    calls_itself = EXCLUDED.calls_itself,\n    seen_count = EXCLUDED.seen_count,\n    last_seen_at = EXCLUDED.last_seen_at,\n    state = EXCLUDED.state,\n    registered_agent_id = EXCLUDED.registered_agent_id,\n    decided_at = EXCLUDED.decided_at,\n    updated_at = EXCLUDED.updated_at\nWHERE agent_sightings.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Int8",
+        "Timestamptz",
+        "Timestamptz",
+        "Text",
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a04ea6105d303b35f2620b48589b1ea96fab7b141230e1872630300a93e6e5c3"
+}

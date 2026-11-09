@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an audit stream: a new one is added, a known one takes the new\n-- values. Its tenant and creation time never change.\nINSERT INTO audit_streams\n    (id, tenant_id, name, destination, events, state, state_since, failures, pause_reason,\n     created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\nON CONFLICT (id) DO UPDATE SET\n    name = EXCLUDED.name,\n    destination = EXCLUDED.destination,\n    events = EXCLUDED.events,\n    state = EXCLUDED.state,\n    state_since = EXCLUDED.state_since,\n    failures = EXCLUDED.failures,\n    pause_reason = EXCLUDED.pause_reason,\n    updated_at = EXCLUDED.updated_at\nWHERE audit_streams.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Jsonb",
+        "TextArray",
+        "Text",
+        "Timestamptz",
+        "Int4",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f3c2a619e03f6329a9e251fa97ee596a0b3dc353c7e55f4c6f02c3e6447defbc"
+}

@@ -1,0 +1,6 @@
+{{ user_name | default("ご利用者") }}様
+
+IANUAの{{ tenant_name | default("所属組織") }}にアカウントが作成されました{% if role_name is defined %}。ロールは{{ role_name }}です{% endif %}。準備ができました。こちらからサインインしてください：
+{{ action_url }}
+
+IANUA

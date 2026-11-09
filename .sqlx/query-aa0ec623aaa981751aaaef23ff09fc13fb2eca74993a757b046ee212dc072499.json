@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes at most $3 of a tenant's request records that finished before\n-- $2, oldest first, found through the index by time.\nDELETE FROM proxy_request_records\nWHERE tenant_id = $1\n  AND correlation_id IN (\n      SELECT correlation_id\n      FROM proxy_request_records\n      WHERE tenant_id = $1 AND occurred_at < $2\n      ORDER BY occurred_at\n      LIMIT $3\n  )\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "aa0ec623aaa981751aaaef23ff09fc13fb2eca74993a757b046ee212dc072499"
+}

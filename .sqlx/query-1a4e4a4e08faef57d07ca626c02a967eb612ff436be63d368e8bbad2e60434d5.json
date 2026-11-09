@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an egress policy: a new one is added, a known one of the same\n-- tenant takes the new values. Its tenant, its maker and its creation time\n-- never change.\nINSERT INTO egress_policies\n    (id, tenant_id, name, service, destinations, max_data_class,\n     created_by_kind, created_by, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\nON CONFLICT (id) DO UPDATE SET\n    name = EXCLUDED.name,\n    service = EXCLUDED.service,\n    destinations = EXCLUDED.destinations,\n    max_data_class = EXCLUDED.max_data_class,\n    updated_at = EXCLUDED.updated_at\nWHERE egress_policies.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Jsonb",
+        "Text",
+        "Text",
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "1a4e4a4e08faef57d07ca626c02a967eb612ff436be63d368e8bbad2e60434d5"
+}

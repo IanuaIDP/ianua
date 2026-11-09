@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The id of a subscription of a consumer group on a topic, other than the\n-- one given, if the group has one.\nSELECT id\nFROM topic_subscriptions\nWHERE tenant_id = $1 AND topic_name = $2 AND consumer_group = $3 AND id <> $4\nORDER BY id\nLIMIT 1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "f5d1539674dc1f32167e2e9ddb00b305d6e897a4c6a623c50cfed64dca79b744"
+}

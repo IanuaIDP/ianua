@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Un nouvel appareil a été approuvé{% endblock %}
+{% block preheader %}Un appareil a été ajouté aux appareils de confiance de votre compte.{% endblock %}
+{% block headline %}Un nouvel appareil a été approuvé{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("cher utilisateur")) }}
+  {% call c.para() %}{% if device_name is defined %}<strong>{{ device_name }}</strong>{% else %}Un nouvel appareil{% endif %} a été ajouté aux appareils de confiance de votre compte dans <strong>{{ tenant_name | default("votre organisation") }}</strong>{% if ip_address is defined %}, depuis {{ ip_address }}{% endif %}. Un appareil de confiance peut passer la seconde étape de connexion.{% endcall %}
+  {% call c.para(pad=32) %}Si vous ne reconnaissez pas cet appareil, supprimez-le dans les paramètres de votre compte et changez votre mot de passe.{% endcall %}
+{% endblock %}

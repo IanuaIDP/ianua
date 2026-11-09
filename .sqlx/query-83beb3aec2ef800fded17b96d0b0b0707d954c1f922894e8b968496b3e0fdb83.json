@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Adds a tenant's new assertion keys, each with its private half sealed.\n-- A key saved already is left as it is, so saving a set twice adds once.\nINSERT INTO assertion_keys\n    (tenant_id, kid, algorithm, public_key, private_key_sealed, status, rotated_at, created_at)\nSELECT $1, added.kid, added.algorithm, added.public_key, added.private_key_sealed, added.status,\n       added.rotated_at, added.created_at\nFROM UNNEST($2::text[], $3::text[], $4::text[], $5::text[], $6::text[], $7::timestamptz[],\n            $8::timestamptz[])\n    AS added (kid, algorithm, public_key, private_key_sealed, status, rotated_at, created_at)\nON CONFLICT (tenant_id, kid) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TimestamptzArray",
+        "TimestamptzArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "83beb3aec2ef800fded17b96d0b0b0707d954c1f922894e8b968496b3e0fdb83"
+}

@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes every text of a deleted tenant's memories.\nDELETE FROM memory_entries WHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e4c682644f874f017f7c087926d41cff0ed55405853e8e22c8c70580bc10cacb"
+}

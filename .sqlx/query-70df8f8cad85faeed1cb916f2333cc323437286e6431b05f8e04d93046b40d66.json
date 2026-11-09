@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a password reset: a new one is added, a known one of the same\n-- tenant and user takes its new status. Its user, address, initiator, link\n-- and times never change.\nINSERT INTO password_resets\n    (id, tenant_id, user_id, email, initiator, status, completed_at, token_hash,\n     created_at, expires_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\nON CONFLICT (id) DO UPDATE SET\n    status = EXCLUDED.status,\n    completed_at = EXCLUDED.completed_at\nWHERE password_resets.tenant_id = EXCLUDED.tenant_id\n    AND password_resets.user_id = EXCLUDED.user_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "70df8f8cad85faeed1cb916f2333cc323437286e6431b05f8e04d93046b40d66"
+}

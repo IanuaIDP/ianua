@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an erasure request: a new one is added, a known one takes its new\n-- standing. Who asked, why, when, and the link it mailed never change, and\n-- a request of another organization under the same id is left as it is.\nINSERT INTO org_erasure_requests\n    (id, organization_id, org_user_id, reason, status, completed_at,\n     requested_at, scheduled_at, cancel_token_hash, sent_to)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\nON CONFLICT (id) DO UPDATE SET\n    status = EXCLUDED.status,\n    completed_at = EXCLUDED.completed_at\nWHERE org_erasure_requests.organization_id = EXCLUDED.organization_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "de9e2b41a8122c88ed04ffd8998ff88e329004fecbe75e956a1a20d5769cc2f0"
+}

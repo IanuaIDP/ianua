@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes the address change one organization member or operator asked\n-- for.\nDELETE FROM org_email_changes\nWHERE principal_id = $1\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "29f31de21513a381c5ab470746494ef7642bdf014cca0bd81f452fbb29ce8d6b"
+}

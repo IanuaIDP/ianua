@@ -1,0 +1,111 @@
+{#
+  The layout every page the gateway shows extends: a card in the middle of
+  the screen, in the tenant's colours when it set them.
+
+  It holds no script, and the gateway serves it under a policy that runs
+  none but the passkey script the login page names, which the gateway
+  serves itself. `look.custom_css` is the tenant's sanitized CSS with every `<`
+  escaped for CSS, so it cannot close the style element it sits in.
+-#}
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <meta name="color-scheme" content="dark">
+    <title>{% block title %}{% endblock %}</title>
+    <style>
+      :root {
+        --primary: {{ look.primary }};
+        --on-primary: {{ look.on_primary }};
+        --background: {{ look.background }};
+        --card: #131311;
+        --border: #2a2a28;
+        --text: #ffffff;
+        --muted: #818581;
+        --hover: #1d1e1b;
+        --focus: #9668ff;
+        --error: #ff5d7a;
+        color-scheme: dark;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--background);
+        color: var(--text);
+        font-family: Manrope, system-ui, -apple-system, 'Segoe UI', sans-serif;
+      }
+      main {
+        width: 100%;
+        max-width: 444px;
+        margin: 16px;
+        padding: 32px 24px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+      }
+      .logo { display: block; max-height: 48px; max-width: 100%; margin: 0 auto 16px; }
+      h1 { font-size: 24px; line-height: 32px; font-weight: 700; letter-spacing: -.025em; margin: 0 0 8px; text-align: center; }
+      .subtitle { font-size: 14px; line-height: 20px; color: var(--muted); text-align: center; margin: 0 0 24px; }
+      label { display: block; font-size: 12px; font-weight: 600; margin: 0 0 8px; }
+      input {
+        display: block;
+        width: 100%;
+        height: 32px;
+        padding: 0 10px;
+        margin: 0 0 24px;
+        font: inherit;
+        font-size: 14px;
+        color: var(--text);
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        outline: none;
+        transition: border-color .2s, background-color .2s;
+      }
+      input:hover { background: var(--hover); }
+      input:focus { border-color: var(--focus); }
+      label.choice { display: flex; align-items: center; gap: 8px; font-weight: 500; margin: 0 0 24px; }
+      label.choice input { width: auto; height: auto; margin: 0; }
+      button {
+        width: 100%;
+        padding: 12px 16px;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: .025em;
+        color: var(--on-primary);
+        background: var(--primary);
+        border: 0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: filter .2s;
+      }
+      button:hover { filter: brightness(.8); }
+      button:focus-visible, a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+      .note { font-size: 14px; padding: 8px 12px; margin: 0 0 24px; border-radius: 8px; background: color-mix(in srgb, var(--primary) 15%, transparent); }
+      .note.refused { color: var(--error); border: 1px solid var(--error); background: color-mix(in srgb, var(--error) 10%, transparent); }
+      .footer { font-size: 14px; color: var(--muted); text-align: center; margin: 24px 0 0; }
+      .status { font-size: 48px; line-height: 56px; font-weight: 700; letter-spacing: -.025em; text-align: center; margin: 0 0 8px; color: var(--primary); }
+      .reference { font-size: 12px; color: var(--muted); text-align: center; margin: 24px 0 0; overflow-wrap: anywhere; }
+      code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+      a { color: var(--primary); font-weight: 500; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      @media (max-width: 480px) {
+        main { margin: 0; min-height: 100vh; border: 0; border-radius: 0; padding: 32px 16px; }
+      }
+      {{ look.custom_css }}
+    </style>
+  </head>
+  <body>
+    <main>
+      {% if look.logo_url %}<img class="logo" src="{{ look.logo_url }}" alt="{{ look.name }}">{% endif %}
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>

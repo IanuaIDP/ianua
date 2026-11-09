@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Se han creado códigos de recuperación nuevos{% endblock %}
+{% block preheader %}Se creó un conjunto nuevo de códigos de recuperación para su cuenta.{% endblock %}
+{% block headline %}Se han creado códigos de recuperación nuevos{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para() %}Se creó un conjunto nuevo de códigos de recuperación para su cuenta en <strong>{{ tenant_name | default("su organización") }}</strong>{% if remaining_codes is defined %}. Códigos sin usar: <strong>{{ remaining_codes }}</strong>{% endif %}. Sus códigos anteriores ya no funcionan.{% endcall %}
+  {% call c.para(pad=32) %}Guarde los códigos en un lugar seguro: cada uno permite iniciar sesión una vez si pierde el segundo factor. Si no lo hizo usted, avise a su administrador.{% endcall %}
+{% endblock %}

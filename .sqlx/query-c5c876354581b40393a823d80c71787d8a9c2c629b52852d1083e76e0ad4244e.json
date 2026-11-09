@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- A deleted tenant's teardown.\nSELECT tenant_id, planned, done, failed_step, failed_reason, started_at, updated_at\nFROM tenant_teardowns\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "planned",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 2,
+        "name": "done",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 3,
+        "name": "failed_step",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "failed_reason",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "started_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "c5c876354581b40393a823d80c71787d8a9c2c629b52852d1083e76e0ad4244e"
+}

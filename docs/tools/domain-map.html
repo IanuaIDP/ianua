@@ -1,0 +1,526 @@
+<title>Ianua Domain Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a readable report first, a graph last. A header with the four numbers that matter, tabs, then one view at a time at reading width. */
+:root {
+  --bg: #f4f5f2;
+  --paper: #ffffff;
+  --ink: #1b1f24;
+  --soft: #5d6673;
+  --rule: #dcdfd8;
+  --accent: #2f5bd3;
+  --accent-tint: #e6ecfb;
+  --good: #2b7a4b;
+  --good-tint: #e3f2e8;
+  --none: #6c7480;
+  --none-tint: #eef0f2;
+  --bad: #b5372e;
+  --bad-tint: #fbe6e3;
+  --warn: #9a6400;
+  --warn-tint: #fbf0d9;
+  --uses: #2f5bd3;
+  --usedby: #8a4fbf;
+  --usedby-tint: #f2e9fa;
+  --font: "Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121417; --paper: #1a1d22; --ink: #e9ecef; --soft: #9aa3ae; --rule: #2c3138;
+    --accent: #8aa9ff; --accent-tint: #1e2945; --good: #7fd19e; --good-tint: #183024;
+    --none: #9aa3ae; --none-tint: #23272d; --bad: #ff8a7d; --bad-tint: #3a1e1b;
+    --warn: #f0c26b; --warn-tint: #382c14;
+    --uses: #8aa9ff; --usedby: #c99cf0; --usedby-tint: #2c2238; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121417; --paper: #1a1d22; --ink: #e9ecef; --soft: #9aa3ae; --rule: #2c3138;
+  --accent: #8aa9ff; --accent-tint: #1e2945; --good: #7fd19e; --good-tint: #183024;
+  --none: #9aa3ae; --none-tint: #23272d; --bad: #ff8a7d; --bad-tint: #3a1e1b;
+  --warn: #f0c26b; --warn-tint: #382c14;
+  --uses: #8aa9ff; --usedby: #c99cf0; --usedby-tint: #2c2238; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 15.5px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 22px 60px; }
+header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; }
+h1 { margin: 0; font-size: 26px; letter-spacing: -0.01em; text-wrap: balance; }
+.lede { margin: 4px 0 0; color: var(--soft); max-width: 62ch; }
+.numbers { display: flex; gap: 10px; flex-wrap: wrap; }
+.num { background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; padding: 8px 14px; min-width: 92px; }
+.num b { display: block; font-size: 22px; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.num span { font-size: 12.5px; color: var(--soft); }
+.num.bad b { color: var(--bad); }
+.num.warn b { color: var(--warn); }
+.num.good b { color: var(--good); }
+nav.tabs { display: flex; gap: 4px; margin: 22px 0 18px; border-bottom: 1px solid var(--rule); flex-wrap: wrap; }
+nav.tabs button { background: none; border: 0; border-bottom: 3px solid transparent; padding: 9px 14px; font: inherit; font-weight: 600; color: var(--soft); cursor: pointer; }
+nav.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.hint { color: var(--soft); font-size: 14px; margin: 0 0 14px; }
+.layer { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 14px; padding: 14px 0; border-top: 1px solid var(--rule); }
+.layer:first-of-type { border-top: 0; }
+.layer-name { font-weight: 700; font-size: 14px; }
+.layer-name small { display: block; font-weight: 400; color: var(--soft); font-size: 12.5px; line-height: 1.35; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 10px; }
+.card { text-align: left; background: var(--paper); border: 1px solid var(--rule); border-left: 4px solid var(--good); border-radius: 10px; padding: 10px 12px; font: inherit; color: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 3px; transition: background 0.12s, border-color 0.12s, opacity 0.12s; }
+.card.has-holes { border-left-color: var(--bad); }
+.card .name { font-weight: 700; font-size: 15.5px; }
+.card .what { font-size: 13.5px; color: var(--soft); line-height: 1.4; }
+.card .meta { font-size: 12.5px; color: var(--soft); margin-top: 2px; }
+.card .meta .holes { color: var(--bad); font-weight: 700; }
+.card .meta .checks { color: var(--warn); font-weight: 700; }
+.card:hover, .card:focus-visible { border-color: var(--accent); }
+.cards.focusing .card { opacity: 0.35; }
+.cards.focusing .card.me { opacity: 1; background: var(--accent-tint); border-color: var(--accent); }
+.cards.focusing .card.uses { opacity: 1; box-shadow: inset 0 0 0 2px var(--uses); }
+.cards.focusing .card.usedby { opacity: 1; box-shadow: inset 0 0 0 2px var(--usedby); }
+.key { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--soft); margin-bottom: 8px; }
+.key i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
+.panel { background: var(--paper); border: 1px solid var(--rule); border-radius: 12px; padding: 18px 20px; }
+.ctx-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: baseline; justify-content: space-between; }
+.ctx-head h2 { margin: 0; font-size: 22px; }
+select { font: inherit; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink); }
+.links { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; align-items: center; font-size: 13.5px; color: var(--soft); }
+.chip { border: 1px solid var(--rule); background: var(--bg); color: var(--ink); border-radius: 999px; padding: 2px 10px; font: inherit; font-size: 13px; cursor: pointer; }
+.chip.uses { border-color: var(--uses); }
+.chip.usedby { border-color: var(--usedby); }
+.type { margin-top: 22px; }
+.type h3 { margin: 0 0 6px; font-family: var(--mono); font-size: 15px; font-weight: 500; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.type h3 small { font-family: var(--font); color: var(--soft); font-size: 13px; }
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--soft); font-weight: 700; padding: 6px 8px; border-bottom: 1px solid var(--rule); }
+td { padding: 7px 8px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+td.action { font-weight: 600; white-space: nowrap; }
+td.action small { display: block; font-weight: 400; font-family: var(--mono); font-size: 11.5px; color: var(--soft); }
+.status { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.s-ok { background: var(--good-tint); color: var(--good); }
+.s-none { background: var(--none-tint); color: var(--none); }
+.s-hole { background: var(--bad-tint); color: var(--bad); }
+.right { display: inline-block; font-family: var(--mono); font-size: 11.5px; background: var(--accent-tint); color: var(--accent); border-radius: 5px; padding: 1px 6px; margin: 1px 3px 1px 0; }
+.who { line-height: 1.4; }
+.who code { font-family: var(--mono); font-size: 11.5px; color: var(--soft); }
+.why { color: var(--soft); font-size: 13px; }
+tr.row-hole td { background: var(--bad-tint); }
+.hole-group { margin-bottom: 20px; }
+.hole-group h3 { margin: 0 0 8px; font-size: 16px; display: flex; gap: 8px; align-items: baseline; }
+.hole-group h3 button { background: none; border: 0; padding: 0; font: inherit; font-weight: 700; color: var(--accent); cursor: pointer; }
+.hole-item { background: var(--paper); border: 1px solid var(--rule); border-left: 4px solid var(--bad); border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; }
+.hole-item.check { border-left-color: var(--warn); }
+.section-title { font-size: 18px; margin: 8px 0 10px; }
+.hole-item b { font-family: var(--mono); font-size: 13.5px; font-weight: 500; }
+.hole-item p { margin: 3px 0 0; font-size: 14px; }
+.hole-item small { color: var(--soft); font-family: var(--mono); font-size: 12px; }
+.empty { color: var(--soft); }
+#graph { position: relative; height: 70vh; min-height: 460px; background: var(--paper); border: 1px solid var(--rule); border-radius: 12px; }
+#cy { position: absolute; inset: 0; }
+.graph-note { position: absolute; left: 12px; bottom: 10px; font-size: 13px; color: var(--soft); background: var(--paper); padding: 4px 8px; border-radius: 6px; border: 1px solid var(--rule); max-width: calc(100% - 24px); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } }
+@media (max-width: 700px) {
+  .layer { grid-template-columns: 1fr; gap: 8px; }
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Ianua Domain Map</h1>
+      <p class="lede">What the domain stores, what can change it, and who is allowed to. Read straight from the code, so it never goes out of date.</p>
+    </div>
+    <div class="numbers" id="numbers"></div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Views">
+    <button role="tab" id="tab-overview" aria-selected="true" data-tab="overview">Overview</button>
+    <button role="tab" id="tab-context" aria-selected="false" data-tab="context">A context</button>
+    <button role="tab" id="tab-holes" aria-selected="false" data-tab="holes">Holes</button>
+    <button role="tab" id="tab-graph" aria-selected="false" data-tab="graph">Connections graph</button>
+  </nav>
+
+  <section id="view-overview" role="tabpanel" aria-labelledby="tab-overview">
+    <p class="hint">Each row is a layer. A context may only use contexts in rows below it. Point at a card to see what it uses and what uses it; click to open it.</p>
+    <div class="key">
+      <span><i style="background: var(--accent-tint); outline: 1px solid var(--accent)"></i>the context</span>
+      <span><i style="outline: 2px solid var(--uses)"></i>it uses these</span>
+      <span><i style="outline: 2px solid var(--usedby)"></i>these use it</span>
+      <span><i style="background: var(--bad)"></i>has holes</span>
+    </div>
+    <div id="layers"></div>
+  </section>
+
+  <section id="view-context" role="tabpanel" aria-labelledby="tab-context" hidden>
+    <div class="panel" id="context-panel"></div>
+  </section>
+
+  <section id="view-holes" role="tabpanel" aria-labelledby="tab-holes" hidden>
+    <p class="hint">A hole is a place where something can be changed without the domain checking who does it, or where the code lets the caller say who they are.</p>
+    <div id="holes"></div>
+  </section>
+
+  <section id="view-graph" role="tabpanel" aria-labelledby="tab-graph" hidden>
+    <p class="hint">The same contexts as a graph, with a thin arrow for each “uses”. Click a context to keep only its neighbours.</p>
+    <div id="graph"><div id="cy"></div><div class="graph-note" id="graph-note">Scroll to zoom, drag to move.</div></div>
+  </section>
+</div>
+
+<script src="../public/domain-graph.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.30.2/cytoscape.min.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var ABOUT = {
+    activity: "The activity feed people see.",
+    audit: "The tamper-evident audit trail.",
+    crypto: "Signing keys and moving to new algorithms.",
+    data_classification: "How sensitive data is, and rules that tag it.",
+    identity: "User accounts, addresses, invitations, privacy and erasure.",
+    metrics: "Counters and usage figures.",
+    scheduling: "Background jobs and when they run.",
+    signals: "Security signals sent to other systems.",
+    authentication: "Signing in, sessions, second factors and passkeys.",
+    authorization: "Roles, groups, permissions, policies and break-glass.",
+    tenant: "A tenant's life, settings, sign-in rules and domains.",
+    consumers: "Apps and services that call the platform.",
+    branding: "A tenant's look and its emails.",
+    federation: "Signing in through Okta, Azure AD or Google, and SCIM.",
+    messaging: "Topics, schemas and subscriptions for events.",
+    oauth: "OAuth clients, API keys, consents and tokens.",
+    operator: "Platform staff and acting as a user for support.",
+    organization: "The company above the tenants and its members.",
+    routing: "Routes, services and where traffic may go.",
+    agents: "AI agents, what they may do, and approvals.",
+    notifications: "What people are told, and how.",
+    proxy: "The gateway's request pipeline.",
+    webhooks: "Calling other systems when events happen.",
+    workflows: "Automations and the steps they take."
+  };
+
+  var LAYER_NAMES = ["Foundation", "Sign-in", "Rights", "Tenant", "Apps", "Services", "Agents & notices", "Gateway & automation"];
+
+  var WHO = {
+    TenantAuthority: "a signed-in person, with the right for it",
+    TenantControl: "a tenant admin with the right for this part",
+    FederationControl: "an admin with the federation right",
+    WorkflowControl: "someone with the workflow right",
+    AgentControl: "the agent's owner, or someone with the agent right",
+    RoutingControl: "an admin with the routing right",
+    MessagingControl: "an admin with the messaging right",
+    WebhookControl: "an admin with the webhooks right",
+    ConsumerControl: "an admin with the apps right",
+    ConsumerTakeover: "an admin who holds everything the app holds",
+    ConsumerAuthority: "the app itself, with its own roles",
+    OrgControl: "an organization member with the right",
+    AccountControl: "an admin over that account",
+    AccountControlCheck: "an admin over that account",
+    AccountKeeper: "the person themself, or an admin over the account",
+    ProfileEditor: "the person themself, an admin, or the directory",
+    AccountCreator: "an admin who may add people, the directory, or open sign-up",
+    SignedIn: "the person themself, signed in",
+    SignedInPerson: "the person themself, signed in",
+    FreshSignIn: "the person themself, having just confirmed it is them",
+    RecentProof: "the person themself, having just confirmed it is them",
+    FactorSetupProof: "the person setting up their second factor",
+    ProvedFactor: "the person, with a second factor just proved",
+    AnsweredCode: "the person, with a right code",
+    VerifiedEmail: "whoever holds the mailbox",
+    MaySignIn: "a checked sign-in",
+    SessionCheck: "the session's own, checked account",
+    OrgSignInStart: "a checked organization sign-in",
+    PolicyApprover: "a second person who may approve policies",
+    StepApprover: "an approver cleared for the step",
+    Approver: "an approver cleared for the request",
+    HeldByGranter: "someone who holds what they hand out",
+    HeldBy: "the person delegating, within what they hold",
+    ActedBy: "the platform or an organization member",
+    Steward: "the platform or an organization member with the right",
+    Revoker: "the delegator, someone with a say, or the platform",
+    SuspendedBy: "the owner, an admin, or the monitor",
+    ActingAgent: "the agent itself, signed in with its key",
+    RunStarter: "the person or agent starting the run",
+    AttestedIdentity: "the agent's checked attestation",
+    ReleasedCall: "an approval that was given",
+    DeniedCall: "an approval that was refused",
+    ActionAuthority: "the authority behind the approved action",
+    ResourceCeiling: "what the delegator or parent holds",
+    LinkGrounds: "a sign-in, an admin, or the holder",
+    OAuthControl: "an admin with the OAuth right",
+    OperatorAuthority: "a signed-in platform operator",
+    BrandingControl: "an admin with the branding right",
+    CryptoControlCheck: "an admin with the keys right",
+    ClassificationControlCheck: "an admin with the classification right",
+    SignalsControlCheck: "an admin with the signals right",
+    SchemaControlCheck: "an admin with the attributes right",
+    TenantDirectory: "the tenant's directory (SCIM)",
+    InvitedRole: "an inviter who may hand out the role",
+    ProvenAccount: "the person, signed in to both accounts",
+    MintAgentCredentialParams: "the agent's owner, or its checked attestation",
+    OwnedTokenRequest: "the agent itself, signed in with its key",
+    CodeExchange: "the client that asked for the code",
+    LinkRemoval: "the holder or the organization",
+    AddedBy: "the founder or a member with the right",
+    GrantRequest: "an organization member with the right"
+  };
+
+  var HOLE_TEXT = {
+    "creator-without-caller": "Can be created without the domain checking who does it.",
+    "change-without-caller": "Can be changed without the domain checking who does it.",
+    "caller-by-id": "Takes who is acting as a plain id, so the caller can name anyone.",
+    "params-name-the-caller": "Its input names who is acting as a plain id, so the caller can name anyone.",
+    "proof-ignored": "Takes a proof of who is acting, then never looks at it.",
+    "public-field": "Has a public field, so its rules can be stepped around.",
+    "proof-never-required": "A proof that nothing asks for.",
+    "right-too-weak": "Changes something while checking only a view right.",
+    "right-does-not-fit": "The right it checks looks too weak for what it does, such as removing with an update right.",
+    "proof-from-free-values": "Makes a proof of who is acting out of plain values the caller chooses.",
+    "proof-unused": "Takes a proof of who is acting and never uses it.",
+    "refusal-untested": "Can refuse, but no test shows it refusing."
+  };
+
+  function isHole(h) { return (h.severity || "hole") === "hole"; }
+
+  var state = { data: null, tab: "overview", context: null, cy: null };
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  var words = function (name) { var t = name.replace(/_/g, " "); return t.charAt(0).toUpperCase() + t.slice(1); };
+
+  function contextOfFile(file) {
+    if (!file || file.indexOf("domains/") !== 0) { return "kernel"; }
+    return file.split("/")[1].replace(/\.rs$/, "");
+  }
+  function typeContext(name) {
+    var a = state.data.aggregates.find(function (x) { return x.id === name; });
+    return a ? a.context : null;
+  }
+  function holeContext(h) {
+    if (h.proof) { var p = state.data.proofs.find(function (x) { return x.id === h.proof; }); return p ? p.context : "kernel"; }
+    return typeContext(h.aggregate) || contextOfFile(h.file);
+  }
+  function findingsIn(ctx) { return state.data.holes.filter(function (h) { return holeContext(h) === ctx; }); }
+  function holesIn(ctx) { return findingsIn(ctx).filter(isHole); }
+  function checksIn(ctx) { return findingsIn(ctx).filter(function (h) { return !isHole(h); }); }
+  function typesIn(ctx) { return state.data.aggregates.filter(function (a) { return a.context === ctx; }); }
+  function usesOf(ctx) { return state.data.uses.filter(function (u) { return u.from === ctx; }).map(function (u) { return u.to; }); }
+  function usedByOf(ctx) { return state.data.uses.filter(function (u) { return u.to === ctx; }).map(function (u) { return u.from; }); }
+
+  function renderNumbers() {
+    var d = state.data;
+    var open = d.methods.filter(function (m) { return !m.proofs.length && !m.uncalled; }).length;
+    var nums = [
+      ["contexts", d.contexts.length, ""],
+      ["stored types", d.aggregates.length, ""],
+      ["actions checked", d.methods.length - open, "good"],
+      ["holes", d.holes.filter(isHole).length, d.holes.filter(isHole).length ? "bad" : "good"],
+      ["worth a look", d.holes.filter(function (h) { return !isHole(h); }).length, "warn"]
+    ];
+    $("numbers").innerHTML = nums.map(function (n) { return '<div class="num ' + n[2] + '"><b>' + n[1] + "</b><span>" + n[0] + "</span></div>"; }).join("");
+  }
+
+  function renderOverview() {
+    var byLayer = {};
+    state.data.contexts.forEach(function (c) { (byLayer[c.layer] = byLayer[c.layer] || []).push(c); });
+    var layers = Object.keys(byLayer).map(Number).sort(function (a, b) { return b - a; });
+    $("layers").innerHTML = layers.map(function (layer) {
+      var cards = byLayer[layer].map(function (c) {
+        var holes = holesIn(c.id).length, checks = checksIn(c.id).length, types = typesIn(c.id).length;
+        return '<button type="button" class="card' + (holes ? " has-holes" : "") + '" data-ctx="' + esc(c.id) + '">'
+          + '<span class="name">' + esc(c.id) + "</span>"
+          + '<span class="what">' + esc(ABOUT[c.id] || "") + "</span>"
+          + '<span class="meta">' + types + " stored type" + (types === 1 ? "" : "s")
+          + (holes ? ' · <span class="holes">' + holes + " hole" + (holes === 1 ? "" : "s") + "</span>" : " · all checked")
+          + (checks ? ' · <span class="checks">' + checks + " to look at</span>" : "") + "</span></button>";
+      }).join("");
+      return '<div class="layer"><div class="layer-name">' + esc(LAYER_NAMES[layer] || "Layer " + layer)
+        + "<small>Layer " + layer + (layer === 0 ? ", uses nothing" : ", uses rows below") + "</small></div>"
+        + '<div class="cards">' + cards + "</div></div>";
+    }).join("");
+  }
+
+  function focusCard(ctx) {
+    var all = document.querySelectorAll("#layers .cards");
+    var uses = usesOf(ctx), usedBy = usedByOf(ctx);
+    all.forEach(function (row) { row.classList.toggle("focusing", !!ctx); });
+    document.querySelectorAll("#layers .card").forEach(function (card) {
+      var id = card.getAttribute("data-ctx");
+      card.classList.toggle("me", id === ctx);
+      card.classList.toggle("uses", uses.indexOf(id) >= 0);
+      card.classList.toggle("usedby", usedBy.indexOf(id) >= 0);
+    });
+  }
+
+  function whoText(m) {
+    if (!m.proofs.length) { return m.uncalled ? '<span class="why">Nobody: ' + esc(m.uncalled) + "</span>" : '<span class="why" style="color: var(--bad)">Nobody is checked.</span>'; }
+    return m.proofs.map(function (p) { return '<div class="who">' + esc(WHO[p] || p) + ' <code>' + esc(p) + "</code></div>"; }).join("");
+  }
+
+  function statusOf(m) {
+    if (m.proofs.length) { return '<span class="status s-ok">checked</span>'; }
+    if (m.uncalled) { return '<span class="status s-none">needs nobody</span>'; }
+    return '<span class="status s-hole">hole</span>';
+  }
+
+  function renderContext() {
+    var ctx = state.context;
+    var options = state.data.contexts.slice().sort(function (a, b) { return a.id.localeCompare(b.id); })
+      .map(function (c) { var h = holesIn(c.id).length; return '<option value="' + esc(c.id) + '"' + (c.id === ctx ? " selected" : "") + ">" + esc(c.id) + (h ? " (" + h + " holes)" : "") + "</option>"; }).join("");
+    var uses = usesOf(ctx), usedBy = usedByOf(ctx);
+    var chips = function (list, cls) { return list.length ? list.map(function (c) { return '<button type="button" class="chip ' + cls + '" data-open="' + esc(c) + '">' + esc(c) + "</button>"; }).join("") : '<span class="empty">nothing</span>'; };
+    var types = typesIn(ctx);
+    var methodsOf = function (t) { return state.data.methods.filter(function (m) { return m.aggregate === t; }); };
+    var otherHoles = findingsIn(ctx).filter(function (h) { return ["creator-without-caller", "change-without-caller"].indexOf(h.kind) < 0; });
+    var sections = types.map(function (t) {
+      var ms = methodsOf(t.id).sort(function (a, b) { return a.kind === b.kind ? 0 : a.kind === "create" ? -1 : 1; });
+      var holes = ms.filter(function (m) { return !m.proofs.length && !m.uncalled; }).length;
+      var rows = ms.map(function (m) {
+        var rights = (m.rights || []).map(function (r) { return '<span class="right">' + esc(r) + "</span>"; }).join("");
+        return '<tr class="' + (!m.proofs.length && !m.uncalled ? "row-hole" : "") + '"><td class="action">' + esc(words(m.name)) + "<small>" + (m.kind === "create" ? "creates" : "changes") + " · " + esc(m.file) + ":" + m.line + "</small></td>"
+          + "<td>" + whoText(m) + "</td><td>" + (rights || '<span class="empty">none named</span>') + "</td><td>" + statusOf(m) + "</td></tr>";
+      }).join("");
+      return '<div class="type"><h3>' + esc(t.id) + " <small>" + ms.length + " action" + (ms.length === 1 ? "" : "s") + (holes ? ' · <span style="color: var(--bad)">' + holes + " hole" + (holes === 1 ? "" : "s") + "</span>" : "") + "</small></h3>"
+        + (ms.length ? '<div class="scroll"><table><thead><tr><th>Action</th><th>Who may do it</th><th>Rights it checks</th><th>Status</th></tr></thead><tbody>' + rows + "</tbody></table></div>" : '<p class="empty">No public actions.</p>') + "</div>";
+    }).join("");
+    $("context-panel").innerHTML = '<div class="ctx-head"><h2>' + esc(ctx) + '</h2><label>Context <select id="pick">' + options + "</select></label></div>"
+      + '<p class="hint" style="margin: 4px 0 0">' + esc(ABOUT[ctx] || "") + "</p>"
+      + '<div class="links">Uses: ' + chips(uses, "uses") + "</div>"
+      + '<div class="links">Used by: ' + chips(usedBy, "usedby") + "</div>"
+      + (otherHoles.length ? '<div style="margin-top: 16px">' + otherHoles.map(holeItem).join("") + "</div>" : "")
+      + (sections || '<p class="empty" style="margin-top: 16px">This context stores nothing of its own.</p>');
+    $("pick").addEventListener("change", function (e) { openContext(e.target.value); });
+  }
+
+  function holeItem(h) {
+    var who = h.proof || (h.aggregate + (h.method ? "::" + h.method : "") + (h.parameter ? " (" + h.parameter + ")" : ""));
+    var detail = h.detail && h.kind.indexOf("right-") === 0 ? " Checks: " + h.detail + "." : "";
+    return '<div class="hole-item' + (isHole(h) ? "" : " check") + '"><b>' + esc(who) + "</b><p>" + esc((HOLE_TEXT[h.kind] || h.kind) + detail) + "</p>" + (h.file ? "<small>" + esc(h.file) + ":" + h.line + "</small>" : "") + "</div>";
+  }
+
+  function grouped(list, emptyText) {
+    var byCtx = {};
+    list.forEach(function (h) { var c = holeContext(h); (byCtx[c] = byCtx[c] || []).push(h); });
+    var ctxs = Object.keys(byCtx).sort(function (a, b) { return byCtx[b].length - byCtx[a].length; });
+    return ctxs.length ? ctxs.map(function (c) {
+      return '<div class="hole-group"><h3><button type="button" data-open="' + esc(c) + '">' + esc(c) + "</button><span class=\"empty\">" + byCtx[c].length + "</span></h3>" + byCtx[c].map(holeItem).join("") + "</div>";
+    }).join("") : '<p class="empty">' + emptyText + "</p>";
+  }
+
+  function renderHoles() {
+    var holes = state.data.holes.filter(isHole), checks = state.data.holes.filter(function (h) { return !isHole(h); });
+    $("holes").innerHTML = '<h2 class="section-title">Holes (' + holes.length + ")</h2>"
+      + grouped(holes, "No holes. Every creation and change names who makes it, with a fitting right.")
+      + '<h2 class="section-title">Worth a look (' + checks.length + ")</h2>"
+      + grouped(checks, "Nothing to look at.");
+  }
+
+  function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+  function renderGraph() {
+    if (state.cy) { state.cy.destroy(); }
+    var byLayer = {};
+    state.data.contexts.forEach(function (c) { (byLayer[c.layer] = byLayer[c.layer] || []).push(c); });
+    var top = Object.keys(byLayer).length - 1;
+    var els = [];
+    Object.keys(byLayer).forEach(function (layer) {
+      byLayer[layer].forEach(function (c, i) {
+        var holes = holesIn(c.id).length;
+        els.push({ data: { id: c.id, label: c.id, holes: holes }, position: { x: (i - (byLayer[layer].length - 1) / 2) * 170, y: (top - layer) * 120 } });
+      });
+    });
+    state.data.uses.forEach(function (u) {
+      if (byLayerHas(byLayer, u.from) && byLayerHas(byLayer, u.to)) { els.push({ data: { id: u.from + ">" + u.to, source: u.from, target: u.to } }); }
+    });
+    state.cy = cytoscape({
+      container: $("cy"), elements: els, layout: { name: "preset", fit: true, padding: 30 }, wheelSensitivity: 0.25, minZoom: 0.2, maxZoom: 2.5,
+      style: [
+        { selector: "node", style: { "label": "data(label)", "shape": "round-rectangle", "width": 140, "height": 34, "background-color": css("--paper"), "border-width": 1.5, "border-color": css("--good"), "color": css("--ink"), "font-family": "Source Sans 3, sans-serif", "font-size": 13, "font-weight": 600, "text-valign": "center" } },
+        { selector: "node[holes > 0]", style: { "border-color": css("--bad"), "border-width": 2.5 } },
+        { selector: "edge", style: { "width": 1, "line-color": css("--rule"), "target-arrow-shape": "triangle", "target-arrow-color": css("--soft"), "arrow-scale": 0.6, "curve-style": "bezier", "opacity": 0.9 } },
+        { selector: ".dim", style: { "opacity": 0.12 } },
+        { selector: "edge.lit", style: { "line-color": css("--accent"), "target-arrow-color": css("--accent"), "width": 1.6, "opacity": 1 } },
+        { selector: "node.me", style: { "background-color": css("--accent-tint"), "border-color": css("--accent") } }
+      ]
+    });
+    state.cy.on("tap", "node", function (e) {
+      var n = e.target;
+      state.cy.elements().addClass("dim").removeClass("lit me");
+      n.closedNeighborhood().removeClass("dim");
+      n.connectedEdges().addClass("lit");
+      n.addClass("me");
+      $("graph-note").textContent = n.id() + ": " + (ABOUT[n.id()] || "") + " Click the background to see everything.";
+    });
+    state.cy.on("tap", function (e) {
+      if (e.target === state.cy) { state.cy.elements().removeClass("dim lit me"); $("graph-note").textContent = "Scroll to zoom, drag to move."; }
+    });
+  }
+  function byLayerHas(byLayer, id) { return Object.keys(byLayer).some(function (k) { return byLayer[k].some(function (c) { return c.id === id; }); }); }
+
+  function setTab(tab) {
+    state.tab = tab;
+    ["overview", "context", "holes", "graph"].forEach(function (t) {
+      $("tab-" + t).setAttribute("aria-selected", String(t === tab));
+      $("view-" + t).hidden = t !== tab;
+    });
+    if (tab === "context") { renderContext(); }
+    if (tab === "graph") { renderGraph(); }
+    try { history.replaceState(null, "", "#" + (tab === "context" ? state.context : tab)); } catch (e) { /* the frame may refuse it */ }
+  }
+
+  function openContext(ctx) { state.context = ctx; setTab("context"); window.scrollTo(0, 0); }
+
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest("[data-tab],[data-ctx],[data-open]");
+    if (!t) { return; }
+    if (t.hasAttribute("data-tab")) { setTab(t.getAttribute("data-tab")); return; }
+    if (t.hasAttribute("data-ctx")) { openContext(t.getAttribute("data-ctx")); return; }
+    openContext(t.getAttribute("data-open"));
+  });
+  document.addEventListener("mouseover", function (e) {
+    var card = e.target.closest("#layers .card");
+    focusCard(card ? card.getAttribute("data-ctx") : null);
+  });
+  document.addEventListener("focusin", function (e) {
+    var card = e.target.closest("#layers .card");
+    if (card) { focusCard(card.getAttribute("data-ctx")); }
+  });
+
+  function start(data) {
+    state.data = data;
+    var worst = data.contexts.slice().sort(function (a, b) { return holesIn(b.id).length - holesIn(a.id).length; })[0];
+    state.context = worst ? worst.id : null;
+    renderNumbers();
+    renderOverview();
+    renderHoles();
+    var wanted = decodeURIComponent((location.hash || "").slice(1));
+    if (["overview", "holes", "graph"].indexOf(wanted) >= 0) { setTab(wanted); return; }
+    if (data.contexts.some(function (c) { return c.id === wanted; })) { openContext(wanted); }
+  }
+
+  function loadFile(file) {
+    file.text().then(function (text) { start(JSON.parse(text)); $("load-help").hidden = true; }).catch(function () {
+      $("load-help").querySelector("p").textContent = "That file is not the domain graph. Choose docs/public/domain-graph.json.";
+    });
+  }
+
+  function askForFile() {
+    document.querySelector(".wrap").insertAdjacentHTML("afterbegin",
+      '<div class="panel" id="load-help" style="margin-bottom: 16px"><p style="margin: 0 0 8px">The page could not find the graph next to it. Run the convention tests to write docs/public/domain-graph.js, or choose the JSON file here.</p>'
+      + '<input id="graph-file" type="file" accept="application/json,.json"></div>');
+    $("graph-file").addEventListener("change", function (e) { if (e.target.files[0]) { loadFile(e.target.files[0]); } });
+  }
+
+  document.addEventListener("dragover", function (e) { e.preventDefault(); });
+  document.addEventListener("drop", function (e) {
+    e.preventDefault();
+    var file = e.dataTransfer && e.dataTransfer.files[0];
+    if (file) { loadFile(file); }
+  });
+
+  if (window.DOMAIN_GRAPH) { start(window.DOMAIN_GRAPH); return; }
+  var embedded = document.getElementById("graph-data");
+  if (embedded && embedded.textContent.trim()) {
+    try { start(JSON.parse(embedded.textContent)); return; } catch (e) { /* fall back to the file beside the page */ }
+  }
+  fetch("domain-graph.json").then(function (r) { if (!r.ok) { throw new Error(); } return r.json(); }).then(start).catch(askForFile);
+})();
+</script>

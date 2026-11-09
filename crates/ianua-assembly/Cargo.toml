@@ -1,0 +1,23 @@
+[package]
+name = "ianua-assembly"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[features]
+test-support = ["ianua-app/test-support", "ianua-domain/test-support"]
+
+[lints]
+workspace = true
+
+[dependencies]
+ianua-domain = { workspace = true }
+ianua-app = { workspace = true }
+ianua-macros = { path = "../ianua-macros" }
+time = { workspace = true }
+uuid = { workspace = true }
+ianua-workspace-hack = { version = "0.1", path = "../ianua-workspace-hack" }
+
+[dev-dependencies]
+ianua-app = { workspace = true, features = ["test-support"] }

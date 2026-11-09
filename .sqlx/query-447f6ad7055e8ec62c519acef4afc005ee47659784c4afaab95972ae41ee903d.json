@@ -1,0 +1,102 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The exports of any log due to end, oldest first, at most the given\n-- number: pending ones asked for before the write deadline, and ready\n-- ones whose download window is over.\nSELECT due.id AS \"id!\", due.log AS \"log!\", due.organization_id, due.tenant_id,\n       due.requested_by AS \"requested_by!\", due.record_filter AS \"record_filter!\",\n       due.format AS \"format!\", due.status AS \"status!\", due.state_at, due.available_until,\n       due.row_count, due.requested_at AS \"requested_at!\", due.file_sha256, due.seal\nFROM (\n    (SELECT id, log, organization_id, tenant_id, requested_by, record_filter, format, status,\n            state_at, available_until, row_count, requested_at, file_sha256, seal\n     FROM audit_exports\n     WHERE status = 'pending' AND requested_at <= $1\n     ORDER BY requested_at, id\n     LIMIT $3)\n    UNION ALL\n    (SELECT id, log, organization_id, tenant_id, requested_by, record_filter, format, status,\n            state_at, available_until, row_count, requested_at, file_sha256, seal\n     FROM audit_exports\n     WHERE status = 'ready' AND available_until <= $2\n     ORDER BY available_until, id\n     LIMIT $3)\n) AS due\nORDER BY due.requested_at, due.id\nLIMIT $3\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "log!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "requested_by!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "record_filter!",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 6,
+        "name": "format!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "status!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "state_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "available_until",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "row_count",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 11,
+        "name": "requested_at!",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 12,
+        "name": "file_sha256",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 13,
+        "name": "seal",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "447f6ad7055e8ec62c519acef4afc005ee47659784c4afaab95972ae41ee903d"
+}

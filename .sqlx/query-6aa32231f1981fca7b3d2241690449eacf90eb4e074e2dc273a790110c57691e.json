@@ -1,0 +1,83 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The registrations of one workflow of one tenant not yet removed, of any\n-- version, oldest first.\nSELECT id, workflow_id, version, trigger, secret_sealed, status, remote, lapses_at, label,\n    created_at, updated_at\nFROM workflow_service_subscriptions\nWHERE tenant_id = $1 AND workflow_id = $2 AND status <> 'removed'\nORDER BY created_at, id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "workflow_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "version",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "trigger",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "secret_sealed",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "remote",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "lapses_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "label",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "6aa32231f1981fca7b3d2241690449eacf90eb4e074e2dc273a790110c57691e"
+}

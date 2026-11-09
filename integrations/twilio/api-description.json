@@ -1,0 +1,384 @@
+{
+  "endpoints": {
+    "delete /2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json": {
+      "answer": [],
+      "body": [],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "204"
+      ]
+    },
+    "get /2010-04-01/Accounts/{AccountSid}/Calls.json": {
+      "answer": [
+        "calls",
+        "end",
+        "first_page_uri",
+        "next_page_uri",
+        "page",
+        "page_size",
+        "previous_page_uri",
+        "start",
+        "uri"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "EndTime": false,
+        "EndTime<": false,
+        "EndTime>": false,
+        "From": false,
+        "Page": false,
+        "PageSize": false,
+        "PageToken": false,
+        "ParentCallSid": false,
+        "StartTime": false,
+        "StartTime<": false,
+        "StartTime>": false,
+        "Status": false,
+        "To": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /2010-04-01/Accounts/{AccountSid}/Calls/{Sid}.json": {
+      "answer": [
+        "account_sid",
+        "answered_by",
+        "api_version",
+        "caller_name",
+        "date_created",
+        "date_updated",
+        "direction",
+        "duration",
+        "end_time",
+        "forwarded_from",
+        "from",
+        "from_formatted",
+        "group_sid",
+        "parent_call_sid",
+        "phone_number_sid",
+        "price",
+        "price_unit",
+        "queue_time",
+        "sid",
+        "start_time",
+        "status",
+        "subresource_uris",
+        "to",
+        "to_formatted",
+        "trunk_sid",
+        "uri"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json": {
+      "answer": [
+        "end",
+        "first_page_uri",
+        "incoming_phone_numbers",
+        "next_page_uri",
+        "page",
+        "page_size",
+        "previous_page_uri",
+        "start",
+        "uri"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "Beta": false,
+        "FriendlyName": false,
+        "Origin": false,
+        "Page": false,
+        "PageSize": false,
+        "PageToken": false,
+        "PhoneNumber": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /2010-04-01/Accounts/{AccountSid}/Messages.json": {
+      "answer": [
+        "end",
+        "first_page_uri",
+        "messages",
+        "next_page_uri",
+        "page",
+        "page_size",
+        "previous_page_uri",
+        "start",
+        "uri"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "DateSent": false,
+        "DateSent<": false,
+        "DateSent>": false,
+        "From": false,
+        "Page": false,
+        "PageSize": false,
+        "PageToken": false,
+        "To": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json": {
+      "answer": [
+        "account_sid",
+        "api_version",
+        "body",
+        "date_created",
+        "date_sent",
+        "date_updated",
+        "direction",
+        "error_code",
+        "error_message",
+        "from",
+        "messaging_service_sid",
+        "num_media",
+        "num_segments",
+        "price",
+        "price_unit",
+        "sid",
+        "status",
+        "subresource_uris",
+        "to",
+        "uri"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /2010-04-01/Accounts/{AccountSid}/Calls.json": {
+      "answer": [
+        "account_sid",
+        "answered_by",
+        "api_version",
+        "caller_name",
+        "date_created",
+        "date_updated",
+        "direction",
+        "duration",
+        "end_time",
+        "forwarded_from",
+        "from",
+        "from_formatted",
+        "group_sid",
+        "parent_call_sid",
+        "phone_number_sid",
+        "price",
+        "price_unit",
+        "queue_time",
+        "sid",
+        "start_time",
+        "status",
+        "subresource_uris",
+        "to",
+        "to_formatted",
+        "trunk_sid",
+        "uri"
+      ],
+      "body": [
+        "ApplicationSid",
+        "AsyncAmd",
+        "AsyncAmdStatusCallback",
+        "AsyncAmdStatusCallbackMethod",
+        "Byoc",
+        "CallReason",
+        "CallToken",
+        "CallerId",
+        "ClientNotificationUrl",
+        "FallbackMethod",
+        "FallbackUrl",
+        "From",
+        "MachineDetection",
+        "MachineDetectionSilenceTimeout",
+        "MachineDetectionSpeechEndThreshold",
+        "MachineDetectionSpeechThreshold",
+        "MachineDetectionTimeout",
+        "Method",
+        "Passports",
+        "Record",
+        "RecordingChannels",
+        "RecordingConfigurationId",
+        "RecordingStatusCallback",
+        "RecordingStatusCallbackEvent",
+        "RecordingStatusCallbackMethod",
+        "RecordingTrack",
+        "SendDigits",
+        "SipAuthPassword",
+        "SipAuthUsername",
+        "StatusCallback",
+        "StatusCallbackEvent",
+        "StatusCallbackMethod",
+        "TimeLimit",
+        "Timeout",
+        "To",
+        "Trim",
+        "Twiml",
+        "Url"
+      ],
+      "body_required": [
+        "From",
+        "To"
+      ],
+      "query": {},
+      "statuses": [
+        "201"
+      ]
+    },
+    "post /2010-04-01/Accounts/{AccountSid}/Calls/{Sid}.json": {
+      "answer": [
+        "account_sid",
+        "answered_by",
+        "api_version",
+        "caller_name",
+        "date_created",
+        "date_updated",
+        "direction",
+        "duration",
+        "end_time",
+        "forwarded_from",
+        "from",
+        "from_formatted",
+        "group_sid",
+        "parent_call_sid",
+        "phone_number_sid",
+        "price",
+        "price_unit",
+        "queue_time",
+        "sid",
+        "start_time",
+        "status",
+        "subresource_uris",
+        "to",
+        "to_formatted",
+        "trunk_sid",
+        "uri"
+      ],
+      "body": [
+        "FallbackMethod",
+        "FallbackUrl",
+        "Method",
+        "Status",
+        "StatusCallback",
+        "StatusCallbackMethod",
+        "TimeLimit",
+        "Twiml",
+        "Url"
+      ],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /2010-04-01/Accounts/{AccountSid}/Messages.json": {
+      "answer": [
+        "account_sid",
+        "api_version",
+        "body",
+        "date_created",
+        "date_sent",
+        "date_updated",
+        "direction",
+        "error_code",
+        "error_message",
+        "from",
+        "messaging_service_sid",
+        "num_media",
+        "num_segments",
+        "price",
+        "price_unit",
+        "sid",
+        "status",
+        "subresource_uris",
+        "to",
+        "uri"
+      ],
+      "body": [
+        "AddressRetention",
+        "ApplicationSid",
+        "Attempt",
+        "Body",
+        "ContentRetention",
+        "ContentSid",
+        "ContentVariables",
+        "FallbackFrom",
+        "ForceDelivery",
+        "From",
+        "MaxPrice",
+        "MediaUrl",
+        "MessageIntent",
+        "MessagingServiceSid",
+        "PersistentAction",
+        "ProvideFeedback",
+        "RiskCheck",
+        "ScheduleType",
+        "SendAsMms",
+        "SendAt",
+        "ShortenUrls",
+        "SmartEncoded",
+        "StatusCallback",
+        "To",
+        "TrafficType",
+        "ValidityPeriod"
+      ],
+      "body_required": [
+        "To"
+      ],
+      "query": {},
+      "statuses": [
+        "201"
+      ]
+    },
+    "post /2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json": {
+      "answer": [
+        "account_sid",
+        "api_version",
+        "body",
+        "date_created",
+        "date_sent",
+        "date_updated",
+        "direction",
+        "error_code",
+        "error_message",
+        "from",
+        "messaging_service_sid",
+        "num_media",
+        "num_segments",
+        "price",
+        "price_unit",
+        "sid",
+        "status",
+        "subresource_uris",
+        "to",
+        "uri"
+      ],
+      "body": [
+        "Body",
+        "Status"
+      ],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    }
+  },
+  "version": "1.0.0"
+}

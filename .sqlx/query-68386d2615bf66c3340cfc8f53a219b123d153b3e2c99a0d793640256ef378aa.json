@@ -1,0 +1,84 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The sighting a tenant keeps for one caller, as one source saw it.\nSELECT id, source, fingerprint, calls_itself, seen_count, first_seen_at, last_seen_at, state,\n       registered_agent_id, decided_at, updated_at\nFROM agent_sightings\nWHERE tenant_id = $1 AND source = $2 AND fingerprint = $3\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "source",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "fingerprint",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "calls_itself",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "seen_count",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 5,
+        "name": "first_seen_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "last_seen_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "state",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "registered_agent_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 9,
+        "name": "decided_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "68386d2615bf66c3340cfc8f53a219b123d153b3e2c99a0d793640256ef378aa"
+}

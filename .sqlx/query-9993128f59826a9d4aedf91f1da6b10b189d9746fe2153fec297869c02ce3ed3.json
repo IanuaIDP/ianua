@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an audit log export: a new one is added, a known one takes where\n-- it stands, with its file's digest and seal. Its log, its asker, what it\n-- holds, its format and when it was asked for never change.\nINSERT INTO audit_exports\n    (id, log, organization_id, tenant_id, requested_by, record_filter, format, status,\n     state_at, available_until, row_count, requested_at, file_sha256, seal)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)\nON CONFLICT (id) DO UPDATE SET\n    status = EXCLUDED.status,\n    state_at = EXCLUDED.state_at,\n    available_until = EXCLUDED.available_until,\n    row_count = EXCLUDED.row_count,\n    file_sha256 = EXCLUDED.file_sha256,\n    seal = EXCLUDED.seal\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Jsonb",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Int8",
+        "Timestamptz",
+        "Bytea",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9993128f59826a9d4aedf91f1da6b10b189d9746fe2153fec297869c02ce3ed3"
+}

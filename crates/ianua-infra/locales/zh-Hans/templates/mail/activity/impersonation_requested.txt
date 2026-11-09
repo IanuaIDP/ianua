@@ -1,0 +1,11 @@
+您好，{{ user_name | default("用户") }}：
+
+{{ tenant_name | default("您的组织") }} 的 {{ requester_name | default("一位管理员") }} 申请以您的身份操作，以帮助处理账户问题。
+{% if reason is defined %}
+原因：{{ reason }}
+{% endif %}
+请登录账户以批准或拒绝。此申请将在 {{ expires_at }} 后过期。
+
+未经您的批准，不会执行任何操作。如果您未预期收到此申请，请拒绝并告知管理员。
+
+IANUA

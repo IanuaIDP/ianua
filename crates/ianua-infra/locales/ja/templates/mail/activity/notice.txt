@@ -1,0 +1,7 @@
+{{ notice_title }}
+
+{{ notice_body | default(notice_title) }}
+
+この種類の通知をメールで受け取る設定にしているため、お送りしています。通知設定で変更できます。
+
+IANUA

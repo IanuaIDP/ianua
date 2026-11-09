@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a tool: a new one is added, a known one of the same tenant takes\n-- the new values. Its tenant and its creation time never change.\nINSERT INTO agent_tools\n    (id, tenant_id, name, description, input_schema, method, path, route_id,\n     declared_action, action_class, data_class, status, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)\nON CONFLICT (id) DO UPDATE SET\n    name = EXCLUDED.name,\n    description = EXCLUDED.description,\n    input_schema = EXCLUDED.input_schema,\n    method = EXCLUDED.method,\n    path = EXCLUDED.path,\n    route_id = EXCLUDED.route_id,\n    declared_action = EXCLUDED.declared_action,\n    action_class = EXCLUDED.action_class,\n    data_class = EXCLUDED.data_class,\n    status = EXCLUDED.status,\n    updated_at = EXCLUDED.updated_at\nWHERE agent_tools.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f9e24993c3325fba943a29211f46919eace0bf6fcd6fac23e5b910337724a59a"
+}

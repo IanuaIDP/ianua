@@ -1,0 +1,59 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The review assignments of a tenant with the given ids.\nSELECT id, reviewer_id, reviewed_id, assigned_by_kind, assigned_by_id, assigned_at, ended_at\nFROM agent_review_assignments\nWHERE tenant_id = $1 AND id = ANY($2)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "reviewer_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "reviewed_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "assigned_by_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "assigned_by_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "assigned_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "ended_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "f03ce9c16faf5b4bc1e47d24164864bb20f54567c1a103947030152f653810ea"
+}

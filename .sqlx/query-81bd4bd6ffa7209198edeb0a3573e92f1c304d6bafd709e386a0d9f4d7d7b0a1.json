@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Forgets a tenant's SAML sign-in requests whose time to be answered ran\n-- out by the given time.\nDELETE FROM saml_requests\nWHERE tenant_id = $1 AND lapses_at <= $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "81bd4bd6ffa7209198edeb0a3573e92f1c304d6bafd709e386a0d9f4d7d7b0a1"
+}

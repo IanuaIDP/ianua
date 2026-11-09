@@ -1,0 +1,10 @@
+Hallo{% if user_name is defined and user_name %} {{ user_name | default("") }}{% endif %}!
+
+Ihr Antrag auf Löschung Ihrer Daten bei {{ tenant_name | default("Ihrer Organisation") }} ist eingegangen{% if erasure_date is defined %}. Die Löschung beginnt am {{ erasure_date }}{% endif %}.
+{% if action_url is defined %}
+Falls Sie es sich vorher anders überlegen, können Sie den Antrag hier zurückziehen:
+{{ action_url }}
+{% endif %}
+Wenn Sie dies nicht angefordert haben, informieren Sie umgehend Ihren Administrator.
+
+IANUA

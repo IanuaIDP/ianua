@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The sealed external id an organization's connection to one cloud was\n-- begun with.\nSELECT external_id_sealed\nFROM org_cloud_accounts\nWHERE organization_id = $1 AND provider = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "external_id_sealed",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "8c2a43969b4cfc590abef26dcb013c8bba943b019076cc38fe768d561453017a"
+}

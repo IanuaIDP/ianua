@@ -1,0 +1,7 @@
+{{ notice_title }}
+
+{{ notice_body | default(notice_title) }}
+
+You get this by mail because you chose to have notices of this kind sent to you. You can change that in your notification settings.
+
+IANUA

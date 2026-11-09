@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ya tiene una cuenta{% endblock %}
+{% block preheader %}Esta dirección ya tiene una cuenta IANUA.{% endblock %}
+{% block headline %}Ya tiene una cuenta{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para(pad=8) %}Se acaba de solicitar el registro en {{ c.brand() }} con esta dirección, que ya tiene una cuenta. Si fue usted, inicie sesión en su lugar.{% endcall %}
+  {{ c.cta(action_url, "Iniciar sesión") }}
+  {% call c.para(pad=32) %}Si olvidó su contraseña, puede restablecerla desde la página de inicio de sesión. Si no fue usted, puede ignorar este correo: nada ha cambiado.{% endcall %}
+{% endblock %}

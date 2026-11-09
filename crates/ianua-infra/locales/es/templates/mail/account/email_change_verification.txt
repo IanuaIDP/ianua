@@ -1,0 +1,10 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+Se ha solicitado cambiar la dirección de su cuenta IANUA a {{ user_email }}. Para completar el cambio, verifique esta dirección:
+{{ action_url }}
+
+Este enlace caduca en {{ expires_at }}.
+
+Si no lo solicitó, puede ignorar este correo.
+
+IANUA

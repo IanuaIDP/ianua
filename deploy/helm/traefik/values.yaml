@@ -1,0 +1,99 @@
+# Traefik: the one public entrance to the cluster.
+#
+# Installed as its own release (`helm upgrade --install traefik traefik/traefik
+# -n traefik -f this`), because it is infrastructure the application chart sits
+# behind rather than part of it. The routes themselves live in the application
+# chart, as IngressRouteTCP, next to the services they point at.
+#
+# Everything arrives on one address:
+#
+#   :80    → redirected to :443
+#   :443   → ianua.io and api.ianua.io terminate here; everything else is
+#            passed through, still encrypted, to the zero proxy
+#   :50051 → passed through to the gRPC listener the nameservers dial
+#
+# The passthrough is not an optimisation. zero holds a certificate per tenant
+# domain and picks one from the TLS handshake, so a tenant's connection has to
+# reach it undecrypted or the certificates have nowhere to be served. The same
+# goes for :50051, where the client certificate *is* the authentication.
+
+deployment:
+  # Two, because this is now the single way in. externalTrafficPolicy below
+  # only sends traffic to nodes running a pod, so one replica would also mean
+  # one node carrying everything.
+  replicas: 2
+
+service:
+  type: LoadBalancer
+  # Preserves the client's address. Without it every connection appears to
+  # come from a node, which costs the proxy the one thing its access log and
+  # any rate limiting are keyed on.
+  #
+  # Tenant traffic arrives here directly, so this is the only place that
+  # address still exists — ianua.io and api.ianua.io come via Cloudflare and
+  # carry it in a header instead.
+  spec:
+    externalTrafficPolicy: Local
+
+ports:
+  web:
+    port: 8000
+    exposedPort: 80
+    expose:
+      default: true
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+
+  websecure:
+    port: 8443
+    exposedPort: 443
+    expose:
+      default: true
+    http:
+      # TLS is settled per route, not on the entrypoint: most connections here
+      # are passed through untouched, and an entrypoint-wide default would
+      # have Traefik answer the handshake it is supposed to be forwarding.
+      tls:
+        enabled: false
+
+  grpc:
+    port: 50051
+    exposedPort: 50051
+    expose:
+      default: true
+    protocol: TCP
+
+  # Not exposed. The dashboard and metrics stay inside the cluster.
+  traefik:
+    expose:
+      default: false
+
+providers:
+  kubernetesCRD:
+    enabled: true
+    # Routes may point at services in any namespace — Traefik lives in its own,
+    # the application in another.
+    allowCrossNamespace: true
+  # Off: every route here is an IngressRouteTCP, and leaving the Ingress
+  # provider on would let a stray Ingress resource elsewhere in the cluster
+  # publish itself on the only public address we have.
+  kubernetesIngress:
+    enabled: false
+
+log:
+  level: INFO
+  format: json
+
+accessLog:
+  format: json
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    memory: 256Mi

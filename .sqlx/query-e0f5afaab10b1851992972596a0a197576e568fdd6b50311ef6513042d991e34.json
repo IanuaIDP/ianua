@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Records a code step as a user's latest accepted one, only when it is\n-- later than every step accepted before: a row changed means this call won.\nUPDATE mfa_enrollments\nSET last_claimed_step = $3\nWHERE tenant_id = $1 AND user_id = $2\n    AND (last_claimed_step IS NULL OR last_claimed_step < $3)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e0f5afaab10b1851992972596a0a197576e568fdd6b50311ef6513042d991e34"
+}

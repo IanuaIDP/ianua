@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The tenants in this database holding a memory whose waiting period is\n-- over at $1.\nSELECT DISTINCT tenant_id\nFROM memories\nWHERE status = 'deletion_requested' AND deleted_after <= $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "aa5f46e6f9c167a44fed4ca9213dd3f9d1e7ab9df3a2cfe6d586724d2692f8cc"
+}

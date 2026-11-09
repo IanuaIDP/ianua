@@ -1,0 +1,20 @@
+{{- /*
+The gateway's workflow listener, which only the worker calls for Protected
+apps steps, over mutual TLS. Always ClusterIP and never named by an ingress.
+Its certificate is issued for this Service's name.
+*/ -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ianua.workflowHost" . }}
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: zero
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "ianua.selectorLabels" (dict "root" . "component" "zero") | nindent 4 }}
+  ports:
+    - name: workflow
+      port: {{ .Values.zero.workflowPort }}
+      targetPort: workflow

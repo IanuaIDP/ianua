@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps the sweep's verdict on the tenant's audit chain, sealed, replacing\n-- the one before.\nINSERT INTO audit_chain_verdicts\n    (tenant_id, verified_at, standing, broken_at_seq, checkpoint_seq, checkpoint_hash, seal)\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nON CONFLICT (tenant_id) DO UPDATE SET\n    verified_at = EXCLUDED.verified_at,\n    standing = EXCLUDED.standing,\n    broken_at_seq = EXCLUDED.broken_at_seq,\n    checkpoint_seq = EXCLUDED.checkpoint_seq,\n    checkpoint_hash = EXCLUDED.checkpoint_hash,\n    seal = EXCLUDED.seal\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz",
+        "Text",
+        "Int8",
+        "Int8",
+        "Bytea",
+        "Bytea"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6bf782ad77e345bd83343dca6896f3fc176b8cb88fe12f0e369ef5433d506628"
+}

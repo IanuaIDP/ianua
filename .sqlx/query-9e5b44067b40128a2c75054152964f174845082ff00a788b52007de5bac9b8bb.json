@@ -1,0 +1,101 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The access requests of a tenant with the given ids.\nSELECT id, requester_kind, requester_id, requester_person, asked, asked_id, reason,\n       length_seconds, status, approver_kind, approver_id, approver_person, answered_at,\n       requested_at\nFROM access_requests\nWHERE tenant_id = $1 AND id = ANY($2)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "requester_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "requester_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "requester_person",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "asked",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "asked_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "reason",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "length_seconds",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 8,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "approver_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "approver_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 11,
+        "name": "approver_person",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "answered_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 13,
+        "name": "requested_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "9e5b44067b40128a2c75054152964f174845082ff00a788b52007de5bac9b8bb"
+}

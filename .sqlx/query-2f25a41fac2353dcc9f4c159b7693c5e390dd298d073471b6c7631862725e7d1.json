@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The clearance rules of a tenant, if it ever wrote any.\nSELECT permissions, levels, updated_at\nFROM clearance_rules\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "permissions",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 1,
+        "name": "levels",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "2f25a41fac2353dcc9f4c159b7693c5e390dd298d073471b6c7631862725e7d1"
+}

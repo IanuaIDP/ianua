@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}验证您的邮箱地址{% endblock %}
+{% block preheader %}请验证邮箱地址以完成账户设置。{% endblock %}
+{% block headline %}验证您的邮箱地址{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("用户")) }}
+  {% call c.para(pad=8) %}已在 {{ c.brand() }} 上为您创建 <strong>{{ organization_name | default("您的组织") }}</strong> 的账户。登录前，请先验证邮箱地址。{% endcall %}
+  {{ c.cta(action_url, "验证邮箱") }}
+  {% call c.para(pad=0) %}此链接将在 {{ expires_at }} 后过期。{% endcall %}
+  {% call c.para(pad=32) %}如果您未预期收到此邮件，可以忽略它。{% endcall %}
+{% endblock %}

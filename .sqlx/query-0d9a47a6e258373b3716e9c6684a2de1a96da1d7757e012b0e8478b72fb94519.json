@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a webhook secret: a new one is added, a known one takes its new\n-- digest and who replaced it. Its workflow and when it was first issued\n-- never change. Another secret of the same workflow refuses it.\nINSERT INTO workflow_trigger_secrets\n    (id, tenant_id, workflow_id, secret_hash, issued_by, created_at, secret_changed_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nON CONFLICT (id) DO UPDATE SET\n    secret_hash = EXCLUDED.secret_hash,\n    issued_by = EXCLUDED.issued_by,\n    secret_changed_at = EXCLUDED.secret_changed_at\nWHERE workflow_trigger_secrets.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Jsonb",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "0d9a47a6e258373b3716e9c6684a2de1a96da1d7757e012b0e8478b72fb94519"
+}

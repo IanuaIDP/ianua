@@ -1,0 +1,5 @@
+# Import layout: std, then other crates, then this crate, one `use` per module.
+# Both options are nightly-only; apply them with `cargo +nightly fmt --all`.
+# Stable `cargo fmt --check` keeps the result as it is.
+group_imports = "StdExternalCrate"
+imports_granularity = "Module"

@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% import "error_texts.html" as e %}
+
+{% block title %}{{ status }} {{ e.title(kind) }}{% if look.name %} | {{ look.name }}{% endif %}{% endblock %}
+
+{% block content %}
+      <p class="status">エラー {{ status }}</p>
+      <h1>{{ e.title(kind) }}</h1>
+      <p class="subtitle">{{ e.advice(kind) }}</p>
+      <p class="reference">参照番号： <code>{{ reference }}</code></p>
+{% endblock %}

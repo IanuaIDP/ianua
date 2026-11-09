@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Spends the oldest approved request of a tenant for exactly one action\n-- under one delegation, while its time has not run out, in one statement,\n-- and answers which one it spent. Two calls racing for it cannot both\n-- spend it: the one that finds it locked passes it over, and the spend\n-- holds only while it is still approved.\nUPDATE agent_approvals SET\n    status = 'consumed',\n    updated_at = greatest($4, updated_at)\nWHERE tenant_id = $1 AND status = 'approved' AND id = (\n    SELECT id\n    FROM agent_approvals\n    WHERE tenant_id = $1 AND delegation_id = $2 AND status = 'approved' AND action = $3\n      AND $4 < expires_at\n    ORDER BY created_at, id\n    LIMIT 1\n    FOR UPDATE SKIP LOCKED\n)\nRETURNING id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "8112448273a859013acb928d481cbda9d025f37c0834ce410ef5d8463c566716"
+}

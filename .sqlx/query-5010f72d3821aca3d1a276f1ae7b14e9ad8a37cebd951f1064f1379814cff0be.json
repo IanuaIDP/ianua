@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Marks one notification of a member's inbox read; a second time changes\n-- nothing but still finds it.\nUPDATE org_notifications\nSET read = true\nWHERE organization_id = $1 AND org_user_id = $2 AND id = $3\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5010f72d3821aca3d1a276f1ae7b14e9ad8a37cebd951f1064f1379814cff0be"
+}

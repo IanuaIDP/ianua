@@ -1,0 +1,72 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Directly assigned roles for the requested principal kind/id pairs in one tenant.\nSELECT a.principal_kind, a.principal_id, r.id, r.name, r.system_permissions,\n       r.custom_permissions, r.is_default, r.created_at, r.updated_at\nFROM roles r\nJOIN role_assignments a ON a.tenant_id = r.tenant_id AND a.role_id = r.id\nWHERE r.tenant_id = $1 AND a.tenant_id = $1\n  AND EXISTS (\n      SELECT 1 FROM unnest($2::text[], $3::uuid[]) wanted(kind, id)\n      WHERE wanted.kind = a.principal_kind AND wanted.id = a.principal_id\n  )\nORDER BY a.principal_kind, a.principal_id, r.created_at, r.id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "principal_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "principal_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "system_permissions",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 5,
+        "name": "custom_permissions",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 6,
+        "name": "is_default",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 7,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "TextArray",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "b904ed83c22e8c8b1289093ecea88b0b8ce5bed6e971b0ef8afcbf503974b803"
+}

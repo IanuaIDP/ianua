@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps the people behind the delegation of an approval request of a\n-- tenant in one statement. They are named once, when the request is\n-- raised, so those already kept stay as they are.\nINSERT INTO agent_approval_delegators (tenant_id, approval_id, place, account_kind, account_id,\n                                       person)\nSELECT $1, $2, kept.place, kept.account_kind, kept.account_id, kept.person\nFROM UNNEST($3::smallint[], $4::text[], $5::uuid[], $6::text[])\n    AS kept (place, account_kind, account_id, person)\nON CONFLICT (tenant_id, approval_id, place) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int2Array",
+        "TextArray",
+        "UuidArray",
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "aa7e2408acf3730671b144d1d1110952858f9e3d1330d8dedcf627eb15b8c74b"
+}

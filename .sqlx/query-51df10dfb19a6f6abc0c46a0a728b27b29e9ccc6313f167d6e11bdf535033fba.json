@@ -1,0 +1,179 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- One index-limited latest execution per requested workflow, without\n-- scanning each workflow's full run history or making per-flow round trips.\n-- The passes of loops are no run of their own, so they are left out.\nSELECT e.id, e.workflow_id, e.version, e.graph, e.acting_for, e.authors, e.cause,\n       e.cause_event, e.cause_event_depth, e.restarted_execution_id, e.restart_from, e.cause_change,\n       e.pass_of, e.pass_step, e.pass_index, e.chain_depth, e.input, e.exposure, e.steps,\n       e.status, e.cancelled_by, e.deadline, e.created_at, e.updated_at, e.failure_alert, e.mode,\n       e.stand_ins\nFROM (SELECT DISTINCT unnest($2::uuid[]) AS workflow_id) requested\nJOIN LATERAL (\n    SELECT id FROM workflow_executions\n    WHERE tenant_id = $1 AND workflow_id = requested.workflow_id AND mode = 'live'\n        AND pass_of IS NULL\n    ORDER BY created_at DESC, id DESC\n    LIMIT 1\n) latest ON true\nJOIN workflow_executions e ON e.tenant_id = $1 AND e.id = latest.id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "workflow_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "version",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "graph",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "acting_for",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 5,
+        "name": "authors",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 6,
+        "name": "cause",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "cause_event",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "cause_event_depth",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 9,
+        "name": "restarted_execution_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 10,
+        "name": "restart_from",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "cause_change",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "pass_of",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 13,
+        "name": "pass_step",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 14,
+        "name": "pass_index",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 15,
+        "name": "chain_depth",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 16,
+        "name": "input",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 17,
+        "name": "exposure",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 18,
+        "name": "steps",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 19,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 20,
+        "name": "cancelled_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 21,
+        "name": "deadline",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 22,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 23,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 24,
+        "name": "failure_alert",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 25,
+        "name": "mode",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 26,
+        "name": "stand_ins",
+        "type_info": "TextArray"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "51df10dfb19a6f6abc0c46a0a728b27b29e9ccc6313f167d6e11bdf535033fba"
+}

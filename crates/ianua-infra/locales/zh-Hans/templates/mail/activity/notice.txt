@@ -1,0 +1,7 @@
+{{ notice_title }}
+
+{{ notice_body | default(notice_title) }}
+
+您收到此邮件是因为选择了通过邮件接收此类通知。您可以在通知设置中更改。
+
+IANUA

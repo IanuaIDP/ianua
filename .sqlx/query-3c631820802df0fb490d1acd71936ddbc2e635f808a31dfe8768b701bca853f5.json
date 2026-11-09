@@ -1,0 +1,35 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Whether one delegation of a tenant still grants anything, read with\n-- every delegation it draws its authority from: the one it was cut from,\n-- those a minted one was cut from, those a token exchange derived it from,\n-- and theirs in turn. A delegation that is gone reads with no status, and\n-- a loop stored by mistake ends the walk. Each minted one carries the\n-- status of the credential whose key minted it, so revoking that key ends\n-- its token.\nWITH RECURSIVE above (id) AS (\n    SELECT $2::uuid\n    UNION\n    SELECT edge.source\n    FROM above\n    CROSS JOIN LATERAL (\n        SELECT cut.parent_id AS source\n        FROM agent_delegations cut\n        WHERE cut.tenant_id = $1 AND cut.id = above.id AND cut.parent_id IS NOT NULL\n        UNION ALL\n        SELECT minted.source_id\n        FROM delegation_sources minted\n        WHERE minted.tenant_id = $1 AND minted.delegation_id = above.id\n        UNION ALL\n        SELECT derived.source_id\n        FROM delegation_provenance derived\n        WHERE derived.tenant_id = $1 AND derived.delegation_id = above.id\n    ) AS edge\n)\nSELECT d.status AS \"status?\",\n       d.minted_credential_id AS \"minted_with?\",\n       c.status AS \"key_status?\"\nFROM above\nLEFT JOIN agent_delegations d ON d.tenant_id = $1 AND d.id = above.id\nLEFT JOIN agent_credentials c ON c.tenant_id = $1 AND c.id = d.minted_credential_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "status?",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "minted_with?",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "key_status?",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "3c631820802df0fb490d1acd71936ddbc2e635f808a31dfe8768b701bca853f5"
+}

@@ -1,0 +1,2 @@
+GET /api/v1/organizations/acme/tenants/acme-tenant/agents
+accept: application/json

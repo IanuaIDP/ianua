@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many groups of a tenant carry the given role.\nSELECT count(*) AS \"count!\"\nFROM group_roles\nWHERE tenant_id = $1 AND role_id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "90fe1e654a19c629f7b03ba65cc5d5f3d9460e7310d5f3a67d624427cf7712eb"
+}

@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Revokes, at the given time, every active token of one family of one\n-- tenant. A token rotated or revoked already keeps its time.\nUPDATE oauth_refresh_tokens\nSET state = 'revoked', ended_at = $3\nWHERE tenant_id = $1 AND family_id = $2 AND state = 'active'\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b68274a90b46f30e93432160d9a1616b92c62376104fa29102485cdb6330ea3d"
+}

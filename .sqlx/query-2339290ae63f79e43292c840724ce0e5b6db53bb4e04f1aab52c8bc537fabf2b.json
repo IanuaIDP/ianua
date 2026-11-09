@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Where the registration a delivery's address names is kept, in whichever\n-- tenants the read may see.\nSELECT tenant_id, id\nFROM workflow_service_subscriptions\nWHERE id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "2339290ae63f79e43292c840724ce0e5b6db53bb4e04f1aab52c8bc537fabf2b"
+}

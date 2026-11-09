@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every tenant in this database holding a key rotated out and not yet\n-- revoked, for the sweep that revokes it once its grace is over.\nSELECT DISTINCT tenant_id AS \"tenant_id!\"\nFROM signing_keys\nWHERE status = 'rotated'\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id!",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "427a1fcb92af372038d1f1cebd7f6a6be406208f1dc1b151c7ef973306f1378b"
+}

@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Lets go of the agent runs one run of one tenant no longer waits on.\nDELETE FROM workflow_execution_runs\nWHERE tenant_id = $1 AND execution_id = $2 AND agent_run_id <> ALL($3)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "46f754346c330335233151f6ec928a1bdfe3390fbecf434f0753436e9d28954d"
+}

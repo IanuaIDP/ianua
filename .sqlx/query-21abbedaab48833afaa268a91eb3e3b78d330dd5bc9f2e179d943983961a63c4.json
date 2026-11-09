@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an organization member: a new one is added, a known one takes the\n-- new values. Their organization and creation time never change.\nINSERT INTO org_users\n    (id, organization_id, email, display_name, password_hash, status, role,\n     email_standing, locale, timezone, joined_at, credentials_changed_at,\n     route_vouches, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)\nON CONFLICT (id) DO UPDATE SET\n    email = EXCLUDED.email,\n    display_name = EXCLUDED.display_name,\n    password_hash = EXCLUDED.password_hash,\n    status = EXCLUDED.status,\n    role = EXCLUDED.role,\n    email_standing = EXCLUDED.email_standing,\n    locale = EXCLUDED.locale,\n    timezone = EXCLUDED.timezone,\n    joined_at = EXCLUDED.joined_at,\n    credentials_changed_at = EXCLUDED.credentials_changed_at,\n    route_vouches = EXCLUDED.route_vouches,\n    updated_at = EXCLUDED.updated_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Bool",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "21abbedaab48833afaa268a91eb3e3b78d330dd5bc9f2e179d943983961a63c4"
+}

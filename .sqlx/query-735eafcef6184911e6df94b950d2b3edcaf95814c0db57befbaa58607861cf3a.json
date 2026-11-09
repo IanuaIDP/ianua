@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a resource type: a new one is added, a known one takes the new\n-- values. Its tenant and creation time never change.\nINSERT INTO resource_types\n    (id, tenant_id, key, display_name, description, actions, data_class, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\nON CONFLICT (id) DO UPDATE SET\n    key = EXCLUDED.key,\n    display_name = EXCLUDED.display_name,\n    description = EXCLUDED.description,\n    actions = EXCLUDED.actions,\n    data_class = EXCLUDED.data_class,\n    updated_at = EXCLUDED.updated_at\nWHERE resource_types.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Jsonb",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "735eafcef6184911e6df94b950d2b3edcaf95814c0db57befbaa58607861cf3a"
+}

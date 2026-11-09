@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The schema a tenant lives in, if it lives in one of its own.\nSELECT schema_name\nFROM tenant_databases\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "schema_name",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "f9f89bad0f14f292333d5c71aeba32d009f8a43b978c89d3bb675e9d3d6836d7"
+}

@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Records that a principal of a tenant holds a relation on a named\n-- resource. Granting what it already holds changes nothing, and keeps who\n-- granted it first.\nINSERT INTO resource_grants\n    (tenant_id, subject_kind, subject_id, relation, object_ref, granted_by_kind, granted_by_id)\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nON CONFLICT (tenant_id, subject_kind, subject_id, relation, object_ref) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ebe0c79044049328cfe90588ca7105cbabc57f08a47927d4350209632d912853"
+}

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes a resource type of a tenant.\nDELETE FROM resource_types\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "72204b04c0b90f7eb88ac388be4742c7eca1f247dbf217c5e7c26a79b6145a63"
+}

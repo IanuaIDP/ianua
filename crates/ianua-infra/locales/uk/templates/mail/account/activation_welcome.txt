@@ -1,0 +1,6 @@
+Вітаємо, {{ user_name | default("користувачу") }}!
+
+Ваш обліковий запис у {{ tenant_name | default(organization_name | default("вашій організації")) }} налаштовано й він готовий до використання. Увійдіть тут:
+{{ action_url }}
+
+IANUA

@@ -1,0 +1,298 @@
+{{- if .Values.traefik.enabled }}
+{{/*
+How traffic gets from the one public address to the right service.
+
+Every route here is an IngressRouteTCP rather than an Ingress, and that is
+forced rather than chosen. Traefik evaluates TCP routers before HTTP ones on a
+shared entrypoint, so the catch-all below would swallow anything an Ingress
+tried to serve on :443. Making all of them TCP routers puts them in one
+ordering, where Traefik sorts by rule length and a named host beats `*`.
+
+    HostSNI(`api.ianua.io`)  ← longest, wins
+    HostSNI(`ianua.io`)
+    HostSNI(`*`)             ← catch-all, last
+
+The catch-all passes connections through still encrypted. That is the whole
+reason for this shape: zero holds a certificate per tenant domain and chooses
+one from the handshake, so decrypting here would leave those certificates with
+nowhere to be served, and every tenant would get ours instead — a name
+mismatch in every browser that visited them.
+*/}}
+---
+apiVersion: traefik.io/v1alpha1
+kind: TLSOption
+metadata:
+  name: {{ include "ianua.fullname" . }}-origin
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: traefik-route
+  {{- with include "ianua.routeHookAnnotations" $ }}
+  {{- . | nindent 2 }}
+  {{- end }}
+spec:
+  # HTTP/1.1 only, for the terminated routes below.
+  #
+  # A TCP router hands the decrypted stream to the backend as it is; it does
+  # not translate between HTTP versions. Offer h2 in the handshake and a
+  # client that accepts it starts speaking HTTP/2 framing to a backend that
+  # only knows HTTP/1.1, which drops the connection with nothing useful
+  # logged at either end.
+  alpnProtocols:
+    - http/1.1
+{{- $terminateWithHttp := eq (.Values.traefik.terminateWith | default "tcp") "http" }}
+{{- if $terminateWithHttp }}
+{{/*
+The other way to terminate our own hosts: as HTTP routes, so Traefik adds
+X-Forwarded-For and the API sees the real client. For a deployment with no CDN
+in front, where that header is the only place the address survives.
+
+Traefik tries TCP routers before HTTP ones on the same port, so the
+passthrough route further down names these hosts and excludes them, rather
+than catching everything.
+*/}}
+{{- range .Values.traefik.terminated }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "ianua.fullname" $ }}-http-{{ .host | replace "." "-" }}
+  labels:
+    {{- include "ianua.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: traefik-route
+  {{- with include "ianua.routeHookAnnotations" $ }}
+  {{- . | nindent 2 }}
+  {{- end }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`{{ .host }}`)
+      kind: Rule
+      services:
+        - name: {{ .service }}
+          port: {{ .port }}
+  tls:
+    {{- if $.Values.traefik.tls.certResolver }}
+    certResolver: {{ $.Values.traefik.tls.certResolver }}
+    {{- else }}
+    secretName: {{ $.Values.traefik.tls.secretName }}
+    {{- end }}
+{{- end }}
+{{/*
+File download links and tenants' logos are made under APP_BASE_URL, the
+dashboard's address, at /api/v1/files/... These routes send /api/v1 on that
+host straight to the API, streamed. A longer rule than the host's own, so
+Traefik tries it first.
+*/}}
+{{- range .Values.traefik.appHosts }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "ianua.fullname" $ }}-http-api-{{ . | replace "." "-" }}
+  labels:
+    {{- include "ianua.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: traefik-route
+  {{- with include "ianua.routeHookAnnotations" $ }}
+  {{- . | nindent 2 }}
+  {{- end }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`{{ . }}`) && PathPrefix(`/api/v1`)
+      kind: Rule
+      services:
+        - name: {{ $.Values.traefik.api.service }}
+          port: {{ $.Values.traefik.api.port }}
+  tls:
+    {{- if $.Values.traefik.tls.certResolver }}
+    certResolver: {{ $.Values.traefik.tls.certResolver }}
+    {{- else }}
+    secretName: {{ $.Values.traefik.tls.secretName }}
+    {{- end }}
+{{- end }}
+{{- else }}
+{{- range .Values.traefik.terminated }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: {{ include "ianua.fullname" $ }}-tcp-{{ .host | replace "." "-" }}
+  labels:
+    {{- include "ianua.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: traefik-route
+  {{- with include "ianua.routeHookAnnotations" $ }}
+  {{- . | nindent 2 }}
+  {{- end }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: HostSNI(`{{ .host }}`)
+      services:
+        - name: {{ .service }}
+          port: {{ .port }}
+  tls:
+    # Terminated, so the backend receives plain HTTP over this connection.
+    # These two hosts sit behind a CDN that already carries the client address
+    # in a header, which is why losing it at the TCP layer costs nothing here
+    # and would not be acceptable for the passthrough route below.
+    {{- if $.Values.traefik.tls.certResolver }}
+    certResolver: {{ $.Values.traefik.tls.certResolver }}
+    {{- else }}
+    secretName: {{ $.Values.traefik.tls.secretName }}
+    {{- end }}
+    options:
+      name: {{ include "ianua.fullname" $ }}-origin
+      namespace: {{ $.Release.Namespace }}
+{{- end }}
+{{- end }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: {{ include "ianua.fullname" . }}-tcp-tenants
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: traefik-route
+  {{- with include "ianua.routeHookAnnotations" $ }}
+  {{- . | nindent 2 }}
+  {{- end }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    # Everything that is not one of ours is a tenant's own domain, pointed
+    # here by the A record we serve for it. It must arrive at zero exactly as
+    # the browser sent it.
+    {{- if $terminateWithHttp }}
+    - match: >-
+        HostSNI(`*`)
+        {{- range .Values.traefik.terminated }} && !HostSNI(`{{ .host }}`){{ end }}
+    {{- else }}
+    - match: HostSNI(`*`)
+    {{- end }}
+      services:
+        - name: {{ .Values.traefik.passthrough.service }}
+          port: {{ .Values.traefik.passthrough.port }}
+          {{- if .Values.traefik.passthrough.proxyProtocol }}
+          # Names the real client before the encrypted stream starts.
+          #
+          # Passing TLS through means the connection zero sees is Traefik's
+          # own, so without this every visitor is recorded as Traefik: one
+          # address in the audit trail, one bucket in the rate limiter, and a
+          # risk engine scoring the cluster. zero must be set to expect it —
+          # the header is unauthenticated, so a listener that reads it without
+          # being reachable only by Traefik lets any client name itself.
+          proxyProtocol:
+            version: 2
+          {{- end }}
+  tls:
+    passthrough: true
+---
+{{/*
+The one thing on :80 that must not be redirected to :443.
+
+A certificate authority proving a self-managed domain fetches
+`http://<domain>/.well-known/acme-challenge/<token>`. It does follow a redirect
+to HTTPS — but the certificate on the far side is the one being requested, and
+before the first issuance there is none, so relying on that leaves the very
+first certificate for a domain unobtainable.
+
+An HTTP router rather than a TCP one, because it matches on a path, and paths
+only exist once TLS is out of the way — which on :80 it already is. The
+priority puts it above the entrypoint's blanket redirect.
+*/}}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "ianua.fullname" . }}-acme-challenge
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: traefik-route
+  {{- with include "ianua.routeHookAnnotations" $ }}
+  {{- . | nindent 2 }}
+  {{- end }}
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: PathPrefix(`/.well-known/acme-challenge/`)
+      kind: Rule
+      priority: 1000
+      services:
+        - name: {{ .Values.traefik.acme.service }}
+          port: {{ .Values.traefik.acme.port }}
+{{- if .Values.traefik.redirectToHttps }}
+{{/*
+Everything else on :80 goes to HTTPS. A route of the lowest priority rather
+than an entrypoint-wide redirect, so it cannot outrank the challenge route
+above whatever priority the entrypoint's redirect is given.
+*/}}
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "ianua.fullname" . }}-to-https
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: traefik-route
+  {{- with include "ianua.routeHookAnnotations" $ }}
+  {{- . | nindent 2 }}
+  {{- end }}
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "ianua.fullname" . }}-to-https
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: traefik-route
+  {{- with include "ianua.routeHookAnnotations" $ }}
+  {{- . | nindent 2 }}
+  {{- end }}
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: PathPrefix(`/`)
+      kind: Rule
+      priority: 1
+      middlewares:
+        - name: {{ include "ianua.fullname" . }}-to-https
+      services:
+        - name: noop@internal
+          kind: TraefikService
+{{- end }}
+{{- if .Values.traefik.grpc.enabled }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: {{ include "ianua.fullname" . }}-tcp-grpc
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: traefik-route
+  {{- with include "ianua.routeHookAnnotations" $ }}
+  {{- . | nindent 2 }}
+  {{- end }}
+spec:
+  entryPoints:
+    - grpc
+  routes:
+    # Passed through for a different reason than the tenants: here the client
+    # certificate *is* the authentication. Terminating would strip it, and the
+    # listener would refuse every nameserver.
+    - match: HostSNI(`*`)
+      services:
+        - name: {{ .Values.traefik.grpc.service }}
+          port: {{ .Values.traefik.grpc.port }}
+  tls:
+    passthrough: true
+{{- end }}
+{{- end }}

@@ -1,0 +1,240 @@
+name: CI
+
+# The dashboard has its own workflow (dashboard.yml); a change only under
+# dashboard/ does not run the Rust CI. Nothing here deploys: every push to main
+# or a version tag ends with images in the container registry.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    tags: ["v*"]
+    paths-ignore: ["dashboard/**", "docker/Dockerfile.dashboard", "deploy/helm/ianua-front/**", ".github/workflows/dashboard.yml"]
+  pull_request:
+    branches: [main]
+    paths-ignore: ["dashboard/**", "docker/Dockerfile.dashboard", "deploy/helm/ianua-front/**", ".github/workflows/dashboard.yml"]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  # One value for every job: Cargo fingerprints on this string, so a job with a
+  # different value could not reuse the shared cache.
+  RUSTFLAGS: "-D warnings"
+  # The compile-time-checked queries resolve against the committed .sqlx data.
+  # `sqlx-offline` proves that data still matches the schema.
+  SQLX_OFFLINE: "true"
+
+jobs:
+  fmt:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      # rustfmt.toml orders imports with options only nightly rustfmt reads;
+      # stable would pass files whose imports have drifted out of order.
+      - run: rustup toolchain install nightly --profile minimal --component rustfmt
+      - run: cargo +nightly fmt --all --check
+
+  # Every build of the workspace compiles the shared crates with the same
+  # features through ianua-workspace-hack. A dependency added without
+  # regenerating it silently brings double builds back.
+  hakari:
+    name: Workspace hack
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-hakari
+      - run: cargo hakari generate --diff
+      - run: cargo hakari manage-deps --dry-run
+
+  sqlx-offline:
+    name: Query cache
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: ianua
+          POSTGRES_PASSWORD: ianua
+          POSTGRES_DB: ianua
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ianua"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 30
+    env:
+      SQLX_OFFLINE: "false"
+      DATABASE_URL: postgres://ianua:ianua@127.0.0.1:5432/ianua
+    steps:
+      - uses: actions/checkout@v5
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: ci
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: sqlx-cli
+      - name: Apply migrations
+        run: |
+          for f in crates/ianua-infra/migrations/*.sql; do
+            psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f "$f"
+          done
+      - name: Fail if .sqlx is stale
+        run: cargo sqlx prepare --workspace --check -- --all-targets
+      # The migrations must build exactly crates/ianua-infra/schema/, for the
+      # platform and for a tenant's own database, and no released migration
+      # may have changed. The tool makes and drops its own databases.
+      - name: Fail if the migrations and the schema differ
+        run: SCHEMA_DATABASE_URL="$DATABASE_URL" cargo run --release -p ianua-schema -- check
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: ci
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - run: cargo clippy --all-targets --all-features -- -D warnings
+
+  audit:
+    name: House rules
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: ci-audit
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - run: cargo run --release -p ianua-audit -- check
+
+  deny:
+    name: Supply chain
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-deny
+      - run: cargo deny check
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Free disk space
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: ci
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: nextest
+      # Otherwise testcontainers would pull inside a test's own timeout.
+      - name: Pre-pull Postgres image
+        run: docker pull pgvector/pgvector:pg16
+      - name: Run workspace tests
+        run: cargo nextest run --workspace --exclude ianua-scenarios --no-fail-fast
+
+  # Split across four runners, each running its own quarter of the scenarios.
+  test-e2e:
+    name: E2E Tests (${{ matrix.shard }} of 4)
+    runs-on: ubuntu-latest
+    needs: [fmt]
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v5
+      - name: Free disk space
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: ci
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: nextest
+      - name: Pre-pull Postgres image
+        run: docker pull pgvector/pgvector:pg16
+      - name: Run E2E tests
+        run: cargo nextest run -p ianua-scenarios --profile ci-e2e --partition hash:${{ matrix.shard }}/4
+        timeout-minutes: 60
+
+  # Images are what this pipeline delivers, so one is published only once every
+  # check has passed.
+  images:
+    name: Build and push images
+    runs-on: ubuntu-latest
+    needs: [fmt, hakari, sqlx-offline, clippy, audit, deny, test, test-e2e]
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Free disk space
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # Lets `docker buildx` below read and write the Actions cache.
+      - uses: crazy-max/ghaction-github-runtime@v3
+      - name: Work out the tags
+        id: meta
+        run: |
+          sha="${GITHUB_SHA::7}"
+          tags="$sha"
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            tags="$tags latest"
+          fi
+          case "$GITHUB_REF" in
+            refs/tags/v*)
+              v="${GITHUB_REF#refs/tags/v}"
+              tags="$tags $v ${v%.*}"
+              ;;
+          esac
+          echo "tags=$tags" >> "$GITHUB_OUTPUT"
+          echo "Tagging with: $tags"
+      # One after another: the targets share the cargo-chef builder stage, so
+      # only the first compiles the workspace.
+      - name: Build and push every image
+        env:
+          TAGS: ${{ steps.meta.outputs.tags }}
+        run: |
+          set -euo pipefail
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          for target in server zero dns runner egress connector; do
+            echo "::group::ianua-$target"
+            args=()
+            for t in $TAGS; do
+              args+=(-t "ghcr.io/$owner/ianua-$target:$t")
+            done
+            docker buildx build \
+              -f docker/Dockerfile \
+              --target "$target" \
+              --label "org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}" \
+              --label "org.opencontainers.image.revision=${GITHUB_SHA}" \
+              --cache-from type=gha,scope=images \
+              --cache-to type=gha,mode=max,scope=images \
+              --push \
+              "${args[@]}" \
+              .
+            echo "::endgroup::"
+          done

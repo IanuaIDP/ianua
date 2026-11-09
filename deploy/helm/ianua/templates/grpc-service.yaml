@@ -1,0 +1,59 @@
+{{- if .Values.grpc.enabled }}
+{{/*
+Reaches the control plane's gRPC listener from outside the cluster.
+
+The nameservers run on their own hosts — that is the whole point of the link —
+so this cannot be a ClusterIP. It is a plain TCP balancer: the connection is
+mutually authenticated end to end, so nothing between the nameserver and the
+pod may terminate it. Anything that decrypts here would have to hold the
+control plane's key, and the client certificate would stop at the balancer
+instead of reaching the code that checks it.
+
+A *common* NodeBalancer serves this — TCP is all it needs, unlike the DNS
+Services, which need UDP and therefore a premium one. Roughly $10/mo on Linode.
+
+Reachable from the open internet, which is acceptable only because the
+listener demands a client certificate this deployment issued. Narrow it
+further with loadBalancerSourceRanges when the nameservers have static
+addresses; nothing about the design depends on that, but there is no reason to
+let the rest of the internet complete a TCP handshake.
+*/}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ianua.fullname" . }}-grpc
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: grpc
+  {{- with .Values.grpc.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.grpc.service.type }}
+  {{/*
+  Both of the following are rejected outright by the API server on anything
+  but a LoadBalancer, so they are gated on the type rather than only on being
+  set. Gated on being set alone, switching this Service to ClusterIP while a
+  source range was still configured produced a manifest Kubernetes refused —
+  and the whole release failed on it, not just this object.
+  */}}
+  {{- if eq .Values.grpc.service.type "LoadBalancer" }}
+  {{- with .Values.grpc.service.loadBalancerIP }}
+  # Must be reserved and static. The nameservers' configuration names it, and
+  # they are configured by hand on hosts nothing in the cluster manages.
+  loadBalancerIP: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.grpc.service.sourceRanges }}
+  loadBalancerSourceRanges:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- end }}
+  selector:
+    {{- include "ianua.selectorLabels" (dict "root" . "component" "server") | nindent 4 }}
+  ports:
+    - name: grpc
+      port: {{ .Values.grpc.service.port | default .Values.grpc.port }}
+      targetPort: grpc
+      protocol: TCP
+{{- end }}

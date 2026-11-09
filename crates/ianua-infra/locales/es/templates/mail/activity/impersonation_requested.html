@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Un administrador solicita actuar en su nombre{% endblock %}
+{% block preheader %}Inicie sesión para aprobar o rechazar la solicitud.{% endblock %}
+{% block headline %}Un administrador solicita actuar en su nombre{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para() %}<strong>{{ requester_name | default("Un administrador") }}</strong> de <strong>{{ tenant_name | default("su organización") }}</strong> solicita actuar en su nombre para ayudarle con su cuenta.{% endcall %}
+  {% if reason is defined %}{% call c.para() %}Motivo: {{ reason }}{% endcall %}{% endif %}
+  {% call c.para() %}Inicie sesión en su cuenta para aprobar o rechazar. La solicitud caduca en {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}No ocurrirá nada sin su aprobación. Si no esperaba esta solicitud, rechácela y avise a su administrador.{% endcall %}
+{% endblock %}

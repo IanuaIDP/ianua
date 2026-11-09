@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Marks one notification of an operator's inbox read; a second time\n-- changes nothing but still finds it.\nUPDATE platform_notifications\nSET read = true\nWHERE operator_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f65af99956360879d3672142d3c6dfdc6acb246661ab37d43b4793d53d94d353"
+}

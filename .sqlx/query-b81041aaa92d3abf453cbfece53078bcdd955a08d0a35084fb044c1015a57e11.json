@@ -1,0 +1,89 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The records one import of a tenant was sent, in the order they came.\nSELECT email, display_name, given_name, family_name, preferred_username, picture,\n       phone_number, external_id, department, manager_id, employee_number,\n       password_hash\nFROM user_import_records\nWHERE tenant_id = $1 AND import_id = $2\nORDER BY line\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "display_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "given_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "family_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "preferred_username",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "picture",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "phone_number",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "external_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "department",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "manager_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 10,
+        "name": "employee_number",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "password_hash",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "b81041aaa92d3abf453cbfece53078bcdd955a08d0a35084fb044c1015a57e11"
+}

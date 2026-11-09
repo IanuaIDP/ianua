@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The subscription of one organization.\nSELECT organization_id, plan, cycle, state, trial_ends_at, past_due_since,\n       payment_reference, trial, created_at, updated_at\nFROM org_subscriptions\nWHERE organization_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "plan",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "cycle",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "state",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "trial_ends_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "past_due_since",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "payment_reference",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "trial",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "4c304bf52df272d96a9f9dcc346c2294516c16f0a8c294bcba0ddbb9599f350b"
+}

@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a tenant's mail provider, replacing the one kept, every column the\n-- new kind leaves out emptied.\nINSERT INTO tenant_mail_providers\n    (tenant_id, kind, smtp_host, smtp_port, smtp_security, smtp_username, ses_region,\n     ses_access_key_id, mailgun_domain, mailgun_region, credential,\n     check_state, checked_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)\nON CONFLICT (tenant_id) DO UPDATE SET\n    kind = EXCLUDED.kind,\n    smtp_host = EXCLUDED.smtp_host,\n    smtp_port = EXCLUDED.smtp_port,\n    smtp_security = EXCLUDED.smtp_security,\n    smtp_username = EXCLUDED.smtp_username,\n    ses_region = EXCLUDED.ses_region,\n    ses_access_key_id = EXCLUDED.ses_access_key_id,\n    mailgun_domain = EXCLUDED.mailgun_domain,\n    mailgun_region = EXCLUDED.mailgun_region,\n    credential = EXCLUDED.credential,\n    check_state = EXCLUDED.check_state,\n    checked_at = EXCLUDED.checked_at,\n    updated_at = EXCLUDED.updated_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Int4",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "82dd69a4ef151cbfe5602435a6ca6c02f70fe90c3b78f691c8db5bf5f300061a"
+}

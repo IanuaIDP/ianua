@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many evaluations a tenant has running, held against its plan.\nSELECT count(*) AS \"count!\"\nFROM evaluations\nWHERE tenant_id = $1 AND state = 'running'\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "595e7936520bde6bc3cbb9c30d026cf9581421ed51ea940dcd2864daf4721b2c"
+}

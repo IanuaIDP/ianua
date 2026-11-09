@@ -1,0 +1,11 @@
+Bonjour {{ user_name | default("cher utilisateur") }},
+
+Saisissez ce code pour poursuivre la connexion à {{ tenant_name | default("votre compte") }} :
+
+{{ one_time_code }}
+
+Ce code expire dans {{ expires_at }}.
+
+Si vous n’êtes pas en train de vous connecter, quelqu’un connaît peut-être votre mot de passe. Changez-le et ne communiquez ce code à personne.
+
+IANUA

@@ -1,0 +1,10 @@
+Hallo{% if user_name is defined and user_name %} {{ user_name | default("") }}{% endif %}!
+
+Es wurde beantragt, die Adresse Ihres IANUA-Kontos zu {{ user_email }} zu ändern. Bestätigen Sie diese Adresse, um die Änderung abzuschließen:
+{{ action_url }}
+
+Dieser Link läuft in {{ expires_at }} ab.
+
+Wenn Sie dies nicht angefordert haben, können Sie diese E-Mail ignorieren.
+
+IANUA

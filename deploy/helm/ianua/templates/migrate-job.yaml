@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "ianua.fullname" . }}-migrate
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: migrate
+  annotations:
+    # `ianua migrate`: brings the schema up to date as the database owner,
+    # makes the app's and the audit purge's roles with their grants, and
+    # exits. Before an upgrade's pods roll; after install, once a bundled
+    # database exists. API pods wait until the schema is current; the worker
+    # and the other jobs would migrate too, under the same lock.
+    "helm.sh/hook": post-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  backoffLimit: 10
+  template:
+    metadata:
+      labels:
+        {{- include "ianua.selectorLabels" (dict "root" . "component" "migrate") | nindent 8 }}
+    spec:
+      restartPolicy: OnFailure
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: migrate
+          image: {{ include "ianua.serverImage" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["migrate"]
+          env:
+            {{- include "ianua.databaseUrlEnv" . | nindent 12 }}
+            {{- include "ianua.privilegedLoginEnv" . | nindent 12 }}
+          envFrom:
+            {{- include "ianua.envFrom" . | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            {{- toYaml .Values.worker.resources | nindent 12 }}

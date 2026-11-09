@@ -1,0 +1,74 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The subscriptions a payment is owed on, across every organization, the\n-- longest owed first.\nSELECT organization_id, plan, cycle, state, trial_ends_at, past_due_since,\n       payment_reference, trial, created_at, updated_at\nFROM org_subscriptions\nWHERE state = 'past_due'\nORDER BY past_due_since, organization_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "plan",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "cycle",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "state",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "trial_ends_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "past_due_since",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "payment_reference",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "trial",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "4b694139ed915a14ead2a69f4025854b935c73762c5f5884c915e82b0ea394e0"
+}

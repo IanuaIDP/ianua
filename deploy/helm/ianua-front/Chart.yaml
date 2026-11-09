@@ -1,0 +1,10 @@
+apiVersion: v2
+name: ianua-front
+description: Ianua frontend — Next.js marketing site + dashboard served from the apex.
+type: application
+version: 0.1.0
+# Pin to an immutable tag (commit SHA) in production rather than "latest".
+appVersion: "latest"
+home: https://github.com/IanuaIDP/ianua-front
+sources:
+  - https://github.com/IanuaIDP/ianua-front

@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}您的账户已关联到 {{ provider_name | default("一个登录提供商") }}{% endblock %}
+{% block preheader %}现在可通过登录提供商登录。{% endblock %}
+{% block headline %}您的账户已关联{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("用户")) }}
+  {% call c.para() %}您的 <strong>{{ tenant_name | default("您的组织") }}</strong> 账户首次通过 <strong>{{ provider_name | default("一个登录提供商") }}</strong> 登录{% if ip_address is defined %}，来源地址为 {{ ip_address }}{% endif %}。今后，您可以通过该提供商登录。{% endcall %}
+  {% call c.para(pad=32) %}如果不是您本人操作，请立即告知管理员。{% endcall %}
+{% endblock %}

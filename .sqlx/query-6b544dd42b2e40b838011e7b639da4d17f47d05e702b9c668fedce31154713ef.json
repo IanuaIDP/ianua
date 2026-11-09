@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a connection: a new one is added, a known one takes how far it\n-- got. What it connects, who began it, its state and verifier and when it\n-- runs out never change. Another connection's state refuses it.\nINSERT INTO workflow_pending_connections\n    (id, tenant_id, integration, name, sharing, operations, place, started_by, state_hash,\n     verifier_sealed, stage, credential_sealed, code_hash, expires_at, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)\nON CONFLICT (id) DO UPDATE SET\n    stage = EXCLUDED.stage,\n    credential_sealed = EXCLUDED.credential_sealed,\n    code_hash = EXCLUDED.code_hash,\n    updated_at = EXCLUDED.updated_at\nWHERE workflow_pending_connections.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "TextArray",
+        "Text",
+        "Jsonb",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6b544dd42b2e40b838011e7b639da4d17f47d05e702b9c668fedce31154713ef"
+}

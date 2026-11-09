@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Votre demande de suppression a été reçue{% endblock %}
+{% block preheader %}Votre demande de suppression de vos données a été reçue.{% endblock %}
+{% block headline %}Votre demande de suppression a été reçue{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("cher utilisateur")) }}
+  {% call c.para() %}Votre demande de suppression de vos données dans <strong>{{ tenant_name | default("votre organisation") }}</strong> a été reçue{% if erasure_date is defined %}. La suppression commence le <strong>{{ erasure_date }}</strong>{% endif %}.{% endcall %}
+  {% if action_url is defined %}{% call c.para(pad=8) %}Si vous changez d’avis avant cette date, vous pouvez annuler la demande.{% endcall %}{{ c.cta(action_url, "Annuler la suppression") }}{% endif %}
+  {% call c.para(pad=32) %}Si vous n’avez pas fait cette demande, prévenez immédiatement votre administrateur.{% endcall %}
+{% endblock %}

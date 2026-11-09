@@ -1,0 +1,155 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The versions in service of one tenant that may act through one account:\n-- its trigger registers through it, or its steps name it. The steps are\n-- matched by the account's id anywhere in the graph, so the store keeps\n-- only those that do act through it.\nSELECT v.workflow_id, v.version, v.name, v.graph, v.trigger_kind, v.trigger_schedule,\n    v.trigger_event, v.trigger_service, v.trigger_change, v.run_limit_secs, v.status, v.created_by, v.edited_by,\n    v.authors, v.published_by, v.hold, v.description, v.layout, v.failure_alert, w.origin, w.flow_description, v.created_at, v.updated_at\nFROM workflow_versions v\nJOIN workflows w ON w.tenant_id = v.tenant_id AND w.id = v.workflow_id\nWHERE v.tenant_id = $1 AND v.status = 'published'\n    AND (v.trigger_service -> 'value' ->> 'account' = $2\n        OR strpos(v.graph::text, $2) > 0)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "workflow_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "version",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "graph",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "trigger_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "trigger_schedule",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "trigger_event",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "trigger_service",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 8,
+        "name": "trigger_change",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "run_limit_secs",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 10,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "created_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 12,
+        "name": "edited_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 13,
+        "name": "authors",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 14,
+        "name": "published_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 15,
+        "name": "hold",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 16,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 17,
+        "name": "layout",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 18,
+        "name": "failure_alert",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 19,
+        "name": "origin",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 20,
+        "name": "flow_description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 21,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 22,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "ee456ba0fea8ca9ca981a96a72ca6bd1594d51ade9f3c203ded5b921a2a549fb"
+}

@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many of the tenant's routes run the given pipeline.\nSELECT count(*) AS \"count!\"\nFROM routes\nWHERE tenant_id = $1 AND pipeline_id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "75a152dedf5eee0adfa1e56e6eb60f47c0adfebd8c00762cc19dc933ce6648ad"
+}

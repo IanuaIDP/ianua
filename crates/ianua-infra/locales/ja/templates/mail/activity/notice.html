@@ -1,0 +1,11 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}{{ notice_title }}{% endblock %}
+{% block preheader %}{{ notice_title }}{% endblock %}
+{% block headline %}{{ notice_title }}{% endblock %}
+
+{% block content %}
+  {% call c.para() %}{{ notice_body | default(notice_title) }}{% endcall %}
+  {% call c.para(pad=32, color="#6b6c68") %}この種類の通知をメールで受け取る設定にしているため、お送りしています。通知設定で変更できます。{% endcall %}
+{% endblock %}

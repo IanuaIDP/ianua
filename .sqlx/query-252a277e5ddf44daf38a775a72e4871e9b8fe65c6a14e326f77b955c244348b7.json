@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Binds a workload identity of a tenant to the agent it bootstrapped, and\n-- answers that agent. Binding it to the same agent again changes nothing;\n-- nothing comes back when another agent holds it, even one bound at the\n-- same moment.\nINSERT INTO agent_workloads (tenant_id, attested_subject, agent_id)\nVALUES ($1, $2, $3)\nON CONFLICT (tenant_id, attested_subject) DO UPDATE SET agent_id = EXCLUDED.agent_id\nWHERE agent_workloads.agent_id = EXCLUDED.agent_id\nRETURNING agent_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "agent_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "252a277e5ddf44daf38a775a72e4871e9b8fe65c6a14e326f77b955c244348b7"
+}

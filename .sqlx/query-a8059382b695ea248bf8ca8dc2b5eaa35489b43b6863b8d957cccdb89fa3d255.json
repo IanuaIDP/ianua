@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Records that a tenant no longer lives in a schema of its own.\nDELETE FROM tenant_databases\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a8059382b695ea248bf8ca8dc2b5eaa35489b43b6863b8d957cccdb89fa3d255"
+}

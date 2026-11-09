@@ -1,0 +1,11 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ihre Daten wurden gelöscht{% endblock %}
+{% block preheader %}Ihr Löschantrag wurde ausgeführt.{% endblock %}
+{% block headline %}Ihre Daten wurden gelöscht{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("")) }}
+  {% call c.para(pad=32) %}Ihre Daten bei <strong>{{ tenant_name | default("Ihrer Organisation") }}</strong> wurden wie beantragt endgültig gelöscht. Dies kann nicht rückgängig gemacht werden.{% endcall %}
+{% endblock %}

@@ -1,0 +1,124 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The organization and platform audit records with the given ids. They\n-- belong to no tenant, and no tenant user is named beside them.\nSELECT id, NULL::uuid AS \"tenant_id?\", event_type, actor, actor_kind, actor_id, target_id,\n       ip_address, payload, occurred_at, NULL::text AS \"user_name?\", NULL::text AS \"user_email?\",\n       acted_through, through_operator_id, through_admin_id, as_user_id, support_impersonation_id,\n       through_execution_id\nFROM platform_audit_records\nWHERE id = ANY($1)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "tenant_id?",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "event_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "actor",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "actor_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "actor_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "target_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "ip_address",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "payload",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 9,
+        "name": "occurred_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "user_name?",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "user_email?",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "acted_through",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 13,
+        "name": "through_operator_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 14,
+        "name": "through_admin_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 15,
+        "name": "as_user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 16,
+        "name": "support_impersonation_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 17,
+        "name": "through_execution_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      null,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      null,
+      null,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "296da16bae72925c487fd76fead142ea0b2cd9361e5c1a6ba8061eb2948e7271"
+}

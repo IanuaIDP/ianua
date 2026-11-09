@@ -1,0 +1,35 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The runs still running that started before the cut-off, of any tenant\n-- of this database, the oldest first.\nSELECT tenant_id, id, created_at\nFROM agent_runs\nWHERE status = 'running' AND created_at < $1\nORDER BY created_at, id\nLIMIT $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "cc3ea32022784e915aaadfa3c7142ca5d813c7d01f5fd14cec2aa3f37504c5d0"
+}

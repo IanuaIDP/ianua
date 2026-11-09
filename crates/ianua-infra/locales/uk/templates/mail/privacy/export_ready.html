@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Копія ваших даних готова{% endblock %}
+{% block preheader %}Увійдіть, щоб завантажити копію своїх даних.{% endblock %}
+{% block headline %}Копія ваших даних готова{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("користувачу")) }}
+  {% call c.para() %}Запитана вами копія даних із <strong>{{ tenant_name | default("вашої організації") }}</strong> готова.{% endcall %}
+  {% call c.para() %}Щоб завантажити копію, увійдіть до облікового запису та відкрийте налаштування приватності. Завантаження доступне до {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Цей лист не містить посилання для завантаження. Якщо ви не запитували копію, повідомте адміністратора.{% endcall %}
+{% endblock %}

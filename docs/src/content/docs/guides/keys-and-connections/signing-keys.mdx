@@ -1,0 +1,35 @@
+---
+title: Signing keys
+description: Rotate the keys that sign your tenant's tokens, and change the signing algorithm safely.
+sidebar:
+  order: 2
+---
+
+Open **Crypto** in the **Infrastructure** group.
+
+**Keys** lists the keys that sign your tenant's tokens. **JWKS** shows the public keys that other services use to check those tokens.
+
+![The Keys tab](../../../../assets/guides/crypto/keys.png)
+
+![The JWKS tab](../../../../assets/guides/crypto/jwks.png)
+
+## Rotate a key
+
+Choose **Rotate**. A new key becomes active and the current one is marked as rotated.
+
+![The Rotate key window](../../../../assets/guides/crypto/rotate.png)
+
+Revoking a key removes it from JWKS, so tokens it signed can no longer be checked. The only active key cannot be revoked.
+
+## Change the algorithm
+
+**Migration** changes the signing algorithm without interrupting token checks.
+
+1. Choose **Plan migration** and pick the algorithm.
+2. Start it, and follow it through validation.
+
+![The Plan migration window](../../../../assets/guides/crypto/plan-migration.png)
+
+![A migration being validated](../../../../assets/guides/crypto/migration-validating.png)
+
+If something is wrong, roll it back and record why.

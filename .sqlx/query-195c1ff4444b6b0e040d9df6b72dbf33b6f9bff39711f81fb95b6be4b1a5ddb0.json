@@ -1,0 +1,79 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Reads the named holders' items in one go through the tenant/review/holder\n-- unique key; a holder the review does not list is left out.\nSELECT i.review_id, i.position, i.holder_kind, i.holder_id, i.choice,\n       i.reviewer_kind, i.reviewer_id, i.reviewer_person,\n       i.suggested_choice, i.suggested_reason\nFROM access_review_items i\nJOIN UNNEST($3::text[], $4::uuid[]) AS h(kind, id)\n    ON i.holder_kind = h.kind AND i.holder_id = h.id\nWHERE i.tenant_id = $1 AND i.review_id = $2\nORDER BY i.position\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "review_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "position",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "holder_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "holder_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "choice",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "reviewer_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "reviewer_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "reviewer_person",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "suggested_choice",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "suggested_reason",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "TextArray",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "195c1ff4444b6b0e040d9df6b72dbf33b6f9bff39711f81fb95b6be4b1a5ddb0"
+}

@@ -1,0 +1,11 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+Introduzca este código para continuar iniciando sesión en {{ tenant_name | default("su cuenta") }}:
+
+{{ one_time_code }}
+
+El código caduca en {{ expires_at }}.
+
+Si no está intentando iniciar sesión, es posible que alguien conozca su contraseña. Cámbiela y no comparta este código con nadie.
+
+IANUA

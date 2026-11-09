@@ -1,0 +1,47 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The order to stop one run of a tenant, if one was given.\nSELECT run_id, ordered_by_kind, ordered_by_id, ordered_by_person, ordered_at\nFROM agent_run_cancellations\nWHERE tenant_id = $1 AND run_id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "run_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "ordered_by_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "ordered_by_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "ordered_by_person",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "ordered_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "202b3700347c4e2c26976d5be80490ca28c19daf22d24629963e2e30e9ebce2e"
+}

@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Adds a member's consent decision. A record is never changed once made,\n-- so adding one already kept leaves it as it is.\nINSERT INTO org_consents\n    (id, organization_id, org_user_id, consent_type, granted, version,\n     ip_address, recorded_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nON CONFLICT (id) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Bool",
+        "Text",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c0b525b78b553a73bed9d0e8a5dac8e62a8351be8b21bd0c29c166a0d0794545"
+}

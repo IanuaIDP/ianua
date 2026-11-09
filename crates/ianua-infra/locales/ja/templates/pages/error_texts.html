@@ -1,0 +1,39 @@
+{#-
+  What an error page tells a person, by the kind of trouble, imported as
+  `e`: a title, and one line of what to do. A kind not listed here fails
+  the render, so no page goes out without its words.
+-#}
+
+{#- The page's title for `kind`. -#}
+{% macro title(kind) -%}
+{%- set titles = {
+  "unauthenticated": "続けるにはサインインしてください",
+  "forbidden": "アクセス権がありません",
+  "not_found": "ページが見つかりません",
+  "content_too_large": "リクエストが大きすぎます",
+  "too_many_requests": "リクエストが多すぎます",
+  "misdirected_request": "この接続のアドレスが正しくありません",
+  "bad_gateway": "アプリが応答していません",
+  "gateway_timeout": "アプリの応答がタイムアウトしました",
+  "unavailable": "一時的に利用できません",
+  "bad_request": "リクエストに問題があります"
+} -%}
+{{ titles[kind] }}
+{%- endmacro %}
+
+{#- What the person can do about `kind`. -#}
+{% macro advice(kind) -%}
+{%- set lines = {
+  "unauthenticated": "このページを開くには、先にサインインする必要があります。サインインしてから、もう一度開いてください。",
+  "forbidden": "このアカウントでは、このページを開くことが許可されていません。アクセスできるはずの場合は、下の参照番号を添えて管理者にお問い合わせください。",
+  "not_found": "ここには何もありません。アドレスを確認するか、前のページに戻ってください。",
+  "content_too_large": "送信したデータが、このアプリで受け付けられるサイズを超えています。量を減らして再試行してください。",
+  "too_many_requests": "短時間に多くのリクエストを送信しました。1分待ってから再試行してください。",
+  "misdirected_request": "この接続は別のアドレス用に確立されました。タブを閉じて、アドレスを開き直してください。",
+  "bad_gateway": "このアドレスのアプリに接続できませんでした。数分後に再試行してください。",
+  "gateway_timeout": "このアドレスのアプリが時間内に応答しませんでした。数分後に再試行してください。",
+  "unavailable": "このアドレスは現在リクエストを受け付けられません。数分後に再試行してください。",
+  "bad_request": "リクエストを読み取れませんでした。戻って入力内容を確認し、再試行してください。"
+} -%}
+{{ lines[kind] }}
+{%- endmacro %}

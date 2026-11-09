@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a try at sending a message to a webhook subscription of the\n-- tenant without counting it. The subscription is looked up within the\n-- tenant, so one that is gone, or another tenant's, keeps nothing.\nINSERT INTO webhook_deliveries\n    (id, tenant_id, subscription_id, message_id, event_type, status, response_code,\n     duration_ms, attempt_number, attempted_at)\nSELECT $3::uuid, subscription.tenant_id, subscription.id, $4::uuid, $5::text, $6::text,\n       $7::integer, $8::bigint, $9::smallint, $10::timestamptz\nFROM webhook_subscriptions subscription\nWHERE subscription.tenant_id = $1 AND subscription.id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Int4",
+        "Int8",
+        "Int2",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "0d7c36666fa6c7863348d1c786a6a72b0ebed8c767884cde475797927f7bc905"
+}

@@ -1,0 +1,36 @@
+---
+title: UI building blocks
+description: The shared dashboard components that every screen is made of.
+sidebar:
+  order: 1
+---
+
+These are the shared building blocks in `src/components/ui`. Every screen is made of them. None of them calls the API or reads a store. The one exception is `notifications.tsx`, which keeps its own React context.
+
+The form controls all work the same way. Each takes `label`, `hint`, `error`, `disabled`, `className` and `containerClassName`. The label sits above the control, and the error or hint below it. React Hook Form drives them: `register` for the plain inputs, `Controller` for the others.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `Button` | `Button.tsx` | The dashboard's button. It has named looks (`primary`, `outline`, `focus`) instead of colour classes, because colours set through `className` do not reliably win. It has an `isLoading` state and takes every attribute a plain button does. |
+| `Checkbox` | `Checkbox.tsx` | A checkbox with a label. It passes its ref on, so `register` works. |
+| `ColourPicker` | `ColourPicker.tsx` | A colour field: a swatch and a hex text box. The colour kind of custom field uses it. |
+| `DateInput` | `date-input.tsx` | Picks a range of dates in a popover (react-day-picker). Lists such as the audit log filter with it. |
+| `DayInput` | `day-input.tsx` | Picks one day, with a time if wanted. It is separate from `DateInput` because a custom field holds one date, not a range. |
+| `FloatingTooltip` | `floating-tooltip.tsx` | A tooltip on hover or focus, drawn outside the page flow, so a parent with `overflow: hidden` never cuts it off. Use it inside scrolling areas and tables. |
+| `Input` | `Input.tsx` | A text field with label, hint and error, optional icons on either side, and a show and hide button for passwords. |
+| `Link` | `Link.tsx` | A styled `next/link`, with `plain` and `outline` looks and optional icons. |
+| `Modal` | `modal.tsx` | A dialog. It keeps focus inside, closes on Escape, and animates in and out. A click outside does nothing, so a stray click cannot wipe a form. With `dismissible={false}` Escape does nothing either, for dialogs that show a secret once. It has sizes, a title and description, and main and second buttons with loading and off states. Almost every create, edit and confirm step uses it. |
+| `MultiSelect` | `MultiSelect.tsx` | A dropdown that picks several options, with checkboxes and chips for the chosen ones. |
+| `NotificationProvider`, `useNotification` | `notifications.tsx` | The toasts. The provider holds the queue. `useNotification().showNotification({ message, type })` shows a toast that goes away by itself. `NotificationStack` draws them. |
+| `RadioGroup` | `RadioGroup.tsx` | Radio options, side by side or stacked, with descriptions. |
+| `RangeSlider` | `RangeSlider.tsx` | A styled slider. |
+| `SearchInput` | `search-input.tsx` | A search box with an icon and a clear button, used above tables. |
+| `SegmentedControl` | `segmented-control.tsx` | Switches between a few views of one card. `DashboardTabs` is different: it filters one list. |
+| `Select` | `Select.tsx` | A dropdown for one value, with label, hint and error. |
+| `StarRating` | `StarRating.tsx` | Picks a number of stars. The rating kind of custom field uses it. |
+| `Switch` | `Switch.tsx` | An on and off switch with an optional label and description. |
+| `TableCellText`, `TableCellStack` | `table-cell.tsx` | Table cell text that is cut short with an ellipsis. The full text shows in a tooltip, only when it was cut. `TableCellStack` puts a second line under the first. |
+| `TagInput` | `TagInput.tsx` | Free text chips: type, then press Enter or a comma. Used for lists such as allowed origins or scopes. |
+| `Textarea` | `Textarea.tsx` | A text box over several lines, laid out like `Input`. |
+| `LanguageSwitcher` | `language-switcher.tsx` | A menu of the languages, each in its own name. Picking one sets the language cookie, and the page switches at once. When someone is signed in, it also saves the choice on their profile (`useChangeLanguage`). `variant` is `pill` (icon and language code) or `icon`. |
+| `Tooltip` | `tooltip.tsx` | A tooltip made with CSS only. It is cheap, but a scrolling parent can cut it off. Inside one, use `FloatingTooltip`. |

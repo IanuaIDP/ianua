@@ -1,0 +1,1 @@
+Su cuenta se vinculó a {{ provider_name | default("un proveedor de inicio de sesión") }}

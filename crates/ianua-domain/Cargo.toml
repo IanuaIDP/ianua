@@ -1,0 +1,57 @@
+[package]
+name = "ianua-domain"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[features]
+## Exposes test doubles (`FakeHasher`, `FakeMfaVerifier`) so that
+## downstream crates (`ianua-app`, integration tests) can use them
+## without real crypto. Enable via `dev-dependencies`:
+##
+## ```toml
+## [dev-dependencies]
+## ianua-domain = { path = "../ianua-domain", features = ["test-support"] }
+## ```
+default = ["serde"]
+test-support = []
+## Enables `Serialize`/`Deserialize` derives on domain types. On by default;
+## turn it off with `default-features = false`. Either way, production code
+## holds no `serde_json::Value`.
+serde = ["dep:serde"]
+
+[lints]
+workspace = true
+
+[dependencies]
+uuid = { workspace = true }
+time = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true, optional = true }
+zeroize = { workspace = true }
+# Compares secrets and their digests in a time that does not depend on where
+# they first differ.
+subtle = { workspace = true }
+async-trait = { workspace = true }
+# The parser the HTTP clients use, so a URL the domain screens is the URL they
+# connect to.
+url = { workspace = true }
+# Builds a refusal with its message key and the values of its text.
+ianua-macros = { path = "../ianua-macros" }
+ianua-workspace-hack = { version = "0.1", path = "../ianua-workspace-hack" }
+
+[dev-dependencies]
+serde_json = { workspace = true }
+proptest = { workspace = true }
+trybuild = { workspace = true }
+
+# These exercise the public API with what a test says someone holds, which
+# only the `test-support` feature offers.
+[[test]]
+name = "rights"
+required-features = ["test-support"]
+
+[[test]]
+name = "workflows"
+required-features = ["test-support"]

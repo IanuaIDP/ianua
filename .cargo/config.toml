@@ -1,0 +1,4 @@
+[env]
+# A test runs on a thread with 2 MB of stack, and a scenario builds the whole
+# platform on it, unoptimized. A program's main thread has 8 MB.
+RUST_MIN_STACK = "8388608"

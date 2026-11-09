@@ -1,0 +1,15 @@
+# The domain keeps functions short and narrow, as the application layer
+# does: a function reads without scrolling, and one that needs more than four
+# inputs besides `self` is missing a struct. Clippy counts `self`, hence five.
+too-many-lines-threshold = 30
+too-many-arguments-threshold = 5
+
+# Tests may unwrap or expect: invalid fixtures and results must fail the test.
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
+
+# The domain reads the time through `shared::clock::now`, which tests can
+# freeze. Reading the wall clock directly makes behaviour untestable.
+disallowed-methods = [
+    { path = "time::OffsetDateTime::now_utc", reason = "read the time through crate::shared::clock::now" },
+]

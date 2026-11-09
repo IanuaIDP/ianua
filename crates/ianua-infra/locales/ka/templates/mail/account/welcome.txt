@@ -1,0 +1,6 @@
+გამარჯობა, {{ user_name | default("მომხმარებელო") }}!
+
+თქვენთვის შეიქმნა IANUA ანგარიში {{ tenant_name | default("თქვენი ორგანიზაცია") }}-ში{% if role_name is defined %}, როლით {{ role_name }}{% endif %}. ყველაფერი მზადაა. შედით აქ:
+{{ action_url }}
+
+IANUA

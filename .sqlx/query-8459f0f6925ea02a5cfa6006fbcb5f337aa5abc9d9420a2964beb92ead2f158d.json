@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Spends one of a user's recovery codes at the given time, only if it is\n-- still unused: a row changed means this call spent it.\nUPDATE recovery_codes\nSET used_at = $4\nWHERE tenant_id = $1 AND user_id = $2 AND code_hash = $3 AND used_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8459f0f6925ea02a5cfa6006fbcb5f337aa5abc9d9420a2964beb92ead2f158d"
+}

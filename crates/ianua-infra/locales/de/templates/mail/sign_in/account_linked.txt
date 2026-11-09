@@ -1,0 +1,7 @@
+Hallo{% if user_name is defined and user_name %} {{ user_name | default("") }}{% endif %}!
+
+Bei Ihrem Konto bei {{ tenant_name | default("Ihrer Organisation") }} wurde erstmals eine Anmeldung über {{ provider_name | default("einen Anmeldeanbieter") }} durchgeführt{% if ip_address is defined %}, von {{ ip_address }} aus{% endif %}. Dieser Anbieter kann Sie von nun an anmelden.
+
+Wenn Sie das nicht waren, informieren Sie umgehend Ihren Administrator.
+
+IANUA

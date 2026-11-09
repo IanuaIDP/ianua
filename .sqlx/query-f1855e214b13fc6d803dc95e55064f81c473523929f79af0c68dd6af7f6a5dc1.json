@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The counts a snapshot keeps of one tenant at the given moment: its\n-- people, every account not deactivated or closing, and its active\n-- sessions not yet expired.\nSELECT (SELECT count(*) FROM users\n        WHERE tenant_id = $1\n            AND status IN ('invited', 'pending_verification', 'active', 'locked'))\n           AS \"users_count!\",\n       (SELECT count(*) FROM sessions\n        WHERE tenant_id = $1 AND status = 'active' AND expires_at > $2)\n           AS \"active_sessions_count!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "users_count!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "active_sessions_count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "f1855e214b13fc6d803dc95e55064f81c473523929f79af0c68dd6af7f6a5dc1"
+}

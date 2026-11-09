@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Records that one delegation of a tenant derived its authority from each\n-- of the given ones, all in one statement. An edge already recorded is\n-- passed over, so recording twice changes nothing.\nINSERT INTO delegation_provenance (tenant_id, delegation_id, source_id)\nSELECT $1, $2, given.source_id\nFROM UNNEST($3::uuid[]) AS given (source_id)\nON CONFLICT DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fd43e6caec8d9b3f05d386fade84731a1d9c02036ea6ffb70e91d66294973f17"
+}

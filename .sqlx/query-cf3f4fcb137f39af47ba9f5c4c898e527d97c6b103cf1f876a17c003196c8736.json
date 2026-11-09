@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Clears away one principal's place in a group of a tenant, only while its\n-- end has still come by the given time. A place given again since, in\n-- force once more, is left.\nDELETE FROM group_memberships\nWHERE tenant_id = $1 AND group_id = $2 AND principal_kind = $3 AND principal_id = $4\n  AND expires_at IS NOT NULL AND expires_at <= $5\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "cf3f4fcb137f39af47ba9f5c4c898e527d97c6b103cf1f876a17c003196c8736"
+}

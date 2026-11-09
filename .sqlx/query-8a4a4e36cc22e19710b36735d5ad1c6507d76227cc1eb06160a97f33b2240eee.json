@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every membership of a group in a tenant, oldest first.\nSELECT group_id, principal_kind, principal_id, joined_at, expires_at\nFROM group_memberships\nWHERE tenant_id = $1\nORDER BY joined_at, group_id, principal_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "group_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "principal_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "principal_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "joined_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "8a4a4e36cc22e19710b36735d5ad1c6507d76227cc1eb06160a97f33b2240eee"
+}

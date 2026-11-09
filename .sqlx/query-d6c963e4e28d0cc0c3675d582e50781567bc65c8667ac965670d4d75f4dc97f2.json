@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes a tool of the tenant for good.\nDELETE FROM agent_tools\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d6c963e4e28d0cc0c3675d582e50781567bc65c8667ac965670d4d75f4dc97f2"
+}

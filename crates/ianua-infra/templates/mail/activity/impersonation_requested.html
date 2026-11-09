@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}An administrator asks to act as you{% endblock %}
+{% block preheader %}Approve or decline the request after signing in.{% endblock %}
+{% block headline %}An administrator asks to act as you{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("there")) }}
+  {% call c.para() %}<strong>{{ requester_name | default("An administrator") }}</strong> of <strong>{{ tenant_name | default("your organization") }}</strong> asks to act as you, to help with your account.{% endcall %}
+  {% if reason is defined %}{% call c.para() %}Their reason: {{ reason }}{% endcall %}{% endif %}
+  {% call c.para() %}Sign in to your account to approve or decline. The request lapses in {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Nothing happens unless you approve it. If you did not expect this, decline it and tell your administrator.{% endcall %}
+{% endblock %}

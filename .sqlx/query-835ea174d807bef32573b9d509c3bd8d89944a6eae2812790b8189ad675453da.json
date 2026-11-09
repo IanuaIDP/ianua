@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Records a use of a session of a tenant at the given time, only when its\n-- last recorded use is older than the given moment, so a busy session is\n-- not a write per request.\nUPDATE sessions\nSET last_active_at = $3\nWHERE tenant_id = $1 AND id = $2 AND last_active_at < $4\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "835ea174d807bef32573b9d509c3bd8d89944a6eae2812790b8189ad675453da"
+}

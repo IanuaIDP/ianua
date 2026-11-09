@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a model provider: a new one is added, a known one of the same\n-- tenant takes the new values. Its tenant, its kind and its creation time\n-- never change.\nINSERT INTO agent_model_providers\n    (id, tenant_id, name, kind, endpoint, model, input_price_micros, output_price_micros,\n     api_key_sealed, clearance, status, last_test_status, last_tested_at, last_test_reason,\n     created_at, updated_at, embedding_model)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)\nON CONFLICT (id) DO UPDATE SET\n    name = EXCLUDED.name,\n    endpoint = EXCLUDED.endpoint,\n    model = EXCLUDED.model,\n    embedding_model = EXCLUDED.embedding_model,\n    input_price_micros = EXCLUDED.input_price_micros,\n    output_price_micros = EXCLUDED.output_price_micros,\n    api_key_sealed = EXCLUDED.api_key_sealed,\n    clearance = EXCLUDED.clearance,\n    status = EXCLUDED.status,\n    last_test_status = EXCLUDED.last_test_status,\n    last_tested_at = EXCLUDED.last_tested_at,\n    last_test_reason = EXCLUDED.last_test_reason,\n    updated_at = EXCLUDED.updated_at\nWHERE agent_model_providers.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Int8",
+        "Int8",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4c7de80462ab5dfbbba7ce88cfe6f4d87f2273da5362e1e1b61500abb5124dd3"
+}

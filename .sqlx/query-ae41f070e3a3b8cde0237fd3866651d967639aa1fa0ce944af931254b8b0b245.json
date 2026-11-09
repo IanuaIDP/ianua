@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The tenant holding the zone of one hostname, and the nameservers it\n-- answers with.\nSELECT tenant_id, nameservers\nFROM dns_zones\nWHERE hostname = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "nameservers",
+        "type_info": "TextArray"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "ae41f070e3a3b8cde0237fd3866651d967639aa1fa0ce944af931254b8b0b245"
+}

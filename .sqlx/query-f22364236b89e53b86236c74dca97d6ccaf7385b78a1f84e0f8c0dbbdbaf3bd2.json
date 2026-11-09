@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every separation rule of a tenant, oldest first.\nSELECT id, name, first_role_id, second_role_id, created_at\nFROM separation_rules\nWHERE tenant_id = $1\nORDER BY created_at, id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "first_role_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "second_role_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "f22364236b89e53b86236c74dca97d6ccaf7385b78a1f84e0f8c0dbbdbaf3bd2"
+}

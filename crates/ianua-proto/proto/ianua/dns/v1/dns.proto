@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package ianua.dns.v1;
+
+// The zones the nameservers answer for.
+//
+// A control-plane-to-data-plane contract between processes on different
+// hosts, so it is versioned in its package name and changed additively.
+// Renaming or renumbering a field means every nameserver must be redeployed
+// in step; a nameserver reading a payload it half-understands would answer
+// half a zone, and DNS has no way to say "I am not sure".
+service DnsZones {
+  // Streams the whole catalog, now and whenever it changes.
+  //
+  // Every message is complete rather than a delta. A few kilobytes either
+  // way, and it means a nameserver that dropped a message self-corrects on
+  // the next one instead of drifting — which for DNS is the difference
+  // between briefly stale and quietly wrong.
+  rpc Watch(WatchRequest) returns (stream ZoneCatalog);
+
+  // Reports what a nameserver is actually serving.
+  //
+  // The stream above is one-way, so without this the control plane cannot
+  // tell a nameserver that is current from one running a build that silently
+  // ignores a field it does not know. That is not hypothetical: two hosts
+  // once answered with the wrong nameserver names for a full redesign, and
+  // nothing detected it — every delegation they were sent failed to verify
+  // and the only way it surfaced was a person querying them by hand.
+  rpc Report(NameserverReport) returns (ReportAck);
+}
+
+message WatchRequest {}
+
+// What one nameserver is serving, sent after each catalog it applies.
+message NameserverReport {
+  // Which revision of this contract the nameserver was built against.
+  //
+  // Not a git revision: a host one commit behind on something unrelated is
+  // fine, and warning about it teaches people to ignore the warning. This
+  // is bumped only when a field is added that a nameserver must understand
+  // to answer correctly, so a mismatch always means answers are wrong.
+  uint32 contract_version = 1;
+
+  // The highest zone serial it is answering with.
+  uint32 catalog_serial = 2;
+
+  // How many zones it holds.
+  uint32 zone_count = 3;
+}
+
+// What the control plane expects, so the nameserver notices the mismatch too
+// — whichever side has logs a human is reading, the drift is visible.
+message ReportAck {
+  uint32 contract_version = 1;
+}
+
+// Every zone, as of one moment.
+message ZoneCatalog {
+  repeated Zone zones = 1;
+}
+
+// One delegated hostname and everything it answers with.
+message Zone {
+  // The hostname this zone is rooted at, e.g. "auth.acme.com".
+  string apex = 1;
+
+  // The zone's version, in seconds since the epoch.
+  //
+  // What SOA carries. Sent as a number rather than a timestamp so both ends
+  // agree on it exactly — a nameserver rebuilds its own serial from this, and
+  // a serial that disagreed between two nameservers would make secondaries
+  // fetch in a loop.
+  uint32 serial = 2;
+
+  repeated RecordSet records = 3;
+
+  // The NS names this zone answers with, and the ones its parent delegates to.
+  //
+  // Per zone rather than per deployment: they are named after the registration
+  // that opened the zone, which is what makes an NS record proof of whose
+  // delegation it is rather than merely that one happened. A resolver asking a
+  // zone for its NS records is answered by the zone, so these have to be the
+  // same names the parent was told to point at.
+  repeated string nameservers = 4;
+}
+
+// Every answer to one question: a name and a type, with all its values.
+message RecordSet {
+  // Fully qualified, e.g. "api.auth.acme.com".
+  string name = 1;
+
+  // "A", "AAAA", "CNAME", "TXT", "MX", "SRV", or "CAA".
+  //
+  // A string rather than an enum on purpose. A nameserver receiving a type it
+  // does not know must drop that one set and keep serving the rest; a proto
+  // enum would give it a zero value it could mistake for a real type.
+  string record_type = 2;
+
+  // How long a resolver may cache the set.
+  uint32 ttl_seconds = 3;
+
+  // Each value as a zone file spells it: "203.0.113.10", "10 mail.acme.com",
+  // "10 5 443 sip.acme.com", "0 issue \"letsencrypt.org\"".
+  repeated string values = 4;
+}

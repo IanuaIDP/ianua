@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a support impersonation: a new one is added, a known one of the same\n-- tenant takes where it stands. Who acts as whom, why, for how long and\n-- when it was asked for never change. It only moves the way the domain\n-- allows from where it stands now: one awaiting consent to any state, an\n-- active one only to ended, a declined or ended one nowhere. A save of a\n-- copy read before another move changes nothing, so an ended request never\n-- comes back.\nINSERT INTO support_impersonations\n    (id, tenant_id, admin_id, user_id, reason, window_minutes, consent, status,\n     since, requested_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\nON CONFLICT (id) DO UPDATE SET\n    status = EXCLUDED.status,\n    since = EXCLUDED.since\nWHERE support_impersonations.tenant_id = EXCLUDED.tenant_id\n    AND (support_impersonations.status = 'awaiting_consent'\n        OR (support_impersonations.status = 'active' AND EXCLUDED.status = 'ended'))\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Int4",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fe1c38d2919af2d4551b0bb5689aaab875c82e0e73ad6970bbbc1778fb994fd2"
+}

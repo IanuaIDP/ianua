@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Lets go of a tenant's held sign-in requests that arrived by the given\n-- time, too long ago to be answered.\nDELETE FROM held_saml_sign_ins\nWHERE tenant_id = $1 AND arrived_at <= $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5820471f94000b0003affd01b312d945f3a452f53ce7d045e543a1027edaeccd"
+}

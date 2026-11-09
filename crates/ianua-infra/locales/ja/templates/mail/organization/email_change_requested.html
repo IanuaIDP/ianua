@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}アカウントのメールアドレス変更が申請されました{% endblock %}
+{% block preheader %}アカウントを別のメールアドレスへ変更する申請がありました。{% endblock %}
+{% block headline %}アカウントのメールアドレス変更が申請されました{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para() %}<strong>{{ organization_name | default("所属組織") }}</strong>のアカウントのメールアドレスを<strong>{{ user_email }}</strong>へ変更する申請がありました{% if ip_address is defined %}。送信元は{{ ip_address }}です{% endif %}。{% endcall %}
+  {% call c.para(pad=8) %}心当たりがない場合は、今すぐ変更を取り消してください。アカウントは現在のアドレスのままになります。{% endcall %}
+  {{ c.cta(action_url, "変更を取り消す") }}
+  {% call c.para(pad=0) %}変更を取り消せる期間は{{ expires_at }}です。{% endcall %}
+  {% call c.para(pad=32) %}ご自身で申請した場合は、対応は不要です。{% endcall %}
+{% endblock %}

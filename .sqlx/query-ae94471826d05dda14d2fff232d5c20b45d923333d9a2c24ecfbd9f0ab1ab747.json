@@ -1,0 +1,41 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every consent one person of one tenant gave, to any client, newest\n-- first, withdrawn ones too.\nSELECT user_id, client_id, scopes, granted_at\nFROM oauth_consents\nWHERE tenant_id = $1 AND user_id = $2\nORDER BY granted_at DESC, client_id DESC\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "client_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "scopes",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 3,
+        "name": "granted_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "ae94471826d05dda14d2fff232d5c20b45d923333d9a2c24ecfbd9f0ab1ab747"
+}

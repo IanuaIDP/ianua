@@ -1,0 +1,23 @@
+[package]
+name = "ianua-integration-google-calendar"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Workflow steps for Google Calendar calendars, events and free time, through an account's OAuth grant"
+
+[lints]
+workspace = true
+
+[dependencies]
+ianua-domain = { workspace = true }
+ianua-integration = { workspace = true }
+async-trait = { workspace = true }
+serde_json = { workspace = true }
+time = { workspace = true }
+ianua-workspace-hack = { version = "0.1", path = "../../crates/ianua-workspace-hack" }
+
+[dev-dependencies]
+ianua-integration = { workspace = true, features = ["test-support"] }
+tokio = { workspace = true }
+wiremock = { workspace = true }

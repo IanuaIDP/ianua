@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes the address change one user of one tenant asked for.\nDELETE FROM email_changes\nWHERE tenant_id = $1 AND user_id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3805284357e8ea29bf0baae1bde91425d09fbaee50d0eef804dc760a1e1f9e53"
+}

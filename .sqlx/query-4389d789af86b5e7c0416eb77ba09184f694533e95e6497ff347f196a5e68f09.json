@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every descendant per root, with cycles deduplicated independently for each root.\nWITH RECURSIVE reached(root, id) AS (\n    SELECT roots.id, roots.id FROM unnest($2::uuid[]) AS roots(id)\n    UNION\n    SELECT reached.root, edge.derived\n    FROM reached\n    CROSS JOIN LATERAL (\n        SELECT child.id AS derived\n        FROM agent_delegations child\n        WHERE child.tenant_id = $1 AND child.parent_id = reached.id\n        UNION ALL\n        SELECT minted.delegation_id\n        FROM delegation_sources minted\n        WHERE minted.tenant_id = $1 AND minted.source_id = reached.id\n        UNION ALL\n        SELECT derived.delegation_id\n        FROM delegation_provenance derived\n        WHERE derived.tenant_id = $1 AND derived.source_id = reached.id\n    ) edge\n)\nSELECT reached.root AS \"root!\", reached.id AS \"id!\"\nFROM reached\nWHERE reached.id <> reached.root\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "root!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "id!",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "4389d789af86b5e7c0416eb77ba09184f694533e95e6497ff347f196a5e68f09"
+}

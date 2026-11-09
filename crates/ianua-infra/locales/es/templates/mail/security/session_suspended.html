@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Se ha detenido una sesión{% endblock %}
+{% block preheader %}Se detuvo una sesión de su cuenta para protegerla.{% endblock %}
+{% block headline %}Se ha detenido una sesión{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para() %}Se detuvo una sesión de su cuenta en <strong>{{ tenant_name | default("su organización") }}</strong> tras detectarse una actividad aparentemente inusual{% if ip_address is defined %}, desde {{ ip_address }}{% endif %}.{% endcall %}
+  {% call c.para(pad=32) %}Si fue usted, inicie sesión de nuevo para continuar. Si no, cambie su contraseña ahora y revise sus sesiones activas.{% endcall %}
+{% endblock %}

@@ -1,0 +1,6 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+Se ha creado una cuenta para usted en {{ tenant_name | default("su organización") }} en IANUA{% if role_name is defined %} con el rol {{ role_name }}{% endif %}. Todo está listo. Inicie sesión aquí:
+{{ action_url }}
+
+IANUA

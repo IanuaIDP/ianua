@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes a role of a tenant. The roles given straight to people go with\n-- it; one a group still carries is kept by its foreign key.\nDELETE FROM roles\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8c29dc49e7f0e1f33ee2b6b657c8895652228546e817e4ca94a0739fa0d5a3d7"
+}

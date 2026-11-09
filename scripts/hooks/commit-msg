@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Refuses a commit message whose first line runs past 72 characters, or
+# that has no blank line between that line and the details below it.
+#
+# A first line says what changed in a few words, as `git log --oneline`
+# shows it; why, and what was checked, go in the body.
+#
+# To use it in this repository alone, from the repository root:
+#   git config core.hooksPath scripts/hooks
+# (the gitleaks pre-commit hook then has to be copied here too), or call
+# it from a commit-msg hook in the hooks folder you already use.
+
+set -euo pipefail
+
+message_file="$1"
+first_line=$(head -n 1 "$message_file")
+second_line=$(sed -n '2p' "$message_file")
+most=72
+
+if [ "${#first_line}" -gt "$most" ]; then
+  echo "commit-msg: the first line has ${#first_line} characters; keep it to $most and put the rest in the body:" >&2
+  echo "  $first_line" >&2
+  exit 1
+fi
+
+if [ -n "$second_line" ]; then
+  echo "commit-msg: leave the second line blank, between the first line and the body." >&2
+  exit 1
+fi

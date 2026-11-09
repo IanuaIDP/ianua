@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Writes when the holder of a kept link last confirmed it, found by its\n-- connection and account. Who it links and when it was made never change.\nUPDATE federated_links\nSET confirmed_at = $4\nWHERE tenant_id = $1 AND connection_id = $2 AND user_id = $3\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "96fe67b13221b0a0ea3eb18a3c3a8b134b798f9a0d94d9da484c00d07cbc58cf"
+}

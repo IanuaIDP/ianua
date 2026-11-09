@@ -1,0 +1,35 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The operator key, neither revoked nor expired, kept as a digest, with\n-- its prefix, operator and end.\nSELECT key_prefix, operator_id, expires_at\nFROM operator_api_keys\nWHERE key_hash = $1 AND revoked_at IS NULL AND (expires_at IS NULL OR expires_at > $2)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "key_prefix",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "operator_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "e18138c578bde9ca9c27b02fb8bd8f91e17b0d86d932b511b0e9ecfbc7837301"
+}

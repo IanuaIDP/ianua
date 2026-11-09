@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The branding of the given organization, when anyone saved one.\nSELECT organization_id, logo_url, primary_color, sender_name, created_at, updated_at\nFROM org_branding\nWHERE organization_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "logo_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "primary_color",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "sender_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "f58d3c849ba7489d8b251aec41be17299070916ce8778d483cd54b47d355cbf3"
+}

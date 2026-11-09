@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many users of a tenant hold, under one attribute, a number above the\n-- given one, whether kept as a whole number or not.\nSELECT count(*) AS \"count!\"\nFROM user_metadata\nWHERE tenant_id = $1 AND namespace = $2 AND key = $3\n  AND coalesce(value_float, value_int::float8) > $4\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Float8"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "d6e7eff6fd9c970f9445929b29ddc70660374360fb31fc3fb840ca8e570d8079"
+}

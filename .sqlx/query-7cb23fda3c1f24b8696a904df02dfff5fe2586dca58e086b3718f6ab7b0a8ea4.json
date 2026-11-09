@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a person's order to stop a run of a tenant. A later order for the\n-- same run takes the place of the earlier one.\nINSERT INTO agent_run_cancellations\n    (tenant_id, run_id, ordered_by_kind, ordered_by_id, ordered_by_person, ordered_at)\nVALUES ($1, $2, $3, $4, $5, $6)\nON CONFLICT (tenant_id, run_id) DO UPDATE SET\n    ordered_by_kind = EXCLUDED.ordered_by_kind,\n    ordered_by_id = EXCLUDED.ordered_by_id,\n    ordered_by_person = EXCLUDED.ordered_by_person,\n    ordered_at = EXCLUDED.ordered_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "7cb23fda3c1f24b8696a904df02dfff5fe2586dca58e086b3718f6ab7b0a8ea4"
+}

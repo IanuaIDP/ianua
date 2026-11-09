@@ -1,0 +1,10 @@
+Hi {{ user_name | default("there") }},
+
+Thanks for signing up for IANUA. You are one step away from creating {{ organization_name | default("your organization") }}. Verify your email address to finish:
+{{ action_url }}
+
+This link expires in {{ expires_at }}.
+
+If you did not sign up, you can ignore this email.
+
+IANUA

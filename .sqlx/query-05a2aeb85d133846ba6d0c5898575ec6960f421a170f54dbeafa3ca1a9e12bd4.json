@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Only the client pairs reached by the selected person's session.\nSELECT DISTINCT client_id, session_id\nFROM oauth_codes\nWHERE tenant_id = $1 AND user_id = $2 AND session_id = $3\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "client_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "session_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "05a2aeb85d133846ba6d0c5898575ec6960f421a170f54dbeafa3ca1a9e12bd4"
+}

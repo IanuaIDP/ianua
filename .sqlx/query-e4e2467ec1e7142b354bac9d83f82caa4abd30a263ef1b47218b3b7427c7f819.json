@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Whether a user of the tenant already has the given address.\nSELECT EXISTS (SELECT 1 FROM users WHERE tenant_id = $1 AND email = $2) AS \"taken!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "taken!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "e4e2467ec1e7142b354bac9d83f82caa4abd30a263ef1b47218b3b7427c7f819"
+}

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Forgets a tenant's spent assertions that expired by the given time: no\n-- answer carrying one is taken any more.\nDELETE FROM saml_assertions\nWHERE tenant_id = $1 AND expires_at <= $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ad00ead7e1e3fde047613d9155adeb09f374adcdbb10263ff6b8bdb6c4bbb8c3"
+}

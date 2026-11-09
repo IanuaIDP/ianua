@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The number of the latest version an event schema of a tenant holds, or 0\n-- for a schema not kept yet.\nSELECT coalesce(max(version), 0) AS \"latest!\"\nFROM event_schema_versions\nWHERE tenant_id = $1 AND schema_id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "latest!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "6e4afa9d36f0695913493764a6e8206a0feae97843b5426987ab78a6126674a9"
+}

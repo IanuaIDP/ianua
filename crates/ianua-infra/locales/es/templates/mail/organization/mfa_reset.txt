@@ -1,0 +1,7 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+Un propietario de {{ organization_name | default("su organización") }} restableció el segundo factor de su cuenta IANUA y se cerraron todas sus sesiones. Inicie sesión de nuevo con su contraseña y configure un segundo factor nuevo.
+
+Si no lo solicitó, avise de inmediato a un propietario de su organización.
+
+IANUA

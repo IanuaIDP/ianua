@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes a separation rule of a tenant.\nDELETE FROM separation_rules\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d3a13e4d81ed6f9209ba7699e7f9f43b417be50b40c52133eedc45bfb7ae73f5"
+}

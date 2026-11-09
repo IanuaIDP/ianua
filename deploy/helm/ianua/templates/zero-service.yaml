@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ianua.fullname" . }}-zero
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: zero
+  {{- with .Values.zero.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.zero.service.type }}
+  selector:
+    {{- include "ianua.selectorLabels" (dict "root" . "component" "zero") | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.zero.service.port }}
+      targetPort: http
+    - name: acme
+      port: {{ .Values.zero.acmePort }}
+      targetPort: acme

@@ -1,0 +1,6 @@
+Bonjour {{ user_name | default("cher utilisateur") }},
+
+Un compte a été créé pour vous dans {{ tenant_name | default("votre organisation") }} sur IANUA{% if role_name is defined %} avec le rôle {{ role_name }}{% endif %}. Tout est prêt. Connectez-vous ici :
+{{ action_url }}
+
+IANUA

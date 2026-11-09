@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}თქვენი შესვლის ბმული{% endblock %}
+{% block preheader %}ამ ბმულით შედით თქვენს ანგარიშში.{% endblock %}
+{% block headline %}შედით {{ tenant_name | default("თქვენი ანგარიში") }}-ში{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para(pad=8) %}შესასვლელად დააჭირეთ ქვემოთ მოცემულ ღილაკს. პაროლი საჭირო არ არის.{% endcall %}
+  {{ c.cta(action_url, "შესვლა") }}
+  {% call c.para(pad=0) %}ამ ბმულს ვადა გაუვა {{ expires_at }}-ში.{% endcall %}
+  {% call c.para(pad=32) %}თუ ეს თქვენ არ მოგითხოვიათ, შეგიძლიათ ეს წერილი უგულებელყოთ.{% endcall %}
+{% endblock %}

@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The sample cases of one workflow of a tenant.\nSELECT workflow_id, cases, publish_gate, edited_by, created_at, updated_at\nFROM evaluation_sets\nWHERE tenant_id = $1 AND workflow_id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "workflow_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "cases",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 2,
+        "name": "publish_gate",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "edited_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "027f015411c2ebe3fc7dcab202352767282e5e5be792c95ea9605f82ea576c9c"
+}

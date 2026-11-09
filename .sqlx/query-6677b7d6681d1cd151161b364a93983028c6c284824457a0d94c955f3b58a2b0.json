@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Whether a job is still dead at the attempt an operator read, to tell a\n-- retry left undone because the same work waits from one someone else\n-- made first.\nSELECT EXISTS (\n    SELECT 1\n    FROM scheduled_jobs\n    WHERE id = $1 AND tenant_id IS NOT DISTINCT FROM $2\n      AND status = 'dead' AND attempt = $3\n) AS \"dead!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "dead!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "6677b7d6681d1cd151161b364a93983028c6c284824457a0d94c955f3b58a2b0"
+}

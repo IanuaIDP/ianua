@@ -1,0 +1,115 @@
+---
+title: Organization settings
+description: The sections of the organization settings page.
+sidebar:
+  order: 4
+---
+
+The organization's settings are at `/settings?tab=...`, drawn by `src/app/(dashboard)/settings/page.tsx`. A section sidebar lists the tabs from `settingsNavItems`. Tabs marked `ownerOnly` are hidden from Members.
+
+| Tab | Who sees it | Section |
+| --- | --- | --- |
+| General | Everyone; only Owners and Admins change it | `GeneralSettingsSection` |
+| Account | Everyone | `AccountSettingsSection` |
+| Security | Everyone | `SecuritySettingsSection` |
+| Sign-in | Owners and Admins | `OrgAuthConfigSection` |
+| API Key | Owners and Admins | `ApiKeySettingsSection` |
+| Cloud | Owners and Admins | `CloudSettingsSection` |
+| Subscription | Owners, Admins, Billing contacts and Viewers; only Owners and Billing contacts change it | `SubscriptionSettingsSection` |
+| Audit Log | Everyone but Billing contacts | `AuditLogSettingsSection` |
+| Danger zone | Owners and Admins; only Owners may close the organization | `DangerZoneSettingsSection` |
+
+## Frame
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `SettingsCard` | `settings-card.tsx` | The card every section uses, with a title and an optional icon, description and header button. |
+| `settingsNavItems`, `getVisibleSettingsNavItems` | `settings-sidebar.tsx` | The list of tabs, and the role right each needs. |
+
+## Sections
+
+These are in `sections/`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `GeneralSettingsSection` | `general-settings-section.tsx` | The organization's name, display name and contact email, which Owners change and Members only read. It also shows the slug in the address, which never changes, and a Details card with the status, the number of tenants and when it was created. |
+| `AccountSettingsSection` | `account-settings-section.tsx` | The signed-in person's own profile: full name, and a new email address, which asks for the password and is confirmed by a mailed link that can be sent again after a wait. |
+| `SecuritySettingsSection` | `security-settings-section.tsx` | Change the password (by the organization's rules), set up or turn off a second factor (setting one up asks for the password again; turning one off takes a code from the authenticator, not a recovery code), manage passkeys (adding one asks for the password again; rename, remove) and trusted devices. |
+| `OrgAuthConfigSection` | `org-auth-config-section.tsx` | The rules for signing in to the organization's dashboard (saving asks for the password again): ways in, password rules, lockout, sessions, second factor and allowed addresses. Made of the shared sign-in cards below. |
+| `ApiKeySettingsSection` | `api-key-settings-section.tsx` | The organization's API keys: list, create with a name and permissions, show the secret once, revoke. |
+| `CloudSettingsSection` | `cloud-settings-section.tsx` | The connected cloud accounts that hold tenants' data: list, connect, check again, disconnect. |
+| `SubscriptionSettingsSection` | `subscription-settings-section.tsx` | The organization's plan, billing cycle and standing. Owners and Billing contacts can pick a plan and billing cycle (`PUT .../subscription`), and add a payment method when none is on file (`POST .../subscription/checkout`). |
+| `AuditLogSettingsSection` | `audit-log-settings-section.tsx` | The audit log of the whole organization: search, a date range, details that open, a badge linking to each record's tenant, pages and CSV export. An export asks the worker for the whole filtered log, waits for the file and downloads it. |
+| `DangerZoneSettingsSection` | `danger-zone-settings-section.tsx` | Suspend or close the organization for good. Each asks to type the name first. |
+
+### API keys
+
+These are in `sections/api-keys/`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `ApiKeysTable` | `api-keys-table.tsx` | The keys, sortable: name, the key's first characters, status, created, last used. |
+| `ApiKeyActionsMenu` | `api-key-actions-menu.tsx` | Revoke, after a confirm. |
+| `CreateApiKeyModal` | `create-api-key-modal.tsx` | A name and a permission picker with the organization's permissions. |
+| `ApiKeyCreatedModal` | `api-key-created-modal.tsx` | Shows the new key once, with a copy button. |
+
+### Audit
+
+This is in `sections/audit/`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `AuditLogDetails` | `audit-log-details.tsx` | The details of one audit record, opened, as names and values. |
+
+### Sign-in cards
+
+These are in `sections/auth-config/`. The organization's Sign-in tab and a tenant's sign-in settings share them. Each card gets `register`, `control`, `errors` and `isBusy` from the form around it (`shared-card-props.ts`).
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `AuthConfigHeader` | `auth-config-header.tsx` | A header that stays in place, with Save and Discard. It shows when there are unsaved changes and when saving. |
+| `AuthMethodToggleGroup` | `auth-method-toggle-group.tsx` | The "Ways in" switches: Password, Passkey, Magic link, SAML federation, OIDC federation. |
+| `PasswordPolicyCard` | `password-policy-card.tsx` | The shortest password allowed, and which kinds of character it needs. |
+| `LockoutCard` | `lockout-card.tsx` | How many wrong tries are allowed, and how long the lockout lasts. |
+| `SessionsCard` | `sessions-card.tsx` | How long a session lasts, and how long it may sit unused. |
+| `SecondFactorCard` | `second-factor-card.tsx` | The second-factor rule (Off, Optional, Required), the assurance needed for every sign-in and for sensitive actions, and when to ask for more: a new device, a new country, a risk level. Asking for more is greyed out while the rule is Off. |
+| `AllowedAddressesCard` | `allowed-addresses-card.tsx` | The IP allow list, one CIDR range per line. |
+| `SharedCardProps` | `shared-card-props.ts` | What every card needs from its form. |
+
+### Cloud accounts
+
+These are in `sections/cloud/`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `CloudAccountsTable` | `cloud-accounts-table.tsx` | The connected accounts, with provider, kind of grant and status. |
+| `CloudAccountActionsMenu` | `cloud-account-actions-menu.tsx` | Check again, and disconnect. |
+| `ConnectCloudModal` | `connect-cloud-modal.tsx` | Pick a provider, follow its steps (for AWS, the external id to copy), enter the credentials and connect. |
+| `CloudCredentialFields` | `cloud-credential-fields.tsx` | The credential fields of each provider: an AWS role ARN, a GCP service account, an Azure directory, application and secret, a DigitalOcean token, a Kubernetes service account. |
+
+### Danger zone
+
+This is in `sections/danger-zone/`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `CloseOrganizationModal` | `close-organization-modal.tsx` | Confirms closing for good, by typing the organization's name. |
+
+### Security
+
+These are in `sections/security/`.
+
+| Component | File | What it does |
+| --- | --- | --- |
+| `TwoFactorAuthenticationCard` | `two-factor-authentication-card.tsx` | Shows whether the second factor is on, with buttons to turn it on or off. |
+| `MfaSetupModal` | `mfa-setup-modal.tsx` | The QR code, and the code that confirms it, to turn the second factor on. |
+| `MfaDisableModal` | `mfa-disable-modal.tsx` | Confirms turning it off, with a code when one is needed. |
+| `PasskeysCard` | `passkeys-card.tsx` | The passkeys, with Add Passkey, which is off when the browser cannot use passkeys. |
+| `PasskeysTable` | `passkeys-table.tsx` | Each passkey's name, when it was created and last used. |
+| `PasskeyActionsMenu` | `passkey-actions-menu.tsx` | Rename and remove. |
+| `PasskeyNameModal` | `passkey-name-modal.tsx` | Names a new passkey, or renames one. |
+| `TrustedDevicesCard` | `trusted-devices-card.tsx` | The devices that skip the second factor. |
+| `TrustedDevicesTable` | `trusted-devices-table.tsx` | The devices, with when each was last seen. |
+| `DeviceActionsMenu` | `device-actions-menu.tsx` | Stops trusting a device. |
+
+A tenant's users have their own profile and security screens inside the tenant: `tenant-detail/sections/tenant-account-section.tsx` and the tenant's settings pages. See [Tenant screens](/ianua/dashboard/components/tenant/).

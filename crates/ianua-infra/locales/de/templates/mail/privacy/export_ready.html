@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ihre Datenkopie ist bereit{% endblock %}
+{% block preheader %}Melden Sie sich an, um Ihre Datenkopie herunterzuladen.{% endblock %}
+{% block headline %}Ihre Datenkopie ist bereit{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("")) }}
+  {% call c.para() %}Die angeforderte Kopie Ihrer Daten bei <strong>{{ tenant_name | default("Ihrer Organisation") }}</strong> ist bereit.{% endcall %}
+  {% call c.para() %}Melden Sie sich an und öffnen Sie Ihre Datenschutzeinstellungen, um die Kopie herunterzuladen. Der Download ist bis {{ expires_at }} möglich.{% endcall %}
+  {% call c.para(pad=32) %}Diese E-Mail enthält keinen Download-Link. Wenn Sie keine Kopie angefordert haben, informieren Sie Ihren Administrator.{% endcall %}
+{% endblock %}

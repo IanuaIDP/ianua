@@ -1,0 +1,47 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes and returns the sign-in code of a tenant hashing to the given\n-- value, so a code is used once however many times it is sent.\nDELETE FROM sign_in_codes\nWHERE tenant_id = $1 AND token_hash = $2\nRETURNING token_hash, dashboard_hash, session_id, expires_at, consumed_at\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "token_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "dashboard_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "session_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "consumed_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "bfd04fc3456c071a734a8411cfaa28d22e5484d3c5d3b9e92f4d96c737263d7f"
+}

@@ -1,0 +1,8 @@
+Bonjour {{ user_name | default("cher utilisateur") }},
+
+Une inscription à IANUA vient d’être demandée avec cette adresse, qui possède déjà un compte. Si c’était vous, connectez-vous plutôt :
+{{ action_url }}
+
+Si vous avez oublié votre mot de passe, vous pouvez le réinitialiser depuis la page de connexion. Si ce n’était pas vous, ignorez cet e-mail : rien n’a changé.
+
+IANUA

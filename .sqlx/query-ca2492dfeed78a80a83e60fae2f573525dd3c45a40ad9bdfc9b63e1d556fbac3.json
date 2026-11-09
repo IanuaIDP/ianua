@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every tenant in this database holding an active key made before the\n-- cutoff, for the sweep that rotates keys by age.\nSELECT DISTINCT tenant_id AS \"tenant_id!\"\nFROM signing_keys\nWHERE status = 'active' AND created_at < $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id!",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "ca2492dfeed78a80a83e60fae2f573525dd3c45a40ad9bdfc9b63e1d556fbac3"
+}

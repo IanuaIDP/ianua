@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps the delegations a minted delegation of a tenant was cut from, all\n-- in one statement, each at its place in the list. A lineage never\n-- changes, so one already kept stays as it is.\nINSERT INTO delegation_sources (tenant_id, delegation_id, source_id, position)\nSELECT $1, $2, given.source_id, given.position::integer\nFROM UNNEST($3::uuid[]) WITH ORDINALITY AS given (source_id, position)\nON CONFLICT DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "67b363be0aace7ed073559269f318c13c10f2c87f0f9651bdd908f2fcd4b8655"
+}

@@ -1,0 +1,6 @@
+Вітаємо, {{ user_name | default("користувачу") }}!
+
+Для вас створено обліковий запис у {{ tenant_name | default("вашій організації") }} на IANUA{% if role_name is defined %} з роллю {{ role_name }}{% endif %}. Усе готово. Увійдіть тут:
+{{ action_url }}
+
+IANUA

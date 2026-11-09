@@ -1,0 +1,1 @@
+Votre compte a été lié à {{ provider_name | default("un fournisseur de connexion") }}

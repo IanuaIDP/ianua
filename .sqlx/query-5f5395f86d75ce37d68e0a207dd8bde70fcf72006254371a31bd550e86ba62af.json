@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Claims a hostname for one registration of one tenant, with whether the\n-- registration proved it and when its proof was lost. A name another\n-- registration holds is left as it is, and nothing is written; the\n-- registration's own claim moves to the tenant saving it, as a handover\n-- does, and keeps up with its proof.\nINSERT INTO domain_claims\n    (hostname, overlap_key, tenant_id, domain_id, verified, claimed_at, failed_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nON CONFLICT (hostname) DO UPDATE SET\n    tenant_id = EXCLUDED.tenant_id,\n    verified = EXCLUDED.verified,\n    failed_at = EXCLUDED.failed_at\nWHERE domain_claims.domain_id = EXCLUDED.domain_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Uuid",
+        "Uuid",
+        "Bool",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5f5395f86d75ce37d68e0a207dd8bde70fcf72006254371a31bd550e86ba62af"
+}

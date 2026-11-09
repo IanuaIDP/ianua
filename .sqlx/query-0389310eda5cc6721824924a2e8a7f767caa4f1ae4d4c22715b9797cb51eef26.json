@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Records that one agent of one tenant signed in with an assertion, kept\n-- until it expires, answering its id only when this statement was the\n-- first use.\nINSERT INTO agent_assertions (tenant_id, agent_id, jti, expires_at)\nVALUES ($1, $2, $3, $4)\nON CONFLICT (tenant_id, agent_id, jti) DO NOTHING\nRETURNING jti\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "jti",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "0389310eda5cc6721824924a2e8a7f767caa4f1ae4d4c22715b9797cb51eef26"
+}

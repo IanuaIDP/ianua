@@ -1,0 +1,83 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- One latest stored-pending invitation per requested user in one tenant.\nSELECT i.id, i.user_id, i.email, i.invited_by, i.role_id, i.token_hash, i.status,\n       i.accepted_at, i.message, i.expires_at, i.created_at\nFROM (SELECT DISTINCT unnest($2::uuid[]) AS user_id) requested\nJOIN LATERAL (\n    SELECT id FROM invitations\n    WHERE tenant_id = $1 AND user_id = requested.user_id AND status = 'pending'\n    ORDER BY created_at DESC, id DESC\n    LIMIT 1\n) latest ON true\nJOIN invitations i ON i.tenant_id = $1 AND i.id = latest.id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "invited_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "role_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "token_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "accepted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "message",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "0bb98c735001213841ac2a4c22ac3b518447fc9c8dec8b4e40d1fae0d243836b"
+}

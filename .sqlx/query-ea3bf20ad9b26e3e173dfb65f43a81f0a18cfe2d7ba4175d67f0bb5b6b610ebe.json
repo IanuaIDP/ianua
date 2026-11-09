@@ -1,0 +1,35 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a version drafted just now. A version of the workflow with its\n-- number already kept refuses it.\nINSERT INTO workflow_versions\n    (tenant_id, workflow_id, version, name, graph, trigger_kind, trigger_schedule,\n     trigger_event, trigger_service, run_limit_secs, status, created_by, edited_by, authors,\n     published_by, hold, created_at, updated_at, description, layout, failure_alert,\n     trigger_change)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19,\n    $20, $21, $22)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int4",
+        "Text",
+        "Jsonb",
+        "Text",
+        "Text",
+        "Text",
+        "Jsonb",
+        "Int4",
+        "Text",
+        "Jsonb",
+        "Jsonb",
+        "Jsonb",
+        "Jsonb",
+        "Jsonb",
+        "Timestamptz",
+        "Timestamptz",
+        "Text",
+        "Jsonb",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ea3bf20ad9b26e3e173dfb65f43a81f0a18cfe2d7ba4175d67f0bb5b6b610ebe"
+}

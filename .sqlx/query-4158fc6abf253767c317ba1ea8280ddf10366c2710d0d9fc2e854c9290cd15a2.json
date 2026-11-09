@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes every organization member's notifications made before the given\n-- moment, read or not.\nDELETE FROM org_notifications\nWHERE created_at < $1\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4158fc6abf253767c317ba1ea8280ddf10366c2710d0d9fc2e854c9290cd15a2"
+}

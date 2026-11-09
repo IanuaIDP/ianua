@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps the last record a purge removed as the tenant's chain anchor, with\n-- the purge's cutoff and the anchor's seal.\nINSERT INTO audit_chain_anchors (tenant_id, seq, entry_hash, purged_before, seal)\nVALUES ($1, $2, $3, $4, $5)\nON CONFLICT (tenant_id) DO UPDATE SET\n    seq = EXCLUDED.seq,\n    entry_hash = EXCLUDED.entry_hash,\n    purged_before = EXCLUDED.purged_before,\n    seal = EXCLUDED.seal\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int8",
+        "Bytea",
+        "Timestamptz",
+        "Bytea"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "72002d76288f65cccba3d17780d5ffa1689b5b48a88557145089f2ac665cddfb"
+}

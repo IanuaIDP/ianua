@@ -1,0 +1,33 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a declaration: a new one is added, a known one of the same tenant\n-- takes the new values. Its namespace, key, kind and creation time never\n-- change.\nINSERT INTO user_attribute_definitions\n    (id, tenant_id, namespace, key, kind, control, display_name, description,\n     options, max_length, minimum, maximum, required, sensitive, filterable,\n     sortable, listed, archived, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,\n        $17, $18, $19, $20)\nON CONFLICT (id) DO UPDATE SET\n    control = EXCLUDED.control,\n    display_name = EXCLUDED.display_name,\n    description = EXCLUDED.description,\n    options = EXCLUDED.options,\n    max_length = EXCLUDED.max_length,\n    minimum = EXCLUDED.minimum,\n    maximum = EXCLUDED.maximum,\n    required = EXCLUDED.required,\n    sensitive = EXCLUDED.sensitive,\n    filterable = EXCLUDED.filterable,\n    sortable = EXCLUDED.sortable,\n    listed = EXCLUDED.listed,\n    archived = EXCLUDED.archived,\n    updated_at = EXCLUDED.updated_at\nWHERE user_attribute_definitions.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "TextArray",
+        "Int4",
+        "Float8",
+        "Float8",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f63a86dbc5495af608b905136c4e79e452eb10df945091c83c32a4a635515387"
+}

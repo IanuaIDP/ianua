@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Lets go of holder $3's lease.\nDELETE FROM platform_leases\nWHERE leased = $1 AND leased_id = $2 AND holder = $3\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "1d388337c42c599798b54ffa7ac69f4840bfc0d9f8be48a076811aadaf6cff58"
+}

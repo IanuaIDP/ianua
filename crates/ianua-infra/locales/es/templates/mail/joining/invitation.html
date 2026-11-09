@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Le invitan a unirse a {{ tenant_name | default("un equipo") }}{% endblock %}
+{% block preheader %}Le han invitado a unirse a {{ tenant_name | default("un equipo") }} en IANUA.{% endblock %}
+{% block headline %}Le invitan a unirse a {{ tenant_name | default("un equipo") }}{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para() %}Le invitan a unirse a <strong>{{ tenant_name | default("un equipo") }}</strong> en {{ c.brand() }}{% if role_name is defined %} con el rol <strong>{{ role_name }}</strong>{% endif %}, usando la dirección {{ user_email | default("de este correo") }}.{% endcall %}
+  {% call c.para(pad=8) %}Para empezar, elija una contraseña y active su cuenta.{% endcall %}
+  {{ c.cta(action_url, "Aceptar invitación") }}
+  {% call c.para(pad=0) %}Esta invitación caduca en {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Si no esperaba esta invitación, puede ignorar este correo.{% endcall %}
+{% endblock %}

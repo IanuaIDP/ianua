@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an agent credential: a new one is added, a known one of the same\n-- tenant takes the new values. Its tenant, its agent, its key and its\n-- creation time never change. A key only moves on, active to rotated to\n-- revoked: a copy read before a rotation or a revoke never moves it back,\n-- never starts its grace again and never lengthens its life.\nINSERT INTO agent_credentials\n    (id, tenant_id, agent_id, kid, algorithm, public_key, status, rotated_at, attested_method,\n     attested_subject, created_at, expires_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)\nON CONFLICT (id) DO UPDATE SET\n    status = CASE\n        WHEN agent_credentials.status = 'revoked' OR EXCLUDED.status = 'revoked' THEN 'revoked'\n        WHEN agent_credentials.status = 'rotated' OR EXCLUDED.status = 'rotated' THEN 'rotated'\n        ELSE EXCLUDED.status\n    END,\n    rotated_at = COALESCE(agent_credentials.rotated_at, EXCLUDED.rotated_at),\n    attested_method = EXCLUDED.attested_method,\n    attested_subject = EXCLUDED.attested_subject,\n    expires_at = LEAST(agent_credentials.expires_at, EXCLUDED.expires_at),\n    updated_at = GREATEST(EXCLUDED.updated_at, agent_credentials.updated_at)\nWHERE agent_credentials.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ecdc71349dedd8773effc811bd5a15b42720566f478a598a4ce618680e2c832f"
+}

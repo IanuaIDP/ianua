@@ -1,0 +1,7 @@
+您好，{{ user_name | default("用户") }}：
+
+您在 {{ tenant_name | default("您的组织") }} 的账户的一个会话因看似异常的活动而被终止{% if ip_address is defined %}，来源地址为 {{ ip_address }}{% endif %}。
+
+如果是您本人操作，请重新登录以继续。否则，请立即更改密码并检查活动会话。
+
+IANUA

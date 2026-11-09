@@ -1,0 +1,107 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The active webhook subscriptions of a tenant that list the given event\n-- type, oldest first. A tenant holds few webhooks, so the active ones are\n-- read by status and their lists checked.\nSELECT id, url, signing_secret_sealed, previous_secret_sealed, previous_secret_until,\n       event_types, status, description, retry, created_by_kind, created_by_id,\n       consecutive_failures, last_delivered_at, created_at, updated_at\nFROM webhook_subscriptions\nWHERE tenant_id = $1 AND status = 'active' AND $2::text = ANY(event_types)\nORDER BY created_at, id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "signing_secret_sealed",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "previous_secret_sealed",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "previous_secret_until",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "event_types",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 6,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "retry",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_by_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "created_by_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 11,
+        "name": "consecutive_failures",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 12,
+        "name": "last_delivered_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 13,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 14,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "1852b4cf85c4ad791170ac33883652b05c251173dae622c29b143b50561495b0"
+}

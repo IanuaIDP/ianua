@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The longest a tenant lets its people ask for access, if it set a limit.\nSELECT longest_seconds, updated_at\nFROM access_request_policies\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "longest_seconds",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "8d8e2f1a5d0da5491f700dda0863aaa5719e52b33fb9e18fd7117750c529f3a7"
+}

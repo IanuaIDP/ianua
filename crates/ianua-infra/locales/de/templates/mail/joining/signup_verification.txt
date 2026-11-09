@@ -1,0 +1,10 @@
+Hallo{% if user_name is defined and user_name %} {{ user_name | default("") }}{% endif %}!
+
+Vielen Dank für Ihre Registrierung bei IANUA. Bis zur Erstellung von {{ organization_name | default("Ihrer Organisation") }} fehlt nur noch ein Schritt. Bestätigen Sie dazu Ihre E-Mail-Adresse:
+{{ action_url }}
+
+Dieser Link läuft in {{ expires_at }} ab.
+
+Wenn Sie sich nicht registriert haben, können Sie diese E-Mail ignorieren.
+
+IANUA

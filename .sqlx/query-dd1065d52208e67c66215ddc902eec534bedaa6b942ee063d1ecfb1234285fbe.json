@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a subscription: a new one is added, a known one of the same tenant\n-- takes the new values. Its tenant, its topic, its service and its creation\n-- time never change.\nINSERT INTO topic_subscriptions\n    (id, tenant_id, topic_name, consumer_id, consumer_group, delivery_mode, push_url,\n     push_secret_sealed, previous_secret_sealed, previous_secret_until, ack_deadline_seconds,\n     max_deliveries, filter, status, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)\nON CONFLICT (id) DO UPDATE SET\n    consumer_group = EXCLUDED.consumer_group,\n    delivery_mode = EXCLUDED.delivery_mode,\n    push_url = EXCLUDED.push_url,\n    push_secret_sealed = EXCLUDED.push_secret_sealed,\n    previous_secret_sealed = EXCLUDED.previous_secret_sealed,\n    previous_secret_until = EXCLUDED.previous_secret_until,\n    ack_deadline_seconds = EXCLUDED.ack_deadline_seconds,\n    max_deliveries = EXCLUDED.max_deliveries,\n    filter = EXCLUDED.filter,\n    status = EXCLUDED.status,\n    updated_at = EXCLUDED.updated_at\nWHERE topic_subscriptions.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Int8",
+        "Int8",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "dd1065d52208e67c66215ddc902eec534bedaa6b942ee063d1ecfb1234285fbe"
+}

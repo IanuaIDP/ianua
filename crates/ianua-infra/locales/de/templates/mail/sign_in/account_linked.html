@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ihr Konto wurde mit {{ provider_name | default("einem Anmeldeanbieter") }} verknüpft{% endblock %}
+{% block preheader %}Ein Anmeldeanbieter kann Sie nun anmelden.{% endblock %}
+{% block headline %}Ihr Konto wurde verknüpft{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("")) }}
+  {% call c.para() %}Bei Ihrem Konto bei <strong>{{ tenant_name | default("Ihrer Organisation") }}</strong> wurde erstmals eine Anmeldung über <strong>{{ provider_name | default("einen Anmeldeanbieter") }}</strong> durchgeführt{% if ip_address is defined %}, von {{ ip_address }} aus{% endif %}. Dieser Anbieter kann Sie von nun an anmelden.{% endcall %}
+  {% call c.para(pad=32) %}Wenn Sie das nicht waren, informieren Sie umgehend Ihren Administrator.{% endcall %}
+{% endblock %}

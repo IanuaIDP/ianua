@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Verify your email address{% endblock %}
+{% block preheader %}Verify your email address to finish setting up your account.{% endblock %}
+{% block headline %}Verify your email address{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("there")) }}
+  {% call c.para(pad=8) %}An account was created for you in <strong>{{ tenant_name | default("your organization") }}</strong> on {{ c.brand() }}. Before you can sign in, verify your email address.{% endcall %}
+  {{ c.cta(action_url, "Verify email") }}
+  {% call c.para(pad=0) %}This link expires in {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}If you did not expect this email, you can ignore it.{% endcall %}
+{% endblock %}

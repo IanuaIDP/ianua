@@ -1,0 +1,21 @@
+[package]
+name = "ianua-integration-airtable"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Workflow steps for Airtable bases, tables and records, through an account's Airtable token"
+
+[lints]
+workspace = true
+
+[dependencies]
+ianua-domain = { workspace = true }
+ianua-integration = { workspace = true }
+ianua-workspace-hack = { version = "0.1", path = "../../crates/ianua-workspace-hack" }
+
+[dev-dependencies]
+ianua-integration = { workspace = true, features = ["test-support"] }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+wiremock = { workspace = true }

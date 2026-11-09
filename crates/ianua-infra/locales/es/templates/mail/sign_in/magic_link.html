@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Su enlace de inicio de sesión{% endblock %}
+{% block preheader %}Use este enlace para iniciar sesión en su cuenta.{% endblock %}
+{% block headline %}Inicie sesión en {{ tenant_name | default("su cuenta") }}{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para(pad=8) %}Pulse el botón de abajo para iniciar sesión. No necesita contraseña.{% endcall %}
+  {{ c.cta(action_url, "Iniciar sesión") }}
+  {% call c.para(pad=0) %}Este enlace caduca en {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Si no lo solicitó, puede ignorar este correo.{% endcall %}
+{% endblock %}

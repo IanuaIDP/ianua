@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Forgets the spent assertions that expired by the given time: no provider\n-- answer carrying one is taken any more.\nDELETE FROM org_saml_assertions\nWHERE expires_at <= $1\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "1cca96f0da6f348ee1977468fed768bb94dbd41744c29ead9c17a73a564cdf64"
+}

@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an API key one tenant just made.\nINSERT INTO api_keys\n    (id, tenant_id, name, key_prefix, key_hash, scopes, created_by, expires_at, last_used_at,\n     last_used_ip, created_at, paused_at, seen_countries)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "TextArray",
+        "Jsonb",
+        "Timestamptz",
+        "Timestamptz",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c9cc02aeb584d1fd831222155aad32b0b42f23f8c6c354971164885903b6b189"
+}

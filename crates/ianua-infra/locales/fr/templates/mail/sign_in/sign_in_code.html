@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Votre code de connexion{% endblock %}
+{% block preheader %}Saisissez ce code pour poursuivre la connexion.{% endblock %}
+{% block headline %}Votre code de connexion{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("cher utilisateur")) }}
+  {% call c.para(pad=8) %}Saisissez ce code pour poursuivre la connexion à <strong>{{ tenant_name | default("votre compte") }}</strong> :{% endcall %}
+  {{ c.code(one_time_code) }}
+  {% call c.para(pad=0) %}Ce code expire dans {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Si vous n’êtes pas en train de vous connecter, quelqu’un connaît peut-être votre mot de passe. Changez-le et ne communiquez ce code à personne.{% endcall %}
+{% endblock %}

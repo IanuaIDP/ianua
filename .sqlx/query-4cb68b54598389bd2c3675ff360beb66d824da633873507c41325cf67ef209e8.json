@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps the record of one decision of a tenant. A record is evidence: it\n-- is written once and never changed.\nINSERT INTO decision_records\n    (id, tenant_id, asked_by, subject_kind, subject_id, verdict, policy_version, rule, basis,\n     decided_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Jsonb",
+        "Text",
+        "Uuid",
+        "Text",
+        "Int4",
+        "Text",
+        "Jsonb",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4cb68b54598389bd2c3675ff360beb66d824da633873507c41325cf67ef209e8"
+}

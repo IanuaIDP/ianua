@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Up to a page of the registrations waiting on their service since before a\n-- moment, the oldest first, in whichever tenants the read may see.\nSELECT tenant_id, id\nFROM workflow_service_subscriptions\nWHERE status = 'registering' AND created_at < $1\nORDER BY created_at, id\nLIMIT $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "e2d5618d6b7b1b8ba15f69b94916bd9d2149b3ed52299a71b5b3d3ed082ab45f"
+}

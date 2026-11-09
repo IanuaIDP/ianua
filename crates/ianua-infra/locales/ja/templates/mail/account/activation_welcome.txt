@@ -1,0 +1,6 @@
+{{ user_name | default("ご利用者") }}様
+
+{{ tenant_name | default(organization_name | default("所属組織")) }}のアカウントの設定が完了し、利用できるようになりました。こちらからサインインしてください：
+{{ action_url }}
+
+IANUA

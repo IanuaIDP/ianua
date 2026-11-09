@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a sign-up until its link comes back: a new one is added, one under\n-- the same link takes the new values.\nINSERT INTO pending_signups\n    (token_hash, email, company_name, tenant_name, admin_display_name, password_hash,\n     timezone, locale, requested_at, expires_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\nON CONFLICT (token_hash) DO UPDATE SET\n    email = EXCLUDED.email,\n    company_name = EXCLUDED.company_name,\n    tenant_name = EXCLUDED.tenant_name,\n    admin_display_name = EXCLUDED.admin_display_name,\n    password_hash = EXCLUDED.password_hash,\n    timezone = EXCLUDED.timezone,\n    locale = EXCLUDED.locale,\n    requested_at = EXCLUDED.requested_at,\n    expires_at = EXCLUDED.expires_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "79fe8c4101c97cd0c33233b195c782c4b0096f2dee2f9ed7e3a0d870491d5ca6"
+}

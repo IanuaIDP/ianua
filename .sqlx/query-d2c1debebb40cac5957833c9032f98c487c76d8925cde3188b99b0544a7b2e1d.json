@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a second-factor challenge: a new one is added, a known one of the\n-- same tenant counts one more wrong code on what is stored, at least the\n-- count it brings, so two wrong codes saved from copies read together both\n-- count. Its session and expiry never change, and an answer is never\n-- undone.\nINSERT INTO mfa_challenges\n    (tenant_id, token_hash, session_id, expires_at, failed_attempts, consumed_at)\nVALUES ($1, $2, $3, $4, $5, $6)\nON CONFLICT (tenant_id, token_hash) DO UPDATE SET\n    failed_attempts = GREATEST(mfa_challenges.failed_attempts + 1, EXCLUDED.failed_attempts),\n    consumed_at = coalesce(mfa_challenges.consumed_at, EXCLUDED.consumed_at)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Timestamptz",
+        "Int2",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d2c1debebb40cac5957833c9032f98c487c76d8925cde3188b99b0544a7b2e1d"
+}

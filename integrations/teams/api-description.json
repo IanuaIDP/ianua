@@ -1,0 +1,387 @@
+{
+  "endpoints": {
+    "delete /teams/{team-id}/channels/{channel-id}": {
+      "answer": [],
+      "body": [],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "204"
+      ]
+    },
+    "get /me/chats": {
+      "answer": [
+        "@odata.count",
+        "@odata.nextLink",
+        "value"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "$count": false,
+        "$expand": false,
+        "$filter": false,
+        "$orderby": false,
+        "$search": false,
+        "$select": false,
+        "$skip": false,
+        "$top": false
+      },
+      "statuses": [
+        "2XX"
+      ]
+    },
+    "get /me/joinedTeams": {
+      "answer": [
+        "@odata.count",
+        "@odata.nextLink",
+        "value"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "$count": false,
+        "$expand": false,
+        "$filter": false,
+        "$orderby": false,
+        "$search": false,
+        "$select": false,
+        "$skip": false,
+        "$top": false
+      },
+      "statuses": [
+        "2XX"
+      ]
+    },
+    "get /teams/{team-id}/channels": {
+      "answer": [
+        "@odata.count",
+        "@odata.nextLink",
+        "value"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "$count": false,
+        "$expand": false,
+        "$filter": false,
+        "$orderby": false,
+        "$search": false,
+        "$select": false,
+        "$skip": false,
+        "$top": false
+      },
+      "statuses": [
+        "2XX"
+      ]
+    },
+    "get /teams/{team-id}/channels/{channel-id}/messages": {
+      "answer": [
+        "@odata.count",
+        "@odata.nextLink",
+        "value"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "$count": false,
+        "$expand": false,
+        "$filter": false,
+        "$orderby": false,
+        "$search": false,
+        "$select": false,
+        "$skip": false,
+        "$top": false
+      },
+      "statuses": [
+        "2XX"
+      ]
+    },
+    "get /teams/{team-id}/members": {
+      "answer": [
+        "@odata.count",
+        "@odata.nextLink",
+        "value"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "$count": false,
+        "$expand": false,
+        "$filter": false,
+        "$orderby": false,
+        "$search": false,
+        "$select": false,
+        "$skip": false,
+        "$top": false
+      },
+      "statuses": [
+        "2XX"
+      ]
+    },
+    "post /chats/{chat-id}/messages": {
+      "answer": [
+        "@odata.type",
+        "attachments",
+        "body",
+        "channelIdentity",
+        "chatId",
+        "createdDateTime",
+        "deletedDateTime",
+        "etag",
+        "eventDetail",
+        "from",
+        "hostedContents",
+        "id",
+        "importance",
+        "lastEditedDateTime",
+        "lastModifiedDateTime",
+        "locale",
+        "mentions",
+        "messageHistory",
+        "messageType",
+        "policyViolation",
+        "reactions",
+        "replies",
+        "replyToId",
+        "subject",
+        "summary",
+        "webUrl"
+      ],
+      "body": [
+        "@odata.type",
+        "attachments",
+        "body",
+        "channelIdentity",
+        "chatId",
+        "createdDateTime",
+        "deletedDateTime",
+        "etag",
+        "eventDetail",
+        "from",
+        "hostedContents",
+        "id",
+        "importance",
+        "lastEditedDateTime",
+        "lastModifiedDateTime",
+        "locale",
+        "mentions",
+        "messageHistory",
+        "messageType",
+        "policyViolation",
+        "reactions",
+        "replies",
+        "replyToId",
+        "subject",
+        "summary",
+        "webUrl"
+      ],
+      "body_required": [
+        "@odata.type"
+      ],
+      "query": {},
+      "statuses": [
+        "2XX"
+      ]
+    },
+    "post /teams/{team-id}/channels": {
+      "answer": [
+        "@odata.type",
+        "allMembers",
+        "createdDateTime",
+        "description",
+        "displayName",
+        "email",
+        "enabledApps",
+        "filesFolder",
+        "id",
+        "isArchived",
+        "isFavoriteByDefault",
+        "layoutType",
+        "members",
+        "membershipType",
+        "messages",
+        "migrationMode",
+        "originalCreatedDateTime",
+        "sharedWithTeams",
+        "summary",
+        "tabs",
+        "tenantId",
+        "webUrl"
+      ],
+      "body": [
+        "@odata.type",
+        "allMembers",
+        "createdDateTime",
+        "description",
+        "displayName",
+        "email",
+        "enabledApps",
+        "filesFolder",
+        "id",
+        "isArchived",
+        "isFavoriteByDefault",
+        "layoutType",
+        "members",
+        "membershipType",
+        "messages",
+        "migrationMode",
+        "originalCreatedDateTime",
+        "sharedWithTeams",
+        "summary",
+        "tabs",
+        "tenantId",
+        "webUrl"
+      ],
+      "body_required": [
+        "@odata.type"
+      ],
+      "query": {},
+      "statuses": [
+        "2XX"
+      ]
+    },
+    "post /teams/{team-id}/channels/{channel-id}/archive": {
+      "answer": [],
+      "body": [
+        "shouldSetSpoSiteReadOnlyForMembers"
+      ],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "204"
+      ]
+    },
+    "post /teams/{team-id}/channels/{channel-id}/messages": {
+      "answer": [
+        "@odata.type",
+        "attachments",
+        "body",
+        "channelIdentity",
+        "chatId",
+        "createdDateTime",
+        "deletedDateTime",
+        "etag",
+        "eventDetail",
+        "from",
+        "hostedContents",
+        "id",
+        "importance",
+        "lastEditedDateTime",
+        "lastModifiedDateTime",
+        "locale",
+        "mentions",
+        "messageHistory",
+        "messageType",
+        "policyViolation",
+        "reactions",
+        "replies",
+        "replyToId",
+        "subject",
+        "summary",
+        "webUrl"
+      ],
+      "body": [
+        "@odata.type",
+        "attachments",
+        "body",
+        "channelIdentity",
+        "chatId",
+        "createdDateTime",
+        "deletedDateTime",
+        "etag",
+        "eventDetail",
+        "from",
+        "hostedContents",
+        "id",
+        "importance",
+        "lastEditedDateTime",
+        "lastModifiedDateTime",
+        "locale",
+        "mentions",
+        "messageHistory",
+        "messageType",
+        "policyViolation",
+        "reactions",
+        "replies",
+        "replyToId",
+        "subject",
+        "summary",
+        "webUrl"
+      ],
+      "body_required": [
+        "@odata.type"
+      ],
+      "query": {},
+      "statuses": [
+        "2XX"
+      ]
+    },
+    "post /teams/{team-id}/channels/{channel-id}/messages/{chatMessage-id}/replies": {
+      "answer": [
+        "@odata.type",
+        "attachments",
+        "body",
+        "channelIdentity",
+        "chatId",
+        "createdDateTime",
+        "deletedDateTime",
+        "etag",
+        "eventDetail",
+        "from",
+        "hostedContents",
+        "id",
+        "importance",
+        "lastEditedDateTime",
+        "lastModifiedDateTime",
+        "locale",
+        "mentions",
+        "messageHistory",
+        "messageType",
+        "policyViolation",
+        "reactions",
+        "replies",
+        "replyToId",
+        "subject",
+        "summary",
+        "webUrl"
+      ],
+      "body": [
+        "@odata.type",
+        "attachments",
+        "body",
+        "channelIdentity",
+        "chatId",
+        "createdDateTime",
+        "deletedDateTime",
+        "etag",
+        "eventDetail",
+        "from",
+        "hostedContents",
+        "id",
+        "importance",
+        "lastEditedDateTime",
+        "lastModifiedDateTime",
+        "locale",
+        "mentions",
+        "messageHistory",
+        "messageType",
+        "policyViolation",
+        "reactions",
+        "replies",
+        "replyToId",
+        "subject",
+        "summary",
+        "webUrl"
+      ],
+      "body_required": [
+        "@odata.type"
+      ],
+      "query": {},
+      "statuses": [
+        "2XX"
+      ]
+    }
+  },
+  "version": "v1.0"
+}

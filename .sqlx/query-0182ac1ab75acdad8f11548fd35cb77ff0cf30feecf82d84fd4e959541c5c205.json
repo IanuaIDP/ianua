@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes a tenant's sessions over by the given moment: those that expired\n-- before it, and those revoked and last used before it that no later\n-- session replaced by a refresh. A session in force expires later and is\n-- never revoked, so it stays.\nDELETE FROM sessions s\nWHERE s.tenant_id = $1\n  AND (\n      s.expires_at < $2\n      OR (\n          s.status = 'revoked'\n          AND s.last_active_at < $2\n          AND NOT EXISTS (\n              SELECT 1 FROM sessions c WHERE c.tenant_id = s.tenant_id AND c.parent_id = s.id\n          )\n      )\n  )\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "0182ac1ab75acdad8f11548fd35cb77ff0cf30feecf82d84fd4e959541c5c205"
+}

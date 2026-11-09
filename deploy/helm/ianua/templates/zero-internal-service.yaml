@@ -1,0 +1,22 @@
+{{- if .Values.agentSandboxes.agents }}
+{{- /*
+The proxy port for agent runners. ClusterIP always, whatever type the main
+proxy service is: this port takes the socket peer as the client and must
+never be reachable from outside the cluster.
+*/}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ianua.fullname" . }}-zero-internal
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: zero
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "ianua.selectorLabels" (dict "root" . "component" "zero") | nindent 4 }}
+  ports:
+    - name: internal
+      port: {{ .Values.zero.internalPort }}
+      targetPort: internal
+{{- end }}

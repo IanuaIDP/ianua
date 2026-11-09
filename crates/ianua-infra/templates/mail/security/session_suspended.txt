@@ -1,0 +1,7 @@
+Hi {{ user_name | default("there") }},
+
+A session on your account in {{ tenant_name | default("your organization") }} was stopped after activity that looked unusual{% if ip_address is defined %}, from {{ ip_address }}{% endif %}.
+
+If this was you, sign in again to go on. If it was not, change your password now and look over your active sessions.
+
+IANUA

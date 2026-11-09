@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many of a tenant's connections hand out the given role: as the role\n-- new accounts are given, or through a group-mapping rule.\nSELECT count(*) AS \"count!\"\nFROM federation_connections c\nWHERE c.tenant_id = $1\n  AND (c.jit_default_role_id = $2\n       OR EXISTS (SELECT 1\n                  FROM connection_group_rules r\n                  WHERE r.tenant_id = c.tenant_id AND r.connection_id = c.id\n                    AND r.role_id = $2))\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "1e71bb9ff55be2e88092f2d752cbc5457e029fb9dbfa3d7703e75e3b893a832f"
+}

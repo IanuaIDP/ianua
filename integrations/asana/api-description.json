@@ -1,0 +1,422 @@
+{
+  "endpoints": {
+    "delete /tasks/{task_gid}": {
+      "answer": [
+        "data"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "opt_pretty": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /projects": {
+      "answer": [
+        "data",
+        "next_page"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "archived": false,
+        "custom_type": false,
+        "limit": false,
+        "offset": false,
+        "opt_fields": false,
+        "opt_pretty": false,
+        "team": false,
+        "workspace": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /projects/{project_gid}/sections": {
+      "answer": [
+        "data",
+        "next_page"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "limit": false,
+        "offset": false,
+        "opt_fields": false,
+        "opt_pretty": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /tasks/{task_gid}": {
+      "answer": [
+        "data"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "opt_fields": false,
+        "opt_pretty": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /users": {
+      "answer": [
+        "data",
+        "next_page"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "limit": false,
+        "offset": false,
+        "opt_fields": false,
+        "opt_pretty": false,
+        "team": false,
+        "workspace": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /workspaces": {
+      "answer": [
+        "data",
+        "next_page"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "limit": false,
+        "offset": false,
+        "opt_fields": false,
+        "opt_pretty": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /workspaces/{workspace_gid}/tasks/search": {
+      "answer": [
+        "data"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "assigned_by.any": false,
+        "assigned_by.not": false,
+        "assignee.any": false,
+        "assignee.not": false,
+        "commented_on_by.not": false,
+        "completed": false,
+        "completed_at.after": false,
+        "completed_at.before": false,
+        "completed_on": false,
+        "completed_on.after": false,
+        "completed_on.before": false,
+        "created_at.after": false,
+        "created_at.before": false,
+        "created_by.any": false,
+        "created_by.not": false,
+        "created_on": false,
+        "created_on.after": false,
+        "created_on.before": false,
+        "due_at.after": false,
+        "due_at.before": false,
+        "due_on": false,
+        "due_on.after": false,
+        "due_on.before": false,
+        "followers.any": false,
+        "followers.not": false,
+        "has_attachment": false,
+        "is_blocked": false,
+        "is_blocking": false,
+        "is_subtask": false,
+        "liked_by.not": false,
+        "limit": false,
+        "modified_at.after": false,
+        "modified_at.before": false,
+        "modified_on": false,
+        "modified_on.after": false,
+        "modified_on.before": false,
+        "opt_fields": false,
+        "opt_pretty": false,
+        "portfolios.any": false,
+        "projects.all": false,
+        "projects.any": false,
+        "projects.not": false,
+        "resource_subtype": false,
+        "sections.all": false,
+        "sections.any": false,
+        "sections.not": false,
+        "sort_ascending": false,
+        "sort_by": false,
+        "start_on": false,
+        "start_on.after": false,
+        "start_on.before": false,
+        "tags.all": false,
+        "tags.any": false,
+        "tags.not": false,
+        "teams.any": false,
+        "text": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /tasks": {
+      "answer": [
+        "data"
+      ],
+      "body": [
+        "data"
+      ],
+      "body_paths": [
+        "data",
+        "data.actual_time_minutes",
+        "data.approval_status",
+        "data.assigned_by",
+        "data.assigned_by.*",
+        "data.assigned_by.gid",
+        "data.assigned_by.name",
+        "data.assigned_by.resource_type",
+        "data.assignee",
+        "data.assignee_section",
+        "data.assignee_status",
+        "data.completed",
+        "data.completed_at",
+        "data.completed_by",
+        "data.completed_by.*",
+        "data.completed_by.gid",
+        "data.completed_by.name",
+        "data.completed_by.resource_type",
+        "data.created_at",
+        "data.created_by",
+        "data.created_by.gid",
+        "data.created_by.resource_type",
+        "data.custom_fields",
+        "data.custom_fields.*",
+        "data.custom_type",
+        "data.custom_type_status_option",
+        "data.dependencies",
+        "data.dependencies.gid",
+        "data.dependencies.resource_type",
+        "data.dependents",
+        "data.dependents.gid",
+        "data.dependents.resource_type",
+        "data.due_at",
+        "data.due_on",
+        "data.external",
+        "data.external.data",
+        "data.external.gid",
+        "data.followers",
+        "data.gid",
+        "data.has_subtasks_date_mismatch",
+        "data.hearted",
+        "data.hearts",
+        "data.hearts.gid",
+        "data.hearts.user",
+        "data.hearts.user.gid",
+        "data.hearts.user.name",
+        "data.hearts.user.resource_type",
+        "data.html_custom_fields",
+        "data.html_custom_fields.*",
+        "data.html_notes",
+        "data.is_rendered_as_separator",
+        "data.liked",
+        "data.likes",
+        "data.likes.gid",
+        "data.likes.user",
+        "data.likes.user.gid",
+        "data.likes.user.name",
+        "data.likes.user.resource_type",
+        "data.memberships",
+        "data.memberships.project",
+        "data.memberships.project.gid",
+        "data.memberships.project.name",
+        "data.memberships.project.resource_subtype",
+        "data.memberships.project.resource_type",
+        "data.memberships.section",
+        "data.memberships.section.*",
+        "data.memberships.section.gid",
+        "data.memberships.section.name",
+        "data.memberships.section.resource_type",
+        "data.modified_at",
+        "data.name",
+        "data.notes",
+        "data.num_hearts",
+        "data.num_likes",
+        "data.num_subtasks",
+        "data.parent",
+        "data.projects",
+        "data.resource_subtype",
+        "data.resource_type",
+        "data.start_at",
+        "data.start_on",
+        "data.tags",
+        "data.workspace"
+      ],
+      "body_required": [],
+      "query": {
+        "opt_fields": false,
+        "opt_pretty": false
+      },
+      "statuses": [
+        "201"
+      ]
+    },
+    "post /tasks/{task_gid}/addProject": {
+      "answer": [
+        "data"
+      ],
+      "body": [
+        "data"
+      ],
+      "body_paths": [
+        "data",
+        "data.insert_after",
+        "data.insert_before",
+        "data.project",
+        "data.section"
+      ],
+      "body_required": [],
+      "query": {
+        "opt_pretty": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /tasks/{task_gid}/stories": {
+      "answer": [
+        "data"
+      ],
+      "body": [
+        "data"
+      ],
+      "body_paths": [
+        "data",
+        "data.created_at",
+        "data.gid",
+        "data.html_text",
+        "data.is_pinned",
+        "data.parent_comment",
+        "data.resource_subtype",
+        "data.resource_type",
+        "data.sticker_name",
+        "data.text"
+      ],
+      "body_required": [],
+      "query": {
+        "opt_fields": false,
+        "opt_pretty": false
+      },
+      "statuses": [
+        "201"
+      ]
+    },
+    "put /tasks/{task_gid}": {
+      "answer": [
+        "data"
+      ],
+      "body": [
+        "data"
+      ],
+      "body_paths": [
+        "data",
+        "data.actual_time_minutes",
+        "data.approval_status",
+        "data.assigned_by",
+        "data.assigned_by.*",
+        "data.assigned_by.gid",
+        "data.assigned_by.name",
+        "data.assigned_by.resource_type",
+        "data.assignee",
+        "data.assignee_section",
+        "data.assignee_status",
+        "data.completed",
+        "data.completed_at",
+        "data.completed_by",
+        "data.completed_by.*",
+        "data.completed_by.gid",
+        "data.completed_by.name",
+        "data.completed_by.resource_type",
+        "data.created_at",
+        "data.created_by",
+        "data.created_by.gid",
+        "data.created_by.resource_type",
+        "data.custom_fields",
+        "data.custom_fields.*",
+        "data.custom_type",
+        "data.custom_type_status_option",
+        "data.dependencies",
+        "data.dependencies.gid",
+        "data.dependencies.resource_type",
+        "data.dependents",
+        "data.dependents.gid",
+        "data.dependents.resource_type",
+        "data.due_at",
+        "data.due_on",
+        "data.external",
+        "data.external.data",
+        "data.external.gid",
+        "data.gid",
+        "data.has_subtasks_date_mismatch",
+        "data.hearted",
+        "data.hearts",
+        "data.hearts.gid",
+        "data.hearts.user",
+        "data.hearts.user.gid",
+        "data.hearts.user.name",
+        "data.hearts.user.resource_type",
+        "data.html_custom_fields",
+        "data.html_custom_fields.*",
+        "data.html_notes",
+        "data.is_rendered_as_separator",
+        "data.liked",
+        "data.likes",
+        "data.likes.gid",
+        "data.likes.user",
+        "data.likes.user.gid",
+        "data.likes.user.name",
+        "data.likes.user.resource_type",
+        "data.memberships",
+        "data.memberships.project",
+        "data.memberships.project.gid",
+        "data.memberships.project.name",
+        "data.memberships.project.resource_subtype",
+        "data.memberships.project.resource_type",
+        "data.memberships.section",
+        "data.memberships.section.*",
+        "data.memberships.section.gid",
+        "data.memberships.section.name",
+        "data.memberships.section.resource_type",
+        "data.modified_at",
+        "data.name",
+        "data.notes",
+        "data.num_hearts",
+        "data.num_likes",
+        "data.num_subtasks",
+        "data.parent",
+        "data.resource_subtype",
+        "data.resource_type",
+        "data.start_at",
+        "data.start_on"
+      ],
+      "body_required": [],
+      "query": {
+        "opt_fields": false,
+        "opt_pretty": false
+      },
+      "statuses": [
+        "200"
+      ]
+    }
+  },
+  "version": "1.0"
+}

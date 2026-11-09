@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Writes when a tenant's SCIM endpoint last synced, and nothing else: its\n-- token and settings stay as stored.\nUPDATE scim_endpoints\nSET last_sync_at = $2\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f472c05630e0e53f76eaff628bcd574fa9bad089e41620931b17291e21fe4aa4"
+}

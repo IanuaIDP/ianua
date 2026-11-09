@@ -1,0 +1,15 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}You are invited to join {{ tenant_name | default("a team") }}{% endblock %}
+{% block preheader %}You were invited to join {{ tenant_name | default("a team") }} on IANUA.{% endblock %}
+{% block headline %}You are invited to join {{ tenant_name | default("a team") }}{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("there")) }}
+  {% call c.para() %}You are invited to join <strong>{{ tenant_name | default("a team") }}</strong> on {{ c.brand() }}{% if role_name is defined %} as <strong>{{ role_name }}</strong>{% endif %}, with the address {{ user_email | default("this one") }}.{% endcall %}
+  {% call c.para(pad=8) %}To get started, choose your password and activate your account.{% endcall %}
+  {{ c.cta(action_url, "Accept invitation") }}
+  {% call c.para(pad=0) %}This invitation expires in {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}If you were not expecting this, you can ignore this email.{% endcall %}
+{% endblock %}

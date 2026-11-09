@@ -1,0 +1,79 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Reads one holder's decision through the tenant/review/holder unique key.\nSELECT review_id, position, holder_kind, holder_id, choice,\n       reviewer_kind, reviewer_id, reviewer_person,\n       suggested_choice, suggested_reason\nFROM access_review_items\nWHERE tenant_id = $1 AND review_id = $2 AND holder_kind = $3 AND holder_id = $4\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "review_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "position",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "holder_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "holder_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "choice",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "reviewer_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "reviewer_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "reviewer_person",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "suggested_choice",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "suggested_reason",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "24ced82d064dbbe62b44005358ff93d1df2b4f78af1503171eabccd0166a935c"
+}

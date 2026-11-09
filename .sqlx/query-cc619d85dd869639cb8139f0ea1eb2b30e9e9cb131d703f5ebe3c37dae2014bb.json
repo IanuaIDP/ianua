@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Lease one due pair whose tenant still serves the address.\nWITH candidate AS (\n    SELECT p.root FROM platform_certificates p JOIN tenants t ON t.id = p.tenant_id\n    WHERE p.next_attempt <= now() AND (p.lease_until IS NULL OR p.lease_until <= now())\n        AND (p.expires_at IS NULL OR p.expires_at <= now() + interval '30 days')\n        AND t.status IN ('active', 'provisioning') AND (NOT p.readable OR t.readable_address)\n    ORDER BY p.next_attempt, p.root LIMIT 1 FOR UPDATE OF p SKIP LOCKED\n)\nUPDATE platform_certificates p SET attempt_id = $1, lease_until = now() + interval '10 minutes'\nFROM candidate WHERE p.root = candidate.root\nRETURNING p.root, p.tenant_id, p.readable\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "root",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "readable",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "cc619d85dd869639cb8139f0ea1eb2b30e9e9cb131d703f5ebe3c37dae2014bb"
+}

@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Whether one tenant, read from the database of its own it lives in,\n-- holds assertion keys but none active made at or after the cutoff.\nSELECT (\n    EXISTS (SELECT 1 FROM assertion_keys WHERE tenant_id = $1)\n    AND NOT EXISTS (\n        SELECT 1 FROM assertion_keys\n        WHERE tenant_id = $1 AND status = 'active' AND created_at >= $2\n    )\n) AS \"due!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "due!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "2be1626b12240088cdd948d64d50bd58e3202631f977a0557eeaf32482cdc914"
+}

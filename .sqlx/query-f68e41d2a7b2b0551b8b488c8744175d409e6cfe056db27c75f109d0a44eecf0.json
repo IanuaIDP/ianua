@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Replaces a member's choices with the categories and channels given, in\n-- one statement: the categories left out are dropped, the others kept with\n-- their new channel.\nWITH dropped AS (\n    DELETE FROM org_notification_preferences\n    WHERE organization_id = $1 AND org_user_id = $2 AND NOT (category = ANY($3::text[]))\n)\nINSERT INTO org_notification_preferences (organization_id, org_user_id, category, channel)\nSELECT $1, $2, chosen.category, chosen.channel\nFROM UNNEST($3::text[], $4::text[]) AS chosen (category, channel)\nON CONFLICT (organization_id, org_user_id, category) DO UPDATE\nSET channel = EXCLUDED.channel\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "TextArray",
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f68e41d2a7b2b0551b8b488c8744175d409e6cfe056db27c75f109d0a44eecf0"
+}

@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}თქვენი ანგარიში მზადაა{% endblock %}
+{% block preheader %}თქვენი ანგარიში მზადაა. დასაწყებად შედით.{% endblock %}
+{% block headline %}თქვენი ანგარიში მზადაა{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para(pad=8) %}თქვენი ანგარიში <strong>{{ tenant_name | default(organization_name | default("თქვენი ორგანიზაცია")) }}</strong>-ში მზადაა გამოსაყენებლად.{% endcall %}
+  {{ c.cta(action_url, "შესვლა") }}
+{% endblock %}

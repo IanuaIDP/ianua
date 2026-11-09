@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}一个会话已终止{% endblock %}
+{% block preheader %}为保护您的账户，一个会话已被终止。{% endblock %}
+{% block headline %}一个会话已终止{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("用户")) }}
+  {% call c.para() %}您在 <strong>{{ tenant_name | default("您的组织") }}</strong> 的账户的一个会话因看似异常的活动而被终止{% if ip_address is defined %}，来源地址为 {{ ip_address }}{% endif %}。{% endcall %}
+  {% call c.para(pad=32) %}如果是您本人操作，请重新登录以继续。否则，请立即更改密码并检查活动会话。{% endcall %}
+{% endblock %}

@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many egress policies a tenant holds against its plan.\nSELECT count(*) AS \"count!\"\nFROM egress_policies\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "f6463c0ebbde7943c0b6cac4b6e4e3a539cbedb0daccc5b2cba024ea6ffba4f0"
+}

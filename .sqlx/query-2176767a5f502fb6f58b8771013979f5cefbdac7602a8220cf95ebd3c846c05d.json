@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every enrolled connector of one tenant, revoked ones included, with the\n-- parts the gateway judges a link by. No enrollment code's digest is read.\nSELECT id, scope, public_key AS \"public_key!\", status\nFROM connectors\nWHERE tenant_id = $1 AND public_key IS NOT NULL\nORDER BY id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "scope",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 2,
+        "name": "public_key!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "status",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "2176767a5f502fb6f58b8771013979f5cefbdac7602a8220cf95ebd3c846c05d"
+}

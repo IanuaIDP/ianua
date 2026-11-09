@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes every value a tenant's users hold under one attribute.\nDELETE FROM user_metadata\nWHERE tenant_id = $1 AND namespace = $2 AND key = $3\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "7e8ad27fb9a3aead222a3a31e3e10cd572abf6339398ce76d1b16d640fc78e46"
+}

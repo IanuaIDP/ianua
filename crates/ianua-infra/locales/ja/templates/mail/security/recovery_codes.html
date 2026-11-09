@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}新しいリカバリーコードが作成されました{% endblock %}
+{% block preheader %}アカウント用に新しいリカバリーコードが作成されました。{% endblock %}
+{% block headline %}新しいリカバリーコードが作成されました{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para() %}<strong>{{ tenant_name | default("所属組織") }}</strong>のアカウント用に、新しいリカバリーコードが作成されました{% if remaining_codes is defined %}。未使用のコードは<strong>{{ remaining_codes }}</strong>個です{% endif %}。以前のコードは使用できなくなりました。{% endcall %}
+  {% call c.para(pad=32) %}コードは安全な場所に保管してください。第2要素を失った場合、各コードで1回だけサインインできます。心当たりがない場合は、管理者に連絡してください。{% endcall %}
+{% endblock %}

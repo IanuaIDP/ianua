@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ваш обліковий запис готовий{% endblock %}
+{% block preheader %}Ваш обліковий запис готовий. Увійдіть, щоб почати.{% endblock %}
+{% block headline %}Ваш обліковий запис готовий{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("користувачу")) }}
+  {% call c.para(pad=8) %}Ваш обліковий запис у <strong>{{ tenant_name | default(organization_name | default("вашій організації")) }}</strong> налаштовано й він готовий до використання.{% endcall %}
+  {{ c.cta(action_url, "Увійти") }}
+{% endblock %}

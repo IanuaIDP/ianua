@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}{{ tenant_name | default("IANUA") }}へようこそ{% endblock %}
+{% block preheader %}アカウントの準備ができました。サインインしてご利用ください。{% endblock %}
+{% block headline %}{{ tenant_name | default("IANUA") }}へようこそ{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("ご利用者")) }}
+  {% call c.para(pad=8) %}{{ c.brand() }}の<strong>{{ tenant_name | default("所属組織") }}</strong>にアカウントが作成されました{% if role_name is defined %}。ロールは<strong>{{ role_name }}</strong>です{% endif %}。準備ができました。{% endcall %}
+  {{ c.cta(action_url, "サインイン") }}
+{% endblock %}

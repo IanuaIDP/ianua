@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Takes every group off the record of what a connection's mapping gave an\n-- account of a tenant.\nDELETE FROM mapped_holding_groups\nWHERE tenant_id = $1 AND connection_id = $2 AND user_id = $3\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d771c4f793daaa9635a7f43cc35696267c81433374cf1d49ace932cc72b35909"
+}

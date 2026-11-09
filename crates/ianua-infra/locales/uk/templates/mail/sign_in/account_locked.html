@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Ваш обліковий запис заблоковано{% endblock %}
+{% block preheader %}Ваш обліковий запис заблоковано після невдалих спроб входу.{% endblock %}
+{% block headline %}Ваш обліковий запис заблоковано{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("користувачу")) }}
+  {% call c.para() %}Ваш обліковий запис у <strong>{{ tenant_name | default("вашій організації") }}</strong> заблоковано через надмірну кількість невдалих спроб входу{% if ip_address is defined %} з адреси <strong>{{ ip_address }}</strong>{% endif %}.{% endcall %}
+  {% call c.para(pad=32) %}Якщо це були ви, дочекайтеся завершення блокування й спробуйте ще раз або попросіть адміністратора розблокувати обліковий запис раніше. Якщо це були не ви, змініть пароль, щойно зможете ввійти.{% endcall %}
+{% endblock %}

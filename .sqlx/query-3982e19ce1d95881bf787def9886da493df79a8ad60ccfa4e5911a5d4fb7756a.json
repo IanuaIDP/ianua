@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Holds what one tenant holds against its plan for the running\n-- transaction, waiting while another transaction holds it, so a count and\n-- the creation it allows are never raced by another creation counted at\n-- the same moment. Inside a unit of work it holds until the unit settles.\n-- The lock answers nothing; it is read as text only so the statement has\n-- a column.\nSELECT pg_advisory_xact_lock(hashtextextended('ianua.plan_counts:' || $1::uuid::text, 0))::text\n    AS \"held!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "held!",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "3982e19ce1d95881bf787def9886da493df79a8ad60ccfa4e5911a5d4fb7756a"
+}

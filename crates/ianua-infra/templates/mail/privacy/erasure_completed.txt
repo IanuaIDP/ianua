@@ -1,0 +1,5 @@
+Hi {{ user_name | default("there") }},
+
+Your data in {{ tenant_name | default("your organization") }} was deleted for good, as you asked. This cannot be undone.
+
+IANUA

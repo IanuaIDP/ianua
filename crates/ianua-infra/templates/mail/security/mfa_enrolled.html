@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Two-step sign-in turned on{% endblock %}
+{% block preheader %}A second factor was added to your account.{% endblock %}
+{% block headline %}Two-step sign-in turned on{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("there")) }}
+  {% call c.para() %}A second factor was added to your account in <strong>{{ tenant_name | default("your organization") }}</strong>. From now on you are asked for it when you sign in.{% endcall %}
+  {% call c.para(pad=32) %}If you did not do this, tell your administrator straight away: someone else may have reached your account.{% endcall %}
+{% endblock %}

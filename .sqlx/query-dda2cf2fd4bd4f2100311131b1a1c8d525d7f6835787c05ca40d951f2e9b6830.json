@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps the body of a message sent to a webhook subscription of the\n-- tenant. Keeping one already kept under its id changes nothing, and a\n-- subscription that is gone, or another tenant's, keeps nothing.\nINSERT INTO webhook_messages (id, tenant_id, subscription_id, event_type, payload)\nSELECT $3::uuid, subscription.tenant_id, subscription.id, $4::text, $5::bytea\nFROM webhook_subscriptions subscription\nWHERE subscription.tenant_id = $1 AND subscription.id = $2\nON CONFLICT (id) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Bytea"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "dda2cf2fd4bd4f2100311131b1a1c8d525d7f6835787c05ca40d951f2e9b6830"
+}

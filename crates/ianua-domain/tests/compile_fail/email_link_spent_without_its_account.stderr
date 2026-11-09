@@ -1,0 +1,15 @@
+error[E0061]: this method takes 2 arguments but 1 argument was supplied
+  --> tests/compile_fail/email_link_spent_without_its_account.rs:10:19
+   |
+10 |     let _ = token.redeem(now);
+   |                   ^^^^^^ --- argument #1 of type `&ianua_domain::domains::identity::account::user::User<T>` is missing
+   |
+note: method defined here
+  --> src/domains/identity/tokens/secure.rs
+   |
+   |     pub fn redeem(
+   |            ^^^^^^
+help: provide the argument
+   |
+10 |     let _ = token.redeem(/* &User<T> */, now);
+   |                          +++++++++++++++

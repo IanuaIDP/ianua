@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- One tenant with its organization's slug, for the gateway, which serves\n-- it while it is open to requests.\nSELECT t.id, t.slug, t.status, t.platform_label, t.readable_address, o.slug AS organization_slug\nFROM tenants t\nJOIN organizations o ON o.id = t.organization_id\nWHERE t.id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "slug",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "platform_label",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "readable_address",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "organization_slug",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "aa6885a195611f76da953a6803fd324d4639d62a6fa54f291e71c278effe9461"
+}

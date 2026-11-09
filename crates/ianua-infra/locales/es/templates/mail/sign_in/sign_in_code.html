@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Su código de inicio de sesión{% endblock %}
+{% block preheader %}Introduzca este código para continuar iniciando sesión.{% endblock %}
+{% block headline %}Su código de inicio de sesión{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para(pad=8) %}Introduzca este código para continuar iniciando sesión en <strong>{{ tenant_name | default("su cuenta") }}</strong>:{% endcall %}
+  {{ c.code(one_time_code) }}
+  {% call c.para(pad=0) %}El código caduca en {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Si no está intentando iniciar sesión, es posible que alguien conozca su contraseña. Cámbiela y no comparta este código con nadie.{% endcall %}
+{% endblock %}

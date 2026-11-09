@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Claims round $2 of sweep $1 at $3, answering the round when this was the\n-- first claim. Rounds claimed before $4 are removed on the way.\nWITH cleared AS (\n    DELETE FROM platform_sweep_claims WHERE claimed_at < $4\n)\nINSERT INTO platform_sweep_claims (sweep, round, claimed_at)\nVALUES ($1, $2, $3)\nON CONFLICT (sweep, round) DO NOTHING\nRETURNING round\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "round",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int8",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "3cb426d86c7f43102ebfaa643ff9e84c8b079b55615501ff37f2051cefad6a72"
+}

@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a user's address change, replacing any earlier one of the same\n-- user whole: a new change is asked for at its own time. A change keeps\n-- its cancel link for life, so a row with the same cancel link is the same\n-- change, and once confirmed or cancelled it takes nothing new: of a\n-- confirmation and a cancellation read together, or two confirmations,\n-- only the first is kept.\nINSERT INTO email_changes\n    (tenant_id, user_id, from_email, new_email, token_hash, cancel_token_hash,\n     state, settled_at, created_at, expires_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\nON CONFLICT (tenant_id, user_id) DO UPDATE SET\n    from_email = EXCLUDED.from_email,\n    new_email = EXCLUDED.new_email,\n    token_hash = EXCLUDED.token_hash,\n    cancel_token_hash = EXCLUDED.cancel_token_hash,\n    state = EXCLUDED.state,\n    settled_at = EXCLUDED.settled_at,\n    created_at = EXCLUDED.created_at,\n    expires_at = EXCLUDED.expires_at\nWHERE email_changes.state = 'waiting'\n    OR email_changes.cancel_token_hash <> EXCLUDED.cancel_token_hash\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6d1ee102a75f3d36feca4b208e625b5b6e983d789531134c624b66b935775748"
+}

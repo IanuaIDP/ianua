@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Moves the zone of one hostname from one tenant to another, with every\n-- record it answers with. A zone the giving tenant does not hold is left as\n-- it is.\nUPDATE dns_zones\nSET tenant_id = $2\nWHERE tenant_id = $1 AND hostname = $3\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c8034b52c3ddb1e355c5817b6bd2051f3e92d2564d5fd0cdba0e4ad57d42da3d"
+}

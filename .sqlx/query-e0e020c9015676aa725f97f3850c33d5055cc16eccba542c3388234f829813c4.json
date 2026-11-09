@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many memories one tenant holds, those waiting to be deleted among\n-- them.\nSELECT count(*) AS \"count!\" FROM memories WHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "e0e020c9015676aa725f97f3850c33d5055cc16eccba542c3388234f829813c4"
+}

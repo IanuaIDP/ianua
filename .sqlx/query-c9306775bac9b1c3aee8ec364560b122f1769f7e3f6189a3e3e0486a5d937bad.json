@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Saves a new teardown of a deleted tenant, and answers its tenant. A\n-- tenant that has one already keeps it, and nothing comes back: of two\n-- starts at once, the first one's teardown is kept.\nINSERT INTO tenant_teardowns (\n    tenant_id, planned, done, failed_step, failed_reason, started_at, updated_at\n)\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nON CONFLICT (tenant_id) DO NOTHING\nRETURNING tenant_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "TextArray",
+        "TextArray",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "c9306775bac9b1c3aee8ec364560b122f1769f7e3f6189a3e3e0486a5d937bad"
+}

@@ -1,0 +1,83 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The second factor a user of a tenant enrolled, locked until the running\n-- transaction ends, so a second answer to it waits for this one's count.\nSELECT user_id, method, sealed_secret, phone_number, status, verified_at,\n       recovery_codes_hash, disabled_at, failed_attempts, last_failed_at, enrolled_at\nFROM mfa_enrollments\nWHERE tenant_id = $1 AND user_id = $2\nFOR UPDATE\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "method",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "sealed_secret",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "phone_number",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "verified_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "recovery_codes_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "disabled_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "failed_attempts",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 9,
+        "name": "last_failed_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "enrolled_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "462dfc65039687d329a4342a11bcfea370f7eecb147b6fcc8868ec2c6dfac296"
+}

@@ -1,0 +1,42 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Retires a session of a tenant a refresh used, only while it is not\n-- revoked, and in the same statement keeps the session carrying it on: a\n-- row added means this refresh won, and no child is ever kept for a parent\n-- another refresh retired.\nWITH retired AS (\n    UPDATE sessions\n    SET status = $3, factor = $4, owed = $5, last_active_at = $6, kept_through = $7\n    WHERE tenant_id = $1 AND id = $2 AND status <> 'revoked'\n    RETURNING tenant_id\n)\nINSERT INTO sessions\n    (id, tenant_id, user_id, refresh_token_hash, parent_id, ip_address, user_agent,\n     auth_method, factor, owed, status, app_service_id,\n     signed_in_at, created_at, last_active_at, expires_at, kept_through, signed_in_from,\n     last_used_network, last_used_latitude, last_used_longitude, last_used_country, last_used_at)\nSELECT $8::uuid, retired.tenant_id, $9::uuid, $10::text, $11::uuid, $12::text, $13::text,\n       $14::text, $15::text, $16::text, $17::text, $18::uuid,\n       $19::timestamptz, $20::timestamptz, $21::timestamptz, $22::timestamptz, $23::timestamptz,\n       $24::uuid, $25::text, $26::float8, $27::float8, $28::text, $29::timestamptz\nFROM retired\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz",
+        "Uuid",
+        "Text",
+        "Float8",
+        "Float8",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "06a603bc0f6952cd1eb74e28563db469178deca5bb34e3d7cfd0cea557d11294"
+}

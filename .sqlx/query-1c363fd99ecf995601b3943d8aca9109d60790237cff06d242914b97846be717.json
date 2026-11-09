@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Whether one principal is in a group of a tenant, still in force at the\n-- given time. A place whose end has come counts for nothing, whether or\n-- not the sweep has cleared it yet.\nSELECT EXISTS (\n    SELECT 1\n    FROM group_memberships\n    WHERE tenant_id = $1 AND group_id = $2 AND principal_kind = $3 AND principal_id = $4\n      AND (expires_at IS NULL OR expires_at > $5)\n) AS \"held!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "held!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "1c363fd99ecf995601b3943d8aca9109d60790237cff06d242914b97846be717"
+}

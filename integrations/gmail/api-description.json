@@ -1,0 +1,298 @@
+{
+  "endpoints": {
+    "get /gmail/v1/users/{userId}/labels": {
+      "answer": [
+        "labels"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "$.xgafv": false,
+        "access_token": false,
+        "alt": false,
+        "callback": false,
+        "fields": false,
+        "key": false,
+        "oauth_token": false,
+        "prettyPrint": false,
+        "quotaUser": false,
+        "uploadType": false,
+        "upload_protocol": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /gmail/v1/users/{userId}/messages": {
+      "answer": [
+        "messages",
+        "nextPageToken",
+        "resultSizeEstimate"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "$.xgafv": false,
+        "access_token": false,
+        "alt": false,
+        "callback": false,
+        "fields": false,
+        "includeSpamTrash": false,
+        "key": false,
+        "labelIds": false,
+        "maxResults": false,
+        "oauth_token": false,
+        "pageToken": false,
+        "prettyPrint": false,
+        "q": false,
+        "quotaUser": false,
+        "uploadType": false,
+        "upload_protocol": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /gmail/v1/users/{userId}/messages/{id}": {
+      "answer": [
+        "historyId",
+        "id",
+        "internalDate",
+        "labelIds",
+        "payload",
+        "raw",
+        "sizeEstimate",
+        "snippet",
+        "threadId"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "$.xgafv": false,
+        "access_token": false,
+        "alt": false,
+        "callback": false,
+        "fields": false,
+        "format": false,
+        "key": false,
+        "metadataHeaders": false,
+        "oauth_token": false,
+        "prettyPrint": false,
+        "quotaUser": false,
+        "uploadType": false,
+        "upload_protocol": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /gmail/v1/users/{userId}/threads": {
+      "answer": [
+        "nextPageToken",
+        "resultSizeEstimate",
+        "threads"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "$.xgafv": false,
+        "access_token": false,
+        "alt": false,
+        "callback": false,
+        "fields": false,
+        "includeSpamTrash": false,
+        "key": false,
+        "labelIds": false,
+        "maxResults": false,
+        "oauth_token": false,
+        "pageToken": false,
+        "prettyPrint": false,
+        "q": false,
+        "quotaUser": false,
+        "uploadType": false,
+        "upload_protocol": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /gmail/v1/users/{userId}/threads/{id}": {
+      "answer": [
+        "historyId",
+        "id",
+        "messages",
+        "snippet"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "$.xgafv": false,
+        "access_token": false,
+        "alt": false,
+        "callback": false,
+        "fields": false,
+        "format": false,
+        "key": false,
+        "metadataHeaders": false,
+        "oauth_token": false,
+        "prettyPrint": false,
+        "quotaUser": false,
+        "uploadType": false,
+        "upload_protocol": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /gmail/v1/users/{userId}/labels": {
+      "answer": [
+        "color",
+        "id",
+        "labelListVisibility",
+        "messageListVisibility",
+        "messagesTotal",
+        "messagesUnread",
+        "name",
+        "threadsTotal",
+        "threadsUnread",
+        "type"
+      ],
+      "body": [
+        "color",
+        "id",
+        "labelListVisibility",
+        "messageListVisibility",
+        "messagesTotal",
+        "messagesUnread",
+        "name",
+        "threadsTotal",
+        "threadsUnread",
+        "type"
+      ],
+      "body_required": [],
+      "query": {
+        "$.xgafv": false,
+        "access_token": false,
+        "alt": false,
+        "callback": false,
+        "fields": false,
+        "key": false,
+        "oauth_token": false,
+        "prettyPrint": false,
+        "quotaUser": false,
+        "uploadType": false,
+        "upload_protocol": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /gmail/v1/users/{userId}/messages/send": {
+      "answer": [
+        "historyId",
+        "id",
+        "internalDate",
+        "labelIds",
+        "payload",
+        "raw",
+        "sizeEstimate",
+        "snippet",
+        "threadId"
+      ],
+      "body": [
+        "historyId",
+        "id",
+        "internalDate",
+        "labelIds",
+        "payload",
+        "raw",
+        "sizeEstimate",
+        "snippet",
+        "threadId"
+      ],
+      "body_required": [],
+      "query": {
+        "$.xgafv": false,
+        "access_token": false,
+        "alt": false,
+        "callback": false,
+        "fields": false,
+        "key": false,
+        "oauth_token": false,
+        "prettyPrint": false,
+        "quotaUser": false,
+        "uploadType": false,
+        "upload_protocol": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /gmail/v1/users/{userId}/messages/{id}/modify": {
+      "answer": [
+        "historyId",
+        "id",
+        "internalDate",
+        "labelIds",
+        "payload",
+        "raw",
+        "sizeEstimate",
+        "snippet",
+        "threadId"
+      ],
+      "body": [
+        "addLabelIds",
+        "removeLabelIds"
+      ],
+      "body_required": [],
+      "query": {
+        "$.xgafv": false,
+        "access_token": false,
+        "alt": false,
+        "callback": false,
+        "fields": false,
+        "key": false,
+        "oauth_token": false,
+        "prettyPrint": false,
+        "quotaUser": false,
+        "uploadType": false,
+        "upload_protocol": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /gmail/v1/users/{userId}/messages/{id}/trash": {
+      "answer": [
+        "historyId",
+        "id",
+        "internalDate",
+        "labelIds",
+        "payload",
+        "raw",
+        "sizeEstimate",
+        "snippet",
+        "threadId"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "$.xgafv": false,
+        "access_token": false,
+        "alt": false,
+        "callback": false,
+        "fields": false,
+        "key": false,
+        "oauth_token": false,
+        "prettyPrint": false,
+        "quotaUser": false,
+        "uploadType": false,
+        "upload_protocol": false
+      },
+      "statuses": [
+        "200"
+      ]
+    }
+  },
+  "version": "v1"
+}

@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Holds a sign-in request that just reached a tenant, as it arrived.\nINSERT INTO held_saml_sign_ins\n    (id, tenant_id, binding, signature_algorithm, signature, signed_query, message,\n     relay_state, arrived_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3622e714778c9e54b19278cf8367d57dd4281ed0926c027083db60a96141cf12"
+}

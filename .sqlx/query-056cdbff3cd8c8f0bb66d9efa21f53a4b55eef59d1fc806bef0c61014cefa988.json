@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes one stream route of one tenant.\nDELETE FROM stream_routes\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "056cdbff3cd8c8f0bb66d9efa21f53a4b55eef59d1fc806bef0c61014cefa988"
+}

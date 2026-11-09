@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many record sets a tenant holds across every zone it delegated,\n-- against its plan. A row is one record set: a name and kind in a zone.\nSELECT count(*) AS \"count!\"\nFROM dns_records\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "d6d2c6470137f3a1769ae777418698e017a525df64f82d45384f5081f6146a27"
+}

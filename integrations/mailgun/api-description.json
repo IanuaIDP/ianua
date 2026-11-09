@@ -1,0 +1,206 @@
+{
+  "endpoints": {
+    "delete /v3/lists/{list_address}/members/{member_address}": {
+      "answer": [
+        "member"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "delete /v3/{domain_name}/bounces/{address}": {
+      "answer": [
+        "address",
+        "message"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "delete /v3/{domain_name}/unsubscribes/{address}": {
+      "answer": [
+        "address",
+        "message"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /v3/lists/{list_address}/members": {
+      "answer": [
+        "items",
+        "total_count"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "address": false,
+        "limit": false,
+        "skip": false,
+        "subscribed": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /v3/{domain_name}/bounces/{address}": {
+      "answer": [
+        "address",
+        "code",
+        "created_at",
+        "error"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /v3/{domain_name}/events": {
+      "answer": [
+        "items",
+        "paging"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "ascending": false,
+        "attachment": false,
+        "begin": false,
+        "end": false,
+        "event": false,
+        "from": false,
+        "limit": false,
+        "list": false,
+        "message-id": false,
+        "recipient": false,
+        "recipients": false,
+        "severity": false,
+        "size": false,
+        "subject": false,
+        "tags": false,
+        "to": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /v3/lists/{list_address}/members": {
+      "answer": [
+        "member",
+        "message"
+      ],
+      "body": [
+        "address",
+        "name",
+        "subscribed",
+        "upsert",
+        "vars"
+      ],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /v3/{domain_name}/messages": {
+      "answer": [
+        "id",
+        "message"
+      ],
+      "body": [
+        "amp-html",
+        "attachment",
+        "bcc",
+        "cc",
+        "from",
+        "h:X-My-Header",
+        "html",
+        "inline",
+        "o:archive-to",
+        "o:deliver-within",
+        "o:deliverytime",
+        "o:deliverytime-optimize-period",
+        "o:dkim",
+        "o:inbox-placement-test-key",
+        "o:require-tls",
+        "o:secondary-dkim",
+        "o:secondary-dkim-public",
+        "o:sending-ip",
+        "o:sending-ip-pool",
+        "o:skip-verification",
+        "o:suppress-headers",
+        "o:tag",
+        "o:testmode",
+        "o:time-zone-localize",
+        "o:tracking",
+        "o:tracking-clicks",
+        "o:tracking-opens",
+        "o:tracking-pixel-location-top",
+        "recipient-variables",
+        "subject",
+        "t:text",
+        "t:variables",
+        "t:version",
+        "template",
+        "text",
+        "to",
+        "v:my-var"
+      ],
+      "body_required": [
+        "from",
+        "subject",
+        "to"
+      ],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /v3/{domain_name}/unsubscribes": {
+      "answer": [
+        "message"
+      ],
+      "body": [
+        "address",
+        "created_at",
+        "tags"
+      ],
+      "body_required": [
+        "address"
+      ],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "put /v3/lists/{list_address}/members/{member_address}": {
+      "answer": [
+        "member",
+        "message"
+      ],
+      "body": [
+        "address",
+        "name",
+        "subscribed",
+        "vars"
+      ],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    }
+  },
+  "version": "3.0.0"
+}

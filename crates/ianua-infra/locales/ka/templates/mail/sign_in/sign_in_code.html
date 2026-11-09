@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}თქვენი შესვლის კოდი{% endblock %}
+{% block preheader %}შესვლის გასაგრძელებლად შეიყვანეთ ეს კოდი.{% endblock %}
+{% block headline %}თქვენი შესვლის კოდი{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("მომხმარებელო")) }}
+  {% call c.para(pad=8) %}შესვლის გასაგრძელებლად <strong>{{ tenant_name | default("თქვენი ანგარიში") }}</strong>-ში შეიყვანეთ ეს კოდი:{% endcall %}
+  {{ c.code(one_time_code) }}
+  {% call c.para(pad=0) %}კოდს ვადა გაუვა {{ expires_at }}-ში.{% endcall %}
+  {% call c.para(pad=32) %}თუ შესვლას არ ცდილობთ, შესაძლოა ვინმემ თქვენი პაროლი იცოდეს. შეცვალეთ ის და ეს კოდი არავის გაუზიაროთ.{% endcall %}
+{% endblock %}

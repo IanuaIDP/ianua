@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Publish a short-lived DNS proof only for an active issuance lease.\nINSERT INTO platform_dns_proofs (root, value, expires_at)\nSELECT p.root, $2, now() + interval '10 minutes'\nFROM platform_certificates p JOIN tenants t ON t.id = p.tenant_id\nWHERE p.root = $1 AND p.lease_until > now() AND t.status IN ('active', 'provisioning')\n    AND (NOT p.readable OR t.readable_address)\nON CONFLICT (root, value) DO UPDATE SET expires_at = EXCLUDED.expires_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "7c9ebd5955c243b77de72e68b9fe0699c11928040d41a7603331c2833bea1f0e"
+}

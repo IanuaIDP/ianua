@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Withdraws the challenge a token names.\nDELETE FROM acme_challenges\nWHERE token = $1\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "15884d19a090c4f9c6b09e5c041902c51fb9b7cc3be352c3ce4a39ba48b8db7b"
+}

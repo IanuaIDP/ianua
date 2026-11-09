@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Records a challenge issued to one agent of a tenant. A nonce already\n-- recorded keeps its row, so a repeated nonce never makes a spent\n-- challenge whole again.\nINSERT INTO agent_attestation_challenges\n    (tenant_id, nonce, agent_id, issued_at, expires_at, used_at)\nVALUES ($1, $2, $3, $4, $5, $6)\nON CONFLICT (tenant_id, nonce) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ec11e863a64cc9b3b88ae3d8cf319a15bbcc223770465bbbafb34c4fc6b9920c"
+}

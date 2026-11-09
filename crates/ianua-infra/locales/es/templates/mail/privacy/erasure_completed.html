@@ -1,0 +1,11 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Sus datos se han eliminado{% endblock %}
+{% block preheader %}Su solicitud de eliminación se ha completado.{% endblock %}
+{% block headline %}Sus datos se han eliminado{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para(pad=32) %}Sus datos en <strong>{{ tenant_name | default("su organización") }}</strong> se han eliminado definitivamente, tal como solicitó. Esta acción no se puede deshacer.{% endcall %}
+{% endblock %}

@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Queues a tenant's job, unless a job with its key waits or runs already,\n-- or, for work done once, a job with its key is kept at all.\nINSERT INTO scheduled_jobs (\n    id, tenant_id, job_type, job_key, key_hold, payload, run_at, attempt, max_attempts, status,\n    error, created_at, last_attempted_at, leased_until\n)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NULL)\nON CONFLICT DO NOTHING\nRETURNING id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Int4",
+        "Int4",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "d6c7224559b54173954267baa4146fa896086257ca3760cf68e1268627b8b565"
+}

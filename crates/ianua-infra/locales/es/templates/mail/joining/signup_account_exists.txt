@@ -1,0 +1,8 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+Se acaba de solicitar el registro en IANUA con esta dirección, que ya tiene una cuenta. Si fue usted, inicie sesión en su lugar:
+{{ action_url }}
+
+Si olvidó su contraseña, puede restablecerla desde la página de inicio de sesión. Si no fue usted, puede ignorar este correo: nada ha cambiado.
+
+IANUA

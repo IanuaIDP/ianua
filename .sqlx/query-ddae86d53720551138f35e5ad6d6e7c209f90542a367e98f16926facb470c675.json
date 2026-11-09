@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Whether a tenant has an agent with the given id.\nSELECT EXISTS (SELECT 1 FROM agents WHERE tenant_id = $1 AND id = $2) AS \"exists!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exists!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "ddae86d53720551138f35e5ad6d6e7c209f90542a367e98f16926facb470c675"
+}

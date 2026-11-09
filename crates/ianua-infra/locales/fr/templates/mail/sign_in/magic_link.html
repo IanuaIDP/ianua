@@ -1,0 +1,14 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Votre lien de connexion{% endblock %}
+{% block preheader %}Utilisez ce lien pour vous connecter à votre compte.{% endblock %}
+{% block headline %}Connectez-vous à {{ tenant_name | default("votre compte") }}{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("cher utilisateur")) }}
+  {% call c.para(pad=8) %}Appuyez sur le bouton ci-dessous pour vous connecter. Aucun mot de passe n’est nécessaire.{% endcall %}
+  {{ c.cta(action_url, "Se connecter") }}
+  {% call c.para(pad=0) %}Ce lien expire dans {{ expires_at }}.{% endcall %}
+  {% call c.para(pad=32) %}Si vous n’avez pas fait cette demande, vous pouvez ignorer cet e-mail.{% endcall %}
+{% endblock %}

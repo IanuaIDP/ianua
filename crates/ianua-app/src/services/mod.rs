@@ -1,0 +1,32 @@
+//! Application services: what several use cases share.
+
+pub(crate) mod account_channels;
+pub mod account_grants;
+pub mod account_now;
+pub(crate) mod agents;
+pub mod authentication;
+pub mod authorization;
+pub mod branding;
+pub(crate) mod consumers;
+pub(crate) mod embeddings;
+pub(crate) mod fresh_reads;
+pub mod gateway_relay;
+pub(crate) mod guarded;
+pub(crate) mod holds;
+pub mod hosts;
+pub mod identity;
+pub mod issuers;
+pub mod kept_together;
+pub mod limits;
+pub(crate) mod lookup;
+pub mod messaging;
+pub(crate) mod model_targets;
+pub(crate) mod ready_versions;
+pub mod registrations;
+pub(crate) mod renewal_sweep;
+pub(crate) mod renewals;
+pub(crate) mod routing;
+pub(crate) mod sealing;
+pub mod signals;
+pub mod sweep_round;
+pub(crate) mod tenant_batches;

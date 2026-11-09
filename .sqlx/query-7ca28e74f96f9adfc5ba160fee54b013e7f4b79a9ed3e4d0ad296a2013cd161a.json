@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a logout request a tenant sent a peer until it is answered. A\n-- request kept again under the same ID replaces the one before.\nINSERT INTO sent_logout_requests\n    (tenant_id, id, peer, destination, name_id_format, name_id, session_index,\n     sent_at, expires_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\nON CONFLICT (tenant_id, id) DO UPDATE SET\n    peer = EXCLUDED.peer,\n    destination = EXCLUDED.destination,\n    name_id_format = EXCLUDED.name_id_format,\n    name_id = EXCLUDED.name_id,\n    session_index = EXCLUDED.session_index,\n    sent_at = EXCLUDED.sent_at,\n    expires_at = EXCLUDED.expires_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "7ca28e74f96f9adfc5ba160fee54b013e7f4b79a9ed3e4d0ad296a2013cd161a"
+}

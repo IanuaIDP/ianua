@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Which of the given runs a worker still holds a lease on at the moment\n-- given.\nSELECT leased_id\nFROM platform_leases\nWHERE leased = 'agent_run' AND leased_id = ANY($1) AND leased_until > $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "leased_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "32f40e55524678b91e9a4ff3e780e315a56720aebdf37eee0b942ab2b73f8cbc"
+}

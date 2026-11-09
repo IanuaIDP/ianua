@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a service, and the hosts its sign-in answers on or its own cookie\n-- is set on, in one statement: a host another service of the tenant holds,\n-- or a name another has, refuses the whole write. Hosts the service no\n-- longer names are released; hosts it already holds are kept. A new one is\n-- added, a known one of the same tenant takes the new values. Its tenant\n-- and creation time never change.\nWITH released AS (\n    DELETE FROM service_sign_in_hosts\n    WHERE tenant_id = $2 AND service_id = $1 AND host <> ALL($12::text[])\n),\nclaimed AS (\n    INSERT INTO service_sign_in_hosts (tenant_id, host, service_id)\n    SELECT $2, wanted.host, $1\n    FROM UNNEST($12::text[]) AS wanted (host)\n    WHERE NOT EXISTS (\n        SELECT 1\n        FROM service_sign_in_hosts held\n        WHERE held.tenant_id = $2 AND held.host = wanted.host AND held.service_id = $1\n    )\n)\nINSERT INTO services\n    (id, tenant_id, name, upstream, health_check, app_sign_in, accepts_sign_in_of,\n     sign_in_delivery, status, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\nON CONFLICT (id) DO UPDATE SET\n    name = EXCLUDED.name,\n    upstream = EXCLUDED.upstream,\n    health_check = EXCLUDED.health_check,\n    app_sign_in = EXCLUDED.app_sign_in,\n    accepts_sign_in_of = EXCLUDED.accepts_sign_in_of,\n    sign_in_delivery = EXCLUDED.sign_in_delivery,\n    status = EXCLUDED.status,\n    updated_at = EXCLUDED.updated_at\nWHERE services.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Jsonb",
+        "Jsonb",
+        "Jsonb",
+        "Uuid",
+        "Jsonb",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d3bd4be247bbc3ab17ebf029a448c102a157d88b983c4f4d9f40b8eea9b53fce"
+}

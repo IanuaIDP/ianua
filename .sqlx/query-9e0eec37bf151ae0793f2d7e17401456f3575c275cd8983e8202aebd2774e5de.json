@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Whether the platform has any operator at all, read from one row at most.\nSELECT EXISTS (SELECT 1 FROM operators LIMIT 1) AS \"any!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "any!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "9e0eec37bf151ae0793f2d7e17401456f3575c275cd8983e8202aebd2774e5de"
+}

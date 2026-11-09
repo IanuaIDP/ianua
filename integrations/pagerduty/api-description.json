@@ -1,0 +1,294 @@
+{
+  "endpoints": {
+    "get /escalation_policies": {
+      "answer": [
+        "escalation_policies",
+        "limit",
+        "more",
+        "offset",
+        "total"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "include[]": false,
+        "limit": false,
+        "offset": false,
+        "query": false,
+        "sort_by": false,
+        "team_ids[]": false,
+        "total": false,
+        "user_ids[]": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /incidents": {
+      "answer": [
+        "incidents",
+        "limit",
+        "more",
+        "offset",
+        "total"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "date_range": false,
+        "incident_key": false,
+        "include[]": false,
+        "limit": false,
+        "offset": false,
+        "service_ids[]": false,
+        "since": false,
+        "sort_by": false,
+        "statuses[]": false,
+        "team_ids[]": false,
+        "time_zone": false,
+        "total": false,
+        "until": false,
+        "urgencies[]": false,
+        "user_ids[]": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /incidents/{id}": {
+      "answer": [
+        "incident"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "include[]": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /oncalls": {
+      "answer": [
+        "limit",
+        "more",
+        "offset",
+        "oncalls",
+        "total"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "earliest": false,
+        "escalation_policy_ids[]": false,
+        "include[]": false,
+        "limit": false,
+        "offset": false,
+        "schedule_ids[]": false,
+        "since": false,
+        "time_zone": false,
+        "total": false,
+        "until": false,
+        "user_ids[]": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /services": {
+      "answer": [
+        "limit",
+        "more",
+        "offset",
+        "services",
+        "total"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "include[]": false,
+        "limit": false,
+        "name": false,
+        "offset": false,
+        "query": false,
+        "sort_by": false,
+        "team_ids[]": false,
+        "time_zone": false,
+        "total": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /users": {
+      "answer": [
+        "limit",
+        "more",
+        "offset",
+        "total",
+        "users"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "include[]": false,
+        "limit": false,
+        "offset": false,
+        "query": false,
+        "team_ids[]": false,
+        "total": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /incidents": {
+      "answer": [
+        "incident"
+      ],
+      "body": [
+        "incident"
+      ],
+      "body_paths": [
+        "incident",
+        "incident.assignments",
+        "incident.assignments.assignee",
+        "incident.assignments.assignee.*",
+        "incident.assignments.assignee.html_url",
+        "incident.assignments.assignee.id",
+        "incident.assignments.assignee.self",
+        "incident.assignments.assignee.summary",
+        "incident.assignments.assignee.type",
+        "incident.body",
+        "incident.body.details",
+        "incident.body.details.*",
+        "incident.body.type",
+        "incident.conference_bridge",
+        "incident.conference_bridge.conference_number",
+        "incident.conference_bridge.conference_url",
+        "incident.escalation_policy",
+        "incident.escalation_policy.*",
+        "incident.escalation_policy.html_url",
+        "incident.escalation_policy.id",
+        "incident.escalation_policy.self",
+        "incident.escalation_policy.summary",
+        "incident.escalation_policy.type",
+        "incident.incident_key",
+        "incident.incident_type",
+        "incident.incident_type.id",
+        "incident.incident_type.name",
+        "incident.priority",
+        "incident.priority.*",
+        "incident.priority.html_url",
+        "incident.priority.id",
+        "incident.priority.self",
+        "incident.priority.summary",
+        "incident.priority.type",
+        "incident.service",
+        "incident.service.*",
+        "incident.service.html_url",
+        "incident.service.id",
+        "incident.service.self",
+        "incident.service.summary",
+        "incident.service.type",
+        "incident.title",
+        "incident.type",
+        "incident.urgency"
+      ],
+      "body_required": [
+        "incident"
+      ],
+      "query": {},
+      "statuses": [
+        "201"
+      ]
+    },
+    "post /incidents/{id}/notes": {
+      "answer": [
+        "note"
+      ],
+      "body": [
+        "note"
+      ],
+      "body_paths": [
+        "note",
+        "note.content"
+      ],
+      "body_required": [
+        "note"
+      ],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /incidents/{id}/snooze": {
+      "answer": [
+        "incident"
+      ],
+      "body": [
+        "duration"
+      ],
+      "body_required": [
+        "duration"
+      ],
+      "query": {},
+      "statuses": [
+        "201"
+      ]
+    },
+    "put /incidents/{id}": {
+      "answer": [
+        "incident"
+      ],
+      "body": [
+        "incident"
+      ],
+      "body_paths": [
+        "incident",
+        "incident.assignments",
+        "incident.assignments.assignee",
+        "incident.assignments.assignee.*",
+        "incident.assignments.assignee.html_url",
+        "incident.assignments.assignee.id",
+        "incident.assignments.assignee.self",
+        "incident.assignments.assignee.summary",
+        "incident.assignments.assignee.type",
+        "incident.conference_bridge",
+        "incident.conference_bridge.conference_number",
+        "incident.conference_bridge.conference_url",
+        "incident.escalation_level",
+        "incident.escalation_policy",
+        "incident.escalation_policy.*",
+        "incident.escalation_policy.html_url",
+        "incident.escalation_policy.id",
+        "incident.escalation_policy.self",
+        "incident.escalation_policy.summary",
+        "incident.escalation_policy.type",
+        "incident.incident_type",
+        "incident.incident_type.id",
+        "incident.incident_type.name",
+        "incident.priority",
+        "incident.priority.id",
+        "incident.priority.name",
+        "incident.priority.type",
+        "incident.resolution",
+        "incident.service",
+        "incident.service.id",
+        "incident.service.type",
+        "incident.status",
+        "incident.title",
+        "incident.type",
+        "incident.urgency"
+      ],
+      "body_required": [
+        "incident"
+      ],
+      "query": {},
+      "statuses": [
+        "200"
+      ]
+    }
+  },
+  "version": "2.0.0"
+}

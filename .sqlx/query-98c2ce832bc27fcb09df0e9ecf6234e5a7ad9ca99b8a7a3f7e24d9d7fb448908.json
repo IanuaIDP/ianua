@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The archived tenants archived at or before the given time, the longest\n-- archived first.\nSELECT id\nFROM tenants\nWHERE status = 'archived' AND archived_at <= $1\nORDER BY archived_at, id\nLIMIT $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "98c2ce832bc27fcb09df0e9ecf6234e5a7ad9ca99b8a7a3f7e24d9d7fb448908"
+}

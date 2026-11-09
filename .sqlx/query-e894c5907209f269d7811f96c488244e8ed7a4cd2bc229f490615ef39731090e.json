@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Records that the key of one thumbprint used a DPoP proof in one tenant,\n-- kept until it expires, answering its id only when this statement was the\n-- first use.\nINSERT INTO oauth_dpop_proofs (tenant_id, thumbprint, jti, expires_at)\nVALUES ($1, $2, $3, $4)\nON CONFLICT (tenant_id, thumbprint, jti) DO NOTHING\nRETURNING jti\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "jti",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "e894c5907209f269d7811f96c488244e8ed7a4cd2bc229f490615ef39731090e"
+}

@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Records a SAML assertion as spent until it expires, answering its id only\n-- when this statement was the one that spent it.\nINSERT INTO org_saml_assertions (assertion_id, expires_at)\nVALUES ($1, $2)\nON CONFLICT (assertion_id) DO NOTHING\nRETURNING assertion_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "assertion_id",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "64305bb46677fb4a45eeb845196d697371d8d1d055fffbe2971382a7dfcc57f7"
+}

@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a member's second factor: a new one is added, a known one takes the\n-- new values. The member never changes, and neither does the latest code\n-- step accepted, which only claiming a step moves.\nINSERT INTO org_mfa_enrollments\n    (org_user_id, method, sealed_secret, phone_number, status, verified_at,\n     recovery_codes_hash, disabled_at, failed_attempts, last_failed_at, enrolled_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\nON CONFLICT (org_user_id) DO UPDATE SET\n    method = EXCLUDED.method,\n    sealed_secret = EXCLUDED.sealed_secret,\n    phone_number = EXCLUDED.phone_number,\n    status = EXCLUDED.status,\n    verified_at = EXCLUDED.verified_at,\n    recovery_codes_hash = EXCLUDED.recovery_codes_hash,\n    disabled_at = EXCLUDED.disabled_at,\n    failed_attempts = EXCLUDED.failed_attempts,\n    last_failed_at = EXCLUDED.last_failed_at,\n    enrolled_at = EXCLUDED.enrolled_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Text",
+        "Timestamptz",
+        "Int8",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b2ef0fe6aabd89db209d3b713d03db7615ebc933d58439c06b450592c6714ea6"
+}

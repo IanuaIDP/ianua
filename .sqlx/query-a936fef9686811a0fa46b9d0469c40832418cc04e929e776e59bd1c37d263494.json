@@ -1,0 +1,107 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- One connection of one tenant, by its id.\nSELECT id, integration, name, sharing, operations, place, started_by, state_hash, verifier_sealed,\n    stage, credential_sealed, code_hash, expires_at, created_at, updated_at\nFROM workflow_pending_connections\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "integration",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "sharing",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "operations",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 5,
+        "name": "place",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "started_by",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 7,
+        "name": "state_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "verifier_sealed",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "stage",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "credential_sealed",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "code_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 13,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 14,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "a936fef9686811a0fa46b9d0469c40832418cc04e929e776e59bd1c37d263494"
+}

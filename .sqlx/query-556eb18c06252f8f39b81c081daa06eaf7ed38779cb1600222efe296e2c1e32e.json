@@ -1,0 +1,35 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The subjects the signal streams of a tenant with the given ids list,\n-- each stream's in the order it listed them.\nSELECT stream_id, user_id, agent_id\nFROM signal_stream_subjects\nWHERE tenant_id = $1 AND stream_id = ANY($2)\nORDER BY stream_id, position\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "stream_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "agent_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "556eb18c06252f8f39b81c081daa06eaf7ed38779cb1600222efe296e2c1e32e"
+}

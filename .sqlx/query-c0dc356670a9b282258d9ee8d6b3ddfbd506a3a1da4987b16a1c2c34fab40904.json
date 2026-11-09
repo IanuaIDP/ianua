@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many roles a tenant holds against its plan.\nSELECT count(*) AS \"count!\"\nFROM roles\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "c0dc356670a9b282258d9ee8d6b3ddfbd506a3a1da4987b16a1c2c34fab40904"
+}

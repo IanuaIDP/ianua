@@ -1,0 +1,5 @@
+error[E0507]: cannot move out of a shared reference
+  --> tests/compile_fail/sign_in_progress_reused_for_a_new_session.rs:14:23
+   |
+14 |     copied.progress = *stored.progress();
+   |                       ^^^^^^^^^^^^^^^^^^ move occurs because value has type `SignInProgress`, which does not implement the `Copy` trait

@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes the link an account of a tenant holds at a connection's\n-- provider.\nDELETE FROM federated_links\nWHERE tenant_id = $1 AND connection_id = $2 AND user_id = $3\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "439f88ee1e3fa67cc93669dbd3a12d79e0183e9f447d9c996e172b99e3b7466e"
+}

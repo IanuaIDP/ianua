@@ -1,0 +1,171 @@
+---
+title: Sign-in methods
+description: The ways people sign in to a tenant, the rules a tenant sets on signing in, second factors, and single sign-on.
+sidebar:
+  order: 4
+---
+
+Each tenant decides how its users sign in. You set this in the dashboard: open the tenant, go to **Settings**, then **Sign In**.
+
+People sign in on the tenant's own sign-in page, `/organizations/<org>/tenants/<tenant>/login` on your dashboard's address. The dashboard's plain `/login` page is a different one: it is for your organization's administrators, and has its own settings.
+
+## Ways in
+
+| Way in | What the person does | On for a new tenant |
+| --- | --- | --- |
+| **Password** | Types their email address and password. | Yes |
+| **Passkey** | Confirms with a fingerprint, their face or their device's PIN, using a passkey saved on their phone or computer. | Yes |
+| **Magic link** | Types their email address, then clicks the link ianua emails them. | No |
+| **SAML** and **OIDC** | Clicks "Sign in with ..." and signs in at their company's identity provider, such as Okta or Microsoft Entra. | No |
+
+Switch them on and off under **Ways in**. A tenant keeps at least one, so nobody can lock everyone out by accident.
+
+A way in that is switched off is refused everywhere, not just hidden. If magic links are off, asking for one is refused, even when someone calls the API directly.
+
+### Passwords
+
+The password rules (length, and which kinds of character it needs) are covered under **Passwords** in **Users and groups**.
+
+A new password is checked against known data breaches wherever it is set: at sign-up, on a change, from a reset link, by an administrator, or when accepting an invitation. An organization's owner is checked the same way when the organization is founded, whether by sign-up, by the install step or by a member founding another one, and so is the platform's first operator. Both are always held to **Block**. Only the first 5 characters of the password's hash ever leave your server. The tenant's sign-in settings (`breached_passwords` in the API) choose what happens:
+
+| Setting | A breached password |
+| --- | --- |
+| **Block** (the default) | Is refused. So is one that could not be checked, with "try again". |
+| **Warn** | Is taken, and the person is told it is breached. |
+| **Off** | Is not looked up. |
+
+Changing a password, or setting one from a reset link, answers `200` with `password_breach`, which says `clean`, `breached`, `unchecked` or `not_checked`, so the page can show the warning. A password can also be checked when someone signs in; a breach found then is recorded in the audit log.
+
+**Lockout.** After too many failed sign-ins from one network, that network is locked out of the account for a while. The person still signs in from anywhere else. By default that is 10 failures, then 15 minutes. Change both under **Lockout**: from 2 to 100 failures, and from 30 seconds to a day. When guesses come from many networks at once, each sign-in to the account waits a little before its password is checked, at most 3 seconds, and a remembered device does not wait. The account itself is never locked by guessing.
+
+**Under attack.** Once failures against one account come from many networks (twice the lockout's failures, so 20 by default), the account counts as under attack for four lockout windows, an hour by default. Meanwhile a right password from a device the person never remembered also needs their second factor, or the link mailed to confirm a new device. With neither, it is refused. A remembered device signs in as usual. A directory (LDAP) bind cannot ask for more, so a bind from a network that failed on the account is refused until the attack is over, and binds from other networks still work. Administrators get one security alert about it, at most once an hour.
+
+A wrong password, an email address nobody has, and a guess from a locked-out network get exactly the same answer, and take the same time to come back. Nobody can use the sign-in page to find out who has an account.
+
+**A crowd of guesses.** Each server works on only a few sign-ins at once. Sign-ins beyond that wait half a second for a place, and are then told the server is busy and to try again shortly. Waiting sign-ins take nothing from anyone else, so a crowd of bots guessing one person's password slows only the bots. Everybody else's work goes on as usual.
+
+### Magic links
+
+On the sign-in page, the person types their email address and clicks **Email me a sign-in link**. The page says the same thing whether or not the address has an account, so nobody can use it to find out who does. The link signs them in once, and only within 15 minutes. Like a password sign-in, it can still ask for their second factor.
+
+### Password reset
+
+Someone who forgot their password asks for a reset link by email. The link sets a new password. A person with a second factor also answers it: their authenticator code, or, when their factor is an email or text message code, a fresh code they ask for from the reset page. Asking for that code always gets the same answer, whatever the link or the account, and asking again moments later is refused with `429`.
+
+An address gets at most one sign-in link a minute, and one password reset link a minute. Asking again sooner shows the same message but sends nothing, so nobody can fill someone's inbox. The wait is set with `MAIL_COOLDOWN_SECONDS`, 60 by default.
+
+### Passkeys
+
+A person adds a passkey after signing in, from their own account settings. After that they can sign in with **Continue with Passkey**, or pick the passkey their browser offers in the email field.
+
+A passkey sign-in counts as the strongest kind there is: it proves the person has the device, and that they unlocked it.
+
+## Single sign-on
+
+With single sign-on, people sign in at their company's identity provider instead of with a password here. ianua speaks both common standards, SAML and OIDC.
+
+### What it looks like
+
+Sam works at a company that uses Okta:
+
+1. Sam opens the tenant's sign-in page and clicks **Sign in with Okta**.
+2. Sam signs in at Okta, the way they do every morning.
+3. Okta sends Sam back. ianua checks the answer, and sends Sam to the dashboard with a one-time code.
+4. The dashboard swaps the code for Sam's session, and Sam is in.
+
+If anything goes wrong on the way, Sam lands back on the sign-in page with "Single sign-on didn't work". The page never says why. The reason is in the server's log, where a forger can't read it.
+
+### Setting it up
+
+1. Open the tenant, go to **Connections**, and add one. For SAML you need the identity provider's entity ID, sign-in address and signing certificate. For OIDC you need its issuer, client ID and client secret. ianua reads everything else from the issuer's published settings (`/.well-known/openid-configuration`), and checks them when you save, so a mistyped issuer is caught there and not at the first sign-in.
+2. Name the email domains the identity provider may vouch for. Each must be a domain the tenant has proved it owns. The provider is trusted only for addresses in those domains.
+3. Tell the identity provider about ianua:
+   - **SAML:** give it the connection's own setup document, at `/api/v1/organizations/<org>/tenants/<tenant>/federation/connections/<connection id>/saml/metadata` on your dashboard's address. It names ianua, the address answers must be sent to, and where logouts go, so nothing is copied by hand. It asks the identity provider for a persistent name for each person.
+   - **OIDC:** register `/api/v1/organizations/<org>/tenants/<tenant>/federation/oidc/callback` on your dashboard's address as the return address.
+4. Switch on **SAML federation** or **OIDC federation** under **Ways in**.
+
+A new connection is active straight away. A "Sign in with ..." button appears for every active connection whose way in is switched on. Disable a connection and its button disappears.
+
+ianua finds the person by the link between who they are at the identity provider and their account here, never by the address alone. The first time someone signs in, an account with their address is linked to them. What happens when nobody has that address is covered under **Single sign-on** in **Users and groups**. An account that holds any of ianua's own permissions is never linked this way: its owner links it themselves, with a fresh sign-in.
+
+### What keeps it safe
+
+- **The answer must come back to the browser that left.** When Sam clicks the button, Sam's browser gets a short-lived secret. An answer brought back without it is refused. Without this, someone could start a sign-in themselves and trick Sam's browser into finishing it, leaving Sam working in the attacker's account.
+- **ianua only accepts answers to requests it sent.** For SAML, each sign-in sends a request with its own ID, and the answer must name that ID. An answer nobody here asked for is refused.
+- **An answer works once.** Posting the same SAML answer again is refused.
+- **The session never travels in an address.** Only the one-time code does, and it works once, for 60 seconds. A code read later from a browser's history is already useless.
+
+### Second factors and single sign-on
+
+Signing in through an identity provider is not asked for ianua's second factor; the identity provider did the checking. But a single sign-on counts as a plain sign-in for [sensitive actions](#sensitive-actions): someone who has a second factor here is asked for it before one.
+
+## The tenant's rules
+
+These apply to every way in, single sign-on included.
+
+**Allowed addresses.** Under **Allowed addresses**, list the IP ranges people may sign in from, such as `10.0.0.0/8`. Sign-ins from anywhere else are refused, and so is a sign-in whose address can't be told. Leave the list empty to accept sign-ins from anywhere.
+
+**Sessions.** Under **Sessions**:
+
+- **Session length** is how long a sign-in lasts, however busy the person is. By default 8 hours, and anything from 5 minutes to 30 days.
+- **Idle timeout** ends a session nobody has used for a while. By default 1 hour, at least 1 minute, and never longer than the session.
+
+So if Sam signs in at 9:00, the session ends at 17:00 at the latest. If Sam leaves for a two-hour lunch at 12:00, it ends at 13:00. Refreshing a session swaps its token, but never moves the end time.
+
+**Signing themselves up.** Off by default. Switch on **Let people sign themselves up** to add a sign-up link to the sign-in page. New accounts confirm their email address before they can sign in, and password sign-in has to be on.
+
+**Suspended tenants.** While a tenant is suspended, nobody can sign in to it, whatever the way in.
+
+**A flood of failed sign-ins.** When many password sign-ins to the tenant fail, 200 unless you set `challenge_threshold` (from 10 to 1,000,000), ianua treats it as an attack. Until the failures fall back under that number, someone signing in from a device they never trusted is asked to pass a challenge before their password is checked. A device they trusted is not asked, and single sign-on is not affected. If your deployment has no challenge set up, a device nobody trusted can't sign in with a password until then. The start is recorded in the audit log and sent as a notification; the end is recorded too.
+
+## Second factors
+
+A second factor is one of three kinds, and the tenant chooses which it offers (`second_factors` in the API; a new tenant offers only the first):
+
+- **Authenticator app**: a 6-digit code from an app such as Google Authenticator or 1Password.
+- **Email code**: a short code mailed to the person's address for each sign-in. It proves the mailbox again, so it counts as no stronger than the password.
+- **Text message code**: a short code sent to a phone number the person confirmed with a code. A swapped SIM or a hijacked number can read it, so it never counts as a strong sign-in either.
+
+When someone sets one up, they also get 10 recovery codes, shown once. Each recovery code works once, for when the phone is lost.
+
+If a recovery code falls below the tenant's required assurance, the person must set up and confirm a replacement factor before reaching the account. That waiting sign-in can replace the lost authenticator; knowing the password alone cannot replace it.
+
+Under **Second factor**, choose one of three:
+
+| Setting | What it means |
+| --- | --- |
+| **Off** | Nobody can set up a second factor. |
+| **Optional** | People may set one up. Once they have, ianua asks for it when the rules below say so. |
+| **Required** | Everyone must use one. Someone who hasn't set one up does that before they get in: on their next sign-in, by password or magic link, they see a QR code to scan, then their recovery codes, and only then reach the tenant. |
+
+**Five wrong codes lock it.** After 5 wrong codes, authenticator or recovery codes alike, the second factor is locked for 15 minutes. While it is locked, even the right code is refused.
+
+### When ianua asks for it
+
+Under **Second factor** you can also make ianua ask for it in certain situations, on top of the setting above. These rules need second factors to be **Optional** or **Required**. While they are **Off**, nobody could set one up, so the rules ask for nothing and the dashboard greys them out.
+
+- **Every sign-in needs**: **password only**, **password and a second factor**, or **a passkey**. With **a passkey**, passwords and magic links are refused for everyone, with "sign in with your passkey". Single sign-on is left to the identity provider.
+- **Ask for a second factor on a new device**: the person can then mark the device as trusted, and isn't asked on it next time. Each person can trust up to 10 devices.
+- **Ask for a second factor from a new country**: based on the address the sign-in came from. A person's first sign-in sets their home country, so it is never "new".
+- **Always ask for a second factor from risk level** and **Refuse the sign-in from risk level**: ianua compares each sign-in with the person's last one. If Sam signed in from Berlin an hour ago and now signs in from Sydney, that is travel nobody could make, and the sign-in is refused, whatever these settings say. Travel that is possible but faster than is likely is a lower risk level, which these two settings decide about.
+
+### Sensitive actions
+
+Some actions need more than a password, because they could lock the person out or hand their account to someone else:
+
+- changing their password,
+- adding or removing a passkey,
+- switching off their second factor,
+- trusting a device,
+- asking for their account to be erased,
+- issuing a directory (LDAP) certificate.
+
+**Sensitive actions need** sets the bar. By default it is a second factor. Someone who has one, and signed in with a password alone, proves it first: the action is refused with `step_up_required`, they enter their code, and then it goes through.
+
+Someone with no second factor isn't asked for one here. There is nothing stronger they could show.
+
+## What's next
+
+- **Users and groups** covers how people join a tenant and what happens to their account.
+- **Roles, permissions and policies** explains what a signed-in person may do.
+- **Sign in on your app** shows how people sign in on your app's own domain through the gateway.

@@ -1,0 +1,49 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Spends the challenge a nonce holds for one agent of a tenant at the\n-- given time, if it is unspent and valid then, and reads it back spent.\n-- One statement, so two proofs racing for it cannot both spend it.\nUPDATE agent_attestation_challenges\nSET used_at = $4\nWHERE tenant_id = $1 AND agent_id = $2 AND nonce = $3\n  AND used_at IS NULL AND issued_at <= $4 AND expires_at > $4\nRETURNING nonce, agent_id, issued_at, expires_at, used_at\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "nonce",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "agent_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "issued_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "used_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "1d45d5d5bde14d6719a79c7e1d4b2616d39732d996aa2d6544e2b36501f21725"
+}

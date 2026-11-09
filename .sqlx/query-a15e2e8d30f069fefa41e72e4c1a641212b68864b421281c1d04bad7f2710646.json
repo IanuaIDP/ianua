@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Records that one client of one tenant used an assertion, kept until it\n-- expires, answering its id only when this statement was the first use.\nINSERT INTO oauth_client_assertions (tenant_id, client_id, jti, expires_at)\nVALUES ($1, $2, $3, $4)\nON CONFLICT (tenant_id, client_id, jti) DO NOTHING\nRETURNING jti\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "jti",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "a15e2e8d30f069fefa41e72e4c1a641212b68864b421281c1d04bad7f2710646"
+}

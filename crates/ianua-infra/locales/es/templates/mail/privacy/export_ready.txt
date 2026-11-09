@@ -1,0 +1,9 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+La copia de sus datos en {{ tenant_name | default("su organización") }} que solicitó está lista.
+
+Inicie sesión en su cuenta y abra los ajustes de privacidad para descargarla. Puede hacerlo hasta {{ expires_at }}.
+
+Este correo no contiene un enlace de descarga. Si no solicitó una copia, avise a su administrador.
+
+IANUA

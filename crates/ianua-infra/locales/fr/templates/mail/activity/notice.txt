@@ -1,0 +1,7 @@
+{{ notice_title }}
+
+{{ notice_body | default(notice_title) }}
+
+Vous recevez cet e-mail parce que vous avez choisi de recevoir les notifications de ce type par e-mail. Vous pouvez modifier ce choix dans vos paramètres de notification.
+
+IANUA

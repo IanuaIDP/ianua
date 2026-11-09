@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% import "sign_in/parts.html" as p %}
+
+{% block title %}Create an account on {{ workspace }}{% endblock %}
+
+{% block content %}
+      <h1>Create your account</h1>
+      <p class="subtitle">Join {{ workspace }}. We'll email you a link to confirm your address.</p>
+      {{ p.note(note, {
+        "not_allowed": "This workspace does not take sign-ups.",
+        "invalid": "Check what you entered. The password may be too short or too common."
+      }) }}
+      <form method="post" action="{{ form_path }}">
+        {{ p.field("display_name", "Your name", "text", "name") }}
+        {{ p.field("email", "Email Address", "email", "email") }}
+        {{ p.field("password", "Password", "password", "new-password") }}
+        {{ p.submit("Create account") }}
+      </form>
+      {{ p.link("Already have an account?", log_in_path, "Sign in") }}
+{% endblock %}

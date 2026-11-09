@@ -1,0 +1,24 @@
+---
+title: Geolocation
+description: Where an address is, for the sign-in risk checks, read from a local city database with no call out, or never known.
+sidebar:
+  order: 19
+---
+
+`src/geo/` says where an address is, for the sign-in risk checks such as a sign-in from a new country.
+
+```mermaid
+flowchart LR
+    S([Sign-in risk check]):::ok --> G{City database set?}:::step
+    G -- yes --> M[MmdbGeolocator<br/>in memory]:::step
+    G -- no --> N[NoGeolocator<br/>always unknown]:::step
+    M --> A([Country, or unknown]):::ok
+    N --> A
+
+    classDef ok stroke-width:1.5px
+    classDef step stroke-width:1.25px
+```
+
+- **`MmdbGeolocator`** reads a city database in the MaxMind DB format (GeoLite2 City, GeoIP2 City, or any database of that shape) that the server names. Nothing goes out over the network: the whole file is read into memory once and every lookup is a walk of its tree.
+- **Unknown, never a guess.** An address the database does not place, places without coordinates, or places in no country the standard lists is answered as unknown. A made-up location at the equator would read as a journey to the risk checks.
+- **`NoGeolocator`** answers on a deployment that names no city database: every address is unknown, so the checks that read a country read none.

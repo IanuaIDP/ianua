@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Forgets the agent assertions one tenant spent that expired by the given\n-- time: none of them is taken any more.\nDELETE FROM agent_assertions\nWHERE tenant_id = $1 AND expires_at <= $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "20c240277b59ce2645e87fc065820dce3716740477b412b1923f7f8f47767377"
+}

@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}Se ha activado el inicio de sesión en dos pasos{% endblock %}
+{% block preheader %}Se añadió un segundo factor a su cuenta.{% endblock %}
+{% block headline %}Se ha activado el inicio de sesión en dos pasos{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("estimado usuario")) }}
+  {% call c.para() %}Se añadió un segundo factor a su cuenta en <strong>{{ tenant_name | default("su organización") }}</strong>. A partir de ahora se le pedirá al iniciar sesión.{% endcall %}
+  {% call c.para(pad=32) %}Si no lo hizo usted, avise a su administrador de inmediato: es posible que otra persona haya accedido a su cuenta.{% endcall %}
+{% endblock %}

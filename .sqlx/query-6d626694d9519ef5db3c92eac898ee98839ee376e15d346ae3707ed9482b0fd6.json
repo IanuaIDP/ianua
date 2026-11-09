@@ -1,0 +1,41 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The session, in force or suspended, that holds a refresh token, with its\n-- tenant, user and end, for a bearer whose tenant is not known yet. A revoked or\n-- expired one is left out; two answers mean a broken digest and are\n-- refused by the caller.\nSELECT id, tenant_id, user_id, expires_at\nFROM sessions\nWHERE refresh_token_hash = $1 AND status <> 'revoked' AND expires_at > $2\nLIMIT 2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "tenant_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "expires_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "6d626694d9519ef5db3c92eac898ee98839ee376e15d346ae3707ed9482b0fd6"
+}

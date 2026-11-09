@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps an invitation: a new one is added, a known one of the same tenant\n-- takes the new values while it is still open. The account it is for, who\n-- sent it, the role it gives and when it was sent never change, and an\n-- accepted, declined or revoked invitation is never moved again by a copy\n-- read before it closed.\nINSERT INTO invitations\n    (id, tenant_id, user_id, email, invited_by, role_id, token_hash, status,\n     accepted_at, message, expires_at, created_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)\nON CONFLICT (id) DO UPDATE SET\n    email = EXCLUDED.email,\n    token_hash = EXCLUDED.token_hash,\n    status = EXCLUDED.status,\n    accepted_at = EXCLUDED.accepted_at,\n    message = EXCLUDED.message,\n    expires_at = EXCLUDED.expires_at\nWHERE invitations.tenant_id = EXCLUDED.tenant_id\n    AND invitations.status NOT IN ('accepted', 'declined', 'revoked')\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Jsonb",
+        "Uuid",
+        "Text",
+        "Text",
+        "Timestamptz",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "88f59c2d1944cc675c4df72df9437062b465935c1aaefdf5a996f613579765bb"
+}

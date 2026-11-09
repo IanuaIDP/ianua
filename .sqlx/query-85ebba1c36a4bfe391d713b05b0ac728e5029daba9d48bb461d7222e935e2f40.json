@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many users of a tenant hold any value under one attribute.\nSELECT count(*) AS \"count!\"\nFROM user_metadata\nWHERE tenant_id = $1 AND namespace = $2 AND key = $3\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "85ebba1c36a4bfe391d713b05b0ac728e5029daba9d48bb461d7222e935e2f40"
+}

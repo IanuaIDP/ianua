@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a connection: a new one is added, a known one of the same tenant\n-- takes the new values. Its tenant and creation time never change.\nINSERT INTO federation_connections\n    (id, tenant_id, provider_name, status, saml, oidc, jit_provisioning,\n     jit_default_role_id, email_trust, assurance_trust, domain_hint, allowed_domains,\n     mapped_claims, mapped_fields, group_claim, created_at, keyed_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)\nON CONFLICT (id) DO UPDATE SET\n    provider_name = EXCLUDED.provider_name,\n    status = EXCLUDED.status,\n    saml = EXCLUDED.saml,\n    oidc = EXCLUDED.oidc,\n    jit_provisioning = EXCLUDED.jit_provisioning,\n    jit_default_role_id = EXCLUDED.jit_default_role_id,\n    email_trust = EXCLUDED.email_trust,\n    assurance_trust = EXCLUDED.assurance_trust,\n    domain_hint = EXCLUDED.domain_hint,\n    allowed_domains = EXCLUDED.allowed_domains,\n    mapped_claims = EXCLUDED.mapped_claims,\n    mapped_fields = EXCLUDED.mapped_fields,\n    group_claim = EXCLUDED.group_claim,\n    keyed_at = EXCLUDED.keyed_at\nWHERE federation_connections.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Jsonb",
+        "Jsonb",
+        "Text",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "65d0d4a0f9f1a81fc5975f9aad742ca38026bdcb6bffd78439c7bbb7dd4530c8"
+}

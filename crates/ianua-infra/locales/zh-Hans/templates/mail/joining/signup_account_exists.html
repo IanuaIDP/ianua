@@ -1,0 +1,13 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}您已有账户{% endblock %}
+{% block preheader %}此邮箱地址已有 IANUA 账户。{% endblock %}
+{% block headline %}您已有账户{% endblock %}
+
+{% block content %}
+  {{ c.greeting(user_name | default("用户")) }}
+  {% call c.para(pad=8) %}有人刚刚使用此邮箱申请注册 {{ c.brand() }}，但此邮箱已有账户。如果是您本人操作，请直接登录。{% endcall %}
+  {{ c.cta(action_url, "登录") }}
+  {% call c.para(pad=32) %}如果忘记密码，可以在登录页面重置。如果不是您本人操作，可以忽略此邮件：账户未发生任何更改。{% endcall %}
+{% endblock %}

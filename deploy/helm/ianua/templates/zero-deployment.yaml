@@ -1,0 +1,170 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ianua.fullname" . }}-zero
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: zero
+spec:
+  replicas: {{ .Values.zero.replicas }}
+  selector:
+    matchLabels:
+      {{- include "ianua.selectorLabels" (dict "root" . "component" "zero") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "ianua.selectorLabels" (dict "root" . "component" "zero") | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      serviceAccountName: {{ include "ianua.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: zero
+          image: {{ include "ianua.zeroImage" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{/*
+          Only what the gateway holds: the non-secret configuration, its own
+          database login, the shared root, the sealing key and the bus token.
+          Never the chart Secret every server pod loads: it holds DATABASE_URL
+          with an external database, and the gateway refuses to start beside
+          any control plane login or EVENT_SIGNING_SECRET.
+          */}}
+          env:
+            - name: GATEWAY_LISTEN
+              value: "0.0.0.0:{{ .Values.zero.port }}"
+            {{- if include "ianua.zeroTlsSecretName" . }}
+            - name: GATEWAY_TLS_CERT
+              value: /etc/ianua/tls/tls.crt
+            - name: GATEWAY_TLS_KEY
+              value: /etc/ianua/tls/tls.key
+            {{- end }}
+            {{/*
+            The plain-HTTP listener a certificate authority visits to prove a
+            self-managed domain. It answers the challenges the control plane
+            writes to the database, and sends every other request to HTTPS.
+            */}}
+            - name: GATEWAY_ACME_LISTEN
+              value: "0.0.0.0:{{ .Values.zero.acmePort }}"
+            {{- if .Values.zero.proxyProtocol }}
+            {{/* Only the ingress inside the cluster sends the header. */}}
+            - name: GATEWAY_PROXY_PROTOCOL_PEERS
+              value: {{ .Values.zero.proxyProtocolPeers | quote }}
+            {{- end }}
+            {{- if .Values.agentSandboxes.agents }}
+            - name: GATEWAY_RUNNER_LISTEN
+              value: "0.0.0.0:{{ .Values.zero.internalPort }}"
+            - name: GATEWAY_RUNNER_TLS_CERT_FILE
+              value: /etc/ianua/internal/runner-listener-cert.pem
+            - name: GATEWAY_RUNNER_TLS_KEY_FILE
+              value: /etc/ianua/internal/runner-listener-key.pem
+            {{- end }}
+            - name: GATEWAY_STATUS_LISTEN
+              value: "0.0.0.0:{{ .Values.zero.statusPort }}"
+            {{/*
+            Both internal links run over mutual TLS with the internal links'
+            certificates: the workflow listener the worker calls, and the
+            API's relay this gateway calls with a certificate of its own.
+            */}}
+            - name: GATEWAY_WORKFLOW_LISTEN
+              value: "0.0.0.0:{{ .Values.zero.workflowPort }}"
+            - name: GATEWAY_WORKFLOW_CA_FILE
+              value: /etc/ianua/internal/ca-cert.pem
+            - name: GATEWAY_WORKFLOW_TLS_CERT_FILE
+              value: /etc/ianua/internal/workflow-listener-cert.pem
+            - name: GATEWAY_WORKFLOW_TLS_KEY_FILE
+              value: /etc/ianua/internal/workflow-listener-key.pem
+            - name: API_INTERNAL_URL
+              value: "https://{{ include "ianua.relayHost" . }}:{{ .Values.server.relayPort }}"
+            - name: API_INTERNAL_CA_FILE
+              value: /etc/ianua/internal/ca-cert.pem
+            - name: API_INTERNAL_CLIENT_CERT_FILE
+              value: /etc/ianua/internal/gateway-cert.pem
+            - name: API_INTERNAL_CLIENT_KEY_FILE
+              value: /etc/ianua/internal/gateway-key.pem
+            {{- include "ianua.gatewayLoginEnv" . | nindent 12 }}
+            - name: HMAC_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ianua.secretName" . }}
+                  key: HMAC_SECRET
+            - name: ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ianua.secretName" . }}
+                  key: ENCRYPTION_KEY
+            {{- if .Values.nats.enabled }}
+            - name: BUS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ianua.secretName" . }}
+                  key: BUS_TOKEN
+            {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "ianua.fullname" . }}-config
+          ports:
+            - name: http
+              containerPort: {{ .Values.zero.port }}
+            - name: acme
+              containerPort: {{ .Values.zero.acmePort }}
+            - name: status
+              containerPort: {{ .Values.zero.statusPort }}
+            - name: workflow
+              containerPort: {{ .Values.zero.workflowPort }}
+            {{- if .Values.agentSandboxes.agents }}
+            - name: internal
+              containerPort: {{ .Values.zero.internalPort }}
+            {{- end }}
+          {{/*
+          Probed on the status listener, apart from the public port. Ready
+          only once the first full read of every tenant finished and while the
+          database, the bus and the cache answer, so no traffic reaches a
+          gateway that would refuse it all.
+          */}}
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: status
+            periodSeconds: 5
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: status
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: status
+            periodSeconds: 15
+          resources:
+            {{- toYaml .Values.zero.resources | nindent 12 }}
+          volumeMounts:
+            {{- include "ianua.internalLinksMount" . | nindent 12 }}
+            {{- if include "ianua.zeroTlsSecretName" . }}
+            - name: tls
+              mountPath: /etc/ianua/tls
+              readOnly: true
+            {{- end }}
+      volumes:
+        {{- include "ianua.internalLinksVolume" (dict "root" . "files" (list "ca-cert.pem" "workflow-listener-cert.pem" "workflow-listener-key.pem" "runner-listener-cert.pem" "runner-listener-key.pem" "gateway-cert.pem" "gateway-key.pem")) | nindent 8 }}
+        {{- with include "ianua.zeroTlsSecretName" . }}
+        - name: tls
+          secret:
+            secretName: {{ . }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

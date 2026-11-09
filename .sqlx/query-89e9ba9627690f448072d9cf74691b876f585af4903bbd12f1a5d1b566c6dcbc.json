@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- How many proxy routes a tenant holds against its plan, disabled ones\n-- too, since they are turned on again without a check.\nSELECT count(*) AS \"count!\"\nFROM routes\nWHERE tenant_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "89e9ba9627690f448072d9cf74691b876f585af4903bbd12f1a5d1b566c6dcbc"
+}

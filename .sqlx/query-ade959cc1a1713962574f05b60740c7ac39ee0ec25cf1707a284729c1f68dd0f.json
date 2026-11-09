@@ -1,0 +1,54 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The template one tenant keeps for one email and locale, or for every\n-- locale when no locale is given.\nSELECT id, template_type, locale, subject, body_html, body_text\nFROM email_templates\nWHERE tenant_id = $1 AND template_type = $2 AND locale IS NOT DISTINCT FROM $3\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "template_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "locale",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "subject",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "body_html",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "body_text",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "ade959cc1a1713962574f05b60740c7ac39ee0ec25cf1707a284729c1f68dd0f"
+}

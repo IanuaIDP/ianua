@@ -1,0 +1,426 @@
+{
+  "endpoints": {
+    "delete /rest/api/2/issue/{issueIdOrKey}": {
+      "answer": [],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "deleteSubtasks": false
+      },
+      "statuses": [
+        "204"
+      ]
+    },
+    "get /rest/api/2/issue/{issueIdOrKey}": {
+      "answer": [
+        "changelog",
+        "editmeta",
+        "expand",
+        "fields",
+        "fieldsToInclude",
+        "id",
+        "key",
+        "names",
+        "operations",
+        "properties",
+        "renderedFields",
+        "schema",
+        "self",
+        "transitions",
+        "versionedRepresentations"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "expand": false,
+        "failFast": false,
+        "fields": false,
+        "fieldsByKeys": false,
+        "properties": false,
+        "updateHistory": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /rest/api/2/issue/{issueIdOrKey}/transitions": {
+      "answer": [
+        "expand",
+        "transitions"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "expand": false,
+        "includeUnavailableTransitions": false,
+        "skipRemoteOnlyCondition": false,
+        "sortByOpsBarAndStatus": false,
+        "transitionId": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /rest/api/2/search/jql": {
+      "answer": [
+        "isLast",
+        "issues",
+        "names",
+        "nextPageToken",
+        "schema",
+        "warnings"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "expand": false,
+        "failFast": false,
+        "fields": false,
+        "fieldsByKeys": false,
+        "includeArchivedProjects": false,
+        "jql": false,
+        "maxResults": false,
+        "nextPageToken": false,
+        "properties": false,
+        "reconcileIssues": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "get /rest/api/2/user/search": {
+      "answer": [
+        "accountId",
+        "accountType",
+        "active",
+        "appType",
+        "applicationRoles",
+        "avatarUrls",
+        "displayName",
+        "emailAddress",
+        "expand",
+        "groups",
+        "guest",
+        "key",
+        "locale",
+        "name",
+        "self",
+        "timeZone"
+      ],
+      "body": [],
+      "body_required": [],
+      "query": {
+        "accountId": false,
+        "maxResults": false,
+        "property": false,
+        "query": false,
+        "startAt": false,
+        "username": false
+      },
+      "statuses": [
+        "200"
+      ]
+    },
+    "post /rest/api/2/issue": {
+      "answer": [
+        "id",
+        "key",
+        "self",
+        "transition",
+        "watchers"
+      ],
+      "body": [
+        "fields",
+        "historyMetadata",
+        "properties",
+        "transition",
+        "update"
+      ],
+      "body_paths": [
+        "fields",
+        "fields.*",
+        "transition",
+        "transition.*",
+        "transition.expand",
+        "transition.fields",
+        "transition.fields.*",
+        "transition.hasScreen",
+        "transition.id",
+        "transition.isAvailable",
+        "transition.isConditional",
+        "transition.isGlobal",
+        "transition.isInitial",
+        "transition.looped",
+        "transition.name",
+        "transition.to",
+        "transition.to.*",
+        "transition.to.description",
+        "transition.to.iconUrl",
+        "transition.to.id",
+        "transition.to.name",
+        "transition.to.scope",
+        "transition.to.scope.*",
+        "transition.to.scope.project",
+        "transition.to.scope.project.avatarUrls",
+        "transition.to.scope.project.avatarUrls.16x16",
+        "transition.to.scope.project.avatarUrls.16x16.*",
+        "transition.to.scope.project.avatarUrls.24x24",
+        "transition.to.scope.project.avatarUrls.24x24.*",
+        "transition.to.scope.project.avatarUrls.32x32",
+        "transition.to.scope.project.avatarUrls.32x32.*",
+        "transition.to.scope.project.avatarUrls.48x48",
+        "transition.to.scope.project.avatarUrls.48x48.*",
+        "transition.to.scope.project.id",
+        "transition.to.scope.project.key",
+        "transition.to.scope.project.name",
+        "transition.to.scope.project.projectCategory",
+        "transition.to.scope.project.projectCategory.description",
+        "transition.to.scope.project.projectCategory.description.*",
+        "transition.to.scope.project.projectCategory.id",
+        "transition.to.scope.project.projectCategory.id.*",
+        "transition.to.scope.project.projectCategory.name",
+        "transition.to.scope.project.projectCategory.name.*",
+        "transition.to.scope.project.projectCategory.self",
+        "transition.to.scope.project.projectCategory.self.*",
+        "transition.to.scope.project.projectTypeKey",
+        "transition.to.scope.project.self",
+        "transition.to.scope.project.simplified",
+        "transition.to.scope.type",
+        "transition.to.self",
+        "transition.to.statusCategory",
+        "transition.to.statusCategory.*",
+        "transition.to.statusCategory.colorName",
+        "transition.to.statusCategory.id",
+        "transition.to.statusCategory.key",
+        "transition.to.statusCategory.name",
+        "transition.to.statusCategory.self"
+      ],
+      "body_required": [],
+      "query": {
+        "updateHistory": false
+      },
+      "statuses": [
+        "201"
+      ]
+    },
+    "post /rest/api/2/issue/{issueIdOrKey}/comment": {
+      "answer": [
+        "author",
+        "body",
+        "created",
+        "id",
+        "jsdAuthorCanSeeRequest",
+        "jsdPublic",
+        "properties",
+        "renderedBody",
+        "self",
+        "updateAuthor",
+        "updated",
+        "visibility"
+      ],
+      "body": [
+        "author",
+        "body",
+        "created",
+        "id",
+        "jsdAuthorCanSeeRequest",
+        "jsdPublic",
+        "properties",
+        "renderedBody",
+        "self",
+        "updateAuthor",
+        "updated",
+        "visibility"
+      ],
+      "body_required": [],
+      "query": {
+        "expand": false
+      },
+      "statuses": [
+        "201"
+      ]
+    },
+    "post /rest/api/2/issue/{issueIdOrKey}/transitions": {
+      "answer": [],
+      "body": [
+        "fields",
+        "historyMetadata",
+        "properties",
+        "transition",
+        "update"
+      ],
+      "body_paths": [
+        "fields",
+        "fields.*",
+        "transition",
+        "transition.*",
+        "transition.expand",
+        "transition.fields",
+        "transition.fields.*",
+        "transition.hasScreen",
+        "transition.id",
+        "transition.isAvailable",
+        "transition.isConditional",
+        "transition.isGlobal",
+        "transition.isInitial",
+        "transition.looped",
+        "transition.name",
+        "transition.to",
+        "transition.to.*",
+        "transition.to.description",
+        "transition.to.iconUrl",
+        "transition.to.id",
+        "transition.to.name",
+        "transition.to.scope",
+        "transition.to.scope.*",
+        "transition.to.scope.project",
+        "transition.to.scope.project.avatarUrls",
+        "transition.to.scope.project.avatarUrls.16x16",
+        "transition.to.scope.project.avatarUrls.16x16.*",
+        "transition.to.scope.project.avatarUrls.24x24",
+        "transition.to.scope.project.avatarUrls.24x24.*",
+        "transition.to.scope.project.avatarUrls.32x32",
+        "transition.to.scope.project.avatarUrls.32x32.*",
+        "transition.to.scope.project.avatarUrls.48x48",
+        "transition.to.scope.project.avatarUrls.48x48.*",
+        "transition.to.scope.project.id",
+        "transition.to.scope.project.key",
+        "transition.to.scope.project.name",
+        "transition.to.scope.project.projectCategory",
+        "transition.to.scope.project.projectCategory.description",
+        "transition.to.scope.project.projectCategory.description.*",
+        "transition.to.scope.project.projectCategory.id",
+        "transition.to.scope.project.projectCategory.id.*",
+        "transition.to.scope.project.projectCategory.name",
+        "transition.to.scope.project.projectCategory.name.*",
+        "transition.to.scope.project.projectCategory.self",
+        "transition.to.scope.project.projectCategory.self.*",
+        "transition.to.scope.project.projectTypeKey",
+        "transition.to.scope.project.self",
+        "transition.to.scope.project.simplified",
+        "transition.to.scope.type",
+        "transition.to.self",
+        "transition.to.statusCategory",
+        "transition.to.statusCategory.*",
+        "transition.to.statusCategory.colorName",
+        "transition.to.statusCategory.id",
+        "transition.to.statusCategory.key",
+        "transition.to.statusCategory.name",
+        "transition.to.statusCategory.self"
+      ],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "204"
+      ]
+    },
+    "put /rest/api/2/issue/{issueIdOrKey}": {
+      "answer": [],
+      "body": [
+        "fields",
+        "historyMetadata",
+        "properties",
+        "transition",
+        "update"
+      ],
+      "body_paths": [
+        "fields",
+        "fields.*",
+        "transition",
+        "transition.*",
+        "transition.expand",
+        "transition.fields",
+        "transition.fields.*",
+        "transition.hasScreen",
+        "transition.id",
+        "transition.isAvailable",
+        "transition.isConditional",
+        "transition.isGlobal",
+        "transition.isInitial",
+        "transition.looped",
+        "transition.name",
+        "transition.to",
+        "transition.to.*",
+        "transition.to.description",
+        "transition.to.iconUrl",
+        "transition.to.id",
+        "transition.to.name",
+        "transition.to.scope",
+        "transition.to.scope.*",
+        "transition.to.scope.project",
+        "transition.to.scope.project.avatarUrls",
+        "transition.to.scope.project.avatarUrls.16x16",
+        "transition.to.scope.project.avatarUrls.16x16.*",
+        "transition.to.scope.project.avatarUrls.24x24",
+        "transition.to.scope.project.avatarUrls.24x24.*",
+        "transition.to.scope.project.avatarUrls.32x32",
+        "transition.to.scope.project.avatarUrls.32x32.*",
+        "transition.to.scope.project.avatarUrls.48x48",
+        "transition.to.scope.project.avatarUrls.48x48.*",
+        "transition.to.scope.project.id",
+        "transition.to.scope.project.key",
+        "transition.to.scope.project.name",
+        "transition.to.scope.project.projectCategory",
+        "transition.to.scope.project.projectCategory.description",
+        "transition.to.scope.project.projectCategory.description.*",
+        "transition.to.scope.project.projectCategory.id",
+        "transition.to.scope.project.projectCategory.id.*",
+        "transition.to.scope.project.projectCategory.name",
+        "transition.to.scope.project.projectCategory.name.*",
+        "transition.to.scope.project.projectCategory.self",
+        "transition.to.scope.project.projectCategory.self.*",
+        "transition.to.scope.project.projectTypeKey",
+        "transition.to.scope.project.self",
+        "transition.to.scope.project.simplified",
+        "transition.to.scope.type",
+        "transition.to.self",
+        "transition.to.statusCategory",
+        "transition.to.statusCategory.*",
+        "transition.to.statusCategory.colorName",
+        "transition.to.statusCategory.id",
+        "transition.to.statusCategory.key",
+        "transition.to.statusCategory.name",
+        "transition.to.statusCategory.self"
+      ],
+      "body_required": [],
+      "query": {
+        "expand": false,
+        "notifyUsers": false,
+        "overrideEditableFlag": false,
+        "overrideScreenSecurity": false,
+        "returnIssue": false
+      },
+      "statuses": [
+        "200",
+        "204"
+      ]
+    },
+    "put /rest/api/2/issue/{issueIdOrKey}/assignee": {
+      "answer": [],
+      "body": [
+        "accountId",
+        "accountType",
+        "active",
+        "appType",
+        "applicationRoles",
+        "avatarUrls",
+        "displayName",
+        "emailAddress",
+        "expand",
+        "groups",
+        "guest",
+        "key",
+        "locale",
+        "name",
+        "self",
+        "timeZone"
+      ],
+      "body_required": [],
+      "query": {},
+      "statuses": [
+        "204"
+      ]
+    }
+  },
+  "version": "1001.0.0-SNAPSHOT-25cde55b2229d7a79c3fdeb6b9d8abe3bc137957"
+}

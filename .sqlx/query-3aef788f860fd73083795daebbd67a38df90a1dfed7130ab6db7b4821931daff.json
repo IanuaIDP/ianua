@@ -1,0 +1,185 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- The runs of a tenant with the given ids, without their steps.\nSELECT id, agent_id, provider_id, goal, purpose, granted_tools, approval_classes, approval,\n       delegation_id, max_steps, spend_limit_micros, input_tokens, output_tokens, spent_micros,\n       started_by_kind, started_by_id, started_by_person, exposure, chain_depth, status,\n       pending_call, created_at, updated_at, spend_check, spend_check_micros, check_version_id,\n       check_tries, ARRAY[]::jsonb[] AS \"steps!\"\nFROM agent_runs\nWHERE tenant_id = $1 AND id = ANY($2)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "agent_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "provider_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "goal",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "purpose",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 5,
+        "name": "granted_tools",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 6,
+        "name": "approval_classes",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 7,
+        "name": "approval",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "delegation_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 9,
+        "name": "max_steps",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 10,
+        "name": "spend_limit_micros",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 11,
+        "name": "input_tokens",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 12,
+        "name": "output_tokens",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 13,
+        "name": "spent_micros",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 14,
+        "name": "started_by_kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 15,
+        "name": "started_by_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 16,
+        "name": "started_by_person",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 17,
+        "name": "exposure",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 18,
+        "name": "chain_depth",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 19,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 20,
+        "name": "pending_call",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 21,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 22,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 23,
+        "name": "spend_check",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 24,
+        "name": "spend_check_micros",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 25,
+        "name": "check_version_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 26,
+        "name": "check_tries",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 27,
+        "name": "steps!",
+        "type_info": "JsonbArray"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      null
+    ]
+  },
+  "hash": "3aef788f860fd73083795daebbd67a38df90a1dfed7130ab6db7b4821931daff"
+}

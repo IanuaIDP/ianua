@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Whether any organization has an account at the given address.\nSELECT EXISTS (SELECT 1 FROM org_users WHERE email = $1) AS \"taken!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "taken!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "7b0cd2eaec876cb348b222699b2f1a67f86e5d29d69393483dfa79fc54c8eacf"
+}

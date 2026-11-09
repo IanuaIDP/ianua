@@ -1,0 +1,6 @@
+Hi {{ user_name | default("there") }},
+
+Your account in {{ tenant_name | default(organization_name | default("your organization")) }} is set up and ready to use. Sign in here:
+{{ action_url }}
+
+IANUA

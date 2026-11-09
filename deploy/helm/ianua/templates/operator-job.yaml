@@ -1,0 +1,45 @@
+{{- if .Values.firstOperator.enabled }}
+{{/*
+`ianua operator create --email <address>`: makes the platform's first
+operator, then exits; once any operator exists it makes nobody and says so.
+
+Its password lives in a Secret of its own that only this Job reads: the
+server refuses OPERATOR_PASSWORD in every other command, so it never sits in
+a serving pod's environment.
+*/}}
+{{- $email := required "firstOperator.email is required with firstOperator.enabled: the address the first operator signs in with" .Values.firstOperator.email }}
+{{- $secret := .Values.firstOperator.existingSecret | default (printf "%s-first-operator" (include "ianua.fullname" .)) }}
+{{- if not .Values.firstOperator.existingSecret }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $secret }}
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: first-operator
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-20"
+    "helm.sh/hook-delete-policy": before-hook-creation
+type: Opaque
+stringData:
+  OPERATOR_PASSWORD: {{ include "ianua.keptSecret" (dict
+      "root" .
+      "secret" $secret
+      "key" "OPERATOR_PASSWORD"
+      "given" .Values.firstOperator.password
+      "generated" (printf "%s%s%s" (randAlpha 10 | upper) (randAlpha 10 | lower) (randNumeric 6))
+  ) | quote }}
+---
+{{- end }}
+{{- $env := printf "- name: OPERATOR_PASSWORD\n  valueFrom:\n    secretKeyRef:\n      name: %s\n      key: OPERATOR_PASSWORD" $secret }}
+{{ include "ianua.commandJob" (dict
+    "root" .
+    "name" "first-operator"
+    "args" (list "operator" "create" "--email" $email)
+    "hook" "post-install,pre-upgrade"
+    "weight" 5
+    "backoffLimit" 10
+    "env" $env
+) }}
+{{- end }}

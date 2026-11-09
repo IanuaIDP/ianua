@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Records a SAML assertion of a tenant as spent until it expires,\n-- answering its id only when this statement was the one that spent it.\nINSERT INTO saml_assertions (tenant_id, assertion_id, expires_at)\nVALUES ($1, $2, $3)\nON CONFLICT (tenant_id, assertion_id) DO NOTHING\nRETURNING assertion_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "assertion_id",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "1d792588e731998abd46f0604cfb34cca980f4d52e00684db7bca3349be0621f"
+}

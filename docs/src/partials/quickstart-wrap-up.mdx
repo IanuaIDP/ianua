@@ -1,0 +1,13 @@
+## Clean up
+
+```sh
+docker rm -f hello
+docker compose down        # stop, keeping your data
+docker compose down -v     # stop and delete all data
+```
+
+## What's next
+
+- **How it works** explains what happened to each of those requests, stage by stage.
+- **Install on Kubernetes** sets ianua up for real use with two Helm commands: one for ianua, one for the dashboard.
+- To let people sign in to a private route, connect your app to ianua over OpenID Connect. The **OAuth** page under Domain contexts explains how an app is registered and signs people in.

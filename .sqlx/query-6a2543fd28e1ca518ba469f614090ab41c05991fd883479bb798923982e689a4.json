@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes the tenant's log shipping target with the given id.\nDELETE FROM log_shipping_targets\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6a2543fd28e1ca518ba469f614090ab41c05991fd883479bb798923982e689a4"
+}

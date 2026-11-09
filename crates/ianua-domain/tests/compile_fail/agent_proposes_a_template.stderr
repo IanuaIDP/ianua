@@ -1,0 +1,7 @@
+error[E0560]: struct `ProposeTaskTemplateParams` has no field named `proposed_by`
+ --> tests/compile_fail/agent_proposes_a_template.rs:9:9
+  |
+9 |         proposed_by: Initiator::Agent(AgentId::new()),
+  |         ^^^^^^^^^^^ `ProposeTaskTemplateParams` does not have this field
+  |
+  = note: available fields are: `name`, `purpose`, `digest`, `ceiling`, `classes`, `limits`

@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Gives a stored teardown the steps done and the failure it has now, only\n-- while it is still at the version the caller read, and answers the\n-- version it is stored at now. Every write moves the version on, so of two\n-- steps that finish at once and read the same version, the second finds no\n-- row rather than writing its list of steps done over the first one's.\n-- None comes back either when the teardown is gone. Its steps planned and\n-- when it began never change.\nUPDATE tenant_teardowns SET\n    done = $3,\n    failed_step = $4,\n    failed_reason = $5,\n    updated_at = GREATEST($6, updated_at + interval '1 microsecond')\nWHERE tenant_id = $1 AND updated_at = $2\nRETURNING updated_at\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz",
+        "TextArray",
+        "Text",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "5fc18ae861fe4dfdc2005cf4ae8640809f48813a25e48923385325cca60afb6c"
+}

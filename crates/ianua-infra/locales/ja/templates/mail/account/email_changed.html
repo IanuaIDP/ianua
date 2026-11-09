@@ -1,0 +1,12 @@
+{% extends "layout/page.html" %}
+{% import "layout/parts.html" as c %}
+
+{% block title %}メールアドレスが変更されました{% endblock %}
+{% block preheader %}アカウントのメールアドレスが変更されました。{% endblock %}
+{% block headline %}メールアドレスが変更されました{% endblock %}
+
+{% block content %}
+  {{ c.greeting("ご利用者") }}
+  {% call c.para() %}{{ c.brand() }}アカウントのメールアドレスが<strong>{{ user_email }}</strong>に変更されました。{% endcall %}
+  {% call c.para(pad=32) %}この変更に心当たりがない場合は、直ちに管理者に連絡してください。{% endcall %}
+{% endblock %}

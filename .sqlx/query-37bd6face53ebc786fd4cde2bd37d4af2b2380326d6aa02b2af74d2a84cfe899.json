@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes an organization's connection to one cloud, its credential and\n-- external id with it.\nDELETE FROM org_cloud_accounts\nWHERE organization_id = $1 AND provider = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "37bd6face53ebc786fd4cde2bd37d4af2b2380326d6aa02b2af74d2a84cfe899"
+}

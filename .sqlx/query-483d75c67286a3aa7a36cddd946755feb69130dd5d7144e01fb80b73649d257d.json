@@ -1,0 +1,41 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every version of the event schemas of a tenant with the given ids, each\n-- schema's in the order of its numbers.\nSELECT schema_id, version, definition, created_at\nFROM event_schema_versions\nWHERE tenant_id = $1 AND schema_id = ANY($2)\nORDER BY schema_id, version\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "schema_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "version",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "definition",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "483d75c67286a3aa7a36cddd946755feb69130dd5d7144e01fb80b73649d257d"
+}

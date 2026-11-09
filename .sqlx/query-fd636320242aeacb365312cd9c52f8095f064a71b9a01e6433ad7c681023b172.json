@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Sets the password of a user of a tenant: a first one is added, a known\n-- one is replaced, with who set it and when.\nINSERT INTO user_passwords (tenant_id, user_id, password_hash, origin, changed_at)\nVALUES ($1, $2, $3, $4, $5)\nON CONFLICT (tenant_id, user_id) DO UPDATE SET\n    password_hash = EXCLUDED.password_hash,\n    origin = EXCLUDED.origin,\n    changed_at = EXCLUDED.changed_at\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fd636320242aeacb365312cd9c52f8095f064a71b9a01e6433ad7c681023b172"
+}

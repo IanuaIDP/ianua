@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Deletes one API key of one tenant, as revoking it does.\nDELETE FROM api_keys\nWHERE tenant_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9ca2fbd331358095a2dcf4870697bf142c9f6c5dbeea4e112f7a6515c5964e46"
+}

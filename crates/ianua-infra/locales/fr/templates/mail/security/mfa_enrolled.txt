@@ -1,0 +1,7 @@
+Bonjour {{ user_name | default("cher utilisateur") }},
+
+Un second facteur a été ajouté à votre compte dans {{ tenant_name | default("votre organisation") }}. Il vous sera désormais demandé lors de la connexion.
+
+Si vous n’avez pas fait cela, prévenez immédiatement votre administrateur : quelqu’un d’autre a peut-être accédé à votre compte.
+
+IANUA

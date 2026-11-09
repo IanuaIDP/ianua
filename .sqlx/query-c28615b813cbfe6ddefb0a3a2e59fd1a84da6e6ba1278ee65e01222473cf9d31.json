@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Whether a tenant has a consumer with the given id.\nSELECT EXISTS (SELECT 1 FROM consumers WHERE tenant_id = $1 AND id = $2) AS \"exists!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exists!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "c28615b813cbfe6ddefb0a3a2e59fd1a84da6e6ba1278ee65e01222473cf9d31"
+}

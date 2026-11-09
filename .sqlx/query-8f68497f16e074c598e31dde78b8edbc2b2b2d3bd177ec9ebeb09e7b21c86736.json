@@ -1,0 +1,112 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every model provider of a tenant, oldest first.\nSELECT id, name, kind, endpoint, model, embedding_model, input_price_micros, output_price_micros,\n       api_key_sealed, clearance, status, last_test_status, last_tested_at, last_test_reason,\n       created_at, updated_at\nFROM agent_model_providers\nWHERE tenant_id = $1\nORDER BY created_at, id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "kind",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "endpoint",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "model",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "embedding_model",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "input_price_micros",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "output_price_micros",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 8,
+        "name": "api_key_sealed",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "clearance",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "last_test_status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "last_tested_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 13,
+        "name": "last_test_reason",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 14,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 15,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "8f68497f16e074c598e31dde78b8edbc2b2b2d3bd177ec9ebeb09e7b21c86736"
+}

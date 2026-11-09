@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Writes the standing of a tenant's known assertion keys in one statement.\n-- A key's algorithm, its two halves and its creation time never change.\nUPDATE assertion_keys\nSET status = kept.status, rotated_at = kept.rotated_at\nFROM UNNEST($2::text[], $3::text[], $4::timestamptz[]) AS kept (kid, status, rotated_at)\nWHERE assertion_keys.tenant_id = $1 AND assertion_keys.kid = kept.kid\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "TextArray",
+        "TextArray",
+        "TimestamptzArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f29ab9a75faed7236ae17128c257e53d1eb3ba8a85597d255c0181459ac3f7b4"
+}

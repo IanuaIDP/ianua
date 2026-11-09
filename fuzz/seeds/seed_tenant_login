@@ -1,0 +1,4 @@
+POST /api/v1/organizations/acme/tenants/acme-tenant/login
+content-type: application/json
+
+{"email":"alice@acme.com","password":"correct horse battery staple"}

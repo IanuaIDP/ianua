@@ -1,0 +1,102 @@
+{{- if .Values.dns.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ianua.fullname" . }}-dns
+  labels:
+    {{- include "ianua.labels" . | nindent 4 }}
+    app.kubernetes.io/component: dns
+spec:
+  replicas: {{ .Values.dns.replicas }}
+  selector:
+    matchLabels:
+      {{- include "ianua.selectorLabels" (dict "root" . "component" "dns") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "ianua.selectorLabels" (dict "root" . "component" "dns") | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      serviceAccountName: {{ include "ianua.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: dns
+          image: {{ include "ianua.dnsImage" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            # Not 53. Binding below 1024 needs root or CAP_NET_BIND_SERVICE,
+            # and this process faces the open internet unauthenticated over
+            # UDP — the Services below map 53 onto this, so resolvers still
+            # reach it where they expect.
+            - name: DNS_BIND
+              value: "0.0.0.0:{{ .Values.dns.port }}"
+            - name: DNS_HOSTMASTER
+              value: {{ .Values.dns.hostmaster | quote }}
+            - name: DNS_REFRESH_SECONDS
+              value: {{ .Values.dns.refreshSeconds | quote }}
+            - name: DATABASE_MAX_CONNECTIONS
+              value: {{ .Values.dns.dbMaxConnections | quote }}
+            # Its own login and no other: the role reads the zones and
+            # nothing else, so a nameserver taken over from the internet
+            # gives away public DNS data and no more.
+            {{- include "ianua.nameserverLoginEnv" . | nindent 12 }}
+          # The plain settings only. The chart Secret holds keys this
+          # process never reads and must not hold.
+          envFrom:
+            - configMapRef:
+                name: {{ include "ianua.fullname" . }}-config
+          ports:
+            - name: dns-udp
+              containerPort: {{ .Values.dns.port }}
+              protocol: UDP
+            - name: dns-tcp
+              containerPort: {{ .Values.dns.port }}
+              protocol: TCP
+          # Probed over TCP, because that is the one a kubelet can check.
+          # A listening socket is all this proves — it does not prove the
+          # zones loaded, and it must not: the process deliberately starts
+          # before its first load and refuses queries until then, which is a
+          # signal resolvers retry. Failing readiness for that would take
+          # every delegated domain down instead.
+          startupProbe:
+            tcpSocket:
+              port: dns-tcp
+            periodSeconds: 5
+            failureThreshold: 30
+          readinessProbe:
+            tcpSocket:
+              port: dns-tcp
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: dns-tcp
+            periodSeconds: 15
+          resources:
+            {{- toYaml .Values.dns.resources | nindent 12 }}
+      # Two addresses reaching one pod is not redundancy. Spread the replicas
+      # across nodes so a node failure costs one nameserver, not both.
+      # `ScheduleAnyway` so a single-node cluster still runs, degraded rather
+      # than stuck Pending.
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              {{- include "ianua.selectorLabels" (dict "root" . "component" "dns") | nindent 14 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

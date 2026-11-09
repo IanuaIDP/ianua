@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Every assertion key of a tenant, oldest first, with its private half\n-- still sealed, for the gateway, which opens the one that signs.\nSELECT kid, algorithm, public_key, private_key_sealed, status, rotated_at, created_at\nFROM assertion_keys\nWHERE tenant_id = $1\nORDER BY created_at, kid\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "kid",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "algorithm",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "public_key",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "private_key_sealed",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "rotated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "79d661104562fbd3031e526cbb142ce07125a3a06d8693689e86694a05c25c6e"
+}

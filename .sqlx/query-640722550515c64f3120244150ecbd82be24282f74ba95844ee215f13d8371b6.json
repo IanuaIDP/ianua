@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Removes an organization's identity provider, and with it the sign-ins\n-- still waiting on its answer.\nDELETE FROM org_identity_providers\nWHERE organization_id = $1 AND id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "640722550515c64f3120244150ecbd82be24282f74ba95844ee215f13d8371b6"
+}

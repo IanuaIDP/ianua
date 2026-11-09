@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps a connector: a new one is added, a known one of the same tenant\n-- takes the new values. Its tenant and creation time never change, and\n-- when the gateway last saw it is the gateway's to write.\nINSERT INTO connectors\n    (id, tenant_id, name, scope, code_hash, code_expires_at, public_key,\n     certificate_expires_at, enrolled_at, status, created_at, updated_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)\nON CONFLICT (id) DO UPDATE SET\n    name = EXCLUDED.name,\n    scope = EXCLUDED.scope,\n    code_hash = EXCLUDED.code_hash,\n    code_expires_at = EXCLUDED.code_expires_at,\n    public_key = EXCLUDED.public_key,\n    certificate_expires_at = EXCLUDED.certificate_expires_at,\n    enrolled_at = EXCLUDED.enrolled_at,\n    status = EXCLUDED.status,\n    updated_at = EXCLUDED.updated_at\nWHERE connectors.tenant_id = EXCLUDED.tenant_id\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Jsonb",
+        "Text",
+        "Timestamptz",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "cc2773ebc1eb772d260b3e1284c76878e6f411ceb0d6fcb4c8b01c16f64cd44a"
+}

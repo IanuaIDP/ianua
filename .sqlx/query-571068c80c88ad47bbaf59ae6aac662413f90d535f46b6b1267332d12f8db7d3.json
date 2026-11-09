@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Writes how one tenant's refresh token ended, just rotated, only while it\n-- is still active: of two refreshes with one token arriving together, only\n-- one changes the row.\nUPDATE oauth_refresh_tokens\nSET state = $3, ended_at = $4\nWHERE tenant_id = $1 AND token_hash = $2 AND state = 'active'\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "571068c80c88ad47bbaf59ae6aac662413f90d535f46b6b1267332d12f8db7d3"
+}

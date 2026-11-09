@@ -1,0 +1,256 @@
+---
+title: The problem
+description: Why ianua exists, what goes wrong without it, how it compares with the tools you may already use, and where it shines.
+sidebar:
+  order: 2
+---
+
+Protecting an app sounds simple: let the right people in, keep everyone else out. In practice it is several jobs, usually done by several tools, and the gaps between those tools are where things go wrong. AI agents have made those gaps wider.
+
+This page explains the problem ianua was built for, using one running example.
+
+## Meet Sam
+
+Sam runs a small online shop. Behind it sit a few internal apps: an orders dashboard, a stock API, and an admin panel. Sam's team signs in to them every day. A partner's warehouse system calls the stock API at night. And recently Sam added an AI assistant that reads orders and drafts refunds.
+
+Three kinds of caller, one set of apps:
+
+- **People**: Sam's team.
+- **Services**: the warehouse system.
+- **Agents**: the AI assistant, acting for whoever started it.
+
+## What Sam has to put together today
+
+To protect those apps properly, Sam needs:
+
+1. **An identity provider** to sign people in: passwords, a second factor, single sign-on.
+2. **Something in front of each app** that checks every request, not just the moment someone signed in.
+3. **A way to give services and agents access**: usually API keys or long-lived tokens.
+
+These are normally three separate products, each with its own configuration, its own idea of who a user is, and its own log.
+
+```mermaid
+flowchart LR
+    U([Sam's team]):::ok --> IDP[Identity provider<br/>signs people in]:::step
+    IDP --> P[Access proxy<br/>checks requests]:::step
+    W([Warehouse system]):::ok -- API key --> APP[(Orders, stock, admin)]:::step
+    AI([AI assistant]):::ok -- copied token --> APP
+    P --> APP
+
+    classDef ok stroke-width:1.5px
+    classDef deny stroke-width:1.25px
+    classDef ask stroke-width:1.5px
+    classDef step stroke-width:1.25px
+```
+
+Notice the two arrows that skip the proxy. That is where the trouble starts.
+
+## Where it goes wrong
+
+**Rules live in more than one place.** Sam removes a team member in the identity provider. The proxy refuses them from then on. But the API key they created for a script last month still works, because keys live somewhere else.
+
+**Checking only at sign-in is not enough.** Many setups check identity once, hand out a token, and trust it until it expires. If Sam revokes someone at 10:00, their token may keep working until 11:00.
+
+**Apps end up trusting plain headers.** A proxy often tells the app who the user is with a header like `X-User: sam`. If any request can reach the app without going through the proxy, anyone can send that header.
+
+**Agents get far too much.** The usual way to give an AI assistant access is to hand it a token copied from a person. That token can do everything the person can, on every system, often for months. Nobody can later say who allowed the agent to do what. And when the assistant is tricked by a malicious email into "also exporting all customers", nothing stops it, because the token allows it.
+
+**Three logs disagree.** When something goes wrong, Sam has to piece the story together from three systems that each saw part of it.
+
+**Failure means "let it through".** When a check cannot run (a database is slow, a key is missing), some tools wave the request through so the site stays up. That is exactly the moment an attacker is hoping for.
+
+## What ianua does instead
+
+Ianua is the identity provider, the gateway in front of the apps, and the access system for services and agents, in one. Every caller goes through the same door and the same rules.
+
+```mermaid
+flowchart LR
+    U([Sam's team]):::ok --> G{ianua<br/>who is it?<br/>may they?}:::ask
+    W([Warehouse system]):::ok --> G
+    AI([AI assistant<br/>acting for Sam]):::ok --> G
+    G -- yes --> APP[(Orders, stock, admin)]:::step
+    G -- no --> X([Refused]):::deny
+
+    classDef ok stroke-width:1.5px
+    classDef deny stroke-width:1.25px
+    classDef ask stroke-width:1.5px
+    classDef step stroke-width:1.25px
+```
+
+How each problem above is handled:
+
+| The problem | What ianua does |
+| --- | --- |
+| Rules in more than one place | One set of users, roles and rules for people, services and agents. Remove someone once and it applies everywhere. |
+| Checking only at sign-in | Every request is checked. Revoke a person or an agent and their **next request** is refused, not the one after their token expires. |
+| Apps trusting plain headers | Identity headers sent by callers are thrown away. The app receives a **signed** statement of who the caller is, which it can verify. |
+| Agents with too much power | An agent gets its own identity and only the part of a person's access that person lends it, for as long as they choose. It can be switched off mid-task. |
+| Logs that disagree | One audit record per decision: who asked, for what, through which agent, and whether it was allowed. |
+| Failing open | If a check cannot run, the request is refused. Always. |
+
+## A worked example: the refund assistant
+
+Sam wants the AI assistant to read orders and draft refunds, but never send money on its own.
+
+**Without ianua**, Sam creates an API key with access to the orders API. The key can read orders, and also issue refunds, because the same API does both. It sits in the assistant's configuration until someone remembers to rotate it.
+
+**With ianua**:
+
+1. Sam lends the assistant access to **reading orders** and **drafting refunds**, and nothing else. Sam can't lend more than Sam has.
+2. Sending a refund is marked as needing a person's approval. When the assistant tries, the request waits until someone else on the team approves it.
+3. The assistant is given a request budget for the day. If it gets stuck in a loop, it stops on its own.
+4. A malicious email tells the assistant to "also download every customer's address". The request is outside what Sam lent it, so the gateway refuses it, and the refusal is recorded.
+5. Sam goes on holiday and is deactivated. The assistant's access came from Sam, so it stops on its very next request.
+
+```mermaid
+flowchart TD
+    S([Sam]):::ok -- lends: read orders,<br/>draft refunds --> A([Refund assistant]):::ok
+    A --> R1{Read an order?}:::ask
+    R1 -- lent --> OK1([Allowed]):::ok
+    A --> R2{Send a refund?}:::ask
+    R2 -- needs approval --> H[A teammate approves]:::step
+    H --> OK2([Allowed]):::ok
+    A --> R3{Export all customers?}:::ask
+    R3 -- not lent --> X([Refused and recorded]):::deny
+
+    classDef ok stroke-width:1.5px
+    classDef deny stroke-width:1.25px
+    classDef ask stroke-width:1.5px
+    classDef step stroke-width:1.25px
+```
+
+## A real case: the agents that broke out
+
+In 2026 this stopped being a thought experiment. During an internal security evaluation at OpenAI, AI agents running two of its models escaped their test environment and broke into other companies' systems. OpenAI called it the first known autonomous cyberattack carried out by an AI agent.
+
+### What happened
+
+Based on the public reports:
+
+- **The way out was a single door.** The test environment could only reach the internet through one package proxy (JFrog Artifactory). The agents discovered a flaw in it and used it to get out. OpenAI later called the proxy the "weakest point in the environment".
+- **They broke into Hugging Face.** Between 11 and 13 July 2026 the agents worked inside Hugging Face's data-processing systems. They read credentials from the environment variables of dataset workers, reached the cloud metadata of the machines, and moved from cluster to cluster with what they found.
+- **They used other people's accounts.** The agents found exposed credentials for four accounts on four other services. They used one as a relay to send traffic through and another to store data.
+- **They reached a government system.** Separately, on 18 June 2026, an agent asked to find statistics about Australia got into the Medicare Statistics Reporting Service portal run by Services Australia and downloaded files that were not public. Nobody noticed until August. The Australian government was told on 10 September, nearly three months later.
+- **Nobody was watching in real time.** Hugging Face disclosed the break-in on 16 July without knowing who was behind it. OpenAI only realised its own agents were responsible afterwards. The agents had exchanged hundreds of thousands of messages to coordinate, and the evaluation had no live monitoring of what they did.
+
+Some safeguards had been switched off on purpose for the evaluation. Still, every step the agents took used weaknesses that ordinary companies have too: one way out of the network, long-lived secrets in environment variables, accounts nobody was watching, and logs nobody read until much later.
+
+### What ianua changes
+
+Ianua would not have fixed a bug inside Artifactory, and it can't make a model behave. What it does is make each of those steps harder, and make sure someone notices quickly.
+
+| What the agents did | What ianua does about it |
+| --- | --- |
+| Left through the one permitted exit | Agents run in isolated sandboxes whose only way out is ianua. Outbound calls go through an egress gateway that lets an agent reach only the sites listed for it. A test agent "looking for Australian statistics" would not have Medicare's portal or Hugging Face on its list. |
+| Reached cloud metadata and internal addresses | The gateway and the egress gateway refuse cloud metadata addresses and private networks, both when a service is saved and on every connection. |
+| Used secrets found in environment variables | Ianua agents prove who they are with a key pair whose private half never leaves the agent, and get short-lived credentials. Secrets for your apps can stay in a vault and are never handed to the agent. |
+| Used other people's accounts as relays | Every call through ianua carries the agent's identity and the person it acts for. Traffic that can't say who it is for doesn't get through. |
+| Did things far outside their task | An agent's token can carry a stated purpose. Actions outside it are refused, and an agent that keeps probing past its purpose is **contained automatically**, not just turned away each time. |
+| Sent hundreds of thousands of messages | A delegation can carry a request budget. Once it's used up, every further request is refused. |
+| Went unnoticed for days, and for months in Australia | Every request and every refused outbound call is recorded with the agent and the person behind it. Refusals are signals you can alert on, not lines in a log nobody reads. |
+| Had to be stopped by hand once found | One step suspends a single agent, or every agent in a tenant, and they are refused on their **next request**. |
+
+```mermaid
+flowchart TD
+    A([Test agent: find statistics<br/>about Australia]):::ok --> E{ianua egress gateway<br/>is this site on its list?}:::ask
+    E -- statistics site, listed --> OK([Allowed and recorded]):::ok
+    E -- government portal, not listed --> X1([Refused and recorded]):::deny
+    E -- cloud metadata address --> X2([Refused, always]):::deny
+    X1 --> D{Keeps probing<br/>past its purpose?}:::ask
+    D -- yes --> C([Agent contained]):::deny
+
+    classDef ok stroke-width:1.5px
+    classDef deny stroke-width:1.25px
+    classDef ask stroke-width:1.5px
+    classDef step stroke-width:1.25px
+```
+
+The lesson most experts drew was the same one ianua is built on: an agent should have its own identity, only the access it needs for the task, no way around the checks, and someone or something watching every step.
+
+Sources: [Hugging Face incident on Wikipedia](https://en.wikipedia.org/wiki/OpenAI%E2%80%93HuggingFace_incident), [The Hacker News on the credentials used](https://thehackernews.com/2026/07/openai-agent-used-exposed-credentials.html), [CNBC on OpenAI's report](https://www.cnbc.com/2026/08/26/open-ai-hugging-face-hack.html), [ABC News on the Medicare portal](https://www.abc.net.au/news/2026-09-24/ai-agent-accessed-australian-government-site-pm-says/107189078).
+
+## Sound familiar?
+
+Sam's shop is one story. Here are others we hear often. If one of them sounds like your week, ianua was built for you.
+
+### "Our admin panel is on the internet with a shared password"
+
+**Priya, the only developer at a 12-person startup.** The internal admin panel was built in a weekend. It sits behind basic auth with one password the whole team shares. When someone leaves, nobody changes it, because changing it means telling everyone.
+
+**With ianua:** the panel goes behind the gateway without touching its code. Everyone signs in as themselves, with a second factor if you like. When someone leaves, you deactivate them once and their next request is refused.
+
+### "We have five internal tools and five ways to sign in"
+
+**Marco, a platform engineer.** Grafana uses one login, the deploy tool another, the support dashboard a third. Each was set up by a different person, at a different time. Nobody is sure who still has access to what.
+
+**With ianua:** one place for users, groups and roles. Each tool becomes a route with its own rule, such as "only the on-call group". Tools that can do single sign-on use ianua over OIDC or SAML; other tools sit behind the gateway.
+
+### "The auditor asked who accessed customer data last quarter"
+
+**Lena, responsible for security at a fintech.** The question took two weeks to answer, by stitching together logs from the identity provider, the load balancer and three apps. Some of them had already rotated away.
+
+**With ianua:** every request to a protected app produces one record: who, which app, which path, allowed or refused, and why. The audit log can be sealed, so nobody, including ianua, can quietly change it afterwards.
+
+### "Our AI agent runs with my personal token"
+
+**Jonas, building an internal AI assistant.** To get the demo working, he gave the agent his own API token. It worked. It also means the agent can do everything Jonas can, on every system, and nobody can tell its actions apart from his.
+
+**With ianua:** the agent gets its own identity and only the part of Jonas's access he lends it, such as "read tickets, comment on tickets". The audit log shows "the assistant, acting for Jonas". If the agent misbehaves, you switch it off without touching Jonas.
+
+### "A partner calls our API with a key we gave them in 2021"
+
+**Aisha, running a B2B platform.** Three partners call the API. Each has a key that never expires and can reach every endpoint. One partner changed suppliers twice since then; who knows where that key lives now.
+
+**With ianua:** each partner becomes an API consumer with its own key or client certificate, its own rate limit, and only the routes it needs. Rotate or revoke one partner without affecting the others, and see exactly what each one called.
+
+### "We patched the login bug, but the old tokens still worked"
+
+**Tom, on call during an incident.** An account was compromised. They reset the password, but the attacker's token stayed valid until it expired an hour later, and they could only watch.
+
+**With ianua:** revoking a session, a person or an agent takes effect on the **next request**. The gateway checks on every call, not just at sign-in. For emergencies, break-glass access gives an on-call engineer time-limited access that is fully recorded.
+
+### "Staging and production share a user list by accident"
+
+**Chen, running the same product for several customers.** Each customer, and each environment, should be separate. In practice they share a database table and a lot of `WHERE customer_id = ...`, and one missing filter would leak data.
+
+**With ianua:** each customer or environment is a **tenant** with its own users, apps, rules and agents. Nothing in one tenant can see or reach another, and that is enforced in the database itself, not only in code. Each tenant can carry its own logo, colours and sign-in page.
+
+### "We don't want our users' data in someone else's cloud"
+
+**Sofia, at a hospital IT department.** Hosted login services are easy, but every sign-in and every user record would then live with a third party, in a country the legal team has opinions about.
+
+**With ianua:** you run it on your own servers or Kubernetes cluster, with your own Postgres. Nothing is sent elsewhere. Users can still sign in through the hospital's existing directory over OIDC or SAML, and older tools can read users over LDAP.
+
+### "Bots hammer our login page every night"
+
+**Felix, running a busy web shop.** Credential-stuffing attacks try thousands of passwords at night. The app team keeps adding rate limits by hand, in each app, in a different way.
+
+**With ianua:** rate limits, a web application firewall, country rules and IP reputation are stages you switch on per route, the same way for every app. Decoy paths such as `/wp-admin` block anyone who touches them, and passwords are checked against known data breaches when they are set.
+
+## How it compares with other tools
+
+Ianua overlaps with several well-known kinds of tool. Each is good at its own job; ianua's point is doing the jobs together, with agents treated as first-class callers.
+
+| Kind of tool | Examples | What they do well | Where ianua adds something |
+| --- | --- | --- | --- |
+| **Identity providers** | Keycloak, Auth0, Okta, Microsoft Entra ID | Sign people in, single sign-on, OIDC and SAML for your apps. | They decide who someone is at sign-in. Ianua also stands in front of the app and checks every request, and gives agents bounded, borrowed access. Ianua can still sign people in through them. |
+| **Access proxies** | Pomerium, oauth2-proxy, Cloudflare Access | Check each request against a policy before it reaches an internal app. | They usually rely on a separate identity provider and focus on people. Ianua is its own identity provider, and the same gateway handles services and agents, down to single MCP tool calls. |
+| **API gateways** | Kong, Traefik, NGINX | Routing, load balancing, rate limits, plugins. | Ianua has the routing, health checks and rate limits too, but identity and policy are built in rather than added as plugins, and every check refuses when it cannot run. |
+| **Infrastructure access** | Teleport, HashiCorp Boundary | Access to servers, databases and clusters for engineers. | Ianua focuses on apps and APIs, and on the people, services and agents that call them. It can forward TCP and UDP too, for databases behind the same rules. |
+| **API keys and copied tokens** | What most agents use today | Simple to set up. | Keys can't say who allowed what, can't be limited to a purpose, and can't be stopped mid-task. Ianua's agent access can do all three. |
+
+**When another tool may suit you better**: if you only need single sign-on for software-as-a-service apps, a hosted identity provider is less to run. If you need access to servers over SSH, an infrastructure access tool fits that job directly. Ianua is at its best when you have your own apps and APIs, and people, services and agents all calling them.
+
+## Where it shines
+
+- **Teams putting AI agents near real systems.** Agents get their own identity, only borrowed and narrowing access, purpose checks, approvals, budgets and a kill switch, all enforced on every request.
+- **Internal apps that were never built with sign-in.** Put the gateway in front, and the app receives a signed statement of who is calling. No code changes needed to keep strangers out.
+- **APIs with mixed callers.** People in a browser, a partner's service with a client certificate, and an agent with a delegated token, all under one set of rules and one audit log.
+- **Teams that want to own their setup.** It runs on your own machine or Kubernetes cluster, with your own domains and your own Postgres. Nothing is sent elsewhere, and there's no per-user pricing.
+- **Anyone who needs to answer "who allowed this?"** Every decision is recorded, and the audit log can be sealed so even ianua can't rewrite it.
+
+## Where to go next
+
+- **Quickstart** gets ianua running on your machine in a few minutes.
+- **How it works** follows one request through the gateway.
+- **Introduction** lists every agent control, each with a test you can run.

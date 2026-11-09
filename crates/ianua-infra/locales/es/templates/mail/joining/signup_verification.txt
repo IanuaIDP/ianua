@@ -1,0 +1,10 @@
+Hola, {{ user_name | default("estimado usuario") }}:
+
+Gracias por registrarse en IANUA. Solo falta un paso para crear {{ organization_name | default("su organización") }}. Verifique su dirección de correo para terminar:
+{{ action_url }}
+
+Este enlace caduca en {{ expires_at }}.
+
+Si no se registró, puede ignorar este correo.
+
+IANUA

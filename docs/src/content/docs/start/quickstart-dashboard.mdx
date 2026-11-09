@@ -1,0 +1,67 @@
+---
+title: 'Quickstart: the dashboard'
+description: Put the test app behind the gateway by clicking through the dashboard, then watch the gateway at work.
+sidebar:
+  order: 4
+  label: With the dashboard
+---
+
+import SeeItWork from '../../../partials/see-it-work.mdx';
+import WrapUp from '../../../partials/quickstart-wrap-up.mdx';
+
+This continues the [Quickstart](/ianua/start/quickstart/). You have ianua running, you are signed in, and the `hello` test app is started.
+
+Open your tenant from the dashboard. Everything below is under **Infrastructure** in the sidebar.
+
+## 1. Create a pipeline
+
+Go to **Pipelines**, click **Create pipeline**, name it `Default`, and confirm.
+
+![The Create pipeline dialog with the name Default](../../../assets/quickstart/pipeline-create.png)
+
+The pipeline opens with its two built-in stages, **Identity** and **Policy**. They check who is calling and whether they are allowed, and they can never be removed.
+
+Click **Activate**, then confirm. The status changes to **Active**.
+
+![The Default pipeline, now Active, with its Identity and Policy stages](../../../assets/quickstart/pipeline-active.png)
+
+## 2. Add a service
+
+Go to **Services** and click **Add Service**. Fill in:
+
+- **Name**: `hello`
+- **Upstream URL**: `http://hello:80`
+- **Expected audience**: `hello`. Routes that need a signed-in caller refuse to save without it.
+
+Leave everything else as it is and click **Add Service**.
+
+![The New service form filled in for the hello app](../../../assets/quickstart/service-create.png)
+
+## 3. Add two routes
+
+Go to **Routes** and click **Add Route**. Fill in:
+
+- **Name**: `public`
+- **Path Pattern**: `/public/*`
+- **Pipeline**: click **Default**
+- **Methods**: `GET`
+- **Service**: click **hello**
+- **Policy**: `Public`
+
+Click **Add Route**.
+
+![The New route form for the public route](../../../assets/quickstart/route-create.png)
+
+Add a second route the same way, with **Name** `private`, **Path Pattern** `/private/*` and **Policy** `Authenticated`. Your routes list now shows both:
+
+![The routes list with the public and private routes, both Active](../../../assets/quickstart/route-list.png)
+
+## 4. See it work
+
+<SeeItWork />
+
+**And the gateway will not be pointed at the wrong place.** Go back to **Services**, click **Add Service**, and enter the address of the cloud metadata service, where cloud servers keep their credentials: `http://169.254.169.254/`. The dashboard refuses to save it, whatever networks you allow.
+
+![The New service form refusing the metadata address with an error message](../../../assets/quickstart/service-refused.png)
+
+<WrapUp />

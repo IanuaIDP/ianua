@@ -1,0 +1,10 @@
+error[E0624]: associated function `new` is private
+  --> tests/compile_fail/provider_sign_in_without_a_connection.rs:10:36
+   |
+10 |     let _vouched = ProviderSignIn::new(FederatedMethod::Oidc, FactorProved::NoneYet);
+   |                                    ^^^ private associated function
+   |
+  ::: src/domains/authentication/sessions/sign_in_progress.rs
+   |
+   |     pub(crate) fn new(method: FederatedMethod, factor: FactorProved) -> Self {
+   |     ------------------------------------------------------------------------ private associated function defined here

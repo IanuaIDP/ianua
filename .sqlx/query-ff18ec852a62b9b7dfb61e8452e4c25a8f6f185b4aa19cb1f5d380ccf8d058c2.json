@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Whether one principal holds a role of a tenant given straight to them,\n-- still in force at the given time. One whose end has come counts for\n-- nothing, whether or not the sweep has cleared it yet.\nSELECT EXISTS (\n    SELECT 1\n    FROM role_assignments\n    WHERE tenant_id = $1 AND role_id = $2 AND principal_kind = $3 AND principal_id = $4\n      AND (expires_at IS NULL OR expires_at > $5)\n) AS \"held!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "held!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "ff18ec852a62b9b7dfb61e8452e4c25a8f6f185b4aa19cb1f5d380ccf8d058c2"
+}
