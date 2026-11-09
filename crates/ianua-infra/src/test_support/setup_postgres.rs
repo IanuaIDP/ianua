@@ -70,10 +70,7 @@ async fn main() {
 
 /// The container's name, with the CI runner's name when there is one.
 fn container_name() -> String {
-    match std::env::var("RUNNER_NAME") {
-        Ok(runner) if !runner.trim().is_empty() => format!("{CONTAINER_BASE}-{}", runner.trim()),
-        _ => CONTAINER_BASE.to_owned(),
-    }
+    ianua_infra::test_support::container_names::on_this_runner(CONTAINER_BASE)
 }
 
 /// A fingerprint of every migration file, its name and its text, in order,

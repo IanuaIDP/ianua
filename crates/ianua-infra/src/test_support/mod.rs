@@ -15,6 +15,7 @@
 pub mod bus;
 pub mod cache;
 pub mod cleanup;
+pub mod container_names;
 pub mod objects;
 pub(crate) mod plane;
 pub mod rows;

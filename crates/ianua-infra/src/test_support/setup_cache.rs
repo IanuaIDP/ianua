@@ -24,11 +24,7 @@ const PORT: u16 = 6379;
 /// The container's name, scoped to the CI runner when there is one, so two
 /// jobs on one daemon never remove each other's cache.
 fn container_name() -> String {
-    let base = "ianua-test-cache";
-    match std::env::var("RUNNER_NAME") {
-        Ok(runner) if !runner.trim().is_empty() => format!("{base}-{}", runner.trim()),
-        _ => base.to_owned(),
-    }
+    ianua_infra::test_support::container_names::on_this_runner("ianua-test-cache")
 }
 
 /// The host port the container `name` publishes, if it runs.
