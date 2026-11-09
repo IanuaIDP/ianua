@@ -35,6 +35,7 @@ mod tests {
         assert_eq!(name, "ianua-test-postgres-GitHub-Actions-1000001670");
     }
 
+    /// Off CI, or with a blank runner name, the container keeps its plain name.
     #[test]
     fn no_runner_leaves_the_base_name() {
         assert_eq!(for_runner("ianua-test-bus", None), "ianua-test-bus");
