@@ -66,6 +66,11 @@ slow-timeout = { period = "60s", terminate-after = 8 }
 filter = "package(ianua-domain) & binary(compile_fail)"
 slow-timeout = { period = "60s", terminate-after = 10 }
 
+# Writing the rules page reads the whole workspace, in an unoptimized build.
+[[profile.default.overrides]]
+filter = "package(ianua-audit) & test(/the_committed_rules_page_is_current/)"
+slow-timeout = { period = "60s", terminate-after = 8 }
+
 # CI profile for the scenarios.
 #
 # Scenarios spend almost all of their time waiting on Postgres round-trips and
