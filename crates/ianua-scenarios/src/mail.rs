@@ -13,7 +13,7 @@ mod smtp;
 
 use std::fmt;
 use std::net::SocketAddr;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use ianua_boot::shutdown::Shutdown;
 use tokio::net::TcpListener;
@@ -23,6 +23,10 @@ use crate::inbox::Inbox;
 
 /// How long [`Mailbox::next_for`] waits for a mail to come.
 const MAIL_WAIT: Duration = Duration::from_secs(30);
+
+/// The subject of the welcome a person gets after joining. The platform
+/// sends it in the background, so on a slow machine it can arrive late.
+const ACCOUNT_READY: &str = "Your account is ready";
 
 /// The SMTP receiver of the platform's mail.
 pub struct Mailbox {
@@ -81,19 +85,24 @@ impl Mailbox {
 
     /// Asserts that no mail for `address` comes within `quiet`: a refused
     /// request mails nobody, and an injected header reaches no second
-    /// recipient.
+    /// recipient. The welcome from joining may still arrive in that time,
+    /// and does not count.
     ///
     /// # Panics
     ///
-    /// When a mail for `address` does come, naming its subject.
+    /// When any other mail for `address` does come, naming its subject.
     pub async fn nothing_for(&self, address: &str, quiet: Duration) {
-        let Some(mail) = self.inbox.next_for(address, quiet).await else {
-            return;
-        };
-        panic!(
-            "{address} was mailed {:?}, but should have got nothing",
-            mail.subject()
-        );
+        let deadline = Instant::now() + quiet;
+        while let Some(left) = deadline.checked_duration_since(Instant::now()) {
+            let Some(mail) = self.inbox.next_for(address, left).await else {
+                return;
+            };
+            assert!(
+                mail.subject() == ACCOUNT_READY,
+                "{address} was mailed {:?}, but should have got nothing",
+                mail.subject()
+            );
+        }
     }
 }
 
