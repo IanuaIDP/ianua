@@ -30,7 +30,16 @@ pub fn now() -> OffsetDateTime {
     let wall = OffsetDateTime::now_utc();
     #[cfg(any(test, feature = "test-support"))]
     let wall = stepping::shifted(wall);
-    wall
+    to_the_microsecond(wall)
+}
+
+/// `at` without what lies below a microsecond, the finest time the database
+/// keeps. Linux clocks read nanoseconds, so a time still held in memory or in
+/// a stored document would otherwise fall just after its own stored copy.
+fn to_the_microsecond(at: OffsetDateTime) -> OffsetDateTime {
+    let below_a_microsecond = i64::from(at.nanosecond() % 1_000);
+    at.checked_sub(time::Duration::nanoseconds(below_a_microsecond))
+        .unwrap_or(at)
 }
 
 /// How long passed from `earlier` to `later`.
@@ -134,10 +143,27 @@ mod tests {
     #[allow(clippy::disallowed_methods)]
     #[test]
     fn now_tracks_wall_clock_by_default() {
-        let before = OffsetDateTime::now_utc();
+        let before = to_the_microsecond(OffsetDateTime::now_utc());
         let n = now();
         let after = OffsetDateTime::now_utc();
         assert!(n >= before && n <= after);
+    }
+
+    /// A time read to the nanosecond loses what the database could not keep,
+    /// so it equals its stored copy.
+    #[test]
+    fn a_time_is_cut_to_the_microsecond_the_store_keeps() {
+        let exact = OffsetDateTime::from_unix_timestamp_nanos(1_700_000_000_123_456_789).unwrap();
+
+        let kept = to_the_microsecond(exact);
+
+        assert_eq!(kept.unix_timestamp_nanos(), 1_700_000_000_123_456_000);
+    }
+
+    /// The clock itself never answers finer than a microsecond.
+    #[test]
+    fn now_is_told_to_the_microsecond() {
+        assert_eq!(now().nanosecond() % 1_000, 0);
     }
 
     /// A test freezes the clock at a fixed instant. Every read returns that

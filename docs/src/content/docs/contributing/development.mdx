@@ -29,7 +29,7 @@ Tests start their own Postgres, so you do not need one running.
 
 ```sh
 just test                   # all workspace tests except end-to-end
-just test-e2e               # the end-to-end scenarios
+just test-scenarios         # the end-to-end scenarios
 just test-one rotate_key    # tests matching a regular expression
 just test-crate ianua-domain
 just clean-db               # remove the shared test container if it lingers

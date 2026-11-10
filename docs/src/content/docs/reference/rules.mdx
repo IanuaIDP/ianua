@@ -47,6 +47,18 @@ Its last `match`, arm by arm, as written, at `domains/agents/authority/capabilit
 | `Restriction::To(max_requests)` | `Restriction::To(RequestBudget { max_requests, window_seconds : self.window_seconds, })` | `domains/agents/authority/capability/budget.rs:85` |
 | `Restriction::Unrestricted` | `Unrestricted` | `domains/agents/authority/capability/budget.rs:89` |
 
+#### `AgentRun::record_check`
+
+Records what the check said of the answer waiting for it.
+
+Its last `match`, arm by arm, as written, at `domains/agents/execution/run/check.rs:181`.
+
+| `verdict` | Answer (`DomainError`) | Where |
+| --- | --- | --- |
+| `CheckVerdict::Passed` | `self.pass_check()` | `domains/agents/execution/run/check.rs:190` |
+| `CheckVerdict::Broken(said)` | `{ self.record_failed_check(&said)? ; if last_try { self.fail() ; } Ok(()) }` | `domains/agents/execution/run/check.rs:191` |
+| `CheckVerdict::NotRun(why)` | `{ self.record_failed_check(&why)? ; self.fail() ; Ok(()) }` | `domains/agents/execution/run/check.rs:198` |
+
 #### `AgentStanding::of`
 
 The standing of an agent with `status` that does or does not owe a re-attestation.
@@ -89,12 +101,12 @@ Its last `match`, arm by arm, as written, at `domains/agents/identity/attestatio
 
 What a task token minted for this delegation is bound to.
 
-Its last `match`, arm by arm, as written, at `domains/agents/authority/delegation/mod.rs:476`.
+Its last `match`, arm by arm, as written, at `domains/agents/authority/delegation/mod.rs:477`.
 
 | `&self.lineage` | Answer (`TokenKey`) | Where |
 | --- | --- | --- |
-| `Lineage::Minted { signed_in_with,..}` | `TokenKey::SignedInWith(* signed_in_with)` | `domains/agents/authority/delegation/mod.rs:481` |
-| `Lineage::Root \| Lineage::Under(_)` | `AgentsActiveKey` | `domains/agents/authority/delegation/mod.rs:482` |
+| `Lineage::Minted { signed_in_with,..}` | `TokenKey::SignedInWith(* signed_in_with)` | `domains/agents/authority/delegation/mod.rs:482` |
+| `Lineage::Root \| Lineage::Under(_)` | `AgentsActiveKey` | `domains/agents/authority/delegation/mod.rs:483` |
 
 #### `KeyProofFault::attack`
 
@@ -227,8 +239,8 @@ Its moves are read from `try_transition`, at `domains/agents/oversight/approval_
 | `Approved` to `Consumed` | `ApprovalRequest::consume`, `ApprovalRequest::release` | ApproveActionUseCase (agents), ApproveUseCase (agents) | `ActionAuthority` |
 | `Pending` to `Approved` | `ApprovalRequest::approve` | ApproveActionUseCase (agents), ApproveUseCase (agents) | `Approver` |
 | `Pending` to `Denied` | `ApprovalRequest::deny` | DenyActionUseCase (agents), DenyUseCase (agents), ReplyToCallUseCase (agents) | `Approver` |
-| `Pending` to `Expired` | `ApprovalRequest::approve`, `ApprovalRequest::deny`, `ApprovalRequest::expire`, `ApprovalRequest::withdraw`, `ApprovalRequest::supersede` | ApproveActionUseCase (agents), ApproveUseCase (agents), DenyActionUseCase (agents), DenyUseCase (agents), ReplyToCallUseCase (agents), ApproveStepUseCase (workflows), CancelUseCase (agents), CancelUseCase (workflows), CreateUseCase (workflows), DenyStepUseCase (workflows), DriveUseCase (agents), DriveUseCase (workflows), RerunUseCase (workflows), RetryUseCase (workflows), RunCodeUseCase (workflows), SettleAgentRunUseCase (workflows), SettleFinishedRunUseCase (workflows), SettlePassUseCase (workflows), StartByHandUseCase (workflows), StartOnEventUseCase (workflows), StartOnServiceEventUseCase (workflows), StartOnTriggerUseCase (workflows), StartOnWebhookUseCase (workflows), StartTestUseCase (workflows), StopPassUseCase (workflows), ReviseCallUseCase (agents) | `Approver`, `RunCancelled`, `RevisedCall` |
-| `Pending` to `Withdrawn` | `ApprovalRequest::withdraw`, `ApprovalRequest::supersede` | ApproveStepUseCase (workflows), CancelUseCase (agents), CancelUseCase (workflows), CreateUseCase (workflows), DenyStepUseCase (workflows), DriveUseCase (agents), DriveUseCase (workflows), RerunUseCase (workflows), RetryUseCase (workflows), RunCodeUseCase (workflows), SettleAgentRunUseCase (workflows), SettleFinishedRunUseCase (workflows), SettlePassUseCase (workflows), StartByHandUseCase (workflows), StartOnEventUseCase (workflows), StartOnServiceEventUseCase (workflows), StartOnTriggerUseCase (workflows), StartOnWebhookUseCase (workflows), StartTestUseCase (workflows), StopPassUseCase (workflows), ReviseCallUseCase (agents) | `RunCancelled`, `RevisedCall` |
+| `Pending` to `Expired` | `ApprovalRequest::approve`, `ApprovalRequest::deny`, `ApprovalRequest::expire`, `ApprovalRequest::withdraw`, `ApprovalRequest::supersede` | ApproveActionUseCase (agents), ApproveUseCase (agents), DenyActionUseCase (agents), DenyUseCase (agents), ReplyToCallUseCase (agents), ApproveItemsUseCase (workflows), ApproveStepUseCase (workflows), CancelUseCase (agents), CancelUseCase (workflows), CreateUseCase (workflows), DenyStepUseCase (workflows), DriveUseCase (agents), DriveUseCase (workflows), RerunUseCase (workflows), RetryUseCase (workflows), RunCodeUseCase (workflows), RunUseCase (workflows), SettleAgentRunUseCase (workflows), SettleFinishedRunUseCase (workflows), SettlePassUseCase (workflows), StartByHandUseCase (workflows), StartOnEventUseCase (workflows), StartOnServiceEventUseCase (workflows), StartOnTriggerUseCase (workflows), StartOnWebhookUseCase (workflows), StartTestUseCase (workflows), StopPassUseCase (workflows), ReviseCallUseCase (agents) | `Approver`, `RunCancelled`, `RevisedCall` |
+| `Pending` to `Withdrawn` | `ApprovalRequest::withdraw`, `ApprovalRequest::supersede` | ApproveItemsUseCase (workflows), ApproveStepUseCase (workflows), CancelUseCase (agents), CancelUseCase (workflows), CreateUseCase (workflows), DenyStepUseCase (workflows), DriveUseCase (agents), DriveUseCase (workflows), RerunUseCase (workflows), RetryUseCase (workflows), RunCodeUseCase (workflows), RunUseCase (workflows), SettleAgentRunUseCase (workflows), SettleFinishedRunUseCase (workflows), SettlePassUseCase (workflows), StartByHandUseCase (workflows), StartOnEventUseCase (workflows), StartOnServiceEventUseCase (workflows), StartOnTriggerUseCase (workflows), StartOnWebhookUseCase (workflows), StartTestUseCase (workflows), StopPassUseCase (workflows), ReviseCallUseCase (agents) | `RunCancelled`, `RevisedCall` |
 
 #### `DelegationStatus`
 
@@ -262,20 +274,20 @@ Its moves are read from `try_transition`, at `domains/agents/execution/run/statu
 
 | Move | Made by | Called by | Proof or right |
 | --- | --- | --- | --- |
-| `AwaitingApproval` to `Cancelled` | `AgentRun::cancel` | ApproveStepUseCase (workflows), CancelUseCase (agents), CancelUseCase (workflows), CreateUseCase (workflows), DenyStepUseCase (workflows), DriveUseCase (agents), DriveUseCase (workflows), RerunUseCase (workflows), RetryUseCase (workflows), RunCodeUseCase (workflows), SettleAgentRunUseCase (workflows), SettleFinishedRunUseCase (workflows), SettlePassUseCase (workflows), StartByHandUseCase (workflows), StartOnEventUseCase (workflows), StartOnServiceEventUseCase (workflows), StartOnTriggerUseCase (workflows), StartOnWebhookUseCase (workflows), StartTestUseCase (workflows), StopPassUseCase (workflows) | `CancelOrder` |
-| `AwaitingApproval` to `Failed` | `AgentRun::fail_at_approval_limit`, `AgentRun::fail` | DriveUseCase (agents) | none read |
+| `AwaitingApproval` to `Cancelled` | `AgentRun::cancel` | ApproveItemsUseCase (workflows), ApproveStepUseCase (workflows), CancelUseCase (agents), CancelUseCase (workflows), CreateUseCase (workflows), DenyStepUseCase (workflows), DriveUseCase (agents), DriveUseCase (workflows), RerunUseCase (workflows), RetryUseCase (workflows), RunCodeUseCase (workflows), RunUseCase (workflows), SettleAgentRunUseCase (workflows), SettleFinishedRunUseCase (workflows), SettlePassUseCase (workflows), StartByHandUseCase (workflows), StartOnEventUseCase (workflows), StartOnServiceEventUseCase (workflows), StartOnTriggerUseCase (workflows), StartOnWebhookUseCase (workflows), StartTestUseCase (workflows), StopPassUseCase (workflows) | `CancelOrder` |
+| `AwaitingApproval` to `Failed` | `AgentRun::record_check`, `AgentRun::fail_at_approval_limit`, `AgentRun::fail` | DriveUseCase (agents) | none read |
 | `AwaitingApproval` to `Halted` | `AgentRun::halt` | DriveUseCase (agents) | none read |
 | `AwaitingApproval` to `OverBudget` | `AgentRun::record_model_usage` | DriveUseCase (agents) | none read |
-| `AwaitingApproval` to `Running` | `AgentRun::start`, `AgentRun::start_without_tools`, `AgentRun::approve_pending`, `AgentRun::deny_pending`, `AgentRun::fail_at_approval_limit`, `AgentRun::reply_to_pending`, `AgentRun::resume`, `AgentRun::record_allowed`, `AgentRun::record_denied` | AgentUseCase (agents), ApproveActionUseCase (agents), ApproveUseCase (agents), DenyActionUseCase (agents), DenyUseCase (agents), DriveUseCase (agents), ReplyToCallUseCase (agents), ResumeUseCase (agents) | `RunStarter`, `ReleasedCall`, `DeniedCall`, `AgentControl`, `AgentAction::Update` |
-| `Paused` to `Cancelled` | `AgentRun::cancel` | ApproveStepUseCase (workflows), CancelUseCase (agents), CancelUseCase (workflows), CreateUseCase (workflows), DenyStepUseCase (workflows), DriveUseCase (agents), DriveUseCase (workflows), RerunUseCase (workflows), RetryUseCase (workflows), RunCodeUseCase (workflows), SettleAgentRunUseCase (workflows), SettleFinishedRunUseCase (workflows), SettlePassUseCase (workflows), StartByHandUseCase (workflows), StartOnEventUseCase (workflows), StartOnServiceEventUseCase (workflows), StartOnTriggerUseCase (workflows), StartOnWebhookUseCase (workflows), StartTestUseCase (workflows), StopPassUseCase (workflows) | `CancelOrder` |
-| `Paused` to `Failed` | `AgentRun::fail_at_approval_limit`, `AgentRun::fail` | DriveUseCase (agents) | none read |
+| `AwaitingApproval` to `Running` | `AgentRun::start`, `AgentRun::start_without_tools`, `AgentRun::approve_pending`, `AgentRun::deny_pending`, `AgentRun::fail_at_approval_limit`, `AgentRun::reply_to_pending`, `AgentRun::resume`, `AgentRun::record_allowed`, `AgentRun::record_denied` | AgentUseCase (agents), ApproveActionUseCase (agents), ApproveUseCase (agents), DenyActionUseCase (agents), DenyUseCase (agents), DriveUseCase (agents), ReplyToCallUseCase (agents), ResumeUseCase (agents) | `RunStarter`, `WorkflowAction::Run`, `WorkflowAction::Update`, `ReleasedCall`, `DeniedCall`, `AgentControl`, `AgentAction::Update` |
+| `Paused` to `Cancelled` | `AgentRun::cancel` | ApproveItemsUseCase (workflows), ApproveStepUseCase (workflows), CancelUseCase (agents), CancelUseCase (workflows), CreateUseCase (workflows), DenyStepUseCase (workflows), DriveUseCase (agents), DriveUseCase (workflows), RerunUseCase (workflows), RetryUseCase (workflows), RunCodeUseCase (workflows), RunUseCase (workflows), SettleAgentRunUseCase (workflows), SettleFinishedRunUseCase (workflows), SettlePassUseCase (workflows), StartByHandUseCase (workflows), StartOnEventUseCase (workflows), StartOnServiceEventUseCase (workflows), StartOnTriggerUseCase (workflows), StartOnWebhookUseCase (workflows), StartTestUseCase (workflows), StopPassUseCase (workflows) | `CancelOrder` |
+| `Paused` to `Failed` | `AgentRun::record_check`, `AgentRun::fail_at_approval_limit`, `AgentRun::fail` | DriveUseCase (agents) | none read |
 | `Paused` to `Halted` | `AgentRun::halt` | DriveUseCase (agents) | none read |
 | `Paused` to `OverBudget` | `AgentRun::record_model_usage` | DriveUseCase (agents) | none read |
-| `Paused` to `Running` | `AgentRun::start`, `AgentRun::start_without_tools`, `AgentRun::approve_pending`, `AgentRun::deny_pending`, `AgentRun::fail_at_approval_limit`, `AgentRun::reply_to_pending`, `AgentRun::resume`, `AgentRun::record_allowed`, `AgentRun::record_denied` | AgentUseCase (agents), ApproveActionUseCase (agents), ApproveUseCase (agents), DenyActionUseCase (agents), DenyUseCase (agents), DriveUseCase (agents), ReplyToCallUseCase (agents), ResumeUseCase (agents) | `RunStarter`, `ReleasedCall`, `DeniedCall`, `AgentControl`, `AgentAction::Update` |
+| `Paused` to `Running` | `AgentRun::start`, `AgentRun::start_without_tools`, `AgentRun::approve_pending`, `AgentRun::deny_pending`, `AgentRun::fail_at_approval_limit`, `AgentRun::reply_to_pending`, `AgentRun::resume`, `AgentRun::record_allowed`, `AgentRun::record_denied` | AgentUseCase (agents), ApproveActionUseCase (agents), ApproveUseCase (agents), DenyActionUseCase (agents), DenyUseCase (agents), DriveUseCase (agents), ReplyToCallUseCase (agents), ResumeUseCase (agents) | `RunStarter`, `WorkflowAction::Run`, `WorkflowAction::Update`, `ReleasedCall`, `DeniedCall`, `AgentControl`, `AgentAction::Update` |
 | `Running` to `AwaitingApproval` | `AgentRun::await_approval`, `AgentRun::revise_pending` | DriveUseCase (agents), ReviseCallUseCase (agents) | `AgentControl`, `AgentAction::Approve` |
-| `Running` to `Cancelled` | `AgentRun::cancel` | ApproveStepUseCase (workflows), CancelUseCase (agents), CancelUseCase (workflows), CreateUseCase (workflows), DenyStepUseCase (workflows), DriveUseCase (agents), DriveUseCase (workflows), RerunUseCase (workflows), RetryUseCase (workflows), RunCodeUseCase (workflows), SettleAgentRunUseCase (workflows), SettleFinishedRunUseCase (workflows), SettlePassUseCase (workflows), StartByHandUseCase (workflows), StartOnEventUseCase (workflows), StartOnServiceEventUseCase (workflows), StartOnTriggerUseCase (workflows), StartOnWebhookUseCase (workflows), StartTestUseCase (workflows), StopPassUseCase (workflows) | `CancelOrder` |
-| `Running` to `Completed` | `AgentRun::complete` | DriveUseCase (agents) | none read |
-| `Running` to `Failed` | `AgentRun::fail_at_approval_limit`, `AgentRun::fail` | DriveUseCase (agents) | none read |
+| `Running` to `Cancelled` | `AgentRun::cancel` | ApproveItemsUseCase (workflows), ApproveStepUseCase (workflows), CancelUseCase (agents), CancelUseCase (workflows), CreateUseCase (workflows), DenyStepUseCase (workflows), DriveUseCase (agents), DriveUseCase (workflows), RerunUseCase (workflows), RetryUseCase (workflows), RunCodeUseCase (workflows), RunUseCase (workflows), SettleAgentRunUseCase (workflows), SettleFinishedRunUseCase (workflows), SettlePassUseCase (workflows), StartByHandUseCase (workflows), StartOnEventUseCase (workflows), StartOnServiceEventUseCase (workflows), StartOnTriggerUseCase (workflows), StartOnWebhookUseCase (workflows), StartTestUseCase (workflows), StopPassUseCase (workflows) | `CancelOrder` |
+| `Running` to `Completed` | `AgentRun::record_answer`, `AgentRun::record_check`, `AgentRun::complete` | DriveUseCase (agents) | none read |
+| `Running` to `Failed` | `AgentRun::record_check`, `AgentRun::fail_at_approval_limit`, `AgentRun::fail` | DriveUseCase (agents) | none read |
 | `Running` to `Halted` | `AgentRun::halt` | DriveUseCase (agents) | none read |
 | `Running` to `OverBudget` | `AgentRun::record_model_usage` | DriveUseCase (agents) | none read |
 | `Running` to `Paused` | `AgentRun::pause_at_spend_check`, `AgentRun::pause` | DriveUseCase (agents), PauseUseCase (agents) | `AgentControl`, `AgentAction::Update` |
@@ -393,25 +405,26 @@ Its moves are read from `try_transition`, at `domains/agents/execution/tool/stat
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `agent.id() != &self.agent_id` | Forbidden | `domains/agents/execution/run/stepping.rs:173`, through `ensure_agent_may_act` |
-| `!agent.may_act_at(clock::now())` | Forbidden | `domains/agents/execution/run/stepping.rs:179`, through `ensure_agent_may_act` |
+| `agent.id() != &self.agent_id` | Forbidden | `domains/agents/execution/run/stepping.rs:174`, through `ensure_agent_may_act` |
+| `!agent.may_act_at(clock::now())` | Forbidden | `domains/agents/execution/run/stepping.rs:180`, through `ensure_agent_may_act` |
 | `self.status() != RunStatus::Running` | InvalidTransition | `domains/agents/execution/run/pause.rs:48` |
-| `self.steps_taken() >= self.max_steps` | InvalidTransition | `domains/agents/execution/run/stepping.rs:194`, through `ensure_step_left` |
-| `&self.state` is `RunState::Running(NextCall::Approved(_))` | Conflict | `domains/agents/execution/run/stepping.rs:151`, through `held_call` |
+| `self.steps_taken() >= self.max_steps` | InvalidTransition | `domains/agents/execution/run/stepping.rs:195`, through `ensure_step_left` |
+| `&self.state` is `RunState::Running(NextCall::Approved(_))` | Conflict | `domains/agents/execution/run/stepping.rs:152`, through `held_call` |
 | `self.status()` may not move to `RunStatus::AwaitingApproval` | InvalidTransition | `domains/agents/execution/run/pause.rs:56` |
 
 #### `AgentRun::cancel`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `order.run_id() != &self.id` | Forbidden | `domains/agents/execution/run/stepping.rs:268` |
+| `order.run_id() != &self.id` | Forbidden | `domains/agents/execution/run/stepping.rs:276` |
 
 #### `AgentRun::complete`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `self.status() != RunStatus::Running` | InvalidTransition | `domains/agents/execution/run/stepping.rs:308`, through `push` |
-| `self.status()` may not move to `RunStatus::Completed` | InvalidTransition | `domains/agents/execution/run/stepping.rs:213` |
+| `self.check != RunCheck::Unchecked` | InvalidTransition | `domains/agents/execution/run/stepping.rs:211` |
+| `self.status() != RunStatus::Running` | InvalidTransition | `domains/agents/execution/run/stepping.rs:316`, through `push` |
+| `self.status()` may not move to `RunStatus::Completed` | InvalidTransition | `domains/agents/execution/run/stepping.rs:221` |
 
 #### `AgentRun::fail_at_approval_limit`
 
@@ -419,7 +432,7 @@ Its moves are read from `try_transition`, at `domains/agents/execution/tool/stat
 | --- | --- | --- |
 | `&self.state` is not `RunState::AwaitingApproval(pending)` | InvalidTransition | `domains/agents/execution/run/pause.rs:139` |
 | `self.status()` may not move to `RunStatus::Running` | InvalidTransition | `domains/agents/execution/run/pause.rs:145` |
-| `self.status() != RunStatus::Running` | InvalidTransition | `domains/agents/execution/run/stepping.rs:308`, through `push` |
+| `self.status() != RunStatus::Running` | InvalidTransition | `domains/agents/execution/run/stepping.rs:316`, through `push` |
 
 #### `AgentRun::pause`
 
@@ -432,19 +445,25 @@ Its moves are read from `try_transition`, at `domains/agents/execution/tool/stat
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `agent.id() != &self.agent_id` | Forbidden | `domains/agents/execution/run/stepping.rs:173`, through `ensure_agent_may_act` |
-| `!agent.may_act_at(clock::now())` | Forbidden | `domains/agents/execution/run/stepping.rs:179`, through `ensure_agent_may_act` |
-| `self.steps_taken() >= self.max_steps` | InvalidTransition | `domains/agents/execution/run/stepping.rs:194`, through `ensure_step_left` |
-| `ensure_approved(admission, self.held_call(call.call())?)` refuses | what `ensure_approved` refuses | `domains/agents/execution/run/stepping.rs:107` |
-| `self.status() != RunStatus::Running` | InvalidTransition | `domains/agents/execution/run/stepping.rs:308`, through `push` |
+| `agent.id() != &self.agent_id` | Forbidden | `domains/agents/execution/run/stepping.rs:174`, through `ensure_agent_may_act` |
+| `!agent.may_act_at(clock::now())` | Forbidden | `domains/agents/execution/run/stepping.rs:180`, through `ensure_agent_may_act` |
+| `self.steps_taken() >= self.max_steps` | InvalidTransition | `domains/agents/execution/run/stepping.rs:195`, through `ensure_step_left` |
+| `ensure_approved(admission, self.held_call(call.call())?)` refuses | what `ensure_approved` refuses | `domains/agents/execution/run/stepping.rs:108` |
+| `self.status() != RunStatus::Running` | InvalidTransition | `domains/agents/execution/run/stepping.rs:316`, through `push` |
+
+#### `AgentRun::record_check`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| `self.due_check()` is not `Some(due)` | InvalidTransition | `domains/agents/execution/run/check.rs:183` |
 
 #### `AgentRun::record_denied`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `self.steps_taken() >= self.max_steps` | InvalidTransition | `domains/agents/execution/run/stepping.rs:194`, through `ensure_step_left` |
-| `&self.state` is `RunState::Running(NextCall::Approved(_))` | Conflict | `domains/agents/execution/run/stepping.rs:151`, through `held_call` |
-| `self.status() != RunStatus::Running` | InvalidTransition | `domains/agents/execution/run/stepping.rs:308`, through `push` |
+| `self.steps_taken() >= self.max_steps` | InvalidTransition | `domains/agents/execution/run/stepping.rs:195`, through `ensure_step_left` |
+| `&self.state` is `RunState::Running(NextCall::Approved(_))` | Conflict | `domains/agents/execution/run/stepping.rs:152`, through `held_call` |
+| `self.status() != RunStatus::Running` | InvalidTransition | `domains/agents/execution/run/stepping.rs:316`, through `push` |
 
 #### `AgentRun::record_model_usage`
 
@@ -457,16 +476,16 @@ Its moves are read from `try_transition`, at `domains/agents/execution/tool/stat
 | When | Refused with | Where |
 | --- | --- | --- |
 | `agent.id() != &self.agent_id` | Forbidden | `domains/agents/execution/run/steering.rs:95`, through `ensure_may_steer` |
-| `agent.id() != &self.agent_id` | Forbidden | `domains/agents/execution/run/stepping.rs:173`, through `ensure_agent_may_act` |
-| `!agent.may_act_at(clock::now())` | Forbidden | `domains/agents/execution/run/stepping.rs:179`, through `ensure_agent_may_act` |
+| `agent.id() != &self.agent_id` | Forbidden | `domains/agents/execution/run/stepping.rs:174`, through `ensure_agent_may_act` |
+| `!agent.may_act_at(clock::now())` | Forbidden | `domains/agents/execution/run/stepping.rs:180`, through `ensure_agent_may_act` |
 | `&self.state` is not `RunState::Paused(next)` | InvalidTransition | `domains/agents/execution/run/steering.rs:76` |
 
 #### `AgentRun::revise_pending`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `agent.id() != &self.agent_id` | Forbidden | `domains/agents/execution/run/stepping.rs:173`, through `ensure_agent_may_act` |
-| `!agent.may_act_at(clock::now())` | Forbidden | `domains/agents/execution/run/stepping.rs:179`, through `ensure_agent_may_act` |
+| `agent.id() != &self.agent_id` | Forbidden | `domains/agents/execution/run/stepping.rs:174`, through `ensure_agent_may_act` |
+| `!agent.may_act_at(clock::now())` | Forbidden | `domains/agents/execution/run/stepping.rs:180`, through `ensure_agent_may_act` |
 | `!editor.holds_agent(AgentAction::Approve)` | Forbidden | `domains/agents/execution/run/pause.rs:235`, through `ensure_may_edit` |
 | `editor.authority().data_clearance() < self.exposure` | Forbidden | `domains/agents/execution/run/pause.rs:241`, through `ensure_may_edit` |
 | `&self.state` is not `RunState::AwaitingApproval(pending)` | InvalidTransition | `domains/agents/execution/run/pause.rs:210` |
@@ -476,15 +495,15 @@ Its moves are read from `try_transition`, at `domains/agents/execution/tool/stat
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `start::ensure_step_limit(params.max_steps)` refuses | what `ensure_step_limit` refuses | `domains/agents/execution/run/mod.rs:123` |
-| `start::ensure_spend_check_below_limit(&params)` refuses | what `ensure_spend_check_below_limit` refuses | `domains/agents/execution/run/mod.rs:124` |
-| `start::ensure_startable(&starter, &params, delegation, agent, now)` refuses | what `ensure_startable` refuses | `domains/agents/execution/run/mod.rs:125` |
+| `start::ensure_step_limit(params.max_steps)` refuses | what `ensure_step_limit` refuses | `domains/agents/execution/run/mod.rs:126` |
+| `start::ensure_spend_check_below_limit(&params)` refuses | what `ensure_spend_check_below_limit` refuses | `domains/agents/execution/run/mod.rs:127` |
+| `start::ensure_startable(&starter, &params, delegation, agent, now)` refuses | what `ensure_startable` refuses | `domains/agents/execution/run/mod.rs:128` |
 
 #### `AgentRun::start_without_tools`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `start::ensure_toolless(&params, agent, now)` refuses | what `ensure_toolless` refuses | `domains/agents/execution/run/mod.rs:150` |
+| `start::ensure_toolless(&params, agent, now)` refuses | what `ensure_toolless` refuses | `domains/agents/execution/run/mod.rs:153` |
 
 #### `AgentSighting::dismiss`
 
@@ -636,7 +655,7 @@ Its moves are read from `try_transition`, at `domains/agents/execution/tool/stat
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `by.ensure_may_revoke(&self.delegator)` refuses | what `ensure_may_revoke` refuses | `domains/agents/authority/delegation/mod.rs:555` |
+| `by.ensure_may_revoke(&self.delegator)` refuses | what `ensure_may_revoke` refuses | `domains/agents/authority/delegation/mod.rs:556` |
 
 #### `Delegation::revoke_resource`
 
@@ -833,29 +852,29 @@ Its moves are read from `try_transition`, at `domains/audit/export/state.rs:42`.
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `self.state.downloadable_at(now)` | InvalidTransition | `domains/audit/export/mod.rs:269` |
-| `self.status()` may not move to `to.status()` | InvalidTransition | `domains/audit/export/mod.rs:318`, through `move_to` |
+| `self.state.downloadable_at(now)` | InvalidTransition | `domains/audit/export/mod.rs:277` |
+| `self.status()` may not move to `to.status()` | InvalidTransition | `domains/audit/export/mod.rs:326`, through `move_to` |
 
 #### `AuditLogExport::give_up`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `now < self.requested_at.saturating_add(WRITE_DEADLINE)` | InvalidTransition | `domains/audit/export/mod.rs:252` |
+| `now < self.requested_at.saturating_add(WRITE_DEADLINE)` | InvalidTransition | `domains/audit/export/mod.rs:260` |
 
 #### `AuditLogExport::hand_out`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `access.log() != self.log` | Forbidden | `domains/audit/export/mod.rs:296` |
-| `self.state` is not `AuditExportState::Ready { rows,..}` | Conflict | `domains/audit/export/mod.rs:302` |
-| `!self.state.downloadable_at(now)` | Conflict | `domains/audit/export/mod.rs:308` |
+| `access.log() != self.log` | Forbidden | `domains/audit/export/mod.rs:304` |
+| `self.state` is not `AuditExportState::Ready { rows,..}` | Conflict | `domains/audit/export/mod.rs:310` |
+| `!self.state.downloadable_at(now)` | Conflict | `domains/audit/export/mod.rs:316` |
 
 #### `AuditLogExport::mark_written`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `file.seal.is_some() != is_sealed(self.log, ready)` | Validation | `domains/audit/export/mod.rs:233` |
-| `self.status()` may not move to `to.status()` | InvalidTransition | `domains/audit/export/mod.rs:318`, through `move_to` |
+| `file.seal.is_some() != is_sealed(self.log, ready)` | Validation | `domains/audit/export/mod.rs:241` |
+| `self.status()` may not move to `to.status()` | InvalidTransition | `domains/audit/export/mod.rs:326`, through `move_to` |
 
 ## Authentication
 
@@ -1202,6 +1221,21 @@ Worked out for every combination of its inputs, at `domains/authentication/mfa/o
 | `Required` | `Enrolled` | `Verify` | `domains/authentication/mfa/owed.rs:323` |
 | `Required` | `NotEnrolled` | `Enrol` | `domains/authentication/mfa/owed.rs:334` |
 
+#### `Session::note_use`
+
+What one use of this session, seen at `now`, comes to.
+
+Its last `match`, arm by arm, as written, at `domains/authentication/sessions/session/watching.rs:37`.
+
+- `last` is `self.last_use.known()`
+
+| `last` | `place` | Answer (`UseNoted`) | Where |
+| --- | --- | --- | --- |
+| `Some(last)` | any | `{ self.last_use = Fact::Known(last.stamped(place, now)) ; UseNoted::Moved }` when `last.network() == &network` | `domains/authentication/sessions/session/watching.rs:41` |
+| `Some(last)` | `Fact::Known(place)` | `LooksTakenOver` when `last.is_fast_travel_to(&place, now)` | `domains/authentication/sessions/session/watching.rs:45` |
+| any | `Fact::Known(place)` | `{ self.last_use = Fact::Known(LastUse::new(network, place, now)) ; UseNoted::Moved }` | `domains/authentication/sessions/session/watching.rs:48` |
+| any | `Fact::Unknown` | `Unchanged` | `domains/authentication/sessions/session/watching.rs:52` |
+
 #### `SignInHistory::country_familiarity`
 
 Whether a sign-in from `here` is from a country the person has signed in from before.
@@ -1304,10 +1338,10 @@ Its moves are read from `try_transition`, at `domains/authentication/sessions/st
 
 | Move | Made by | Called by | Proof or right |
 | --- | --- | --- | --- |
-| `Active` to `Revoked` | `Session::revoke`, `Session::sign_out`, `Session::end_with_account`, `OrgSession::switch_to`, `OrgSession::revoke` | AnswerAppUseCase (federation), AnswerProviderUseCase (federation), AppLogOutUseCase (authentication), EndSessionUseCase (oauth), LogoutUseCase (authentication), ReceiveUseCase (authentication), RevokeSessionUseCase (identity), SignOutOtherSessionsUseCase (identity), DeactivateUseCase (identity), RemoveScimUseCase (scim), RequestErasureUseCase (identity), UpdateScimUseCase (scim), UpdateStatusUseCase (identity), SwitchOrgTenantUseCase (organization), OrgLogoutUseCase (organization), RevokeMemberSessionUseCase (organization) | `AccountKeeper`, `AccountAction::ShutOut`, `OrgSessionCheck`, `ActedBy`, `OrgControl`, `OrgPermission::Members(MemberAction::Update)` |
-| `Active` to `Suspended` | `Session::suspend` | none read | none read |
+| `Active` to `Revoked` | `Session::revoke`, `Session::sign_out`, `Session::end_with_account`, `Session::stop_taken_over`, `OrgSession::switch_to`, `OrgSession::revoke` | AnswerAppUseCase (federation), AnswerProviderUseCase (federation), AppLogOutUseCase (authentication), EndSessionUseCase (oauth), LogoutUseCase (authentication), ReceiveUseCase (authentication), RevokeSessionUseCase (identity), SignOutOtherSessionsUseCase (identity), DeactivateUseCase (identity), RemoveScimUseCase (scim), RequestErasureUseCase (identity), UpdateScimUseCase (scim), UpdateStatusUseCase (identity), WatchUseUseCase (authentication), SwitchOrgTenantUseCase (organization), OrgLogoutUseCase (organization), RevokeMemberSessionUseCase (organization) | `AccountKeeper`, `AccountAction::ShutOut`, `OrgSessionCheck`, `ActedBy`, `OrgControl`, `OrgPermission::Members(MemberAction::Update)` |
+| `Active` to `Suspended` | `Session::suspend`, `Session::stop_taken_over` | WatchUseUseCase (authentication) | none read |
 | `Suspended` to `Active` | `Session::create`, `Session::rotate`, `Session::hand_over`, `Session::resume`, `OrgSession::switch_to`, `OrgSession::create` | AppPasskeyConfirmUseCase (authentication), AppSsoCallbackUseCase (authentication), ConsumeMagicLinkUseCase (authentication), LinkedTenantSwitchUseCase (organization), LoginConfirmUseCase (authentication), OidcLoginUseCase (authentication), ReceiveUseCase (authentication), SamlLoginUseCase (authentication), TokenRefreshUseCase (authentication), ExchangeSignInCodeUseCase (authentication), ResumeSessionUseCase (authentication), SwitchOrgTenantUseCase (organization), OrgLoginConfirmUseCase (organization), OrgMagicLinkUseCase (organization), OrgSsoCallbackUseCase (organization) | `MaySignIn`, `SessionCheck`, `ProvedFactor`, `OrgSessionCheck`, `OrgSignInStart` |
-| `Suspended` to `Revoked` | `Session::revoke`, `Session::sign_out`, `Session::end_with_account`, `OrgSession::switch_to`, `OrgSession::revoke` | AnswerAppUseCase (federation), AnswerProviderUseCase (federation), AppLogOutUseCase (authentication), EndSessionUseCase (oauth), LogoutUseCase (authentication), ReceiveUseCase (authentication), RevokeSessionUseCase (identity), SignOutOtherSessionsUseCase (identity), DeactivateUseCase (identity), RemoveScimUseCase (scim), RequestErasureUseCase (identity), UpdateScimUseCase (scim), UpdateStatusUseCase (identity), SwitchOrgTenantUseCase (organization), OrgLogoutUseCase (organization), RevokeMemberSessionUseCase (organization) | `AccountKeeper`, `AccountAction::ShutOut`, `OrgSessionCheck`, `ActedBy`, `OrgControl`, `OrgPermission::Members(MemberAction::Update)` |
+| `Suspended` to `Revoked` | `Session::revoke`, `Session::sign_out`, `Session::end_with_account`, `Session::stop_taken_over`, `OrgSession::switch_to`, `OrgSession::revoke` | AnswerAppUseCase (federation), AnswerProviderUseCase (federation), AppLogOutUseCase (authentication), EndSessionUseCase (oauth), LogoutUseCase (authentication), ReceiveUseCase (authentication), RevokeSessionUseCase (identity), SignOutOtherSessionsUseCase (identity), DeactivateUseCase (identity), RemoveScimUseCase (scim), RequestErasureUseCase (identity), UpdateScimUseCase (scim), UpdateStatusUseCase (identity), WatchUseUseCase (authentication), SwitchOrgTenantUseCase (organization), OrgLogoutUseCase (organization), RevokeMemberSessionUseCase (organization) | `AccountKeeper`, `AccountAction::ShutOut`, `OrgSessionCheck`, `ActedBy`, `OrgControl`, `OrgPermission::Members(MemberAction::Update)` |
 
 ### Refusals
 
@@ -1315,7 +1349,7 @@ Its moves are read from `try_transition`, at `domains/authentication/sessions/st
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `by.ensure_may_grant(self.scope.access().max(scope.access()))` refuses | what `ensure_may_grant` refuses | `domains/authentication/directory_service/account.rs:276` |
+| `by.ensure_may_grant(scope.access())` refuses | what `ensure_may_grant` refuses | `domains/authentication/directory_service/account.rs:272` |
 
 #### `DirectoryServiceAccount::create`
 
@@ -1327,7 +1361,7 @@ Its moves are read from `try_transition`, at `domains/authentication/sessions/st
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `by.ensure_may_grant(self.scope.access())` refuses | what `ensure_may_grant` refuses | `domains/authentication/directory_service/account.rs:331` |
+| `by.ensure_may_grant(self.scope.access())` refuses | what `ensure_may_grant` refuses | `domains/authentication/directory_service/account.rs:327` |
 
 #### `DirectoryServiceAccount::rotate_secret`
 
@@ -1526,20 +1560,20 @@ Its moves are read from `try_transition`, at `domains/authentication/sessions/st
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `* account.id() != self.user_id` | `SignInRefused::ForAnotherAccount` | `domains/authentication/sessions/session/mod.rs:647` |
+| `* account.id() != self.user_id` | `SignInRefused::ForAnotherAccount` | `domains/authentication/sessions/session/mod.rs:657` |
 
 #### `Session::bind_to_app`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `let SessionChannel::App(_) = self.channel` | InvalidTransition | `domains/authentication/sessions/session/mod.rs:608` |
+| `let SessionChannel::App(_) = self.channel` | InvalidTransition | `domains/authentication/sessions/session/mod.rs:618` |
 
 #### `Session::end_with_account`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `* holder.id() != self.user_id` | Forbidden | `domains/authentication/sessions/session/mod.rs:577` |
-| `holder.can_authenticate()` | Forbidden | `domains/authentication/sessions/session/mod.rs:583` |
+| `* holder.id() != self.user_id` | Forbidden | `domains/authentication/sessions/session/mod.rs:587` |
+| `holder.can_authenticate()` | Forbidden | `domains/authentication/sessions/session/mod.rs:593` |
 
 #### `Session::hand_over`
 
@@ -1570,20 +1604,20 @@ Its moves are read from `try_transition`, at `domains/authentication/sessions/st
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `!device.is_trusted_by(PrincipalId::from(self.user_id))` | Forbidden | `domains/authentication/sessions/session/mod.rs:336` |
-| `!fresh` | InvalidTransition | `domains/authentication/sessions/session/mod.rs:344` |
+| `!device.is_trusted_by(PrincipalId::from(self.user_id))` | Forbidden | `domains/authentication/sessions/session/mod.rs:346` |
+| `!fresh` | InvalidTransition | `domains/authentication/sessions/session/mod.rs:354` |
 
 #### `Session::resume`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `!self.status.is_suspended()` | InvalidTransition | `domains/authentication/sessions/session/suspension.rs:75` |
+| `!self.status.is_suspended()` | InvalidTransition | `domains/authentication/sessions/session/suspension.rs:80` |
 
 #### `Session::revoke`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `by.ensure_may(&holder, AccountAction::ShutOut)` refuses | what `ensure_may` refuses | `domains/authentication/sessions/session/mod.rs:517` |
+| `by.ensure_may(&holder, AccountAction::ShutOut)` refuses | what `ensure_may` refuses | `domains/authentication/sessions/session/mod.rs:527` |
 
 #### `Session::rotate`
 
@@ -1595,7 +1629,7 @@ Its moves are read from `try_transition`, at `domains/authentication/sessions/st
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `* presented != self.refresh_token_hash` | Forbidden | `domains/authentication/sessions/session/mod.rs:546` |
+| `* presented != self.refresh_token_hash` | Forbidden | `domains/authentication/sessions/session/mod.rs:556` |
 
 #### `SessionHandoff::issue`
 
@@ -3763,7 +3797,7 @@ Its last `match`, arm by arm, as written, at `domains/messaging/subscription.rs:
 
 #### `TopicStatus`
 
-Its moves are read from `try_transition`, at `domains/messaging/topic.rs:66`.
+Its moves are read from `try_transition`, at `domains/messaging/topic.rs:84`.
 
 - States: `Active`, `Paused`, `Archived`
 - Final, which no move leaves: `Archived`
@@ -3838,60 +3872,60 @@ Its moves are read from `try_transition`, at `domains/messaging/topic.rs:66`.
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `!self.is_active()` | Forbidden | `domains/messaging/topic.rs:299` |
+| `!self.is_active()` | Forbidden | `domains/messaging/topic.rs:319` |
 
 #### `Topic::archive`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `control.ensure_may(MessagingAction::Delete)` refuses | what `ensure_may` refuses | `domains/messaging/topic.rs:394` |
+| `control.ensure_may(MessagingAction::Delete)` refuses | what `ensure_may` refuses | `domains/messaging/topic.rs:414` |
 
 #### `Topic::change_retention`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `control.ensure_may(MessagingAction::Manage)` refuses | what `ensure_may` refuses | `domains/messaging/topic.rs:541`, through `ensure_writable` |
-| `self.status == TopicStatus::Archived` | InvalidTransition | `domains/messaging/topic.rs:543`, through `ensure_writable` |
+| `control.ensure_may(MessagingAction::Manage)` refuses | what `ensure_may` refuses | `domains/messaging/topic.rs:561`, through `ensure_writable` |
+| `self.status == TopicStatus::Archived` | InvalidTransition | `domains/messaging/topic.rs:563`, through `ensure_writable` |
 
 #### `Topic::change_schema`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `control.ensure_may(MessagingAction::Manage)` refuses | what `ensure_may` refuses | `domains/messaging/topic.rs:541`, through `ensure_writable` |
-| `self.status == TopicStatus::Archived` | InvalidTransition | `domains/messaging/topic.rs:543`, through `ensure_writable` |
+| `control.ensure_may(MessagingAction::Manage)` refuses | what `ensure_may` refuses | `domains/messaging/topic.rs:561`, through `ensure_writable` |
+| `self.status == TopicStatus::Archived` | InvalidTransition | `domains/messaging/topic.rs:563`, through `ensure_writable` |
 
 #### `Topic::create`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `creator.ensure_may_create()` refuses | what `ensure_may_create` refuses | `domains/messaging/topic.rs:155` |
+| `creator.ensure_may_create()` refuses | what `ensure_may_create` refuses | `domains/messaging/topic.rs:174` |
 
 #### `Topic::delete`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `control.ensure_may(MessagingAction::Delete)` refuses | what `ensure_may` refuses | `domains/messaging/topic.rs:523` |
-| `self.is_active()` | Conflict | `domains/messaging/topic.rs:525` |
+| `control.ensure_may(MessagingAction::Delete)` refuses | what `ensure_may` refuses | `domains/messaging/topic.rs:543` |
+| `self.is_active()` | Conflict | `domains/messaging/topic.rs:545` |
 
 #### `Topic::pause`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `control.ensure_may(MessagingAction::Manage)` refuses | what `ensure_may` refuses | `domains/messaging/topic.rs:356` |
+| `control.ensure_may(MessagingAction::Manage)` refuses | what `ensure_may` refuses | `domains/messaging/topic.rs:376` |
 
 #### `Topic::raise_data_class`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `control.ensure_may(MessagingAction::Manage)` refuses | what `ensure_may` refuses | `domains/messaging/topic.rs:541`, through `ensure_writable` |
-| `self.status == TopicStatus::Archived` | InvalidTransition | `domains/messaging/topic.rs:543`, through `ensure_writable` |
-| `data_class < self.data_class` | Forbidden | `domains/messaging/topic.rs:490` |
+| `control.ensure_may(MessagingAction::Manage)` refuses | what `ensure_may` refuses | `domains/messaging/topic.rs:561`, through `ensure_writable` |
+| `self.status == TopicStatus::Archived` | InvalidTransition | `domains/messaging/topic.rs:563`, through `ensure_writable` |
+| `data_class < self.data_class` | Forbidden | `domains/messaging/topic.rs:510` |
 
 #### `Topic::resume`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `control.ensure_may(MessagingAction::Manage)` refuses | what `ensure_may` refuses | `domains/messaging/topic.rs:375` |
+| `control.ensure_may(MessagingAction::Manage)` refuses | what `ensure_may` refuses | `domains/messaging/topic.rs:395` |
 
 ## Notifications
 
@@ -4211,36 +4245,34 @@ Its moves are read from `try_transition`, at `domains/oauth/clients/status.rs:34
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `control.ensure_may(OAuthRight::Create)` refuses | what `ensure_may` refuses | `domains/oauth/clients/api_key.rs:157` |
-| `ensure_grantable(&scopes, control.holds().system())` refuses | what `ensure_grantable` refuses | `domains/oauth/clients/api_key.rs:159` |
-| `ensure_unexpired(&expires_at, now)` refuses | what `ensure_unexpired` refuses | `domains/oauth/clients/api_key.rs:161` |
+| `ensure_may_create(&key, control, now)` refuses | what `ensure_may_create` refuses | `domains/oauth/clients/api_key.rs:163` |
 
 #### `ApiKey::pause`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `control.ensure_may(OAuthRight::Revoke)` refuses | what `ensure_may` refuses | `domains/oauth/clients/api_key.rs:351` |
-| `self.standing != KeyStanding::Working` | InvalidTransition | `domains/oauth/clients/api_key.rs:353` |
+| `control.ensure_may(OAuthRight::Revoke)` refuses | what `ensure_may` refuses | `domains/oauth/clients/api_key.rs:362` |
+| `self.standing != KeyStanding::Working` | InvalidTransition | `domains/oauth/clients/api_key.rs:364` |
 
 #### `ApiKey::resume`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `control.ensure_may(OAuthRight::Update)` refuses | what `ensure_may` refuses | `domains/oauth/clients/api_key.rs:379` |
-| `ensure_grantable(&self.scopes, control.holds().system())` refuses | what `ensure_grantable` refuses | `domains/oauth/clients/api_key.rs:380` |
-| `self.standing == KeyStanding::Working` | InvalidTransition | `domains/oauth/clients/api_key.rs:382` |
+| `control.ensure_may(OAuthRight::Update)` refuses | what `ensure_may` refuses | `domains/oauth/clients/api_key.rs:390` |
+| `ensure_grantable(&self.scopes, control.holds().system())` refuses | what `ensure_grantable` refuses | `domains/oauth/clients/api_key.rs:391` |
+| `self.standing == KeyStanding::Working` | InvalidTransition | `domains/oauth/clients/api_key.rs:393` |
 
 #### `ApiKey::revoke`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `control.ensure_may(OAuthRight::Revoke)` refuses | what `ensure_may` refuses | `domains/oauth/clients/api_key.rs:486` |
+| `control.ensure_may(OAuthRight::Revoke)` refuses | what `ensure_may` refuses | `domains/oauth/clients/api_key.rs:499` |
 
 #### `ApiKey::update`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `control.ensure_may(OAuthRight::Update)` refuses | what `ensure_may` refuses | `domains/oauth/clients/api_key.rs:463` |
+| `control.ensure_may(OAuthRight::Update)` refuses | what `ensure_may` refuses | `domains/oauth/clients/api_key.rs:476` |
 
 #### `AuthorizationCode::consume`
 
@@ -6030,18 +6062,29 @@ Its moves are read from `try_transition`, at `domains/routing/route_status.rs:33
 
 #### `JobStatus`
 
-Its moves are read from `try_transition`, at `domains/scheduling/job_status.rs:29`.
+Its moves are read from `try_transition`, at `domains/scheduling/job_status.rs:35`.
 
-- States: `Pending`, `Running`, `Completed`, `Failed`, `Dead`
-- Final, which no move leaves: `Completed`, `Dead`
+- States: `Pending`, `Running`, `Completed`, `Failed`, `Dead`, `Superseded`
+- Final, which no move leaves: `Completed`, `Superseded`
 
 | Move | Made by | Called by | Proof or right |
 | --- | --- | --- | --- |
+| `Dead` to `Pending` | `ScheduledJob::new`, `ScheduledJob::mark_failed`, `ScheduledJob::abandon`, `ScheduledJob::retry` | AddDomainUseCase (domain), AgentUseCase (agents), ApproveActionUseCase (agents), ApproveItemsUseCase (workflows), ApproveStepUseCase (workflows), ApproveUseCase (agents), CancelUseCase (workflows), CreateUseCase (workflows), DenyActionUseCase (agents), DenyStepUseCase (workflows), DenyUseCase (agents), DriveUseCase (workflows), FanOutUseCase (notifications), FireSchedulesUseCase (workflows), PlanAccountChecksUseCase (workflows), PlanBackChannelUseCase (oauth), PlanEventStartsUseCase (workflows), PlanPushesUseCase (messaging), PlanStreamsUseCase (audit), PlanUseCase (signals), PlanUseCase (tenant), PlanUseCase (webhooks), ReconcileUseCase (scheduling), ReplyToCallUseCase (agents), RequestForOrgUseCase (audit), RequestForPlatformUseCase (audit), RequestForTenantUseCase (audit), RequestTlsUseCase (domain), RerunUseCase (workflows), ResumeUseCase (agents), RetryUseCase (domain), RetryUseCase (workflows), RunCodeUseCase (workflows), RunStepUseCase (tenant), RunUseCase (workflows), SaveUseCase (workflows), SaveVersionUseCase (workflows), SettleAgentRunUseCase (workflows), SettleFinishedRunUseCase (workflows), SettlePassUseCase (workflows), StartByHandUseCase (workflows), StartOnEventUseCase (workflows), StartOnServiceEventUseCase (workflows), StartOnTriggerUseCase (workflows), StartOnWebhookUseCase (workflows), StartTestUseCase (workflows), StartTrialUseCase (workflows), StartUseCase (identity), StartUseCase (tenant), StartUseCase (workflows), StopPassUseCase (workflows), VerifyDomainUseCase (domain), ProcessJobsUseCase (scheduling), RetryDeadUseCase (scheduling) | none read |
+| `Dead` to `Superseded` | `ScheduledJob::supersede` | none read | none read |
 | `Failed` to `Dead` | `ScheduledJob::mark_failed`, `ScheduledJob::abandon` | ProcessJobsUseCase (scheduling) | none read |
-| `Failed` to `Pending` | `ScheduledJob::new`, `ScheduledJob::mark_failed`, `ScheduledJob::abandon` | AddDomainUseCase (domain), AgentUseCase (agents), ApproveActionUseCase (agents), ApproveStepUseCase (workflows), ApproveUseCase (agents), CancelUseCase (workflows), CreateUseCase (workflows), DenyActionUseCase (agents), DenyStepUseCase (workflows), DenyUseCase (agents), DriveUseCase (workflows), FanOutUseCase (notifications), FireSchedulesUseCase (workflows), PlanAccountChecksUseCase (workflows), PlanBackChannelUseCase (oauth), PlanEventStartsUseCase (workflows), PlanPushesUseCase (messaging), PlanStreamsUseCase (audit), PlanUseCase (signals), PlanUseCase (tenant), PlanUseCase (webhooks), ReconcileUseCase (scheduling), ReplyToCallUseCase (agents), RequestForOrgUseCase (audit), RequestForPlatformUseCase (audit), RequestForTenantUseCase (audit), RequestTlsUseCase (domain), RerunUseCase (workflows), ResumeUseCase (agents), RetryUseCase (domain), RetryUseCase (workflows), RunCodeUseCase (workflows), RunStepUseCase (tenant), SaveVersionUseCase (workflows), SettleAgentRunUseCase (workflows), SettleFinishedRunUseCase (workflows), SettlePassUseCase (workflows), StartByHandUseCase (workflows), StartOnEventUseCase (workflows), StartOnServiceEventUseCase (workflows), StartOnTriggerUseCase (workflows), StartOnWebhookUseCase (workflows), StartTestUseCase (workflows), StartTrialUseCase (workflows), StartUseCase (identity), StartUseCase (tenant), StopPassUseCase (workflows), VerifyDomainUseCase (domain), ProcessJobsUseCase (scheduling) | none read |
+| `Failed` to `Pending` | `ScheduledJob::new`, `ScheduledJob::mark_failed`, `ScheduledJob::abandon`, `ScheduledJob::retry` | AddDomainUseCase (domain), AgentUseCase (agents), ApproveActionUseCase (agents), ApproveItemsUseCase (workflows), ApproveStepUseCase (workflows), ApproveUseCase (agents), CancelUseCase (workflows), CreateUseCase (workflows), DenyActionUseCase (agents), DenyStepUseCase (workflows), DenyUseCase (agents), DriveUseCase (workflows), FanOutUseCase (notifications), FireSchedulesUseCase (workflows), PlanAccountChecksUseCase (workflows), PlanBackChannelUseCase (oauth), PlanEventStartsUseCase (workflows), PlanPushesUseCase (messaging), PlanStreamsUseCase (audit), PlanUseCase (signals), PlanUseCase (tenant), PlanUseCase (webhooks), ReconcileUseCase (scheduling), ReplyToCallUseCase (agents), RequestForOrgUseCase (audit), RequestForPlatformUseCase (audit), RequestForTenantUseCase (audit), RequestTlsUseCase (domain), RerunUseCase (workflows), ResumeUseCase (agents), RetryUseCase (domain), RetryUseCase (workflows), RunCodeUseCase (workflows), RunStepUseCase (tenant), RunUseCase (workflows), SaveUseCase (workflows), SaveVersionUseCase (workflows), SettleAgentRunUseCase (workflows), SettleFinishedRunUseCase (workflows), SettlePassUseCase (workflows), StartByHandUseCase (workflows), StartOnEventUseCase (workflows), StartOnServiceEventUseCase (workflows), StartOnTriggerUseCase (workflows), StartOnWebhookUseCase (workflows), StartTestUseCase (workflows), StartTrialUseCase (workflows), StartUseCase (identity), StartUseCase (tenant), StartUseCase (workflows), StopPassUseCase (workflows), VerifyDomainUseCase (domain), ProcessJobsUseCase (scheduling), RetryDeadUseCase (scheduling) | none read |
 | `Pending` to `Running` | `ScheduledJob::mark_running` | none read | none read |
 | `Running` to `Completed` | `ScheduledJob::mark_completed` | ProcessJobsUseCase (scheduling) | none read |
 | `Running` to `Failed` | `ScheduledJob::mark_failed`, `ScheduledJob::abandon` | ProcessJobsUseCase (scheduling) | none read |
+
+### Refusals
+
+#### `ScheduledJob::retry`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| `self.status != JobStatus::Dead` | Conflict | `domains/scheduling/job.rs:339` |
+| `self.max_attempts.checked_add(1)` is not `Some(more)` | Conflict | `domains/scheduling/job.rs:345` |
 
 ## Signals
 
@@ -6546,7 +6589,7 @@ Its moves are read from `try_transition`, at `domains/tenant/custom_domains/veri
 | When | Refused with | Where |
 | --- | --- | --- |
 | `let ActedBy::By(_) = by` | Forbidden | `domains/tenant/lifecycle/moves.rs:69` |
-| `self.status != from` | `InvalidTenantTransition { from : self.status, to, }` | `domains/tenant/lifecycle/moves.rs:290`, through `ensure_in` |
+| `self.status != from` | `InvalidTenantTransition { from : self.status, to, }` | `domains/tenant/lifecycle/moves.rs:291`, through `ensure_in` |
 
 #### `Tenant::archive`
 
@@ -6554,7 +6597,7 @@ Its moves are read from `try_transition`, at `domains/tenant/custom_domains/veri
 | --- | --- | --- |
 | `ensure_may_take(by, &self.organization_id, LifecycleStep::Archive)` refuses | what `ensure_may_take` refuses | `domains/tenant/lifecycle/moves.rs:132` |
 | `(by, self.status)` is `(ActedBy::By(_), TenantStatus::Provisioning)` | Forbidden | `domains/tenant/lifecycle/moves.rs:255`, through `ensure_setup_stopped_by_platform` |
-| `self.status` may not move to `target` | InvalidTransition | `domains/tenant/lifecycle/moves.rs:301`, through `move_to` |
+| `self.status` may not move to `target` | InvalidTransition | `domains/tenant/lifecycle/moves.rs:302`, through `move_to` |
 
 #### `Tenant::change_compliance`
 
@@ -6613,18 +6656,18 @@ Its moves are read from `try_transition`, at `domains/tenant/custom_domains/veri
 | When | Refused with | Where |
 | --- | --- | --- |
 | `ensure_may_take(by, &self.organization_id, LifecycleStep::Delete)` refuses | what `ensure_may_take` refuses | `domains/tenant/lifecycle/moves.rs:169` |
-| `self.status != from` | `InvalidTenantTransition { from : self.status, to, }` | `domains/tenant/lifecycle/moves.rs:290`, through `ensure_in` |
+| `self.status != from` | `InvalidTenantTransition { from : self.status, to, }` | `domains/tenant/lifecycle/moves.rs:291`, through `ensure_in` |
 | `self.deletable_from()` is not `Some(from)` | Conflict | `domains/tenant/lifecycle/moves.rs:266`, through `ensure_grace_over` |
-| `now < from` | Conflict | `domains/tenant/lifecycle/moves.rs:272`, through `ensure_grace_over` |
-| `self.status` may not move to `target` | InvalidTransition | `domains/tenant/lifecycle/moves.rs:301`, through `move_to` |
+| `now < from` | Conflict | `domains/tenant/lifecycle/moves.rs:273`, through `ensure_grace_over` |
+| `self.status` may not move to `target` | InvalidTransition | `domains/tenant/lifecycle/moves.rs:302`, through `move_to` |
 
 #### `Tenant::delete_early`
 
 | When | Refused with | Where |
 | --- | --- | --- |
 | `let ActedBy::By(_) = by` | Forbidden | `domains/tenant/lifecycle/moves.rs:199` |
-| `self.status != from` | `InvalidTenantTransition { from : self.status, to, }` | `domains/tenant/lifecycle/moves.rs:290`, through `ensure_in` |
-| `self.status` may not move to `target` | InvalidTransition | `domains/tenant/lifecycle/moves.rs:301`, through `move_to` |
+| `self.status != from` | `InvalidTenantTransition { from : self.status, to, }` | `domains/tenant/lifecycle/moves.rs:291`, through `ensure_in` |
+| `self.status` may not move to `target` | InvalidTransition | `domains/tenant/lifecycle/moves.rs:302`, through `move_to` |
 
 #### `Tenant::provision`
 
@@ -6638,8 +6681,8 @@ Its moves are read from `try_transition`, at `domains/tenant/custom_domains/veri
 | --- | --- | --- |
 | `ensure_may_take(by, &self.organization_id, step)` refuses | what `ensure_may_take` refuses | `domains/tenant/lifecycle/moves.rs:237`, through `ensure_may_bring_back` |
 | `(by, self.hold)` is `(ActedBy::By(_), PlatformHold::Held)` | Forbidden | `domains/tenant/lifecycle/moves.rs:239`, through `ensure_may_bring_back` |
-| `self.status != from` | `InvalidTenantTransition { from : self.status, to, }` | `domains/tenant/lifecycle/moves.rs:290`, through `ensure_in` |
-| `self.status` may not move to `target` | InvalidTransition | `domains/tenant/lifecycle/moves.rs:301`, through `move_to` |
+| `self.status != from` | `InvalidTenantTransition { from : self.status, to, }` | `domains/tenant/lifecycle/moves.rs:291`, through `ensure_in` |
+| `self.status` may not move to `target` | InvalidTransition | `domains/tenant/lifecycle/moves.rs:302`, through `move_to` |
 
 #### `Tenant::rename`
 
@@ -6653,15 +6696,15 @@ Its moves are read from `try_transition`, at `domains/tenant/custom_domains/veri
 | --- | --- | --- |
 | `ensure_may_take(by, &self.organization_id, step)` refuses | what `ensure_may_take` refuses | `domains/tenant/lifecycle/moves.rs:237`, through `ensure_may_bring_back` |
 | `(by, self.hold)` is `(ActedBy::By(_), PlatformHold::Held)` | Forbidden | `domains/tenant/lifecycle/moves.rs:239`, through `ensure_may_bring_back` |
-| `self.status != from` | `InvalidTenantTransition { from : self.status, to, }` | `domains/tenant/lifecycle/moves.rs:290`, through `ensure_in` |
-| `self.status` may not move to `target` | InvalidTransition | `domains/tenant/lifecycle/moves.rs:301`, through `move_to` |
+| `self.status != from` | `InvalidTenantTransition { from : self.status, to, }` | `domains/tenant/lifecycle/moves.rs:291`, through `ensure_in` |
+| `self.status` may not move to `target` | InvalidTransition | `domains/tenant/lifecycle/moves.rs:302`, through `move_to` |
 
 #### `Tenant::suspend`
 
 | When | Refused with | Where |
 | --- | --- | --- |
 | `ensure_may_take(by, &self.organization_id, LifecycleStep::Suspend)` refuses | what `ensure_may_take` refuses | `domains/tenant/lifecycle/moves.rs:90` |
-| `self.status` may not move to `target` | InvalidTransition | `domains/tenant/lifecycle/moves.rs:301`, through `move_to` |
+| `self.status` may not move to `target` | InvalidTransition | `domains/tenant/lifecycle/moves.rs:302`, through `move_to` |
 
 #### `Tenant::update_auth_config`
 
@@ -6819,34 +6862,47 @@ Worked out for every combination of its inputs, at `domains/workflows/integratio
 | `Allow` | `Read` | `domains/workflows/integration/company.rs:381` |
 | `Refuse` | `Read` | `domains/workflows/integration/company.rs:381` |
 
+#### `FindingKind::check`
+
+The check that finds it.
+
+Its last `match`, arm by arm, as written, at `domains/workflows/guardrail/finding.rs:66`.
+
+| `self` | Answer (`GuardrailCheck`) | Where |
+| --- | --- | --- |
+| `Self::ClassifiedField(_) \| Self::PersonalText(_)` | `PersonalData` | `domains/workflows/guardrail/finding.rs:68` |
+| `Self::ModelTrick(_)` | `ModelTricks` | `domains/workflows/guardrail/finding.rs:69` |
+| `Self::BannedWord` | `BannedWords` | `domains/workflows/guardrail/finding.rs:70` |
+
 #### `FlowData::value`
 
 The value, to match on.
 
-Its last `match`, arm by arm, as written, at `domains/workflows/data.rs:189`.
+Its last `match`, arm by arm, as written, at `domains/workflows/data.rs:219`.
 
 | `&self.value` | Answer (`FlowValue`) | Where |
 | --- | --- | --- |
-| `Value::Null` | `Null` | `domains/workflows/data.rs:191` |
-| `Value::Bool(value)` | `FlowValue::Bool(* value)` | `domains/workflows/data.rs:192` |
-| `Value::Number(value)` | `FlowValue::Number(* value)` | `domains/workflows/data.rs:193` |
-| `Value::Text(value)` | `FlowValue::Text(value)` | `domains/workflows/data.rs:194` |
-| `Value::List(items)` | `FlowValue::List(items)` | `domains/workflows/data.rs:195` |
-| `Value::Map(entries)` | `FlowValue::Map(entries)` | `domains/workflows/data.rs:196` |
+| `Value::Null` | `Null` | `domains/workflows/data.rs:221` |
+| `Value::Bool(value)` | `FlowValue::Bool(* value)` | `domains/workflows/data.rs:222` |
+| `Value::Number(value)` | `FlowValue::Number(* value)` | `domains/workflows/data.rs:223` |
+| `Value::Text(value)` | `FlowValue::Text(value)` | `domains/workflows/data.rs:224` |
+| `Value::List(items)` | `FlowValue::List(items)` | `domains/workflows/data.rs:225` |
+| `Value::Map(entries)` | `FlowValue::Map(entries)` | `domains/workflows/data.rs:226` |
 
 #### `HandsOn::of`
 
 What a step of `kind` gives the steps after it.
 
-Its last `match`, arm by arm, as written, at `domains/workflows/design/node/hands_on.rs:26`.
+Its last `match`, arm by arm, as written, at `domains/workflows/design/node/hands_on.rs:30`.
 
 | `kind` | Answer (`HandsOn`) | Where |
 | --- | --- | --- |
-| `NodeKind::AgentRun(_)` | `Answer` | `domains/workflows/design/node/hands_on.rs:28` |
-| `NodeKind::Transform(mapping)` | `Self::Fields(mapping.fields().iter().map(\|(name, _) \| name).collect())` | `domains/workflows/design/node/hands_on.rs:29` |
-| `NodeKind::Action(_)` | `OperationOutputs` | `domains/workflows/design/node/hands_on.rs:32` |
-| `NodeKind::Code(_) \| NodeKind::Loop(_)` | `Whole` | `domains/workflows/design/node/hands_on.rs:33` |
-| `NodeKind::Condition(_) \| NodeKind::Approval(_) \| NodeKind::Wait(_)` | `Nothing` | `domains/workflows/design/node/hands_on.rs:34` |
+| `NodeKind::AgentRun(_)` | `Answer` | `domains/workflows/design/node/hands_on.rs:32` |
+| `NodeKind::Transform(mapping)` | `Self::Fields(mapping.fields().iter().map(\|(name, _) \| name).collect())` | `domains/workflows/design/node/hands_on.rs:33` |
+| `NodeKind::Action(_)` | `OperationOutputs` | `domains/workflows/design/node/hands_on.rs:36` |
+| `NodeKind::Code(_) \| NodeKind::Loop(_)` | `Whole` | `domains/workflows/design/node/hands_on.rs:37` |
+| `NodeKind::Guardrail(_)` | `Guarded` | `domains/workflows/design/node/hands_on.rs:38` |
+| `NodeKind::Condition(_) \| NodeKind::Approval(_) \| NodeKind::Wait(_)` | `Nothing` | `domains/workflows/design/node/hands_on.rs:39` |
 
 #### `IntegrationAccount::unusable_for`
 
@@ -6876,12 +6932,12 @@ Its last `match`, arm by arm, as written, at `domains/workflows/memory/mod.rs:32
 
 Who does a step of this kind's work.
 
-Its last `match`, arm by arm, as written, at `domains/workflows/design/node.rs:579`.
+Its last `match`, arm by arm, as written, at `domains/workflows/design/node.rs:642`.
 
 | `self` | Answer (`Work`) | Where |
 | --- | --- | --- |
-| `Self::Condition(_) \| Self::Transform(_)` | `InTheDomain` | `domains/workflows/design/node.rs:581` |
-| `Self::AgentRun(_) \| Self::Action(_) \| Self::Approval(_) \| Self::Wait(_) \| Self::Loop(_) \| Self::Code(_)` | `Outside` | `domains/workflows/design/node.rs:582` |
+| `Self::Condition(_) \| Self::Transform(_)` | `InTheDomain` | `domains/workflows/design/node.rs:644` |
+| `Self::AgentRun(_) \| Self::Action(_) \| Self::Approval(_) \| Self::Wait(_) \| Self::Loop(_) \| Self::Code(_) \| Self::Guardrail(_)` | `Outside` | `domains/workflows/design/node.rs:645` |
 
 #### `PackageName::language`
 
@@ -6931,35 +6987,67 @@ Worked out for every combination of its inputs, at `domains/workflows/sandbox/ru
 | `Node22` | `JavaScript` | `domains/workflows/sandbox/runtime.rs:112` |
 | `Node24` | `JavaScript` | `domains/workflows/sandbox/runtime.rs:112` |
 
+#### `SandboxKind::language`
+
+The language its code is written in; `None` for a company's image, which holds no code.
+
+Its last `match`, arm by arm, as written, at `domains/workflows/sandbox/mod.rs:117`.
+
+| `self` | Answer (`Language`) | Where |
+| --- | --- | --- |
+| `Self::Code(language)` | `Some(language)` | `domains/workflows/sandbox/mod.rs:119` |
+| `Self::OwnImage` | `None` | `domains/workflows/sandbox/mod.rs:120` |
+
 #### `StepState::phase`
 
 Where it stands, without what it holds.
 
-Its last `match`, arm by arm, as written, at `domains/workflows/execution/step.rs:537`.
+Its last `match`, arm by arm, as written, at `domains/workflows/execution/step.rs:571`.
 
 | `self` | Answer (`StepPhase`) | Where |
 | --- | --- | --- |
-| `Self::Waiting` | `Waiting` | `domains/workflows/execution/step.rs:539` |
-| `Self::Ready {..}` | `Ready` | `domains/workflows/execution/step.rs:540` |
-| `Self::Running {..}` | `Running` | `domains/workflows/execution/step.rs:541` |
-| `Self::Succeeded {..}` | `Succeeded` | `domains/workflows/execution/step.rs:542` |
-| `Self::Failed(_)` | `Failed` | `domains/workflows/execution/step.rs:543` |
-| `Self::Skipped` | `Skipped` | `domains/workflows/execution/step.rs:544` |
-| `Self::Stopped` | `Stopped` | `domains/workflows/execution/step.rs:545` |
-| `Self::Abandoned {..}` | `Abandoned` | `domains/workflows/execution/step.rs:546` |
+| `Self::Waiting` | `Waiting` | `domains/workflows/execution/step.rs:573` |
+| `Self::Ready {..}` | `Ready` | `domains/workflows/execution/step.rs:574` |
+| `Self::Running {..}` | `Running` | `domains/workflows/execution/step.rs:575` |
+| `Self::Succeeded {..}` | `Succeeded` | `domains/workflows/execution/step.rs:576` |
+| `Self::Failed(_)` | `Failed` | `domains/workflows/execution/step.rs:577` |
+| `Self::Skipped` | `Skipped` | `domains/workflows/execution/step.rs:578` |
+| `Self::Stopped` | `Stopped` | `domains/workflows/execution/step.rs:579` |
+| `Self::Abandoned {..}` | `Abandoned` | `domains/workflows/execution/step.rs:580` |
+
+#### `TextShape::level`
+
+How sensitive data of this shape is.
+
+Worked out for every combination of its inputs, at `domains/workflows/guardrail/shapes.rs:55`.
+
+| `self` | Answer (`DataClassLevel`) | Where |
+| --- | --- | --- |
+| any | `Confidential` |  |
 
 #### `WorkflowExecution::start_on_trigger`
 
 Starts an execution of `workflow` because its schedule came round or its event happened, and runs every step the domain finishes itself, as far as they go.
 
-Its last `match`, arm by arm, as written, at `domains/workflows/execution/mod.rs:381`.
+Its last `match`, arm by arm, as written, at `domains/workflows/execution/mod.rs:384`.
 
 | `params.cause` | Answer (`DomainError`) | Where |
 | --- | --- | --- |
-| `Cause::Schedule \| Cause::Event {..} \| Cause::Before {..}` | `Self::start_checked(workflow, params)` | `domains/workflows/execution/mod.rs:386` |
-| `Cause::Webhook` | `Err(DomainError::forbidden(message !("workflows-a-webhook-starts-a-workflow-only", "a webhook starts a workflow only once its secret is checked")))` | `domains/workflows/execution/mod.rs:389` |
-| `Cause::Service` | `Err(DomainError::forbidden(message !("workflows-a-service-event-starts-a-workflow-only", "a service's event starts a workflow only once its subscription admits it")))` | `domains/workflows/execution/mod.rs:393` |
-| `Cause::Manual \| Cause::Restart {..}` | `Err(DomainError::forbidden(message !("workflows-a-start-by-hand-acts-for", "a start by hand acts for the person who proves who they are")))` | `domains/workflows/execution/mod.rs:397` |
+| `Cause::Schedule \| Cause::Event {..} \| Cause::Before {..}` | `Self::start_checked(workflow, params)` | `domains/workflows/execution/mod.rs:389` |
+| `Cause::Webhook` | `Err(DomainError::forbidden(message !("workflows-a-webhook-starts-a-workflow-only", "a webhook starts a workflow only once its secret is checked")))` | `domains/workflows/execution/mod.rs:392` |
+| `Cause::Service` | `Err(DomainError::forbidden(message !("workflows-a-service-event-starts-a-workflow-only", "a service's event starts a workflow only once its subscription admits it")))` | `domains/workflows/execution/mod.rs:396` |
+| `Cause::Manual \| Cause::Restart {..}` | `Err(DomainError::forbidden(message !("workflows-a-start-by-hand-acts-for", "a start by hand acts for the person who proves who they are")))` | `domains/workflows/execution/mod.rs:400` |
+
+#### `verdict_of`
+
+What the check said, read from how its run went.
+
+Its last `match`, arm by arm, as written, at `domains/workflows/sandbox/agent.rs:198`.
+
+| `outcome` | Answer (`CheckVerdict`) | Where |
+| --- | --- | --- |
+| `CodeOutcome::Succeeded(verdict)` | `read_verdict(&verdict)` | `domains/workflows/sandbox/agent.rs:200` |
+| `CodeOutcome::Failed(failure)` | `CheckVerdict::NotRun(why_not_run(failure))` | `domains/workflows/sandbox/agent.rs:201` |
 
 ### Status machines
 
@@ -6975,9 +7063,26 @@ Its moves are read from `try_transition`, at `domains/workflows/account/mod.rs:5
 | `Active` to `Disabled` | `IntegrationAccount::disable` | ChangeUseCase (workflows) | `WorkflowControl`, `WorkflowAction::ConnectAccounts` |
 | `Disabled` to `Active` | `IntegrationAccount::connect`, `IntegrationAccount::enable` | ConnectUseCase (workflows), FinishUseCase (workflows), ChangeUseCase (workflows) | `WorkflowControl`, `WorkflowAction::ConnectAccounts` |
 
+#### `ChannelStatus`
+
+Its moves are read from `try_transition`, at `domains/workflows/triggers/channel.rs:137`.
+
+- States: `Registering`, `AwaitingKey`, `AwaitingToken`, `AwaitingConfirmation`, `Live`, `Lapsed`
+- Final, which no move leaves: none
+
+| Move | Made by | Called by | Proof or right |
+| --- | --- | --- | --- |
+| `AwaitingConfirmation` to `Live` | `AccountChannel::register`, `AccountChannel::paste_key`, `AccountChannel::confirm` | PublishWorkflowUseCase (workflows), SetKeyUseCase (workflows), ConfirmUseCase (workflows) | `WorkflowControl` |
+| `AwaitingKey` to `Live` | `AccountChannel::register`, `AccountChannel::paste_key`, `AccountChannel::confirm` | PublishWorkflowUseCase (workflows), SetKeyUseCase (workflows), ConfirmUseCase (workflows) | `WorkflowControl` |
+| `AwaitingToken` to `AwaitingConfirmation` | `AccountChannel::receive_token` | StartOnServiceEventUseCase (workflows) | none read |
+| `Lapsed` to `Live` | `AccountChannel::register`, `AccountChannel::paste_key`, `AccountChannel::confirm` | PublishWorkflowUseCase (workflows), SetKeyUseCase (workflows), ConfirmUseCase (workflows) | `WorkflowControl` |
+| `Live` to `Lapsed` | `AccountChannel::lapse` | none read | none read |
+| `Registering` to `Lapsed` | `AccountChannel::lapse` | none read | none read |
+| `Registering` to `Live` | `AccountChannel::register`, `AccountChannel::paste_key`, `AccountChannel::confirm` | PublishWorkflowUseCase (workflows), SetKeyUseCase (workflows), ConfirmUseCase (workflows) | `WorkflowControl` |
+
 #### `ExecutionStatus`
 
-Its moves are read from `try_transition`, at `domains/workflows/execution/mod.rs:88`.
+Its moves are read from `try_transition`, at `domains/workflows/execution/mod.rs:91`.
 
 - States: `Running`, `Ended`
 - Final, which no move leaves: `Ended`
@@ -7000,7 +7105,7 @@ Its moves are read from `try_transition`, at `domains/workflows/memory/mod.rs:78
 
 #### `SandboxStatus`
 
-Its moves are read from `try_transition`, at `domains/workflows/sandbox/mod.rs:68`.
+Its moves are read from `try_transition`, at `domains/workflows/sandbox/mod.rs:79`.
 
 - States: `Active`, `Archived`
 - Final, which no move leaves: `Archived`
@@ -7023,6 +7128,112 @@ Its moves are read from `try_transition`, at `domains/workflows/design/workflow/
 | `Published` to `Archived` | `Workflow::archive` | ArchiveWorkflowUseCase (workflows) | `WorkflowControl`, `WorkflowAction::Delete` |
 
 ### Refusals
+
+#### `AccountChannel::confirm`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| `account.ensure_sets_up_events(by)` refuses | what `ensure_sets_up_events` refuses | `domains/workflows/triggers/channel.rs:386` |
+| `self.status != ChannelStatus::AwaitingConfirmation` | `InvalidTransition { from : self.status, to : ChannelStatus::Live, }.into()` | `domains/workflows/triggers/channel.rs:388` |
+
+#### `AccountChannel::lapse`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| always | `InvalidTransition { from : self.status, to, }.into()` | `domains/workflows/triggers/channel.rs:465`, through `ensure_platform_registers` |
+
+#### `AccountChannel::paste_key`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| `account.ensure_sets_up_events(by)` refuses | what `ensure_sets_up_events` refuses | `domains/workflows/triggers/channel.rs:317` |
+| `self.setup != ChannelSetup::PastedKey` | Conflict | `domains/workflows/triggers/channel.rs:319` |
+
+#### `AccountChannel::register`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| always | `InvalidTransition { from : self.status, to, }.into()` | `domains/workflows/triggers/channel.rs:465`, through `ensure_platform_registers` |
+
+#### `AccountChannel::show_token`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| `account.ensure_sets_up_events(by)` refuses | what `ensure_sets_up_events` refuses | `domains/workflows/triggers/channel.rs:359` |
+| `self.status != ChannelStatus::AwaitingConfirmation` | Conflict | `domains/workflows/triggers/channel.rs:361` |
+
+#### `Evaluation::give_up`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| always | InvalidTransition | `domains/workflows/evaluation/run.rs:397`, through `ensure_running` |
+
+#### `Evaluation::settle`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| always | InvalidTransition | `domains/workflows/evaluation/run.rs:397`, through `ensure_running` |
+| `execution.status()` is not `ExecutionStatus::Ended(end)` | InvalidTransition | `domains/workflows/evaluation/run.rs:263` |
+| `self.place_running(execution.id())` is not `Some(place)` | Conflict | `domains/workflows/evaluation/run.rs:269` |
+| `self.cases.get(place)` is missing | an error | `domains/workflows/evaluation/run.rs:274` |
+| `self.outcomes.get_mut(place)` is missing | an error | `domains/workflows/evaluation/run.rs:416`, through `record` |
+
+#### `Evaluation::skip_case`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| always | InvalidTransition | `domains/workflows/evaluation/run.rs:397`, through `ensure_waiting > ensure_running` |
+| always | InvalidTransition | `domains/workflows/evaluation/run.rs:408`, through `ensure_waiting` |
+| `self.outcomes.get_mut(place)` is missing | an error | `domains/workflows/evaluation/run.rs:416`, through `record` |
+
+#### `Evaluation::start`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| `ensure_startable(set, workflow, by)` refuses | what `ensure_startable` refuses | `domains/workflows/evaluation/run.rs:121` |
+
+#### `Evaluation::start_case`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| always | InvalidTransition | `domains/workflows/evaluation/run.rs:397`, through `ensure_waiting > ensure_running` |
+| always | InvalidTransition | `domains/workflows/evaluation/run.rs:408`, through `ensure_waiting` |
+| `self.running().count() >= MAX_RUNNING_CASES` | Conflict | `domains/workflows/evaluation/run.rs:212` |
+| `!self.is_its_test(execution)` | Conflict | `domains/workflows/evaluation/run.rs:218` |
+| `self.outcomes.get_mut(place)` is missing | an error | `domains/workflows/evaluation/run.rs:416`, through `record` |
+
+#### `Evaluation::stop_waiting`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| always | InvalidTransition | `domains/workflows/evaluation/run.rs:397`, through `ensure_running` |
+
+#### `EvaluationSet::create`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| `by.ensure_may(WorkflowAction::Update)` refuses | what `ensure_may` refuses | `domains/workflows/evaluation/set.rs:112` |
+| `ensure_cases(&params.cases, params.gate)` refuses | what `ensure_cases` refuses | `domains/workflows/evaluation/set.rs:113` |
+
+#### `EvaluationSet::replace`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| `by.ensure_may(WorkflowAction::Update)` refuses | what `ensure_may` refuses | `domains/workflows/evaluation/set.rs:145` |
+| always | Conflict | `domains/workflows/evaluation/set.rs:255`, through `ensure_of` |
+| `ensure_cases(&params.cases, params.gate)` refuses | what `ensure_cases` refuses | `domains/workflows/evaluation/set.rs:147` |
+
+#### `ImageRegistry::allow`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| `by.ensure_may(WorkflowAction::ConnectAccounts)` refuses | what `ensure_may` refuses | `domains/workflows/sandbox/registry.rs:123` |
+
+#### `ImageRegistry::remove`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| `by.ensure_may(WorkflowAction::ConnectAccounts)` refuses | what `ensure_may` refuses | `domains/workflows/sandbox/registry.rs:176` |
 
 #### `IntegrationAccount::connect`
 
@@ -7126,23 +7337,14 @@ Its moves are read from `try_transition`, at `domains/workflows/design/workflow/
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `by.ensure_may(WorkflowAction::Delete)` refuses | what `ensure_may` refuses | `domains/workflows/sandbox/mod.rs:290` |
-| `self.status == SandboxStatus::Archived` | Conflict | `domains/workflows/sandbox/mod.rs:329`, through `ensure_active` |
+| `by.ensure_may(WorkflowAction::Delete)` refuses | what `ensure_may` refuses | `domains/workflows/sandbox/mod.rs:344` |
+| `self.status == SandboxStatus::Archived` | Conflict | `domains/workflows/sandbox/mod.rs:386`, through `ensure_active` |
 
 #### `Sandbox::create`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `by.ensure_may(WorkflowAction::Create)` refuses | what `ensure_may` refuses | `domains/workflows/sandbox/mod.rs:157` |
-
-#### `Sandbox::save_version`
-
-| When | Refused with | Where |
-| --- | --- | --- |
-| `by.ensure_may(WorkflowAction::Update)` refuses | what `ensure_may` refuses | `domains/workflows/sandbox/mod.rs:224` |
-| `self.status == SandboxStatus::Archived` | Conflict | `domains/workflows/sandbox/mod.rs:329`, through `ensure_active` |
-| always | Conflict | `domains/workflows/sandbox/mod.rs:306`, through `ensure_room_for_a_version` |
-| always | Validation | `domains/workflows/sandbox/mod.rs:317`, through `ensure_runs_under` |
+| `by.ensure_may(WorkflowAction::Create)` refuses | what `ensure_may` refuses | `domains/workflows/sandbox/mod.rs:192` |
 
 #### `SandboxTrial::settle`
 
@@ -7154,33 +7356,41 @@ Its moves are read from `try_transition`, at `domains/workflows/design/workflow/
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `self.build != Build::Building` | InvalidTransition | `domains/workflows/sandbox/version.rs:213`, through `ensure_building` |
+| `self.build != Build::Building` | InvalidTransition | `domains/workflows/sandbox/version.rs:269`, through `ensure_building` |
 
 #### `SandboxVersion::finish_build`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `self.build != Build::Building` | InvalidTransition | `domains/workflows/sandbox/version.rs:213`, through `ensure_building` |
-| `!bundle.fits(self.recipe.packages())` | Validation | `domains/workflows/sandbox/version.rs:154` |
+| `self.build != Build::Building` | InvalidTransition | `domains/workflows/sandbox/version.rs:269`, through `ensure_building` |
+| `self.recipe.program().packages()` is not `Some(packages)` | Validation | `domains/workflows/sandbox/version.rs:169` |
+| `!bundle.fits(packages)` | Validation | `domains/workflows/sandbox/version.rs:175` |
+
+#### `SandboxVersion::finish_scan`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| `self.build != Build::Building` | InvalidTransition | `domains/workflows/sandbox/version.rs:269`, through `ensure_building` |
+| `self.recipe.program()` is not `Program::Image(own)` | Validation | `domains/workflows/sandbox/version.rs:205` |
 
 #### `SandboxVersion::record_push`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `by.ensure_may(WorkflowAction::Update)` refuses | what `ensure_may` refuses | `domains/workflows/sandbox/version.rs:201` |
+| `by.ensure_may(WorkflowAction::Update)` refuses | what `ensure_may` refuses | `domains/workflows/sandbox/version.rs:257` |
 
 #### `Workflow::archive`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `by.ensure_may(WorkflowAction::Delete)` refuses | what `ensure_may` refuses | `domains/workflows/design/workflow.rs:382` |
+| `by.ensure_may(WorkflowAction::Delete)` refuses | what `ensure_may` refuses | `domains/workflows/design/workflow.rs:385` |
 
 #### `Workflow::arrange`
 
 | When | Refused with | Where |
 | --- | --- | --- |
 | `by.ensure_may(WorkflowAction::Update)` refuses | what `ensure_may` refuses | `domains/workflows/design/workflow/edits.rs:149` |
-| `self.status != WorkflowStatus::Draft` | Conflict | `domains/workflows/design/workflow.rs:415`, through `ensure_draft` |
+| `self.status != WorkflowStatus::Draft` | Conflict | `domains/workflows/design/workflow.rs:418`, through `ensure_draft` |
 | `layout.ensure_fits(&self.graph)` refuses | what `ensure_fits` refuses | `domains/workflows/design/workflow/edits.rs:151` |
 
 #### `Workflow::change_failure_alert`
@@ -7188,21 +7398,21 @@ Its moves are read from `try_transition`, at `domains/workflows/design/workflow/
 | When | Refused with | Where |
 | --- | --- | --- |
 | `by.ensure_may(WorkflowAction::Update)` refuses | what `ensure_may` refuses | `domains/workflows/design/workflow/edits.rs:168` |
-| `self.status != WorkflowStatus::Draft` | Conflict | `domains/workflows/design/workflow.rs:415`, through `ensure_draft` |
+| `self.status != WorkflowStatus::Draft` | Conflict | `domains/workflows/design/workflow.rs:418`, through `ensure_draft` |
 
 #### `Workflow::change_run_limit`
 
 | When | Refused with | Where |
 | --- | --- | --- |
 | `by.ensure_may(WorkflowAction::Update)` refuses | what `ensure_may` refuses | `domains/workflows/design/workflow/edits.rs:74` |
-| `self.status != WorkflowStatus::Draft` | Conflict | `domains/workflows/design/workflow.rs:415`, through `ensure_draft` |
+| `self.status != WorkflowStatus::Draft` | Conflict | `domains/workflows/design/workflow.rs:418`, through `ensure_draft` |
 
 #### `Workflow::change_trigger`
 
 | When | Refused with | Where |
 | --- | --- | --- |
 | `by.ensure_may(WorkflowAction::Update)` refuses | what `ensure_may` refuses | `domains/workflows/design/workflow/edits.rs:97` |
-| `self.status != WorkflowStatus::Draft` | Conflict | `domains/workflows/design/workflow.rs:415`, through `ensure_draft` |
+| `self.status != WorkflowStatus::Draft` | Conflict | `domains/workflows/design/workflow.rs:418`, through `ensure_draft` |
 
 #### `Workflow::create`
 
@@ -7224,7 +7434,7 @@ Its moves are read from `try_transition`, at `domains/workflows/design/workflow/
 | When | Refused with | Where |
 | --- | --- | --- |
 | `by.ensure_may(WorkflowAction::Update)` refuses | what `ensure_may` refuses | `domains/workflows/design/workflow/edits.rs:120` |
-| `self.status != WorkflowStatus::Draft` | Conflict | `domains/workflows/design/workflow.rs:415`, through `ensure_draft` |
+| `self.status != WorkflowStatus::Draft` | Conflict | `domains/workflows/design/workflow.rs:418`, through `ensure_draft` |
 
 #### `Workflow::flow`
 
@@ -7245,32 +7455,34 @@ Its moves are read from `try_transition`, at `domains/workflows/design/workflow/
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `by.ensure_may(WorkflowAction::Update)` refuses | what `ensure_may` refuses | `domains/workflows/design/workflow.rs:308` |
-| `reviewed != self.revision()` | Conflict | `domains/workflows/design/workflow.rs:310` |
-| `self.status` may not move to `WorkflowStatus::Published` | InvalidTransition | `domains/workflows/design/workflow.rs:315` |
-| `replaces.ensure_earlier_than(self.id, self.version)` refuses | what `ensure_earlier_than` refuses | `domains/workflows/design/workflow.rs:316` |
-| `!sees.may_see(&on.event())` | Forbidden | `domains/workflows/design/workflow.rs:342`, through `ensure_trigger_visible` |
-| `ensure_trigger_event_offered(&self.trigger, facts.events)` refuses | what `ensure_trigger_event_offered` refuses | `domains/workflows/design/workflow.rs:318` |
-| `ensure_code_runnable(&self.graph, facts.runnable)` refuses | what `ensure_code_runnable` refuses | `domains/workflows/design/workflow.rs:320` |
-| `ensure_paths_name_earlier_steps(&self.graph)` refuses | what `ensure_paths_name_earlier_steps` refuses | `domains/workflows/design/workflow.rs:321` |
-| `ensure_checks_are_of_other_agents(&self.graph)` refuses | what `ensure_checks_are_of_other_agents` refuses | `domains/workflows/design/workflow.rs:322` |
-| `ensure_high_risk_actions_approved(&self.graph)` refuses | what `ensure_high_risk_actions_approved` refuses | `domains/workflows/design/workflow.rs:323` |
-| `ensure_networked_code_approved(&self.graph, facts.runnable)` refuses | what `ensure_networked_code_approved` refuses | `domains/workflows/design/workflow.rs:324` |
-| `ensure_before_decides(&self.trigger, &self.graph)` refuses | what `ensure_before_decides` refuses | `domains/workflows/design/workflow.rs:325` |
+| `by.ensure_may(WorkflowAction::Update)` refuses | what `ensure_may` refuses | `domains/workflows/design/workflow.rs:309` |
+| `reviewed != self.revision()` | Conflict | `domains/workflows/design/workflow.rs:311` |
+| `self.status` may not move to `WorkflowStatus::Published` | InvalidTransition | `domains/workflows/design/workflow.rs:316` |
+| `replaces.ensure_earlier_than(self.id, self.version)` refuses | what `ensure_earlier_than` refuses | `domains/workflows/design/workflow.rs:317` |
+| `!sees.may_see(&on.event())` | Forbidden | `domains/workflows/design/workflow.rs:345`, through `ensure_trigger_visible` |
+| `ensure_trigger_event_offered(&self.trigger, facts.events)` refuses | what `ensure_trigger_event_offered` refuses | `domains/workflows/design/workflow.rs:319` |
+| `ensure_code_runnable(&self.graph, facts.runnable)` refuses | what `ensure_code_runnable` refuses | `domains/workflows/design/workflow.rs:321` |
+| `ensure_paths_name_earlier_steps(&self.graph)` refuses | what `ensure_paths_name_earlier_steps` refuses | `domains/workflows/design/workflow.rs:322` |
+| `ensure_checks_are_of_other_agents(&self.graph)` refuses | what `ensure_checks_are_of_other_agents` refuses | `domains/workflows/design/workflow.rs:323` |
+| `ensure_guardrails_read_text(&self.graph)` refuses | what `ensure_guardrails_read_text` refuses | `domains/workflows/design/workflow.rs:324` |
+| `ensure_high_risk_actions_approved(&self.graph)` refuses | what `ensure_high_risk_actions_approved` refuses | `domains/workflows/design/workflow.rs:325` |
+| `ensure_item_approvals_in_loops(&self.graph)` refuses | what `ensure_item_approvals_in_loops` refuses | `domains/workflows/design/workflow.rs:326` |
+| `ensure_networked_code_approved(&self.graph, facts.runnable)` refuses | what `ensure_networked_code_approved` refuses | `domains/workflows/design/workflow.rs:327` |
+| `ensure_before_decides(&self.trigger, &self.graph)` refuses | what `ensure_before_decides` refuses | `domains/workflows/design/workflow.rs:328` |
 
 #### `Workflow::rename`
 
 | When | Refused with | Where |
 | --- | --- | --- |
 | `by.ensure_may(WorkflowAction::Update)` refuses | what `ensure_may` refuses | `domains/workflows/design/workflow/edits.rs:27` |
-| `self.status != WorkflowStatus::Draft` | Conflict | `domains/workflows/design/workflow.rs:415`, through `ensure_draft` |
+| `self.status != WorkflowStatus::Draft` | Conflict | `domains/workflows/design/workflow.rs:418`, through `ensure_draft` |
 
 #### `Workflow::replace_graph`
 
 | When | Refused with | Where |
 | --- | --- | --- |
 | `by.ensure_may(WorkflowAction::Update)` refuses | what `ensure_may` refuses | `domains/workflows/design/workflow/edits.rs:50` |
-| `self.status != WorkflowStatus::Draft` | Conflict | `domains/workflows/design/workflow.rs:415`, through `ensure_draft` |
+| `self.status != WorkflowStatus::Draft` | Conflict | `domains/workflows/design/workflow.rs:418`, through `ensure_draft` |
 
 #### `WorkflowExecution::approve`
 
@@ -7280,14 +7492,32 @@ Its moves are read from `try_transition`, at `domains/workflows/design/workflow/
 | `self.position(..)` refuses | what `position` refuses, not read this deep | `domains/workflows/execution/steps/work.rs:105`, through `open_approval > running_step` |
 | `self.steps().nth(index)` is missing | an error | `domains/workflows/execution/steps/work.rs:106`, through `open_approval > running_step` |
 | `state` is not `StepState::Running { exposure, seen, underway, started_at, }` | InvalidTransition | `domains/workflows/execution/steps/work.rs:114`, through `open_approval > running_step` |
-| `(&running.underway, running.node.kind())` is not `(Underway::Approval(wait), NodeKind::Approval(step))` | InvalidTransition | `domains/workflows/execution/steps/approval.rs:215`, through `open_approval` |
-| `crate::shared::clock::now() >= wait.closes_at` | InvalidTransition | `domains/workflows/execution/steps/approval.rs:221`, through `open_approval` |
+| `(&running.underway, running.node.kind())` is not `(Underway::Approval(wait), NodeKind::Approval(step))` | InvalidTransition | `domains/workflows/execution/steps/approval.rs:219`, through `open_approval` |
+| `crate::shared::clock::now() >= wait.closes_at` | InvalidTransition | `domains/workflows/execution/steps/approval.rs:225`, through `open_approval` |
 | `approver.ensure_entitled(running.exposure)` refuses | what `ensure_entitled` refuses | `domains/workflows/execution/steps/approval.rs:133` |
 | `ensure_present_when_needed(&step, approver)` refuses | what `ensure_present_when_needed` refuses | `domains/workflows/execution/steps/approval.rs:134` |
 | `by.is_same_person_as(&self.acting_for)` | Forbidden | `domains/workflows/execution/steps/approval.rs:171`, through `ensure_may_approve` |
 | `step.approvers_needed() == 2 && self.authors.includes(by)` | Forbidden | `domains/workflows/execution/steps/approval.rs:177`, through `ensure_may_approve` |
 | `let FirstApproval::GivenBy(first) = &wait.first && first.is_same_person_as(by)` | Forbidden | `domains/workflows/execution/steps/approval.rs:185`, through `ensure_may_approve` |
 | `self.input_seen_by(&running.seen)? != * shown` | Conflict | `domains/workflows/execution/steps/approval.rs:138` |
+
+#### `WorkflowExecution::approve_items`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| `self.ensure_open(..)` refuses | what `ensure_open` refuses, not read this deep | `domains/workflows/execution/steps/work.rs:104`, through `asking_for_items > running_step` |
+| `self.position(..)` refuses | what `position` refuses, not read this deep | `domains/workflows/execution/steps/work.rs:105`, through `asking_for_items > running_step` |
+| `self.steps().nth(index)` is missing | an error | `domains/workflows/execution/steps/work.rs:106`, through `asking_for_items > running_step` |
+| `state` is not `StepState::Running { exposure, seen, underway, started_at, }` | InvalidTransition | `domains/workflows/execution/steps/work.rs:114`, through `asking_for_items > running_step` |
+| `(running.node.kind().clone(), running.underway)` is not `(NodeKind::Loop(step), Underway::Loop(progress))` | `not_asking()` | `domains/workflows/execution/steps/items.rs:351`, through `asking_for_items` |
+| `progress.approval().waiting().cloned()` is missing | an error | `domains/workflows/execution/steps/items.rs:353`, through `asking_for_items` |
+| `step.items_approval().map(\|(_, approval) \| approval.clone())` is missing | an error | `domains/workflows/execution/steps/items.rs:358`, through `asking_for_items` |
+| `ensure_window_open(&asking.wait)` refuses | what `ensure_window_open` refuses | `domains/workflows/execution/steps/items.rs:238` |
+| `approver.ensure_entitled(asking.looping.exposure)` refuses | what `ensure_entitled` refuses | `domains/workflows/execution/steps/items.rs:239` |
+| `ensure_present_when_needed(&asking.approval, approver)` refuses | what `ensure_present_when_needed` refuses | `domains/workflows/execution/steps/items.rs:240` |
+| `by.is_same_person_as(&self.acting_for)` | Forbidden | `domains/workflows/execution/steps/approval.rs:171`, through `ensure_may_approve` |
+| `step.approvers_needed() == 2 && self.authors.includes(by)` | Forbidden | `domains/workflows/execution/steps/approval.rs:177`, through `ensure_may_approve` |
+| `let FirstApproval::GivenBy(first) = &wait.first && first.is_same_person_as(by)` | Forbidden | `domains/workflows/execution/steps/approval.rs:185`, through `ensure_may_approve` |
 
 #### `WorkflowExecution::begin_action`
 
@@ -7317,7 +7547,7 @@ Its moves are read from `try_transition`, at `domains/workflows/design/workflow/
 | `crate::shared::clock::now() >= self.deadline` | Conflict | `domains/workflows/execution/progress.rs:138`, through `ready_step > ensure_open` |
 | `self.steps().nth(index)` is missing | an error | `domains/workflows/execution/steps/work.rs:76`, through `ready_step` |
 | `state` is not `StepState::Ready { input, exposure, seen, attempt, }` | InvalidTransition | `domains/workflows/execution/steps/work.rs:84`, through `ready_step` |
-| `ready.node.kind().clone()` is not `NodeKind::Loop(step)` | Validation | `domains/workflows/execution/steps/loops.rs:86` |
+| `ready.node.kind().clone()` is not `NodeKind::Loop(step)` | Validation | `domains/workflows/execution/steps/loops.rs:102` |
 
 #### `WorkflowExecution::begin_wait`
 
@@ -7335,6 +7565,16 @@ Its moves are read from `try_transition`, at `domains/workflows/design/workflow/
 | --- | --- | --- |
 | `crate::shared::clock::now() >= self.deadline` | Conflict | `domains/workflows/execution/progress.rs:64` |
 
+#### `WorkflowExecution::check_guardrail`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| `self.status != ExecutionStatus::Running` | InvalidTransition | `domains/workflows/execution/progress.rs:132`, through `ready_step > ensure_open` |
+| `crate::shared::clock::now() >= self.deadline` | Conflict | `domains/workflows/execution/progress.rs:138`, through `ready_step > ensure_open` |
+| `self.steps().nth(index)` is missing | an error | `domains/workflows/execution/steps/work.rs:76`, through `ready_step` |
+| `state` is not `StepState::Ready { input, exposure, seen, attempt, }` | InvalidTransition | `domains/workflows/execution/steps/work.rs:84`, through `ready_step` |
+| `ready.node.kind()` is not `NodeKind::Guardrail(step)` | Validation | `domains/workflows/execution/steps/guardrail.rs:75` |
+
 #### `WorkflowExecution::defer_agent_run`
 
 | When | Refused with | Where |
@@ -7343,7 +7583,7 @@ Its moves are read from `try_transition`, at `domains/workflows/design/workflow/
 | `crate::shared::clock::now() >= self.deadline` | Conflict | `domains/workflows/execution/progress.rs:138`, through `ready_step > ensure_open` |
 | `self.steps().nth(index)` is missing | an error | `domains/workflows/execution/steps/work.rs:76`, through `ready_step` |
 | `state` is not `StepState::Ready { input, exposure, seen, attempt, }` | InvalidTransition | `domains/workflows/execution/steps/work.rs:84`, through `ready_step` |
-| `!matches !(ready.node.kind(), NodeKind::AgentRun(_))` | Validation | `domains/workflows/execution/steps/deferral.rs:44` |
+| `!matches !(ready.node.kind(), NodeKind::AgentRun(_) \| NodeKind::Code(_))` | Validation | `domains/workflows/execution/steps/deferral.rs:45` |
 
 #### `WorkflowExecution::deny`
 
@@ -7353,8 +7593,8 @@ Its moves are read from `try_transition`, at `domains/workflows/design/workflow/
 | `crate::shared::clock::now() >= self.deadline` | Conflict | `domains/workflows/execution/progress.rs:138`, through `running_step > ensure_open` |
 | `self.steps().nth(index)` is missing | an error | `domains/workflows/execution/steps/work.rs:106`, through `running_step` |
 | `state` is not `StepState::Running { exposure, seen, underway, started_at, }` | InvalidTransition | `domains/workflows/execution/steps/work.rs:114`, through `running_step` |
-| `running.underway` is not `Underway::Approval(_)` | InvalidTransition | `domains/workflows/execution/steps/approval.rs:266` |
-| `by.ensure_entitled(running.exposure)` refuses | what `ensure_entitled` refuses | `domains/workflows/execution/steps/approval.rs:271` |
+| `running.underway.decision_wait().is_none()` | InvalidTransition | `domains/workflows/execution/steps/approval.rs:273` |
+| `by.ensure_entitled(running.exposure)` refuses | what `ensure_entitled` refuses | `domains/workflows/execution/steps/approval.rs:278` |
 
 #### `WorkflowExecution::elapse`
 
@@ -7381,8 +7621,8 @@ Its moves are read from `try_transition`, at `domains/workflows/design/workflow/
 | `crate::shared::clock::now() >= self.deadline` | Conflict | `domains/workflows/execution/progress.rs:138`, through `running_step > ensure_open` |
 | `self.steps().nth(index)` is missing | an error | `domains/workflows/execution/steps/work.rs:106`, through `running_step` |
 | `state` is not `StepState::Running { exposure, seen, underway, started_at, }` | InvalidTransition | `domains/workflows/execution/steps/work.rs:114`, through `running_step` |
-| `&running.underway` is not `Underway::Approval(wait)` | InvalidTransition | `domains/workflows/execution/steps/approval.rs:292` |
-| `crate::shared::clock::now() < wait.closes_at` | Conflict | `domains/workflows/execution/steps/approval.rs:298` |
+| `running.underway.decision_wait()` is not `Some(wait)` | InvalidTransition | `domains/workflows/execution/steps/approval.rs:300` |
+| `crate::shared::clock::now() < wait.closes_at` | Conflict | `domains/workflows/execution/steps/approval.rs:306` |
 
 #### `WorkflowExecution::refuse`
 
@@ -7423,7 +7663,7 @@ Its moves are read from `try_transition`, at `domains/workflows/design/workflow/
 | `self.position(..)` refuses | what `position` refuses, not read this deep | `domains/workflows/execution/steps/work.rs:105`, through `reporting_step > running_step` |
 | `self.steps().nth(index)` is missing | an error | `domains/workflows/execution/steps/work.rs:106`, through `reporting_step > running_step` |
 | `state` is not `StepState::Running { exposure, seen, underway, started_at, }` | InvalidTransition | `domains/workflows/execution/steps/work.rs:114`, through `reporting_step > running_step` |
-| `step.underway != Underway::AgentRun(* run.id())` | Forbidden | `domains/workflows/execution/steps/agent.rs:231` |
+| `step.underway != Underway::AgentRun(* run.id())` | Forbidden | `domains/workflows/execution/steps/agent.rs:315` |
 
 #### `WorkflowExecution::settle_code`
 
@@ -7441,7 +7681,7 @@ Its moves are read from `try_transition`, at `domains/workflows/design/workflow/
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `pass.pass.as_ref().filter(\| of \| of.execution == self.id)` is not `Some(of)` | Validation | `domains/workflows/execution/steps/loops.rs:130` |
+| `pass.pass.as_ref().filter(\| of \| of.execution == self.id)` is not `Some(of)` | Validation | `domains/workflows/execution/steps/loops.rs:182` |
 
 #### `WorkflowExecution::start_agent_run`
 
@@ -7451,14 +7691,33 @@ Its moves are read from `try_transition`, at `domains/workflows/design/workflow/
 | `crate::shared::clock::now() >= self.deadline` | Conflict | `domains/workflows/execution/progress.rs:138`, through `ready_step > ensure_open` |
 | `self.steps().nth(index)` is missing | an error | `domains/workflows/execution/steps/work.rs:76`, through `ready_step` |
 | `state` is not `StepState::Ready { input, exposure, seen, attempt, }` | InvalidTransition | `domains/workflows/execution/steps/work.rs:84`, through `ready_step` |
-| `ensure_due_again(ready.attempt, crate::shared::clock::now())` refuses | what `ensure_due_again` refuses | `domains/workflows/execution/steps/agent.rs:91` |
-| `ready.node.kind()` is not `NodeKind::AgentRun(step)` | Validation | `domains/workflows/execution/steps/agent.rs:93` |
+| `ensure_due_again(ready.attempt, crate::shared::clock::now())` refuses | what `ensure_due_again` refuses | `domains/workflows/execution/steps/agent.rs:108` |
+| `ready.node.kind()` is not `NodeKind::AgentRun(step)` | Validation | `domains/workflows/execution/steps/agent.rs:110` |
 
 #### `WorkflowExecution::start_by_hand`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `starter.ensure_may(WorkflowAction::Run)` refuses | what `ensure_may` refuses | `domains/workflows/execution/mod.rs:346` |
+| `starter.ensure_may(WorkflowAction::Run)` refuses | what `ensure_may` refuses | `domains/workflows/execution/mod.rs:349` |
+
+#### `WorkflowExecution::start_case`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| `!evaluator.may_test()` | Forbidden | `domains/workflows/execution/starts/mode.rs:178` |
+
+#### `WorkflowExecution::start_held_agent`
+
+| When | Refused with | Where |
+| --- | --- | --- |
+| `self.status != ExecutionStatus::Running` | InvalidTransition | `domains/workflows/execution/progress.rs:132`, through `ready_step > ensure_open` |
+| `crate::shared::clock::now() >= self.deadline` | Conflict | `domains/workflows/execution/progress.rs:138`, through `ready_step > ensure_open` |
+| `self.steps().nth(index)` is missing | an error | `domains/workflows/execution/steps/work.rs:76`, through `ready_step` |
+| `state` is not `StepState::Ready { input, exposure, seen, attempt, }` | InvalidTransition | `domains/workflows/execution/steps/work.rs:84`, through `ready_step` |
+| `ensure_due_again(ready.attempt, crate::shared::clock::now())` refuses | what `ensure_due_again` refuses | `domains/workflows/execution/steps/agent.rs:144` |
+| `ready.node.kind()` is not `NodeKind::Code(code)` | Validation | `domains/workflows/execution/steps/agent.rs:146` |
+| `code.version() != * version.id()` | Validation | `domains/workflows/execution/steps/agent.rs:152` |
+| `version.held_agent()` is not `Some(held)` | Validation | `domains/workflows/execution/steps/agent.rs:158` |
 
 #### `WorkflowExecution::start_on_service_event`
 
@@ -7470,9 +7729,9 @@ Its moves are read from `try_transition`, at `domains/workflows/design/workflow/
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `params.cause` is `Cause::Webhook` | Forbidden | `domains/workflows/execution/mod.rs:389` |
-| `params.cause` is `Cause::Service` | Forbidden | `domains/workflows/execution/mod.rs:393` |
-| `params.cause` is `Cause::Manual \| Cause::Restart {..}` | Forbidden | `domains/workflows/execution/mod.rs:397` |
+| `params.cause` is `Cause::Webhook` | Forbidden | `domains/workflows/execution/mod.rs:392` |
+| `params.cause` is `Cause::Service` | Forbidden | `domains/workflows/execution/mod.rs:396` |
+| `params.cause` is `Cause::Manual \| Cause::Restart {..}` | Forbidden | `domains/workflows/execution/mod.rs:400` |
 
 #### `WorkflowExecution::start_on_webhook`
 
@@ -7484,16 +7743,14 @@ Its moves are read from `try_transition`, at `domains/workflows/design/workflow/
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `tester.ensure_may(WorkflowAction::Update)` refuses | what `ensure_may` refuses | `domains/workflows/execution/starts/mode.rs:141` |
-| `tester.ensure_may(WorkflowAction::Run)` refuses | what `ensure_may` refuses | `domains/workflows/execution/starts/mode.rs:142` |
-| `workflow.status() == WorkflowStatus::Archived` | Conflict | `domains/workflows/execution/starts/mode.rs:144` |
-| `ensure_paths_name_earlier_steps(workflow.graph())` refuses | what `ensure_paths_name_earlier_steps` refuses | `domains/workflows/execution/starts/mode.rs:149` |
+| `tester.ensure_may(WorkflowAction::Update)` refuses | what `ensure_may` refuses | `domains/workflows/execution/starts/mode.rs:142` |
+| `tester.ensure_may(WorkflowAction::Run)` refuses | what `ensure_may` refuses | `domains/workflows/execution/starts/mode.rs:143` |
 
 #### `WorkflowExecution::stop_pass`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `self.pass.is_none()` | Validation | `domains/workflows/execution/steps/loops.rs:163` |
+| `self.pass.is_none()` | Validation | `domains/workflows/execution/steps/loops.rs:215` |
 
 #### `WorkflowTriggerSecret::issue`
 

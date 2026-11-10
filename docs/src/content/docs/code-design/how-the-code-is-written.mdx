@@ -167,7 +167,7 @@ CI runs the same steps on every change, and all of them must pass:
 | Lints, warnings as errors | `cargo clippy --all-targets --all-features -- -D warnings` |
 | Dependency check | `cargo deny check` |
 | Unit and integration tests | `cargo nextest run --workspace --exclude ianua-scenarios --no-fail-fast` |
-| End-to-end tests | `cargo nextest run -p ianua-scenarios --profile ci-e2e` |
+| End-to-end tests | `cargo nextest run -p ianua-scenarios --profile ci-scenarios` |
 
 Each layer is tested in its own way:
 

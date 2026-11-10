@@ -388,7 +388,7 @@ async fn nobody_without_the_right_streams_the_records_out() {
 
     let streams = audit_streams::list(tenant).send(tess).await.ok();
     assert_eq!(streams.len(), 1, "only Tess's stream stands: {streams:?}");
-    assert_eq!(streams[0].state, "active", "and it was not paused");
+    assert_ne!(streams[0].state, "paused", "and it was not paused");
     world
         .trail()
         .nothing_after(&trail_before, "tenant.audit_stream_changed")

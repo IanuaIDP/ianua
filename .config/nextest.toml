@@ -60,9 +60,15 @@ slow-timeout = { period = "60s", terminate-after = 2 }
 filter = "package(ianua-scenarios) & test(/real_embedding_server/)"
 slow-timeout = { period = "60s", terminate-after = 8 }
 
-# CI profile for the E2E suite.
+# Compiling the misuse examples builds their dependencies once from nothing,
+# which on a fresh machine takes minutes.
+[[profile.default.overrides]]
+filter = "package(ianua-domain) & binary(compile_fail)"
+slow-timeout = { period = "60s", terminate-after = 10 }
+
+# CI profile for the scenarios.
 #
-# E2E tests spend almost all of their time waiting on Postgres round-trips and
+# Scenarios spend almost all of their time waiting on Postgres round-trips and
 # HTTP, not on CPU, so oversubscribing the runner's cores overlaps that I/O wait
 # and cuts wall-clock time. The shared Postgres container is configured for
 # 2000 connections; at ~10 connections per test (more for tests that also
@@ -70,24 +76,28 @@ slow-timeout = { period = "60s", terminate-after = 8 }
 # with headroom for tests still winding down while the next batch starts.
 # `fail-fast = false` runs the whole suite so a single failure does not mask
 # others.
-[profile.ci-e2e]
+[profile.ci-scenarios]
 # GitHub-hosted runners have 4 cores and each scenario starts a whole platform.
 test-threads = 4
 fail-fast = false
+# These need a Kubernetes cluster and the machine's `orbstack` context, or
+# Docker's `host.docker.internal`, which hosted runners do not have. They run
+# in the default profile.
+default-filter = "not (test(/_on_kubernetes$/) | test(/^agent_network::/) | test(/^code::network::code_reaches_its_allowed_host/))"
 
-[[profile.ci-e2e.scripts]]
+[[profile.ci-scenarios.scripts]]
 filter = "package(ianua-scenarios) | (package(ianua-dns) & binary(serving)) | (package(ianua-server) & binary(seeding)) | (package(ianua-server) & test(/^worker::/)) | (package(ianua-server) & test(/^assembly::adapters::/)) | (package(ianua-infra) & !test(/^crypto::/) & !test(/^cache::/) & !test(/^bus::/) & !test(/^test_support::bus::/) & !test(/^files::objects::tests::/))"
 setup = "postgres"
 
-[[profile.ci-e2e.scripts]]
+[[profile.ci-scenarios.scripts]]
 filter = "package(ianua-infra) & test(/^files::objects::tests::/)"
 setup = "objects"
 
-[[profile.ci-e2e.scripts]]
+[[profile.ci-scenarios.scripts]]
 filter = "package(ianua-scenarios) | (package(ianua-infra) & test(/^cache::(state::server|attempts)::/))"
 setup = "cache"
 
-[[profile.ci-e2e.scripts]]
+[[profile.ci-scenarios.scripts]]
 filter = "package(ianua-scenarios) | (package(ianua-infra) & test(/^(bus::server|test_support::bus)::/))"
 setup = "bus"
 

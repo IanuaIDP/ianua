@@ -73,7 +73,6 @@ const OFFBOARDS_PEOPLE: &[(&str, &str)] = &[
     ("Workflows", "View"),
     ("Workflows", "Run"),
     ("Users", "Manage"),
-    ("Groups", "Manage"),
     ("ApiKeys", "Manage"),
     ("Roles", "View"),
     ("Roles", "Assign"),

@@ -25,6 +25,27 @@ const CACHE_PORT: &str = "IANUA_TEST_CACHE_PORT";
 /// in.
 const BUS_PORT: &str = "IANUA_TEST_BUS_PORT";
 
+/// The first of the ports a workflow listener is picked from. They lie below
+/// the range the system hands out for port 0, so the port stays free between
+/// this pick and the gateway's bind while other stacks open ports.
+const FIRST_WORKFLOW_PORT: u16 = 20_000;
+
+/// How many ports a workflow listener is picked from.
+const WORKFLOW_PORTS: u16 = 10_000;
+
+/// A free loopback address for the gateway's workflow listener, each test
+/// process starting its search at a place of its own.
+fn workflow_listener_address() -> std::io::Result<SocketAddr> {
+    let start = std::process::id();
+    (0..u32::from(WORKFLOW_PORTS))
+        .map(|offset| start.wrapping_add(offset) % u32::from(WORKFLOW_PORTS))
+        .filter_map(|port| u16::try_from(port).ok())
+        .map(|port| FIRST_WORKFLOW_PORT.saturating_add(port))
+        .find_map(|port| std::net::TcpListener::bind(("127.0.0.1", port)).ok())
+        .ok_or_else(|| std::io::Error::from(std::io::ErrorKind::AddrInUse))?
+        .local_addr()
+}
+
 /// The networks tenants' upstreams may be on: loopback, where the
 /// scenarios' apps listen.
 const LOOPBACK: &str = "127.0.0.0/8";
@@ -267,9 +288,7 @@ impl Settings {
     /// [`StackError::Io`] when no port can be picked or a file written.
     fn internal_links(&mut self, files: &Path) -> Result<(), StackError> {
         let io = |what: &'static str| move |cause| StackError::Io { what, cause };
-        let picked = std::net::TcpListener::bind("127.0.0.1:0")
-            .and_then(|listener| listener.local_addr())
-            .map_err(io("workflow listener port"))?;
+        let picked = workflow_listener_address().map_err(io("workflow listener port"))?;
         let pki = internal_pki()?;
         let folder = files.join("internal-pki");
         write_internal_pki(&pki, &folder).map_err(io("internal certificates"))?;

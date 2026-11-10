@@ -3,14 +3,19 @@
 //! tenant, Ann signing in again, and the moves a tenant makes through its
 //! life.
 
+use std::time::Duration;
+
 use ianua_scenarios::actors::{Member, Person};
 use ianua_scenarios::api::{Request, TenantPath, organizations, people, tenants};
-use ianua_scenarios::expect::eventually;
+use ianua_scenarios::expect::eventually_within;
 use ianua_scenarios::net::Client;
 use ianua_scenarios::wire::organization::PlanChoice;
 use ianua_scenarios::wire::people::InviteUser;
 use ianua_scenarios::wire::tenants::{NewTenant, TenantStatus};
 use ianua_scenarios::world::{MEMBER_ROLE, World};
+
+/// How long a new tenant's setup may take on a busy four-core machine.
+const SETUP_PATIENCE: Duration = Duration::from_secs(60);
 
 /// The form for a tenant called `slug` on the platform's own
 /// infrastructure, with a contact address of this world.
@@ -39,16 +44,20 @@ pub(crate) async fn room_for_another_tenant(world: &World<'_>) {
 /// Waits until the setup of `tenant`, made as `id`, is over and it is
 /// active. Fails at once when a setup step failed.
 pub(crate) async fn once_set_up(world: &World<'_>, tenant: &TenantPath, id: &str) {
-    eventually("the new tenant's completed setup", || async {
-        let read = tenants::get(tenant).send(world.owner().client()).await.ok();
-        assert_eq!(read.id, id, "the tenant read is the one made");
-        assert!(
-            read.setup.failed_step.is_none(),
-            "no setup step failed: {:?}",
-            read.setup
-        );
-        (read.status == TenantStatus::Active && read.setup.state == "over").then_some(())
-    })
+    eventually_within(
+        "the new tenant's completed setup",
+        SETUP_PATIENCE,
+        || async {
+            let read = tenants::get(tenant).send(world.owner().client()).await.ok();
+            assert_eq!(read.id, id, "the tenant read is the one made");
+            assert!(
+                read.setup.failed_step.is_none(),
+                "no setup step failed: {:?}",
+                read.setup
+            );
+            (read.status == TenantStatus::Active && read.setup.state == "over").then_some(())
+        },
+    )
     .await;
 }
 

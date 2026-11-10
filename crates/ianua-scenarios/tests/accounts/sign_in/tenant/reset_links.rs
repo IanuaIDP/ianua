@@ -4,7 +4,7 @@
 //! resend waits out its cooldown, retires the old link and reaches only
 //! Pat; Mallory, pressing it or guessing, gets nothing done.
 
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use ianua_scenarios::actors::{Person, SignedInWith};
 use ianua_scenarios::api::sessions;
@@ -164,18 +164,36 @@ async fn a_resend_waits_for_its_cooldown_and_retires_the_old_link() {
         .send(&mallory)
         .await
         .refused(Status::NOT_FOUND, "not_found");
-    stack.mailbox().nothing_for(pat.email(), COOLDOWN).await;
+    no_reset_link_reaches(&stack, &pat, COOLDOWN).await;
 
     let fresh = resend_to_pat(&world, &pat, &original, COOLDOWN.as_secs()).await;
     retired_link_changes_nothing(&world, &mallory, &original).await;
     told_to_wait(&world, &mallory, &original).await;
-    stack.mailbox().nothing_for(pat.email(), QUIET).await;
+    no_reset_link_reaches(&stack, &pat, QUIET).await;
 
     pat.confirm_reset(&fresh, NEW_PASSWORD).await.ok();
     assert_eq!(pat.sign_in(&stack).await, SignedInWith::Password);
     records_hold_no_token(&world, &[&original, &fresh]).await;
 
     stack.stop().await.expect("the stack stops cleanly");
+}
+
+/// No reset link reaches Pat for the whole of `quiet`. The welcome joining
+/// sends may still arrive in that time, and is no reset link.
+async fn no_reset_link_reaches(stack: &Stack, pat: &Person, quiet: Duration) {
+    let deadline = Instant::now() + quiet;
+    while let Some(left) = deadline.checked_duration_since(Instant::now()) {
+        let Some(mail) = stack.mailbox().within(pat.email(), left).await else {
+            return;
+        };
+        assert!(
+            !mail
+                .links()
+                .iter()
+                .any(|link| link.path().starts_with("/reset-password")),
+            "a refused resend mailed Pat a reset link"
+        );
+    }
 }
 
 /// A resend of `token` by nobody signed in names `cooldown` and mails a

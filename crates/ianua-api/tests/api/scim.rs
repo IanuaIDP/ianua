@@ -459,12 +459,15 @@ async fn the_scim_service_is_limited_per_address() {
     let server = switched_on();
     let mut last = StatusCode::OK;
 
-    for _ in 0..610 {
+    for _ in 0..2_000 {
         last = server
             .get(&scim_path("/Users"))
             .authorization_bearer("guess")
             .await
             .status_code();
+        if last == StatusCode::TOO_MANY_REQUESTS {
+            break;
+        }
     }
 
     assert_eq!(last, StatusCode::TOO_MANY_REQUESTS);

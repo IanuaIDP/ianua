@@ -152,11 +152,14 @@ jobs:
       - name: Pre-pull Postgres image
         run: docker pull pgvector/pgvector:pg16
       - name: Run workspace tests
-        run: cargo nextest run --workspace --exclude ianua-scenarios --no-fail-fast
+        # The House rules job already runs the checks themselves.
+        run: >-
+          cargo nextest run --workspace --exclude ianua-scenarios --no-fail-fast
+          -E 'not (package(ianua-audit) & test(/^conventions::(api|app|domain|infra|integrations|plain)::/) & not test(/::tests::/))'
 
   # Split across four runners, each running its own quarter of the scenarios.
-  test-e2e:
-    name: E2E Tests (${{ matrix.shard }} of 4)
+  scenarios:
+    name: Scenarios (${{ matrix.shard }} of 4)
     runs-on: ubuntu-latest
     needs: [fmt]
     strategy:
@@ -178,8 +181,8 @@ jobs:
           tool: nextest
       - name: Pre-pull Postgres image
         run: docker pull pgvector/pgvector:pg16
-      - name: Run E2E tests
-        run: cargo nextest run -p ianua-scenarios --profile ci-e2e --partition hash:${{ matrix.shard }}/4
+      - name: Run the scenarios
+        run: cargo nextest run -p ianua-scenarios --profile ci-scenarios --partition hash:${{ matrix.shard }}/4
         timeout-minutes: 60
 
   # Images are what this pipeline delivers, so one is published only once every
@@ -187,7 +190,7 @@ jobs:
   images:
     name: Build and push images
     runs-on: ubuntu-latest
-    needs: [fmt, hakari, sqlx-offline, clippy, audit, deny, test, test-e2e]
+    needs: [fmt, hakari, sqlx-offline, clippy, audit, deny, test, scenarios]
     if: github.event_name != 'pull_request'
     permissions:
       contents: read

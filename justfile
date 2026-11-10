@@ -6,8 +6,8 @@
 set shell := ["bash", "-c"]
 set dotenv-load := true
 
-# Nextest profile for the e2e suite (one shared container, oversubscribed threads).
-e2e_profile := "ci-e2e"
+# Nextest profile for the scenarios (one shared container, oversubscribed threads).
+scenarios_profile := "ci-scenarios"
 
 # Kubernetes namespaces for the cluster recipes.
 ns := "ianua"
@@ -26,19 +26,19 @@ install-tools:
 
 # ── Test ──────────────────────────────────────────────────────────
 
-# Workspace tests except e2e — mirrors the CI `test` job.
+# Workspace tests except the scenarios — mirrors the CI `test` job.
 [group('test')]
 test:
     cargo nextest run --workspace --exclude ianua-scenarios
 
-# End-to-end scenarios against the shared Postgres, cache and bus — mirrors the CI `test-e2e` job.
+# End-to-end scenarios against the shared Postgres, cache and bus — mirrors the CI `scenarios` job.
 [group('test')]
-test-e2e:
-    cargo nextest run -p ianua-scenarios --profile {{e2e_profile}}
+test-scenarios:
+    cargo nextest run -p ianua-scenarios --profile {{scenarios_profile}}
 
-# Everything: workspace tests, then e2e.
+# Everything: workspace tests, then the scenarios.
 [group('test')]
-test-all: test test-e2e
+test-all: test test-scenarios
 
 # Only the ianua-infra integration (repo) tests.
 [group('test')]
@@ -88,13 +88,13 @@ fix:
     cargo clippy --all-targets --all-features --fix --allow-dirty --allow-staged
     cargo fmt --all
 
-# Quick pre-commit gate: format check, lint, non-e2e tests.
+# Quick pre-commit gate: format check, lint, tests other than the scenarios.
 [group('quality')]
 pre-commit: fmt-check lint test
 
-# Full CI gate locally: format check, lint, all tests including e2e.
+# Full CI gate locally: format check, lint, all tests including the scenarios.
 [group('quality')]
-ci: fmt-check lint test test-e2e
+ci: fmt-check lint test test-scenarios
 
 # ── Build & run ───────────────────────────────────────────────────
 
