@@ -93,6 +93,14 @@ the filter take exactly 32 bytes, written as 64 hex characters or as base64.
 {{- end -}}
 {{- end -}}
 
+{{/* A service account's pull secret, empty when the images need none. */}}
+{{- define "ianua.imagePullSecrets" -}}
+{{- if or .Values.imagePullSecret.create .Values.imagePullSecret.existingSecret -}}
+imagePullSecrets:
+  - name: {{ include "ianua.imagePullSecretName" . }}
+{{- end -}}
+{{- end -}}
+
 {{/*
 Name of the Secret holding the control plane's gRPC certificate, its key, and
 the authority that signs the nameservers' certificates.

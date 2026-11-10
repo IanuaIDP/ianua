@@ -154,8 +154,7 @@ The dashboard has its own chart, beside ianua's in `deploy/helm/`. Install it ne
 helm upgrade --install ianua-front deploy/helm/ianua-front \
   --namespace ianua \
   --set service.type=ClusterIP \
-  --set apiUrl=http://ianua-server/api/v1 \
-  --set imagePullSecret.existingSecret=""
+  --set apiUrl=http://ianua-server/api/v1
 ```
 
 Traefik already sends `ianua.example.com` to the `ianua-front` service, so there is nothing else to connect.

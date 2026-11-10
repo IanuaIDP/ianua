@@ -8,9 +8,10 @@ image:
   tag: ''
   pullPolicy: IfNotPresent
 
-# GHCR is private. Reference a pull secret that exists in the namespace.
+# The published image is public. For a private registry, name a pull secret
+# that exists in the namespace.
 imagePullSecret:
-  existingSecret: ianua-ghcr
+  existingSecret: ""
 
 replicas: 1
 port: 3000

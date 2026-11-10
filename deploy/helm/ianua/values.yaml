@@ -17,10 +17,11 @@ image:
   tag: ""
   pullPolicy: IfNotPresent
 
-# GHCR is private — a pull secret is required.
-# Provide a GitHub token with `read:packages`, or reference an existing secret.
+# The published images are public, so no pull secret is needed. For a private
+# registry, set `create: true` with a username and password, or reference an
+# existing secret.
 imagePullSecret:
-  create: true
+  create: false
   username: ""
   password: ""
   existingSecret: ""

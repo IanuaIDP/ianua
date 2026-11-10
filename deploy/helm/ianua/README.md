@@ -34,8 +34,6 @@ Deploys Ianua to Kubernetes (tested against Linode LKE and DigitalOcean DOKS):
   CNPG then provisions the database, handles failover and rolling upgrades, and
   publishes the connection string the app reads automatically — no manual DB
   config. When enabled, leave `secrets.databaseUrl` empty.
-- A **GHCR pull token** — the images are private. A GitHub token with
-  `read:packages` works.
 
 ## 1. Generate secrets
 
@@ -54,10 +52,6 @@ ENC=$(openssl rand -hex 32)
 # my-values.yaml
 image:
   tag: "<commit-sha>"        # pin to an immutable tag, not "latest"
-
-imagePullSecret:
-  username: "<github-username>"
-  password: "<ghcr-read-token>"
 
 config:
   baseDomain: ianua.io
