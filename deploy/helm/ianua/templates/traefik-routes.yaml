@@ -89,7 +89,7 @@ Traefik tries it first.
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: {{ include "ianua.fullname" $ }}-http-api-{{ . | replace "." "-" }}
+  name: {{ include "ianua.fullname" $ }}-dashboard-api-{{ . | replace "." "-" }}
   labels:
     {{- include "ianua.labels" $ | nindent 4 }}
     app.kubernetes.io/component: traefik-route
