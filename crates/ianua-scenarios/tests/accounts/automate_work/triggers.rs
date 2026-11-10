@@ -18,10 +18,6 @@ use serde_json::json;
 use crate::service::Service;
 use crate::support::{connected_account, delivery_graph, drafted, ended, published};
 
-/// A minute and a second: past the next firing of a schedule that fires
-/// every minute.
-const PAST_THE_NEXT_MINUTE: Duration = Duration::from_secs(61);
-
 /// How long the platform is watched for a firing that must not come:
 /// three of the worker's one-second sweeps, so a late second firing has
 /// every chance to show.
@@ -175,20 +171,20 @@ async fn a_schedule_fires_once_a_minute_across_a_restart_and_stops_when_archived
     let draft = drafted(&world, every_minute, delivery_graph(&service, &account)).await;
     let workflow = published(&world, &draft).await;
 
-    clock.advance(PAST_THE_NEXT_MINUTE);
+    clock.advance_into_next_minute();
     eventually("the first scheduled delivery", || async {
         (service.delivered() == 1).then_some(())
     })
     .await;
 
     check_minute_restart(&world, &service).await;
-    clock.advance(PAST_THE_NEXT_MINUTE);
+    clock.advance_into_next_minute();
     eventually("the next minute's delivery", || async {
         (service.delivered() == 2).then_some(())
     })
     .await;
     archived(&world, &workflow).await;
-    clock.advance(PAST_THE_NEXT_MINUTE);
+    clock.advance_into_next_minute();
     check_archived_schedule(&world, &service).await;
     stack.stop().await.expect("the stack stops cleanly");
 }

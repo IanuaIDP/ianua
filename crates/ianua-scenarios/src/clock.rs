@@ -94,6 +94,14 @@ impl Clock {
             Scope::Fixed(guard) => guard.advance_to(later),
         }
     }
+
+    /// Advances to one second into the next whole minute. Something due
+    /// every minute comes due once, and nearly a minute of real time lies
+    /// ahead before it comes due again, however slow the machine.
+    pub fn advance_into_next_minute(&self) {
+        let seconds_in = u64::from(clock::now().second());
+        self.advance(Duration::from_secs(61_u64.saturating_sub(seconds_in)));
+    }
 }
 
 /// The seconds the application and this thread's authenticator see now.
