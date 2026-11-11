@@ -12,8 +12,9 @@ use ianua_scenarios::wire::organization::{ChangeRole, OrgRole};
 use ianua_scenarios::wire::sign_in::PasswordSignIn;
 use ianua_scenarios::world::World;
 
-/// How long a mailbox is watched for a mail that must not come.
-pub(crate) const QUIET: Duration = Duration::from_secs(3);
+/// How long a mailbox is watched for a mail that must not come: two of
+/// the worker's one-second polls, though a mail job runs as it is queued.
+pub(crate) const QUIET: Duration = Duration::from_secs(2);
 
 /// A change of a member's role to `role`.
 pub(crate) fn change_to(role: OrgRole) -> ChangeRole {

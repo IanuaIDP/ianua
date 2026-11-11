@@ -27,7 +27,7 @@ const NEW_PASSWORD: &str = "Scenario resetting orchard lantern 7213";
 const ATTEMPTED_PASSWORD: &str = "Scenario meddling harbour lantern 6204";
 
 /// How long a resend waits after the newest link in these stacks.
-const COOLDOWN: Duration = Duration::from_secs(5);
+const COOLDOWN: Duration = Duration::from_secs(2);
 
 /// How long a reset link lives in the expiry scenario.
 const LIFETIME: Duration = Duration::from_secs(10);

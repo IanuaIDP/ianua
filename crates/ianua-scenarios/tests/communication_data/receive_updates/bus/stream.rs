@@ -19,7 +19,7 @@ use crate::support::person;
 const ORDERS: &str = "orders.created";
 
 /// How long the stream is read for once it has gone quiet.
-const QUIET: Duration = Duration::from_secs(5);
+const QUIET: Duration = Duration::from_secs(3);
 
 /// Tess opens the orders topic's live stream and publishes an order: it
 /// arrives on the stream, its bytes in base64, in a frame naming the

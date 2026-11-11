@@ -21,7 +21,7 @@ use crate::support::{QUIET, mail_linking_to, settled_sign_in};
 
 /// How long the platform waits before mailing the same address again, and
 /// before taking another resend: short, so the wait is real but brief.
-const COOLDOWN: Duration = Duration::from_secs(5);
+const COOLDOWN: Duration = Duration::from_secs(2);
 
 /// The password Max sets with the replacement link.
 const NEW_PASSWORD: &str = "Scenario resent orchard lantern 4158";

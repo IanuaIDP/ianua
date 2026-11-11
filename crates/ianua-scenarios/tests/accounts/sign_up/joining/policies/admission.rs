@@ -157,13 +157,14 @@ async fn assert_admitted_records(world: &World<'_>, secrets: &[String]) {
     );
 }
 
-/// Without mail and with `mfa`, Ann saves each of the 62 points in turn,
-/// with her authenticator: a subset offering the mailed link is refused
+/// Without mail and with `mfa`, Ann saves each point whose subset is in
+/// `masks`, closed and open to the public, in turn, with her
+/// authenticator: a subset offering the mailed link is refused
 /// for want of a mail server and leaves the settings as they were. At
 /// every point Pat's form is refused, since no mailbox can be proved, and
 /// no account is made; no registration is recorded and no address is
 /// mailed.
-async fn without_mail(mfa: MfaPolicy) {
+async fn without_mail(mfa: MfaPolicy, masks: Range<u8>) {
     let _clock = Clock::controlled();
     let stack = Stack::start(Profile::without_mail().with("DEPLOYMENT", "self_hosted"))
         .await
@@ -175,7 +176,10 @@ async fn without_mail(mfa: MfaPolicy) {
         .ok();
 
     let mut addresses = Vec::new();
-    for case in Admission::cases(mfa) {
+    for case in Admission::cases(mfa)
+        .into_iter()
+        .filter(|case| masks.contains(&case.mask))
+    {
         save_offline_case(&mut offline, &case, &original).await;
         addresses.push(assert_offline_signup(&stack, &offline, &case).await);
     }
@@ -358,23 +362,82 @@ async fn mfa_required_with_mail_admits_subsets_twenty_four_to_thirty_one_as_the_
     with_mail(MfaPolicy::Required, 24..32).await;
 }
 
-/// Without mail and with MFA disabled, all 62 policy combinations refuse
-/// public registration without creating an account or registration record.
+/// Without mail and with MFA disabled, subsets one to seven: no point
+/// takes a public registration or leaves an account or record.
 #[tokio::test]
-async fn without_mail_no_point_with_mfa_off_takes_a_public_form() {
-    without_mail(MfaPolicy::Disabled).await;
+async fn without_mail_no_point_with_mfa_off_takes_a_public_form_subsets_one_to_seven() {
+    without_mail(MfaPolicy::Disabled, 1..8).await;
 }
 
-/// Optional MFA cannot replace mailbox proof on a deployment without mail:
-/// all 62 combinations refuse registration and leave no account or record.
+/// Without mail and with MFA disabled, subsets eight to fifteen.
 #[tokio::test]
-async fn without_mail_no_point_with_mfa_optional_takes_a_public_form() {
-    without_mail(MfaPolicy::Optional).await;
+async fn without_mail_no_point_with_mfa_off_takes_a_public_form_subsets_eight_to_fifteen() {
+    without_mail(MfaPolicy::Disabled, 8..16).await;
 }
 
-/// Required MFA cannot replace mailbox proof on a deployment without mail:
-/// all 62 combinations refuse registration and leave no pending account.
+/// Without mail and with MFA disabled, subsets sixteen to twenty-three.
 #[tokio::test]
-async fn without_mail_no_point_with_mfa_required_takes_a_public_form() {
-    without_mail(MfaPolicy::Required).await;
+async fn without_mail_no_point_with_mfa_off_takes_a_public_form_subsets_sixteen_to_twenty_three() {
+    without_mail(MfaPolicy::Disabled, 16..24).await;
+}
+
+/// Without mail and with MFA disabled, subsets twenty-four to thirty-one.
+#[tokio::test]
+async fn without_mail_no_point_with_mfa_off_takes_a_public_form_subsets_twenty_four_to_thirty_one()
+{
+    without_mail(MfaPolicy::Disabled, 24..32).await;
+}
+
+/// Optional MFA cannot replace mailbox proof on a deployment without mail,
+/// subsets one to seven: no point takes a registration or leaves a record.
+#[tokio::test]
+async fn without_mail_no_point_with_mfa_optional_takes_a_public_form_subsets_one_to_seven() {
+    without_mail(MfaPolicy::Optional, 1..8).await;
+}
+
+/// Optional MFA without mail, subsets eight to fifteen.
+#[tokio::test]
+async fn without_mail_no_point_with_mfa_optional_takes_a_public_form_subsets_eight_to_fifteen() {
+    without_mail(MfaPolicy::Optional, 8..16).await;
+}
+
+/// Optional MFA without mail, subsets sixteen to twenty-three.
+#[tokio::test]
+async fn without_mail_no_point_with_mfa_optional_takes_a_public_form_subsets_sixteen_to_twenty_three()
+ {
+    without_mail(MfaPolicy::Optional, 16..24).await;
+}
+
+/// Optional MFA without mail, subsets twenty-four to thirty-one.
+#[tokio::test]
+async fn without_mail_no_point_with_mfa_optional_takes_a_public_form_subsets_twenty_four_to_thirty_one()
+ {
+    without_mail(MfaPolicy::Optional, 24..32).await;
+}
+
+/// Required MFA cannot replace mailbox proof on a deployment without mail,
+/// subsets one to seven: no point leaves a pending account.
+#[tokio::test]
+async fn without_mail_no_point_with_mfa_required_takes_a_public_form_subsets_one_to_seven() {
+    without_mail(MfaPolicy::Required, 1..8).await;
+}
+
+/// Required MFA without mail, subsets eight to fifteen.
+#[tokio::test]
+async fn without_mail_no_point_with_mfa_required_takes_a_public_form_subsets_eight_to_fifteen() {
+    without_mail(MfaPolicy::Required, 8..16).await;
+}
+
+/// Required MFA without mail, subsets sixteen to twenty-three.
+#[tokio::test]
+async fn without_mail_no_point_with_mfa_required_takes_a_public_form_subsets_sixteen_to_twenty_three()
+ {
+    without_mail(MfaPolicy::Required, 16..24).await;
+}
+
+/// Required MFA without mail, subsets twenty-four to thirty-one.
+#[tokio::test]
+async fn without_mail_no_point_with_mfa_required_takes_a_public_form_subsets_twenty_four_to_thirty_one()
+ {
+    without_mail(MfaPolicy::Required, 24..32).await;
 }

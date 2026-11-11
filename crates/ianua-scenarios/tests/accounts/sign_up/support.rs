@@ -16,8 +16,9 @@ use ianua_scenarios::wire::onboarding::Founded;
 use ianua_scenarios::wire::sign_in::{ConfirmSignIn, Owed, PasswordSignIn, Session, SignedIn};
 use ianua_scenarios::wire::tenants::TenantStatus;
 
-/// How long a mailbox is watched for a mail that must not come.
-pub(super) const QUIET: Duration = Duration::from_secs(3);
+/// How long a mailbox is watched for a mail that must not come: two of
+/// the worker's one-second polls, though a mail job runs as it is queued.
+pub(super) const QUIET: Duration = Duration::from_secs(2);
 
 /// How long a first tenant's setup is given: the worker's own steps and
 /// their retries, on a busy run.

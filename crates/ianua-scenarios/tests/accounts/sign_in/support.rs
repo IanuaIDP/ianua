@@ -17,8 +17,9 @@ use ianua_scenarios::wire::{Answer, Status};
 /// A wrong guess at a founder's password.
 pub(crate) const WRONG_GUESS: &str = "Scenario wrong guess entirely 1234";
 
-/// How long a mailbox is watched for a mail that must not come.
-pub(crate) const QUIET: Duration = Duration::from_secs(3);
+/// How long a mailbox is watched for a mail that must not come: two of
+/// the worker's one-second polls, though a mail job runs as it is queued.
+pub(crate) const QUIET: Duration = Duration::from_secs(2);
 
 /// The most mails passed over before the one awaited, so a missing link
 /// fails rather than reading forever.
