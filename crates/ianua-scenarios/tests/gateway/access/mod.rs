@@ -15,9 +15,12 @@
 //!   request while Pat goes on.
 //! - `undecided`: a route whose pipeline Tess never switched on forwards
 //!   nothing until she does.
+//! - `start_page`: each person's start page lists exactly the apps the
+//!   gateway then lets them open, and drops one when a role is taken back.
 
 mod allow_list;
 mod changes;
 mod permissions;
 mod standing;
+mod start_page;
 mod undecided;

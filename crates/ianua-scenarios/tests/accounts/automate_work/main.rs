@@ -78,7 +78,11 @@
 //! - `before_rules`: a rule run before an admin role is given refuses it
 //!   with a 403 or allows it; a role holding no built-in permission is not
 //!   its to decide, with no rule the change happens as before, and a rule
-//!   that would wait is refused at publish.
+//!   that would wait is refused at publish. Rules on access given, apps
+//!   opened to workflows and audit exports are handed what the change
+//!   would do, and one refusing rule stops it however many allow. A rule
+//!   whose publisher was deactivated cannot start, which refuses the
+//!   change.
 //! - `item_approvals`: one approval for every item of a loop counts only
 //!   once Ann opened every page, then each pass delivers once; Max may not
 //!   approve, and a denial fails the loop before any pass runs.

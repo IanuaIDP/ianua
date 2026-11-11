@@ -1,65 +1,35 @@
-//! Rules that run before a change: Ann publishes a workflow that starts
-//! before an admin role is given and ends in the company step Allow or
-//! Refuse. Tess gives Pat roles by hand; whether Pat holds them afterwards
-//! shows what the rule decided. A refusing rule stops an admin role with
-//! a 403 naming a company rule, while a role holding no built-in
-//! permission is not the rule's to decide. An allowing rule lets the role
-//! through, and with no rule the change happens as before. A rule that
-//! would wait for a person or for time is refused at publish. The rule is
-//! asked on every road an admin role takes, not only the direct one:
-//! an invitation, a group's role, joining a group that carries one, and a
-//! role people hold gaining a built-in permission.
+//! A rule on admin roles. A refusing rule stops an admin role with a 403
+//! naming a company rule, while a role holding no built-in permission is
+//! not the rule's to decide. An allowing rule lets the role through, and
+//! with no rule the change happens as before. A rule that would wait for
+//! a person or for time is refused at publish. The rule is asked on every
+//! road an admin role takes, not only the direct one: an invitation, a
+//! group's role, joining a group that carries one, and a role people hold
+//! gaining a built-in permission.
 
 use ianua_scenarios::actors::Person;
 use ianua_scenarios::api::{Request, people, policies, roles, workflows};
 use ianua_scenarios::stack::{Profile, Stack};
 use ianua_scenarios::wire::Status;
 use ianua_scenarios::wire::people::InviteUser;
-use ianua_scenarios::wire::policies::{GroupRole, NewGroup, NewGroupMember};
+use ianua_scenarios::wire::policies::{GroupRole, NewGroupMember};
 use ianua_scenarios::wire::roles::{AssignRole, Holder, NewRole, RoleChange, SystemPermission};
-use ianua_scenarios::wire::workflows::{Edge, Graph, Node, Publication, Step, Trigger, Workflow};
+use ianua_scenarios::wire::workflows::{Edge, Graph, Node, Publication, Step, Workflow};
 use ianua_scenarios::world::World;
-use serde::de::{DeserializeOwned, IgnoredAny};
+use serde::de::IgnoredAny;
 
-use crate::support::{drafted, ended, pat, published};
+use super::{
+    REFUSED_BY_A_RULE, VERDICT_STEP, before, group, only_run, refused_by_the_rule, rule_on, verdict,
+};
+use crate::support::{drafted, pat};
 
-/// The change Ann's rules decide.
+/// The change these rules decide.
 const ADMIN_GIVEN: &str = "admin_given";
-
-/// The key of the step deciding the change.
-const VERDICT_STEP: &str = "decide";
-
-/// What Tess is told when a rule refuses her change.
-const REFUSED_BY_A_RULE: &str = "a company rule refused this change";
-
-/// The company step `operation`, `allow` or `refuse`, deciding the change.
-fn verdict(operation: &str) -> Node {
-    Node {
-        key: VERDICT_STEP.to_owned(),
-        name: format!("{operation} the change"),
-        step: Step::Action {
-            integration: "ianua".to_owned(),
-            operation: operation.to_owned(),
-            account_id: None,
-            effect: "read".to_owned(),
-            ceiling: "internal".to_owned(),
-            inputs: Vec::new(),
-        },
-    }
-}
 
 /// Tess drafts and Ann publishes a rule run before an admin role is
 /// given, deciding it with `operation`; the published rule.
 async fn rule_deciding(world: &World<'_>, operation: &str) -> Workflow {
-    let trigger = Trigger::Before {
-        change: ADMIN_GIVEN.to_owned(),
-    };
-    let graph = Graph {
-        nodes: vec![verdict(operation)],
-        edges: Vec::new(),
-    };
-    let draft = drafted(world, trigger, graph).await;
-    published(world, &draft).await
+    rule_on(world, ADMIN_GIVEN, operation).await
 }
 
 /// Tess makes a role named `name` carrying `rights`, each a resource and
@@ -137,8 +107,8 @@ async fn a_rule_refusing_admin_roles_stops_them_and_lets_other_roles_through() {
 
 /// With no rule, Tess gives Pat "Support admin" and Pat holds it, as
 /// before rules existed. Ann then publishes a rule that allows admin
-/// roles. Tess gives Pat "Billing admin": the rule runs once, succeeds,
-/// and Pat holds the role.
+/// roles. Tess gives Pat "Billing admin": the rule runs once, handed the
+/// role and Pat as its holder, succeeds, and Pat holds the role.
 #[tokio::test]
 async fn an_allowing_rule_lets_the_admin_role_through() {
     let stack = Stack::start(Profile::standard())
@@ -159,15 +129,18 @@ async fn an_allowing_rule_lets_the_admin_role_through() {
         .await
         .ok();
 
-    let runs = workflows::executions(world.tenant(), &rule.id)
-        .send(world.admin().client())
-        .await
-        .ok()
-        .items;
     assert!(holds(&world, &support, &pat).await, "no rule, no change");
     assert!(holds(&world, &billing, &pat).await, "the rule allowed it");
-    assert_eq!(runs.len(), 1, "the rule ran for the ruled change only");
-    ended(&world, &runs[0].id, "succeeded").await;
+    let run = only_run(&world, &rule, "succeeded").await;
+    assert_eq!(run.input["role"], billing.as_str(), "the rule saw the role");
+    assert_eq!(run.input["role_name"], "Billing admin");
+    assert!(
+        run.input["holder"]
+            .as_str()
+            .is_some_and(|holder| holder.contains(pat.id())),
+        "the rule saw who would hold it: {}",
+        run.input
+    );
     stack.stop().await.expect("the stack stops cleanly");
 }
 
@@ -209,9 +182,7 @@ async fn a_before_rule_that_would_wait_is_refused_at_publish() {
 /// is refused, naming `slow`.
 async fn refused_at_publish(world: &World<'_>, slow: Node) {
     let key = slow.key.clone();
-    let trigger = Trigger::Before {
-        change: ADMIN_GIVEN.to_owned(),
-    };
+    let trigger = before(ADMIN_GIVEN);
     let graph = Graph {
         nodes: vec![slow, verdict("allow")],
         edges: vec![Edge {
@@ -336,31 +307,6 @@ impl Roads {
         };
         roles::change(world.tenant(), &self.reader, &change)
     }
-}
-
-/// Tess sends `request`: a company rule refuses it with a 403 saying so.
-async fn refused_by_the_rule<T: DeserializeOwned>(world: &World<'_>, request: Request<T>) {
-    let problem = request
-        .send(world.admin().client())
-        .await
-        .refused(Status::FORBIDDEN, "forbidden");
-    assert!(
-        problem.message().to_lowercase().contains(REFUSED_BY_A_RULE),
-        "{}",
-        problem.message()
-    );
-}
-
-/// Tess makes a group named `name`; its id.
-async fn group(world: &World<'_>, name: &str) -> String {
-    let made = NewGroup {
-        name: name.to_owned(),
-    };
-    policies::create_group(world.tenant(), &made)
-        .send(world.admin().client())
-        .await
-        .ok()
-        .id
 }
 
 /// Tess makes a group named `name` carrying the role `role_id`; its id.

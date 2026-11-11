@@ -155,6 +155,21 @@ pub struct Hostnames {
     pub slug_subdomain: Option<String>,
 }
 
+/// One app on a person's start page, from `GET …/me/apps`.
+#[derive(Debug, Clone, Deserialize)]
+pub struct OpenableApp {
+    /// The route the app is served through.
+    pub route_id: String,
+    /// The app's name, as its route is named.
+    pub name: String,
+    /// The path it opens at, such as `/wiki`.
+    pub path: String,
+    /// The addresses it answers on; empty for every one of the tenant's.
+    pub hosts: Vec<String>,
+    /// `now`, `step_up` or `key_proof`.
+    pub opens: String,
+}
+
 /// `POST …/stream-routes`: a port below HTTP, and where it forwards.
 #[derive(Debug, Clone, Serialize)]
 pub struct NewStreamRoute {

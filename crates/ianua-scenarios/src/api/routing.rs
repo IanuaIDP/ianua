@@ -6,7 +6,7 @@ use crate::net::Call;
 use crate::wire::app_sign_in::ConfigureAppSignIn;
 use crate::wire::routing::{
     DeclaredAction, Hostnames, Made, NewPipeline, NewRoute, NewService, NewStage, NewStreamRoute,
-    PolicyChange, RouteChange, WorkflowLogin,
+    OpenableApp, PolicyChange, RouteChange, WorkflowLogin,
 };
 
 /// `POST …/services`.
@@ -147,6 +147,13 @@ pub fn remove_route(tenant: &TenantPath, route_id: &str) -> Request<()> {
 #[must_use]
 pub fn hostnames(tenant: &TenantPath) -> Request<Hostnames> {
     Request::of(Call::get(tenant.at("/hostname")))
+}
+
+/// `GET …/me/apps`: the start page of the person signed in, the apps the
+/// gateway would let them open.
+#[must_use]
+pub fn my_apps(tenant: &TenantPath) -> Request<Vec<OpenableApp>> {
+    Request::of(Call::get(tenant.at("/me/apps")))
 }
 
 /// `PUT …/services/{id}/app-sign-in`.

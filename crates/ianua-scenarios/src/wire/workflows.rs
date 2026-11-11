@@ -592,6 +592,12 @@ pub struct Execution {
     pub id: String,
     /// `running`, or how it ended: `succeeded`, `failed`, `denied`.
     pub status: String,
+    /// What started it, such as `manual` or `before`.
+    pub cause: String,
+    /// The data it started with, null when the reader is not cleared for
+    /// it.
+    #[serde(default)]
+    pub input: Value,
     /// Its steps, with what each produced.
     pub steps: Vec<ExecutionStep>,
 }
