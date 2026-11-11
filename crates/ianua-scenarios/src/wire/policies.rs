@@ -18,6 +18,13 @@ pub struct Group {
     pub id: String,
 }
 
+/// One group as it was kept, from `GET …/authorization/groups/{id}`.
+#[derive(Debug, Clone, Deserialize)]
+pub struct GroupRead {
+    /// The label people see the group under.
+    pub name: String,
+}
+
 /// Principal reference returned by group membership and access-review listings.
 #[derive(Debug, Clone, Deserialize)]
 pub struct GroupMember {

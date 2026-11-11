@@ -4,7 +4,7 @@ use super::{Request, TenantPath};
 use crate::net::Call;
 use crate::wire::Page;
 use crate::wire::policies::{
-    AccessRequest, AskForGroup, BlankDraft, Group, GroupMember, GroupRole, NewGroup,
+    AccessRequest, AskForGroup, BlankDraft, Group, GroupMember, GroupRead, GroupRole, NewGroup,
     NewGroupMember, NewRule, Policy, ReviewItem,
 };
 
@@ -27,6 +27,14 @@ pub fn approve_request(tenant: &TenantPath, request_id: &str) -> Request<AccessR
 #[must_use]
 pub fn create_group(tenant: &TenantPath, group: &NewGroup) -> Request<Group> {
     Request::of(Call::post(tenant.at("/authorization/groups")).json(group))
+}
+
+/// `GET …/authorization/groups/{id}`: one group as it was kept.
+#[must_use]
+pub fn group(tenant: &TenantPath, group_id: &str) -> Request<GroupRead> {
+    Request::of(Call::get(
+        tenant.at(&format!("/authorization/groups/{group_id}")),
+    ))
 }
 
 /// `POST …/authorization/groups/{id}/members`.

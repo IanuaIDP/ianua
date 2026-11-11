@@ -11,7 +11,7 @@ use std::io;
 use std::sync::Arc;
 
 use bytes::Bytes;
-use http::header::{CONTENT_ENCODING, CONTENT_TYPE, HeaderValue};
+use http::header::{CONTENT_ENCODING, CONTENT_TYPE, HeaderValue, LOCATION};
 use http::{Request, Response, StatusCode};
 use http_body_util::{BodyExt, Full};
 use hyper::body::Incoming;
@@ -22,12 +22,14 @@ use serde_json::Value;
 
 use super::serving::{Listening, Record};
 
-/// One fixed answer: its status, its type, its encoding, and its bytes.
+/// One fixed answer: its status, its type, its encoding, where it sends
+/// the caller on, and its bytes.
 #[derive(Debug, Clone)]
 pub struct Canned {
     status: StatusCode,
     content_type: &'static str,
     encoding: Option<&'static str>,
+    location: Option<HeaderValue>,
     body: Bytes,
 }
 
@@ -39,6 +41,7 @@ impl Canned {
             status: StatusCode::OK,
             content_type: "application/json",
             encoding: None,
+            location: None,
             body: Bytes::from(record.to_string()),
         }
     }
@@ -50,7 +53,25 @@ impl Canned {
             status: StatusCode::OK,
             content_type: "text/plain",
             encoding: None,
+            location: None,
             body: Bytes::from(text.to_owned()),
+        }
+    }
+
+    /// A `302 Found` sending the caller on to `location`, as a service
+    /// that bounces a call somewhere else does.
+    ///
+    /// # Panics
+    ///
+    /// When `location` cannot be a header value.
+    /// An invalid fixture address must fail the scenario before serving requests.
+    #[allow(clippy::expect_used)]
+    #[must_use]
+    pub fn redirect(location: &str) -> Self {
+        Self {
+            status: StatusCode::FOUND,
+            location: Some(HeaderValue::from_str(location).expect("an address")),
+            ..Self::text("")
         }
     }
 
@@ -88,6 +109,7 @@ impl Canned {
             status: StatusCode::OK,
             content_type: "application/json",
             encoding: None,
+            location: None,
             body: Bytes::from(body.to_owned()),
         }
     }
@@ -99,6 +121,7 @@ impl Canned {
             status: StatusCode::OK,
             content_type: "application/octet-stream",
             encoding: None,
+            location: None,
             body: Bytes::from(body),
         }
     }
@@ -111,6 +134,9 @@ impl Canned {
         headers.insert(CONTENT_TYPE, HeaderValue::from_static(self.content_type));
         if let Some(encoding) = self.encoding {
             headers.insert(CONTENT_ENCODING, HeaderValue::from_static(encoding));
+        }
+        if let Some(location) = &self.location {
+            headers.insert(LOCATION, location.clone());
         }
         answer
     }

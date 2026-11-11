@@ -7,6 +7,9 @@
 //! - `gateway_door`: obsolete TLS, plaintext, slow headers and SNI boundaries.
 //! - `headers`: security headers and responses that cannot be cached.
 //! - `hosts`: mailed links use the configured address.
+//! - `injection`: SQL, templates and scripts are kept as written and never
+//!   run, unkeepable text is a bad request, wildcards search for
+//!   themselves, and fields a request does not offer change nothing.
 //! - `probing`: unusual paths, methods, scripts and private error details.
 //! - `stranger`: cross-tenant reads and writes leave victims unchanged.
 
@@ -17,5 +20,6 @@ mod front_door;
 mod gateway_door;
 mod headers;
 mod hosts;
+mod injection;
 mod probing;
 mod stranger;

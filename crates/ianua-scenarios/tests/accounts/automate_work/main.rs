@@ -19,6 +19,11 @@
 //! - `live`: a run's live stream shows each step approved, started and
 //!   succeeded, then the end, never the data; a draft's stream says its
 //!   steps changed; Max opens neither.
+//! - `outbound`: Mallory's HTTP step reaches no metadata or private
+//!   address however it is written, follows no redirect, and carries no
+//!   account's token to her own server.
+//! - `races`: ten copies of one approval deliver once, and a cancel
+//!   racing an approval leaves the run and the service agreeing.
 //! - `risks`: an operation the company raised needs its approval at
 //!   publish and stops older runs at that step until Tess removes it;
 //!   Uma may raise it but not remove it.
@@ -135,7 +140,9 @@ mod keys;
 mod live;
 mod loops;
 mod memory;
+mod outbound;
 mod places;
+mod races;
 mod reviews;
 mod risks;
 mod run_control;

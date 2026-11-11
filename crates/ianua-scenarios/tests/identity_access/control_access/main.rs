@@ -25,6 +25,8 @@
 //!   cleared themselves.
 //! - `break_glass`: emergency access given, closed and timed out, and what
 //!   a user may give themselves under the tenant's policy.
+//! - `escalation`: Uma reaches no right she lacks through a new role, her
+//!   own role widened or the Admin role given to herself.
 
 #![cfg(test)]
 
@@ -32,6 +34,7 @@ mod access_requests;
 mod break_glass;
 mod checks;
 mod clearance;
+mod escalation;
 mod groups;
 mod policy;
 mod reviews;
