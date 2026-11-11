@@ -3,7 +3,9 @@
 //! the platform database, seen only by platform work.
 //!
 //! A job is queued through the store call of the running unit of work, so
-//! it is kept exactly when the change is. A claim works one database at a
+//! it is kept exactly when the change is. A job due now is announced on the
+//! job channel in the same transaction, so a listening worker hears of it
+//! when the change commits. A claim works one database at a
 //! time, each in a transaction of its own: it locks the lane's jobs whose
 //! holder stopped and gives them up through the job itself, then locks the
 //! due pending jobs, oldest first and at most so many of one tenant's,
@@ -166,6 +168,41 @@ fn carried(error: DomainError) -> sqlx::Error {
 }
 
 /// Where `job` is kept.
+/// The id of the job `columns` describe once inserted, or none when a job
+/// with its key is kept already.
+async fn inserted(
+    connection: &mut PgConnection,
+    columns: &JobColumns<'_>,
+) -> Result<Option<Uuid>, sqlx::Error> {
+    sqlx::query_file_scalar!(
+        "queries/scheduled_jobs/add.sql",
+        columns.id,
+        columns.tenant_id,
+        columns.job_type,
+        columns.job_key,
+        columns.key_hold,
+        columns.payload,
+        columns.run_at,
+        columns.attempt,
+        columns.max_attempts,
+        columns.status,
+        columns.error,
+        columns.created_at,
+        columns.last_attempted_at,
+    )
+    .fetch_optional(connection)
+    .await
+}
+
+/// Announces on the job channel that a job is due, heard once the
+/// transaction on `connection` commits.
+async fn announce(connection: &mut PgConnection) -> Result<(), sqlx::Error> {
+    sqlx::query_file!("queries/scheduled_jobs/announce.sql")
+        .execute(connection)
+        .await?;
+    Ok(())
+}
+
 fn place_of(job: &ScheduledJob) -> RowScope {
     job.tenant_id()
         .map_or(RowScope::Platform, |tenant| RowScope::Tenant(*tenant))
@@ -299,25 +336,13 @@ fn cursor_of(keys: Option<&[SortKey]>) -> (Option<OffsetDateTime>, Option<Uuid>)
 impl JobQueue for PgJobQueue {
     async fn enqueue(&self, job: &ScheduledJob) -> Result<Enqueued, DomainError> {
         let columns = JobColumns::of(job);
+        let due_now = job.run_at() <= clock::now();
         let added = bounded(scoped(&self.databases, place_of(job), async |connection| {
-            sqlx::query_file_scalar!(
-                "queries/scheduled_jobs/add.sql",
-                columns.id,
-                columns.tenant_id,
-                columns.job_type,
-                columns.job_key,
-                columns.key_hold,
-                columns.payload,
-                columns.run_at,
-                columns.attempt,
-                columns.max_attempts,
-                columns.status,
-                columns.error,
-                columns.created_at,
-                columns.last_attempted_at,
-            )
-            .fetch_optional(connection)
-            .await
+            let added = inserted(connection, &columns).await?;
+            if added.is_some() && due_now {
+                announce(connection).await?;
+            }
+            Ok(added)
         }))
         .await?;
         Ok(match added {

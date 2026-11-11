@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Tells the workers listening on the job channel that a job is due, once\n-- the change that queued it commits; a change rolled back tells nobody.\nSELECT pg_notify('ianua_jobs', '')\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "pg_notify",
+        "type_info": "Void"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "fd746adcb67dc694243b281ffc0e224ca947e38630efb01ea4138c68d79d0c1e"
+}

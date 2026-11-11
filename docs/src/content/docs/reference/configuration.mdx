@@ -518,7 +518,7 @@ Jobs run on five lanes, so a slow kind of work never holds up another: mail, cer
 
 | Variable | Default | What it does |
 | --- | --- | --- |
-| `JOB_POLL_INTERVAL_SECONDS` | `2` | How long a lane that found nothing due waits before it asks again. |
+| `JOB_POLL_INTERVAL_SECONDS` | `2` | How long a lane that found nothing due waits before it asks again, unless it hears first that a job is due. |
 | `JOB_PER_TENANT` | `10` | Jobs of one tenant a lane takes in one claim, so one tenant's flood does not starve the others. |
 | `JOB_TIMEOUT_SECONDS` | `120` | Longest a mail or general job may run before it is stopped and tried again. |
 | `JOB_TLS_TIMEOUT_SECONDS` | `600` | Longest a certificate order may run. Must be longer than `ACME_DNS_PROPAGATION_TIMEOUT_SECONDS` on worker nodes. |

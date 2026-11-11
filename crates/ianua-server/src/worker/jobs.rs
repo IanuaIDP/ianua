@@ -9,7 +9,8 @@
 //! keeps a webhook or a signal waiting. Each lane claims as many due jobs
 //! as it runs at once, no more of one tenant's than its share, runs them
 //! together, each held to its timeout, and settles each before it claims
-//! again; a lane that found nothing waits for the poll interval. A claimed
+//! again; a lane that found nothing waits for the poll interval, or until
+//! the job channel says a job is due, whichever comes first. A claimed
 //! job is held for its lane's longest timeout and a margin, so a job that
 //! ran out of time is settled before another worker may take it, and a
 //! job whose worker died is taken again once that hold has passed.
@@ -35,6 +36,8 @@ use ianua_app::use_cases::workflows::sandboxes::BUILD_SANDBOX_JOB;
 use ianua_boot::shutdown::Shutdown;
 use ianua_domain::shared::errors::DomainError;
 use ianua_infra::mail::MAIL_JOB;
+use ianua_infra::postgres::scheduling::JobArrivals;
+use tokio::sync::watch;
 
 use crate::config::serving::worker::JobConfig;
 use crate::error::{PlatformError, ServerError};
@@ -203,6 +206,9 @@ pub(super) fn start(parts: &Parts<'_>, shutdown: &Shutdown) -> Result<(), Server
     let timeouts = Timeouts::of(jobs, longest_drive(&parts.config.agents));
     let lanes =
         lanes(&handlers(parts)?, jobs, timeouts).map_err(PlatformError::of("the job lanes"))?;
+    let arrivals = Arc::new(JobArrivals::new());
+    shutdown
+        .spawn_until_stopped(Arc::clone(&arrivals).listen(Arc::clone(&parts.platform.databases)));
     for LaneOf {
         name,
         lane,
@@ -217,6 +223,7 @@ pub(super) fn start(parts: &Parts<'_>, shutdown: &Shutdown) -> Result<(), Server
             use_case: ProcessJobsUseCase::new(ports, lane, handlers, backoff.clone()),
             auditor: parts.system_auditor(),
             poll: jobs.poll_interval,
+            arrivals: arrivals.watch(),
             name,
         };
         shutdown.spawn(name.task(), processor.run(shutdown.clone()));
@@ -239,6 +246,8 @@ struct Processor {
     use_case: ProcessJobsUseCase,
     auditor: RequestAuditor,
     poll: Duration,
+    /// How many jobs the job channel announced, moving when one is due.
+    arrivals: watch::Receiver<u64>,
     name: LaneName,
 }
 
@@ -246,9 +255,11 @@ impl Processor {
     /// Runs rounds until `shutdown` stops it. A round under way when the
     /// stop comes finishes, within the stop's grace, so the jobs in hand
     /// are settled; a stop past the grace leaves them to be taken again
-    /// once their hold has passed.
-    async fn run(self, shutdown: Shutdown) {
+    /// once their hold has passed. A job announced during a round wakes
+    /// the lane as soon as the round ends.
+    async fn run(mut self, shutdown: Shutdown) {
         while !shutdown.is_stopping() {
+            self.arrivals.borrow_and_update();
             let pause = self.round().await;
             let Some(pause) = pause else {
                 continue;
@@ -256,6 +267,7 @@ impl Processor {
             tokio::select! {
                 () = shutdown.stopping() => return,
                 () = tokio::time::sleep(pause) => {}
+                () = wait_for_announcement(&mut self.arrivals) => {}
             }
         }
     }
@@ -274,6 +286,14 @@ impl Processor {
                 Some(self.poll)
             }
         }
+    }
+}
+
+/// Waits until `arrivals` moves. A listener that has gone for good never
+/// moves it again, so the lane is left to its poll.
+async fn wait_for_announcement(arrivals: &mut watch::Receiver<u64>) {
+    if arrivals.changed().await.is_err() {
+        std::future::pending::<()>().await;
     }
 }
 
@@ -499,8 +519,33 @@ mod tests {
             ),
             auditor: RequestAuditor::system(Arc::new(FakeEventDispatcher::new())),
             poll: Duration::from_millis(10),
+            arrivals: JobArrivals::new().watch(),
             name: LaneName::General,
         }
+    }
+
+    /// A lane that found nothing would wait a minute for its next poll.
+    /// A job is queued and announced on the channel: the lane runs it at
+    /// once, long before the minute is up.
+    #[tokio::test]
+    async fn an_announced_job_is_run_before_the_next_poll() {
+        let queue = Arc::new(FakeJobQueue::new());
+        let handler = Counted::new(0, Duration::ZERO);
+        let arrivals = JobArrivals::new();
+        let mut lane = processor(Arc::clone(&queue) as _, &handler, Duration::from_secs(5));
+        lane.poll = Duration::from_secs(60);
+        lane.arrivals = arrivals.watch();
+        let shutdown = Shutdown::new(Duration::from_secs(2));
+        shutdown.spawn("the test lane", lane.run(shutdown.clone()));
+        tokio::time::sleep(Duration::from_millis(100)).await;
+
+        queued(queue.as_ref(), 3).await;
+        arrivals.count_heard();
+        let ran = tokio::time::timeout(Duration::from_secs(2), handler.started.notified()).await;
+
+        shutdown.stop();
+        assert!(ran.is_ok(), "the announced job ran before the next poll");
+        assert!(shutdown.join().await.is_ok());
     }
 
     /// Queues one counting job of no tenant, with `attempts` tries.
