@@ -78,7 +78,7 @@ flowchart LR
 ```
 
 - **Begin.** `POST .../workflows/accounts/connections` names the integration, the account's name, its sharing and operations. It answers the address to send the browser to: the service's sign-in page with the app's id, a random `state` and the `S256` challenge of a verifier the platform keeps. The verifier never leaves the platform. A sign-in not finished within ten minutes runs out, and a sweep forgets it.
-- **The service answers.** Every service sends the browser back to one callback, `/api/v1/integrations/callback` under `APP_BASE_URL`. The `state` finds the sign-in, and the code is swapped once, with the verifier and the app's secret, at the service's token address. The browser goes on to the dashboard with the connection and a one-time code after the `#`, so neither reaches a log.
+- **The service answers.** Every service sends the browser back to one callback, `/api/v1/integrations/callback` under `APP_BASE_URL`. The `state` finds the sign-in, and the code is swapped once, with the verifier and the app's secret, at the service's token address. A sign-in already answered or run out is refused before the service is asked, so a callback address sent again swaps nothing. The browser goes on to the dashboard with the connection and a one-time code after the `#`, so neither reaches a log.
 - **Finish.** Only the person who began, still allowed to connect accounts, finishes it with `POST .../workflows/accounts/connections/{id}/finish` and the code. The credential the service issued is tried before it is kept, as a pasted one is.
 
 ## Starting on a service's events

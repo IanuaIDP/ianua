@@ -266,6 +266,22 @@ impl<T: TenantScope> PendingConnection<T> {
         credential: SealedSecret,
         code: TokenHash,
     ) -> Result<(), DomainError> {
+        self.ensure_answerable(state)?;
+        self.stage = ConnectionStage::Answered { credential, code };
+        self.touch();
+        Ok(())
+    }
+
+    /// Refuses an answer with `state` before the service's code is swapped,
+    /// so a callback replayed or arriving late never reaches the service
+    /// for another credential.
+    ///
+    /// # Errors
+    ///
+    /// - [`DomainError::Forbidden`] when `state` is not this connection's.
+    /// - [`DomainError::Conflict`] when it expired, or the service already
+    ///   answered.
+    pub fn ensure_answerable(&self, state: &TokenHash) -> Result<(), DomainError> {
         if *state != self.state {
             return Err(DomainError::forbidden(message!(
                 "workflows-the-connection-state-is-wrong",
@@ -279,8 +295,6 @@ impl<T: TenantScope> PendingConnection<T> {
                 "the service already answered this connection"
             )));
         }
-        self.stage = ConnectionStage::Answered { credential, code };
-        self.touch();
         Ok(())
     }
 

@@ -520,6 +520,25 @@ mod tests {
         );
     }
 
+    /// GitHub's answer for Ann's connection comes back a second time with
+    /// the same state, as a replayed callback address does. The second is
+    /// refused as already answered before any code is swapped, so GitHub
+    /// is asked once.
+    #[test]
+    fn a_replayed_answer_is_refused_before_the_service_is_asked_again() {
+        let journey = Journey::new();
+        journey.begin("github").unwrap();
+        journey.answer("value-1", "github code").unwrap();
+
+        let replayed = journey.answer("value-1", "github code");
+
+        assert!(matches!(
+            replayed,
+            Err(AppError::Conflict(_) | AppError::Domain(_))
+        ));
+        assert_eq!(journey.sign_in.swapped().len(), 1, "GitHub was asked once");
+    }
+
     /// An unknown state, refused provider code, guessed finish code and
     /// unsupported integration each fail without saving an account.
     #[test]

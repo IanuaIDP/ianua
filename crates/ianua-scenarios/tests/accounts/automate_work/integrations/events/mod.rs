@@ -31,6 +31,8 @@
 //!   once, through the subscription publishing made with the secret in a
 //!   header of its own; an incident on another service, a resend and a
 //!   delivery without the secret start nothing.
+//! - `replays`: a made-up state, a replayed callback and a spent one-time
+//!   code reach no second token and connect nothing.
 //! - `slack`: Tess signs in at Slack, and a message posted in #support
 //!   starts Ann's workflow, which replies in its thread; a forged delivery
 //!   and the bot's own reply start nothing.
@@ -53,6 +55,7 @@ mod jira;
 mod linear;
 mod mailgun;
 mod pagerduty;
+mod replays;
 mod slack;
 mod trello;
 mod twilio;

@@ -5,7 +5,9 @@
 //!
 //! Nobody signs in here; the `state` the browser brings back finds the
 //! connection, by its digest. The browser is handed only a one-time code of
-//! the platform's own, never the credential.
+//! the platform's own, never the credential. A connection already answered
+//! or expired is refused before the service is asked, so a replayed
+//! callback address never swaps a code a second time.
 
 use std::sync::Arc;
 
@@ -149,6 +151,9 @@ impl Command for AnswerUseCase {
         let mut connection =
             existing_connection(self.ports.connections.as_ref(), &tenant, &at.connection_id)
                 .await?;
+        connection
+            .ensure_answerable(&state)
+            .map_err(AppError::from_domain)?;
         let sealed = self.issued(&tenant, &connection, &request.code).await?;
         let (code, code_digest) = self.ports.secrets.generate().or_internal()?;
         connection
