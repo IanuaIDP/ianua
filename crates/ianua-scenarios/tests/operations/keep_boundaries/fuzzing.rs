@@ -13,10 +13,11 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::{Duration, Instant};
 
 use futures_util::StreamExt as _;
-use ianua_scenarios::api::members;
+use ianua_scenarios::api::{members, organizations};
 use ianua_scenarios::net::{Call, Client};
 use ianua_scenarios::stack::{Profile, Stack};
 use ianua_scenarios::wire::Status;
+use ianua_scenarios::wire::organization::PlanChoice;
 use ianua_scenarios::world::World;
 use reqwest::Method;
 use serde::de::IgnoredAny;
@@ -61,11 +62,6 @@ const LEFT_OUT: [&str; 14] = [
 /// The longest any answer may take.
 const PATIENCE: Duration = Duration::from_secs(10);
 
-/// The gap between two requests: just under the two hundred a minute a
-/// company on the free plan may send, so the sweep reaches every endpoint
-/// rather than the rate limit.
-const PACE: Duration = Duration::from_millis(310);
-
 /// How long the sweep waits for one answer before it counts the request
 /// as hanging and goes on.
 const GIVEN_UP_AFTER: Duration = Duration::from_secs(30);
@@ -99,18 +95,15 @@ struct Sweep {
 }
 
 impl Sweep {
-    /// Fails the scenario unless the sweep sent at least `at_least`
-    /// requests, met no rate limit and broke nothing.
-    fn held(&self, at_least: usize) {
+    /// Fails the scenario unless the sweep reached the API, met no rate
+    /// limit and broke nothing.
+    fn held(&self) {
         let mut report = String::new();
         for found in &self.broken {
             let _ = writeln!(report, "{}: {}", found.what, found.why);
         }
         let tried = self.tried;
-        assert!(
-            tried >= at_least,
-            "the sweep reached the API: {tried} requests"
-        );
+        assert!(tried > 1_000, "the sweep reached the API: {tried} requests");
         assert_eq!(self.slowed, 0, "every request reached its endpoint");
         assert!(
             self.broken.is_empty(),
@@ -120,115 +113,53 @@ impl Sweep {
     }
 }
 
-/// Which of the sweep's requests one scenario sends: every `of`th,
-/// starting at `part`.
-#[derive(Clone, Copy)]
-struct Share {
-    part: usize,
-    of: usize,
-}
-
-/// How many parts Tess's sweep is split into. Each part runs against a
-/// company of its own, so each has the plan's whole rate budget, and the
-/// parts run side by side.
-const TESS_PARTS: usize = 6;
-
-/// How fast a sweep sends its requests.
-#[derive(Clone, Copy)]
-enum Pacing {
-    /// At [`PACE`], under the plan's budget a signed-in company has.
-    UnderThePlan,
-    /// Each as soon as the one before is answered: nobody signed in counts
-    /// against a plan.
-    AsAnswered,
-}
-
-/// Tess sends her share `part` of the sweep: every endpoint the
-/// description lists gets each kind of hostile body with her session, and
-/// every endpoint with an id in its path gets each hostile id. No answer
-/// is a server error or slower than ten seconds, and Tess is still signed
-/// in at the end.
-async fn tess_sweeps(part: usize) {
+/// Ann starts her company's Business trial, whose budget of ten thousand
+/// requests a minute the sweep stays far under. With Tess's session,
+/// every endpoint the description lists gets each kind of hostile body,
+/// and every endpoint with an id in its path gets each hostile id. No
+/// answer is a server error or slower than ten seconds, and Tess is still
+/// signed in at the end.
+#[tokio::test]
+async fn no_hostile_input_from_tess_breaks_the_platform() {
     let stack = Stack::start(fuzzed()).await.expect("the stack starts");
     let world = World::new(&stack).await;
     let tess = world.admin().client();
-    let share = Share {
-        part,
-        of: TESS_PARTS,
+    let business = PlanChoice {
+        plan: "Business".to_owned(),
     };
+    organizations::choose_plan(world.org(), &business)
+        .send(world.owner().client())
+        .await
+        .ok();
 
-    let sweep = swept(&world, tess, share, Pacing::UnderThePlan).await;
+    let sweep = swept(&world, tess).await;
 
     members::me(world.org()).send(tess).await.ok();
-    sweep.held(1_000 / TESS_PARTS);
+    sweep.held();
     stack.stop().await.expect("the stack stops cleanly");
 }
 
-/// The first sixth of Tess's sweep breaks nothing.
-#[tokio::test]
-async fn no_hostile_input_from_tess_breaks_the_platform_part_1() {
-    tess_sweeps(0).await;
-}
-
-/// The second sixth of Tess's sweep breaks nothing.
-#[tokio::test]
-async fn no_hostile_input_from_tess_breaks_the_platform_part_2() {
-    tess_sweeps(1).await;
-}
-
-/// The third sixth of Tess's sweep breaks nothing.
-#[tokio::test]
-async fn no_hostile_input_from_tess_breaks_the_platform_part_3() {
-    tess_sweeps(2).await;
-}
-
-/// The fourth sixth of Tess's sweep breaks nothing.
-#[tokio::test]
-async fn no_hostile_input_from_tess_breaks_the_platform_part_4() {
-    tess_sweeps(3).await;
-}
-
-/// The fifth sixth of Tess's sweep breaks nothing.
-#[tokio::test]
-async fn no_hostile_input_from_tess_breaks_the_platform_part_5() {
-    tess_sweeps(4).await;
-}
-
-/// The last sixth of Tess's sweep breaks nothing.
-#[tokio::test]
-async fn no_hostile_input_from_tess_breaks_the_platform_part_6() {
-    tess_sweeps(5).await;
-}
-
-/// The whole sweep from someone signed in nowhere, as anyone on the
+/// The same sweep from someone signed in nowhere, as anyone on the
 /// internet: the public doors take the hostile input, the others turn it
-/// away, and none of them breaks. Nobody signed in counts against a plan,
-/// so it goes as fast as it is answered.
+/// away, and none of them breaks.
 #[tokio::test]
 async fn no_hostile_input_from_a_stranger_breaks_the_platform() {
     let stack = Stack::start(fuzzed()).await.expect("the stack starts");
     let world = World::new(&stack).await;
-    let everything = Share { part: 0, of: 1 };
 
-    let sweep = swept(
-        &world,
-        world.anonymous().client(),
-        everything,
-        Pacing::AsAnswered,
-    )
-    .await;
+    let sweep = swept(&world, world.anonymous().client()).await;
 
-    sweep.held(1_000);
+    sweep.held();
     stack.stop().await.expect("the stack stops cleanly");
 }
 
 /// The deployment the sweeps run against: its API description published,
-/// and its per-address and per-person limits lifted so the sweep meets
-/// endpoints rather than limits. The plan's own limit stays, and a
-/// signed-in sweep is paced under it.
+/// its per-address and per-person limits lifted, and a plan's limit read
+/// again within a second, so the sweep meets endpoints rather than limits.
 fn fuzzed() -> Profile {
     Profile::standard()
         .with("ENABLE_API_DOCS", "true")
+        .with("RATE_LIMIT_CACHE_SECONDS", "1")
         .with("RATE_LIMIT_DEFAULT_PER_MINUTE", "1000000")
         .with("RATE_LIMIT_SENSITIVE_PER_WINDOW", "100000")
         .with("RATE_LIMIT_USER_PER_WINDOW", "100000")
@@ -238,9 +169,9 @@ fn fuzzed() -> Profile {
         .with("SIGNAL_VERIFICATIONS_PER_WINDOW", "10000")
 }
 
-/// Sends `share` of the hostile requests the description makes possible
-/// as `client`, one after another, as `pacing` says.
-async fn swept(world: &World<'_>, client: &Client, share: Share, pacing: Pacing) -> Sweep {
+/// Sends every hostile request the description makes possible as
+/// `client`, each as soon as the one before is answered.
+async fn swept(world: &World<'_>, client: &Client) -> Sweep {
     let description: Value = world
         .admin()
         .client()
@@ -266,20 +197,11 @@ async fn swept(world: &World<'_>, client: &Client, share: Share, pacing: Pacing)
             sweep.extend(calls(&endpoint, &schemas, &slugs));
         }
     }
-    let mine: Vec<_> = sweep
-        .into_iter()
-        .skip(share.part)
-        .step_by(share.of)
-        .collect();
-    let tried = mine.len();
+    let tried = sweep.len();
     tracing::info!(requests = tried, "the sweep starts");
     let slowed = AtomicUsize::new(0);
     let mut broken = Vec::new();
-    let mut pace = tokio::time::interval(PACE);
-    for (what, call) in mine {
-        if let Pacing::UnderThePlan = pacing {
-            pace.tick().await;
-        }
+    for (what, call) in sweep {
         broken.extend(answered(client, what, call, &slowed).await);
     }
     let slowed = slowed.into_inner();

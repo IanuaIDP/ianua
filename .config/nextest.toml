@@ -60,9 +60,8 @@ slow-timeout = { period = "60s", terminate-after = 2 }
 filter = "package(ianua-scenarios) & test(/real_embedding_server/)"
 slow-timeout = { period = "60s", terminate-after = 8 }
 
-# A part of the fuzzing sweep sends a few hundred hostile requests paced
-# under the plan's rate limit, and the stranger's sends well over a
-# thousand as fast as they are answered.
+# Each fuzzing sweep sends well over a thousand hostile requests, as fast
+# as they are answered.
 [[profile.default.overrides]]
 filter = "package(ianua-scenarios) & test(/^fuzzing::/)"
 slow-timeout = { period = "60s", terminate-after = 4 }
