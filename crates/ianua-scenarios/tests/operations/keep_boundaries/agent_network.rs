@@ -15,6 +15,7 @@
 
 use std::time::Duration;
 
+use futures_util::future::join_all;
 use ianua_scenarios::expect::{Waiting, eventually_paced};
 
 /// The release the chart is rendered as.
@@ -301,6 +302,17 @@ impl Cluster {
             .await
     }
 
+    /// Which of `parts`, each a stand-in's name and port, `from` reaches,
+    /// every one tried at once.
+    async fn reached(&self, from: &str, parts: &[(&str, u16)]) -> Vec<String> {
+        let tries = parts.iter().map(|&(name, port)| async move {
+            self.reaches_part(from, name, port)
+                .await
+                .then(|| format!("{name} on {port}"))
+        });
+        join_all(tries).await.into_iter().flatten().collect()
+    }
+
     /// Whether `from` can look a name up.
     async fn looks_up(&self, from: &str) -> bool {
         let exec = ["-n", &self.namespace, "exec", from, "--"];
@@ -383,9 +395,32 @@ async fn kubectl(args: &[&str], input: Option<&str>) -> Option<String> {
         .then(|| String::from_utf8_lossy(&output.stdout).into_owned())
 }
 
+/// What Pat's agent may not reach: another sandbox, or any platform part
+/// directly.
+const AGENT_HELD_BACK: [(&str, u16); 8] = [
+    ("ann-agent", 9000),
+    ("ann-runner", RUNNER_PORT),
+    ("gateway", GATEWAY_PORTS[0]),
+    ("gateway", GATEWAY_PORTS[1]),
+    ("api", API_PORT),
+    ("database", 5432),
+    ("cache", 6379),
+    ("bus", 4222),
+];
+
+/// What Pat's runner may not reach: Ann's agent, and the stores behind the
+/// platform.
+const RUNNER_HELD_BACK: [(&str, u16); 4] = [
+    ("ann-agent", 9000),
+    ("database", 5432),
+    ("cache", 6379),
+    ("bus", 4222),
+];
+
 /// Pat's agent reaches its own runner but cannot reach Ann's agent or runner,
 /// either gateway entry, the API, database, cache, bus or internet. Name
 /// lookups are also blocked, and Ann's agent cannot reach Pat's runner.
+/// Every refusal is tried at once, each given its full time to succeed.
 #[tokio::test]
 async fn pat_s_agent_reaches_its_runner_and_nothing_else() {
     let cluster = Cluster::set_up().await;
@@ -393,47 +428,24 @@ async fn pat_s_agent_reaches_its_runner_and_nothing_else() {
     cluster
         .eventually_reaches("pat-agent", "pat-runner", RUNNER_PORT)
         .await;
-    assert_agent_parts_blocked(&cluster).await;
-    assert!(
-        !cluster.reaches("pat-agent", INTERNET).await,
-        "Pat's agent reaches the internet"
-    );
-    assert!(
-        !cluster.looks_up("pat-agent").await,
-        "Pat's agent looks a name up"
-    );
-    assert!(
-        !cluster
-            .reaches_part("ann-agent", "pat-runner", RUNNER_PORT)
-            .await,
-        "Ann's agent reaches Pat's runner"
-    );
-}
 
-/// Pat's agent cannot reach another sandbox or any platform component directly.
-async fn assert_agent_parts_blocked(cluster: &Cluster) {
-    let held_back = [
-        ("ann-agent", 9000),
-        ("ann-runner", RUNNER_PORT),
-        ("gateway", GATEWAY_PORTS[0]),
-        ("gateway", GATEWAY_PORTS[1]),
-        ("api", API_PORT),
-        ("database", 5432),
-        ("cache", 6379),
-        ("bus", 4222),
-    ];
+    let (reached, internet, lookup, from_ann) = tokio::join!(
+        cluster.reached("pat-agent", &AGENT_HELD_BACK),
+        cluster.reaches("pat-agent", INTERNET),
+        cluster.looks_up("pat-agent"),
+        cluster.reaches_part("ann-agent", "pat-runner", RUNNER_PORT),
+    );
 
-    for (name, port) in held_back {
-        assert!(
-            !cluster.reaches_part("pat-agent", name, port).await,
-            "Pat's agent reaches {name} on {port}"
-        );
-    }
+    assert!(reached.is_empty(), "Pat's agent reaches {reached:?}");
+    assert!(!internet, "Pat's agent reaches the internet");
+    assert!(!lookup, "Pat's agent looks a name up");
+    assert!(!from_ann, "Ann's agent reaches Pat's runner");
 }
 
 /// Pat's runner reaches the gateway's runner entry and the API. Its network
 /// rules block the database, cache, bus, Ann's agent, internet access and
-/// name lookups, limiting where a compromised runner could connect.
+/// name lookups, limiting where a compromised runner could connect. Every
+/// refusal is tried at once, each given its full time to succeed.
 #[tokio::test]
 async fn pat_s_runner_reaches_the_platform_entries_alone() {
     let cluster = Cluster::set_up().await;
@@ -444,25 +456,14 @@ async fn pat_s_runner_reaches_the_platform_entries_alone() {
     cluster
         .eventually_reaches("pat-runner", "api", API_PORT)
         .await;
-    let held_back = [
-        ("ann-agent", 9000),
-        ("database", 5432),
-        ("cache", 6379),
-        ("bus", 4222),
-    ];
 
-    for (name, port) in held_back {
-        assert!(
-            !cluster.reaches_part("pat-runner", name, port).await,
-            "Pat's runner reaches {name} on {port}"
-        );
-    }
-    assert!(
-        !cluster.reaches("pat-runner", INTERNET).await,
-        "Pat's runner reaches the internet"
+    let (reached, internet, lookup) = tokio::join!(
+        cluster.reached("pat-runner", &RUNNER_HELD_BACK),
+        cluster.reaches("pat-runner", INTERNET),
+        cluster.looks_up("pat-runner"),
     );
-    assert!(
-        !cluster.looks_up("pat-runner").await,
-        "Pat's runner looks a name up"
-    );
+
+    assert!(reached.is_empty(), "Pat's runner reaches {reached:?}");
+    assert!(!internet, "Pat's runner reaches the internet");
+    assert!(!lookup, "Pat's runner looks a name up");
 }

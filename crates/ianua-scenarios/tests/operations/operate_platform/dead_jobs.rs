@@ -24,9 +24,10 @@ const MAIL_JOB: &str = "mail.send";
 /// The tries each mail gets in this deployment before it is given up.
 const MAIL_TRIES: u32 = 2;
 
-/// How long Uma's address is watched for a mail that must not come: several
-/// of the worker's one-second rounds.
-const QUIET: Duration = Duration::from_secs(5);
+/// How long Uma's address is watched for a mail that must not come: three
+/// of the worker's one-second polls and sweeps, past its one-second retry
+/// backoff.
+const QUIET: Duration = Duration::from_secs(3);
 
 /// The record a retry leaves in the platform's log.
 const RETRIED: &str = "operator.dead_job_retried";
