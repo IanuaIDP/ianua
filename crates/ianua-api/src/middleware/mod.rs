@@ -9,5 +9,6 @@ pub mod request_metrics;
 pub(crate) mod security_headers;
 pub mod sign_in_admission;
 pub mod unit_of_work;
+pub(crate) mod unread_body;
 pub mod user_rate_limit;
 pub mod wording;

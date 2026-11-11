@@ -19,6 +19,7 @@ use utoipa_scalar::{Scalar, Servable as _};
 use utoipa_swagger_ui::SwaggerUi;
 
 use crate::middleware::unit_of_work::RequestUnit;
+use crate::middleware::unread_body::BodyDraining;
 use crate::state::{ApiState, Deps};
 
 /// The whole API, built from what the server plugged in: every context's
@@ -108,7 +109,8 @@ fn request_context(app: Router<ApiState>, state: &ApiState, deps: &Deps) -> Rout
     .with_state(state.clone())
 }
 
-/// Bounds public requests and applies wording, browser and cache response policies.
+/// Bounds public requests, applies wording, browser and cache response
+/// policies, and reads what is left of a body answered early.
 fn response_policy(app: Router, state: &ApiState, deps: &Deps) -> Router {
     let listener = state.http.public_listener;
     app.layer(ConcurrencyLimitLayer::new(listener.max_concurrency))
@@ -130,7 +132,17 @@ fn response_policy(app: Router, state: &ApiState, deps: &Deps) -> Router {
         .layer(from_fn(
             crate::middleware::security_headers::security_headers,
         ))
+        .layer(from_fn_with_state(
+            BodyDraining {
+                most: listener.max_body_bytes,
+                within: DRAIN_WITHIN,
+            },
+            crate::middleware::unread_body::drain_unread_body,
+        ))
 }
+
+/// The longest an early answer waits for the rest of a body nothing read.
+const DRAIN_WITHIN: Duration = Duration::from_secs(2);
 
 /// Observes every public request, including refusals from the inner middleware.
 fn observed(app: Router, deps: &Deps) -> Router {
