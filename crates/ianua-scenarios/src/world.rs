@@ -23,9 +23,10 @@ use crate::wire::tenants::{MfaPolicy, PasswordAgain, ReplaceSignInSettings};
 /// The longest a tenant's setup is waited for.
 const SETUP_WAIT: Duration = Duration::from_secs(90);
 
-/// How often the setup is asked after: about as often as a dashboard
-/// would, well under the API's own rate limit.
-const SETUP_ASK_EVERY: Duration = Duration::from_secs(1);
+/// How often the setup is asked after: often enough that a scenario starts
+/// soon after the setup ends, and still a few dozen asks at most, well
+/// under the API's own rate limit.
+const SETUP_ASK_EVERY: Duration = Duration::from_millis(250);
 
 /// The tenant role holding every built-in permission, seeded into every
 /// tenant by its setup.
