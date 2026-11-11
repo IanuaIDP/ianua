@@ -6,10 +6,10 @@
 //! are still arriving. Her side, or the proxy in front, meets a reset
 //! instead of the refusal, and a proxy answers that as a bad gateway. So a
 //! refusal by the sign-in check, a rate limit or anything else that answers
-//! early is followed by reading what is left of the body, at most the
-//! listener's body limit and for at most [`BodyDraining::within`], and
-//! only then is the answer sent. A body past the limit or slower than that
-//! is left as it is: no sender holds an answer back for long.
+//! early is followed by reading what is left of the body, at most
+//! [`BodyDraining::most`] and for at most [`BodyDraining::within`], and
+//! only then is the answer sent. A body larger or slower than that is left
+//! as it is: no sender holds an answer back for long.
 
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
@@ -28,7 +28,8 @@ use http_body_util::{BodyExt as _, Limited};
 /// long.
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct BodyDraining {
-    /// The most bytes read: the listener's body limit.
+    /// The most bytes read: past the listener's body limit, so a body
+    /// refused for its size is read to its end too.
     pub(crate) most: usize,
     /// The longest the answer waits for them.
     pub(crate) within: Duration,
@@ -182,10 +183,10 @@ mod tests {
         assert_eq!(read.load(Ordering::Relaxed), 4, "the whole body was read");
     }
 
-    /// A body past the limit is read only up to it, and the refusal still
-    /// goes out.
+    /// A body past what the drain reads is read only up to that, and the
+    /// refusal still goes out.
     #[tokio::test]
-    async fn a_body_past_the_limit_is_read_no_further_than_it() {
+    async fn a_body_past_what_the_drain_reads_is_read_no_further() {
         let (body, read) = counted(100, 100);
         let request = Request::post("/").body(body).unwrap();
 

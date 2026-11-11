@@ -134,12 +134,17 @@ fn response_policy(app: Router, state: &ApiState, deps: &Deps) -> Router {
         ))
         .layer(from_fn_with_state(
             BodyDraining {
-                most: listener.max_body_bytes,
+                most: DRAIN_MOST,
                 within: DRAIN_WITHIN,
             },
             crate::middleware::unread_body::drain_unread_body,
         ))
 }
+
+/// The most of a body nothing read that an early answer reads and throws
+/// away: well past the body limit, so a body refused for its size is read
+/// to its end too, as a proxy's lingering close does.
+const DRAIN_MOST: usize = 16 * 1024 * 1024;
 
 /// The longest an early answer waits for the rest of a body nothing read.
 const DRAIN_WITHIN: Duration = Duration::from_secs(2);
