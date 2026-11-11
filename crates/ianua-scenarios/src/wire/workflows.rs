@@ -538,12 +538,127 @@ pub struct Workflow {
     pub revision: String,
 }
 
+/// `PATCH …/workflows/{id}/draft`: one change to the draft, named by
+/// `edit`.
+#[derive(Debug, Clone, Serialize)]
+#[serde(tag = "edit", rename_all = "snake_case")]
+pub enum DraftEdit {
+    /// Its steps and edges replaced.
+    ReplaceSteps {
+        /// The steps and edges.
+        graph: Graph,
+    },
+}
+
 /// `POST …/workflows/{id}/publish`: the draft revision the publisher
 /// reviewed, and no other.
 #[derive(Debug, Clone, Serialize)]
 pub struct Publication {
     /// Exact draft version reviewed by the publisher, preventing stale approval.
     pub revision: String,
+}
+
+/// `POST …/workflows/risks`: an integration's operation counted as riskier
+/// by the tenant than the integration declares it.
+#[derive(Debug, Clone, Serialize)]
+pub struct NewRisk {
+    /// The integration offering it, such as `http`.
+    pub integration: String,
+    /// The operation, such as `get-with-account`.
+    pub operation: String,
+    /// What it counts as from now on, such as `financial`.
+    pub effect: String,
+}
+
+/// An operation the tenant raised, from `POST …/workflows/risks`.
+#[derive(Debug, Clone, Deserialize)]
+pub struct Risk {
+    /// Handle to change or remove it with.
+    pub id: String,
+    /// What it counts as, such as `financial`.
+    pub effect: String,
+}
+
+/// `POST …/workflows/suggestions`: a person's words for the tenant's
+/// model to turn into steps.
+#[derive(Debug, Clone, Serialize)]
+pub struct SuggestSteps {
+    /// The model provider asked.
+    pub provider_id: String,
+    /// What the person wants the workflow to do.
+    pub words: String,
+}
+
+/// The steps a model proposed, checked against the catalog.
+#[derive(Debug, Clone, Deserialize)]
+pub struct Proposal {
+    /// The steps kept.
+    pub steps: Vec<ProposedStep>,
+    /// The arrows between kept steps.
+    pub edges: Vec<Value>,
+    /// What was left out, and why.
+    pub notes: Vec<String>,
+}
+
+/// A step the model proposed that the catalog offers, for the builder to
+/// place on the canvas.
+#[derive(Debug, Clone, Deserialize)]
+pub struct ProposedStep {
+    /// What the model called it, which the proposal's arrows name.
+    pub key: String,
+    /// What it does, such as `action`.
+    pub kind: String,
+}
+
+/// `POST …/flows`: an agent flow, made and started at once.
+#[derive(Debug, Clone, Serialize)]
+pub struct NewFlow {
+    /// Label shown in the tenant's list of flows.
+    pub name: String,
+    /// Its stages, each a list of agent runs started together once every
+    /// run of the stage before has answered.
+    pub stages: Vec<Vec<FlowRun>>,
+}
+
+/// One agent run of a flow, as its maker lays it out.
+#[derive(Debug, Clone, Serialize)]
+pub struct FlowRun {
+    /// The acting agent.
+    pub agent_id: String,
+    /// The model provider it reasons with.
+    pub provider_id: String,
+    /// The instruction.
+    pub goal: String,
+    /// The action classes its tool calls may take, such as `read`.
+    pub purpose: Vec<String>,
+}
+
+/// An agent flow and where it stands, from `GET …/flows/{id}`.
+#[derive(Debug, Clone, Deserialize)]
+pub struct Flow {
+    /// Handle to read, cancel or delete it with.
+    pub id: String,
+    /// `Running`, `Completed`, `Failed` or `Canceled`.
+    #[serde(default)]
+    pub status: Option<String>,
+    /// Its stages, each run with where it stands.
+    pub stages: Vec<Vec<FlowRunState>>,
+}
+
+/// Where one agent run of a flow stands.
+#[derive(Debug, Clone, Deserialize)]
+pub struct FlowRunState {
+    /// The instruction it was given.
+    pub goal: String,
+    /// `Pending`, `Dispatched`, `Completed` or `Failed`.
+    #[serde(default)]
+    pub status: Option<String>,
+    /// What it answered, once it completed.
+    #[serde(default)]
+    pub output: Option<String>,
+    /// Why it failed, when it did.
+    #[serde(default)]
+    pub error_message: Option<String>,
 }
 
 /// The secret a workflow's webhook is called with, from

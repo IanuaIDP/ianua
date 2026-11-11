@@ -10,6 +10,23 @@
 //!   retry recovers a failed delivery and leaves the first run failed;
 //!   Max, Sam, nobody signed in and a record that cannot be written start
 //!   nothing.
+//! - `run_control`: a cancelled run ends for good, across a restart and a
+//!   late approval; a retry runs only what did not finish, a rerun every
+//!   step, and only a failed run is rerun.
+//! - `flows`: an agent flow hands each stage's answers to the next and
+//!   completes; an ended flow cannot be cancelled, only deleted, and Max
+//!   lists none.
+//! - `live`: a run's live stream shows each step approved, started and
+//!   succeeded, then the end, never the data; a draft's stream says its
+//!   steps changed; Max opens neither.
+//! - `risks`: an operation the company raised needs its approval at
+//!   publish and stops older runs at that step until Tess removes it;
+//!   Uma may raise it but not remove it.
+//! - `suggestions`: a step the model suggests that no integration offers
+//!   is left out with a note, nothing is saved, and Max may not ask.
+//! - `versions`: runs keep using version 1 while version 2 is drafted and
+//!   edited; only the reviewed revision is published, which archives
+//!   version 1.
 //! - `apps`: a Protected apps step reads Acme's orders app as Pat, the
 //!   run's person, only on a route opened to workflows and only as far as
 //!   the app's own policy lets Pat in.
@@ -53,7 +70,7 @@
 //!   releases the delivery; her denial ends the run for good.
 //! - `loops`: a loop's passes each deliver once and give back one answer
 //!   per issue; a refused pass fails the loop and stops the other.
-//! - `triggers`: a webhook's rotated secret kills the old one and an
+//! - `triggers`: a webhook's rotated or revoked secret kills the old one, an
 //!   archived version answers no webhook; a schedule fires once a minute
 //!   across a worker restart and stops when archived.
 //! - `catalog`: the builder is shown each integration with its title,
@@ -108,19 +125,25 @@ mod company_steps;
 mod data;
 mod evaluations;
 mod executions;
+mod flows;
 mod guardrails;
 mod hiding;
 mod hours;
 mod integrations;
 mod item_approvals;
 mod keys;
+mod live;
 mod loops;
 mod memory;
 mod places;
 mod reviews;
+mod risks;
+mod run_control;
 mod service;
 mod signals;
 mod slack_approvals;
 mod spending;
+mod suggestions;
 mod support;
 mod triggers;
+mod versions;

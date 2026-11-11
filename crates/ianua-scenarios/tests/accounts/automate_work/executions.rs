@@ -3,6 +3,8 @@
 //! service refuses leaves the run failed until Tess retries it on purpose,
 //! and the first run stays failed; Max, Sam, nobody signed in and a record
 //! that cannot be written start no run and reach the service not at all.
+//! The company-wide list of runs shows every real run and keeps tests of
+//! drafts apart.
 
 use ianua_scenarios::api::workflows;
 use ianua_scenarios::expect::{Matrix, no_secret_leaked};
@@ -161,6 +163,66 @@ async fn nobody_without_the_right_and_no_unrecorded_start_reaches_the_service() 
     ended(&world, &first.execution_id, "succeeded").await;
     assert_eq!(service.delivered(), 1, "Tess's start delivered");
 
+    stack.stop().await.expect("the stack stops cleanly");
+}
+
+/// Two published workflows each run once, and Tess tests a third that is
+/// still a draft. The company-wide list of runs shows both real runs and
+/// not the test; the list of tests shows the test alone. Max may not read
+/// either.
+#[tokio::test]
+async fn the_company_wide_list_shows_every_real_run_and_keeps_tests_apart() {
+    let service = Service::start().await;
+    let stack = Stack::start(Profile::standard())
+        .await
+        .expect("the stack starts");
+    let world = World::new(&stack).await;
+    let account = connected_account(&world, &service).await;
+    let mut real = Vec::new();
+    for _ in 0..2 {
+        let draft = drafted(&world, Trigger::Manual, delivery_graph(&service, &account)).await;
+        let run = started(&world, &published(&world, &draft).await).await;
+        ended(&world, &run.execution_id, "succeeded").await;
+        real.push(run.execution_id);
+    }
+    let draft = drafted(&world, Trigger::Manual, delivery_graph(&service, &account)).await;
+    let example = StartExecution {
+        input: json!({}),
+        exposure: "internal".to_owned(),
+    };
+    let test = workflows::start_test(world.tenant(), &draft.id, &example)
+        .send(world.admin().client())
+        .await
+        .ok()
+        .execution_id;
+    ended(&world, &test, "succeeded").await;
+
+    let runs = workflows::all_executions(world.tenant())
+        .send(world.admin().client())
+        .await
+        .ok()
+        .items;
+    let tests = workflows::all_tests(world.tenant())
+        .send(world.admin().client())
+        .await
+        .ok()
+        .items;
+    for read in [
+        workflows::all_executions(world.tenant()),
+        workflows::all_tests(world.tenant()),
+    ] {
+        read.send(world.member().client())
+            .await
+            .refused(Status::FORBIDDEN, "forbidden");
+    }
+
+    let mut listed: Vec<&str> = runs.iter().map(|run| run.id.as_str()).collect();
+    listed.sort_unstable();
+    real.sort_unstable();
+    assert_eq!(listed, real, "both real runs, and not the test");
+    assert!(runs.iter().all(|run| run.mode == "live"));
+    let tested: Vec<&str> = tests.iter().map(|run| run.id.as_str()).collect();
+    assert_eq!(tested, [test.as_str()], "the test alone");
     stack.stop().await.expect("the stack stops cleanly");
 }
 

@@ -1,6 +1,6 @@
 //! What starts a workflow from outside: a webhook, called with the secret
-//! Ann issued and no other, whose rotation kills the old secret and whose
-//! archived version answers nobody; and a schedule that fires once a
+//! Ann issued and no other, whose rotation or revocation kills the old
+//! secret and whose archived version answers nobody; and a schedule that fires once a
 //! minute, not again when the workers restart mid-minute, and not at all
 //! once the version is archived.
 
@@ -71,6 +71,51 @@ async fn a_rotated_webhook_secret_and_an_archived_version_stop_outside_callers()
     let rotated = rotate_webhook(&world, &workflow, &issued).await;
     assert_eq!(service.delivered(), 2, "each admitted call delivered once");
     check_archived_webhook(&world, &workflow, &rotated, &service).await;
+    stack.stop().await.expect("the stack stops cleanly");
+}
+
+/// Ann issues the webhook's secret and a call with it delivers. Max cannot
+/// revoke it. Ann revokes it: a call with it starts nothing. Ann issues a
+/// new secret, and a call with that one delivers again.
+#[tokio::test]
+async fn a_revoked_webhook_secret_starts_nothing_until_a_new_one_is_issued() {
+    let service = Service::start().await;
+    let stack = Stack::start(Profile::standard())
+        .await
+        .expect("the stack starts");
+    let world = World::new(&stack).await;
+    let account = connected_account(&world, &service).await;
+    let draft = drafted(&world, Trigger::Webhook, delivery_graph(&service, &account)).await;
+    let workflow = published(&world, &draft).await;
+    let issued = workflows::issue_trigger_secret(world.tenant(), &workflow.id)
+        .send(world.owner().client())
+        .await
+        .ok();
+    start_issued_webhook(&world, &issued).await;
+
+    workflows::revoke_trigger_secret(world.tenant(), &workflow.id)
+        .send(world.member().client())
+        .await
+        .refused(Status::FORBIDDEN, "forbidden");
+    workflows::revoke_trigger_secret(world.tenant(), &workflow.id)
+        .send(world.owner().client())
+        .await
+        .ok();
+    webhook_call(&world, &issued)
+        .send(world.anonymous().client())
+        .await
+        .refused(Status::UNAUTHORIZED, "unauthenticated");
+    let reissued = workflows::issue_trigger_secret(world.tenant(), &workflow.id)
+        .send(world.owner().client())
+        .await
+        .ok();
+    start_issued_webhook(&world, &reissued).await;
+
+    assert_eq!(
+        service.delivered(),
+        2,
+        "only the two live secrets delivered"
+    );
     stack.stop().await.expect("the stack stops cleanly");
 }
 

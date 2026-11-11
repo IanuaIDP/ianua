@@ -13,10 +13,11 @@ use super::{Request, TenantPath, Text};
 use crate::net::Call;
 use crate::wire::Page;
 use crate::wire::workflows::{
-    Account, App, Approval, Approve, ApproveItems, Choices, ConnectionBegun, DataRoute, Evaluation,
-    EvaluationSet, Execution, ExecutionDecided, ExecutionSummary, FinishConnection, Integration,
-    ItemsPage, ListChoices, NewAccount, NewConnection, NewEvaluationSet, NewWorkflow, Operation,
-    PassRun, Publication, StartExecution, StepData, TriggerSecret, WebhookStarted, Workflow,
+    Account, App, Approval, Approve, ApproveItems, Choices, ConnectionBegun, DataRoute, DraftEdit,
+    Evaluation, EvaluationSet, Execution, ExecutionDecided, ExecutionSummary, FinishConnection,
+    Flow, Integration, ItemsPage, ListChoices, NewAccount, NewConnection, NewEvaluationSet,
+    NewFlow, NewRisk, NewWorkflow, Operation, PassRun, Proposal, Publication, Risk, StartExecution,
+    StepData, SuggestSteps, TriggerSecret, WebhookStarted, Workflow,
 };
 
 /// The header a webhook call carries its secret in.
@@ -120,6 +121,19 @@ pub struct ServiceDelivery<'a> {
     pub body: &'a str,
 }
 
+/// `GET …/workflows`: a page of the tenant's workflows.
+#[must_use]
+pub fn list_workflows(tenant: &TenantPath) -> Request<Page<Workflow>> {
+    Request::of(Call::get(tenant.at("/workflows")))
+}
+
+/// `POST …/workflows/suggestions`: the steps the tenant's model proposes
+/// for a person's words, saving nothing.
+#[must_use]
+pub fn suggest(tenant: &TenantPath, asked: &SuggestSteps) -> Request<Proposal> {
+    Request::of(Call::post(tenant.at("/workflows/suggestions")).json(asked))
+}
+
 /// `POST …/workflows`: a new workflow, as a draft.
 #[must_use]
 pub fn create_draft(tenant: &TenantPath, workflow: &NewWorkflow) -> Request<Workflow> {
@@ -152,6 +166,39 @@ pub fn archive_version(tenant: &TenantPath, workflow_id: &str, version: u32) -> 
 pub fn issue_trigger_secret(tenant: &TenantPath, workflow_id: &str) -> Request<TriggerSecret> {
     Request::of(Call::post(
         tenant.at(&format!("/workflows/{workflow_id}/trigger-secret")),
+    ))
+}
+
+/// `DELETE …/workflows/{id}/trigger-secret`: the secret withdrawn, so no
+/// outside caller starts the workflow any more.
+#[must_use]
+pub fn revoke_trigger_secret(tenant: &TenantPath, workflow_id: &str) -> Request<()> {
+    Request::of(Call::delete(
+        tenant.at(&format!("/workflows/{workflow_id}/trigger-secret")),
+    ))
+}
+
+/// `POST …/workflows/{id}/draft`: the next version drafted from the
+/// latest one, while the version in service keeps running.
+#[must_use]
+pub fn next_draft(tenant: &TenantPath, workflow_id: &str) -> Request<Workflow> {
+    Request::of(Call::post(
+        tenant.at(&format!("/workflows/{workflow_id}/draft")),
+    ))
+}
+
+/// `PATCH …/workflows/{id}/draft`: one change to the draft, making a new
+/// revision.
+#[must_use]
+pub fn edit_draft(tenant: &TenantPath, workflow_id: &str, edit: &DraftEdit) -> Request<Workflow> {
+    Request::of(Call::patch(tenant.at(&format!("/workflows/{workflow_id}/draft"))).json(edit))
+}
+
+/// `GET …/workflows/{id}/versions/{version}`: one version as it stands.
+#[must_use]
+pub fn version(tenant: &TenantPath, workflow_id: &str, version: u32) -> Request<Workflow> {
+    Request::of(Call::get(
+        tenant.at(&format!("/workflows/{workflow_id}/versions/{version}")),
     ))
 }
 
@@ -208,6 +255,20 @@ pub fn tests(tenant: &TenantPath, workflow_id: &str) -> Request<Page<ExecutionSu
     Request::of(Call::get(
         tenant.at(&format!("/workflows/{workflow_id}/executions?kind=tests")),
     ))
+}
+
+/// `GET …/workflows/executions`: the first page of the tenant's real runs
+/// across every workflow, newest first.
+#[must_use]
+pub fn all_executions(tenant: &TenantPath) -> Request<Page<ExecutionSummary>> {
+    Request::of(Call::get(tenant.at("/workflows/executions")))
+}
+
+/// `GET …/workflows/executions?kind=tests`: the first page of the tenant's
+/// tests of drafts across every workflow.
+#[must_use]
+pub fn all_tests(tenant: &TenantPath) -> Request<Page<ExecutionSummary>> {
+    Request::of(Call::get(tenant.at("/workflows/executions?kind=tests")))
 }
 
 /// `POST …/workflows/{id}/tests`: tests the workflow's latest version on
@@ -279,6 +340,23 @@ pub fn passes(tenant: &TenantPath, execution_id: &str) -> Request<Page<PassRun>>
 pub fn retry(tenant: &TenantPath, execution_id: &str) -> Request<ExecutionDecided> {
     Request::of(Call::post(
         tenant.at(&format!("/workflows/executions/{execution_id}/retry")),
+    ))
+}
+
+/// `POST …/workflows/executions/{id}/rerun`: a failed execution started
+/// again from its trigger, every step running again, as a new execution.
+#[must_use]
+pub fn rerun(tenant: &TenantPath, execution_id: &str) -> Request<ExecutionDecided> {
+    Request::of(Call::post(
+        tenant.at(&format!("/workflows/executions/{execution_id}/rerun")),
+    ))
+}
+
+/// `POST …/workflows/executions/{id}/cancel`: a running execution stopped.
+#[must_use]
+pub fn cancel(tenant: &TenantPath, execution_id: &str) -> Request<ExecutionDecided> {
+    Request::of(Call::post(
+        tenant.at(&format!("/workflows/executions/{execution_id}/cancel")),
     ))
 }
 
@@ -384,6 +462,65 @@ pub fn evaluation(
 }
 
 /// Where the approval of `step` in `execution_id` is decided.
+/// `GET …/ws/workflows/executions/{id}`: where the builder opens the live
+/// stream of one run's moments.
+#[must_use]
+pub fn run_stream(tenant: &TenantPath, execution_id: &str) -> String {
+    tenant.at(&format!("/ws/workflows/executions/{execution_id}"))
+}
+
+/// `GET …/ws/workflows/{id}/draft`: where the builder opens the live
+/// stream of changes to a workflow's draft.
+#[must_use]
+pub fn draft_stream(tenant: &TenantPath, workflow_id: &str) -> String {
+    tenant.at(&format!("/ws/workflows/{workflow_id}/draft"))
+}
+
+/// `POST …/flows`: an agent flow made and started, acting for the caller.
+#[must_use]
+pub fn create_flow(tenant: &TenantPath, flow: &NewFlow) -> Request<Flow> {
+    Request::of(Call::post(tenant.at("/flows")).json(flow))
+}
+
+/// `GET …/flows`: a page of the tenant's agent flows, newest first.
+#[must_use]
+pub fn flows(tenant: &TenantPath) -> Request<Page<Flow>> {
+    Request::of(Call::get(tenant.at("/flows")))
+}
+
+/// `GET …/flows/{id}`: one agent flow and where it stands.
+#[must_use]
+pub fn flow(tenant: &TenantPath, flow_id: &str) -> Request<Flow> {
+    Request::of(Call::get(tenant.at(&format!("/flows/{flow_id}"))))
+}
+
+/// `POST …/flows/{id}/cancel`: the flow's run and its agent runs stopped.
+#[must_use]
+pub fn cancel_flow(tenant: &TenantPath, flow_id: &str) -> Request<Flow> {
+    Request::of(Call::post(tenant.at(&format!("/flows/{flow_id}/cancel"))))
+}
+
+/// `DELETE …/flows/{id}`: an ended flow deleted with its run.
+#[must_use]
+pub fn delete_flow(tenant: &TenantPath, flow_id: &str) -> Request<()> {
+    Request::of(Call::delete(tenant.at(&format!("/flows/{flow_id}"))))
+}
+
+/// `POST …/workflows/risks`: an operation raised for the tenant.
+#[must_use]
+pub fn raise_risk(tenant: &TenantPath, risk: &NewRisk) -> Request<Risk> {
+    Request::of(Call::post(tenant.at("/workflows/risks")).json(risk))
+}
+
+/// `DELETE …/workflows/risks/{id}`: a raised operation counted as its
+/// integration declares again.
+#[must_use]
+pub fn remove_risk(tenant: &TenantPath, risk_id: &str) -> Request<()> {
+    Request::of(Call::delete(
+        tenant.at(&format!("/workflows/risks/{risk_id}")),
+    ))
+}
+
 fn approval_path(tenant: &TenantPath, execution_id: &str, step: &str) -> String {
     tenant.at(&format!(
         "/workflows/executions/{execution_id}/approvals/{step}"
