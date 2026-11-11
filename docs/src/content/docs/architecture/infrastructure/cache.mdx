@@ -30,7 +30,7 @@ Each port here is written once, over one small trait, `SharedState`: a counter i
 | `MemoryState` | This process, spread over shards each behind its own lock, held only for the step itself and never across an await. Each shard holds at most its share of the cap; past it, lapsed entries go, and when none has lapsed the new key is refused, so a flood of new keys cannot grow the process. | What each node counts on its own, such as the API rate limit; a deployment of one node; tests |
 | `ServerState` | A cache server every node reaches: any server that speaks the Redis wire protocol, such as Valkey, KeyDB or Redis. | What must hold across the fleet: quotas, budgets, the failure counts and lockouts, single-use nonces |
 
-On the server, every step a port needs done at once is one command or one script the server runs whole, so two nodes never see half of it, and every call has a deadline: a cache that hangs fails the call, it never holds a request.
+On the server, every step a port needs done at once is one command or one script the server runs whole, so two nodes never see half of it, and every call has a deadline: a cache that hangs fails the call, it never holds a request. A call that finds the server unreachable or silent rests it for a second: calls fail at once instead of each waiting out `CACHE_TIMEOUT_SECONDS`, then one call alone tries the server again, and its answer ends the rest. So a request that makes several cached reads during an outage is not held a deadline for each: its store caches ask their stores at once, and a shared counter refuses at once rather than let it through uncounted. A command the server refuses still counts as an answer and rests nothing.
 
 ### One cache server for several deployments
 

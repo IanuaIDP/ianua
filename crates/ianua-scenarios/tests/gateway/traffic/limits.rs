@@ -2,7 +2,7 @@
 //! when to come back, the next window lets them in again, and a counter
 //! that cannot be reached refuses rather than counts nothing.
 
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use ianua_scenarios::actors::Person;
 use ianua_scenarios::clock::Clock;
@@ -29,6 +29,11 @@ const WINDOW_SECONDS: i64 = 600;
 
 /// The page every step reads.
 const REPORT_PAGE: &str = "/sums/report";
+
+/// How soon a refusal comes once the cache is known to be gone: well under
+/// the gateway's ten seconds for a whole request, so no read waited on the
+/// cache in turn.
+const AT_ONCE: Duration = Duration::from_secs(2);
 
 /// The rate limit stage, counted per person.
 fn per_person() -> serde_json::Value {
@@ -133,13 +138,17 @@ async fn read(person: &Person, page: &str) -> Answer<IgnoredAny> {
 
 /// The shared counter goes away while Pat works. The limit cannot be
 /// counted, so she is told the service is unavailable rather than let
-/// through uncounted, the app seeing nothing. Once the counter is back
-/// she gets through again.
+/// through uncounted, the app seeing nothing; once the cache is known to be
+/// gone she is told at once, not held while every read waits on it in
+/// turn. Once the counter is back she gets through again. The cache is
+/// given a second to answer, so finding it gone takes a second rather than
+/// the deployment's default wait.
 #[tokio::test]
 async fn a_limit_whose_counter_is_gone_refuses_rather_than_counts_nothing() {
-    let stack = Stack::start(Profile::standard().with_cuttable_parts())
-        .await
-        .expect("the stack starts");
+    let profile = Profile::standard()
+        .with_cuttable_parts()
+        .with("CACHE_TIMEOUT_SECONDS", "1");
+    let stack = Stack::start(profile).await.expect("the stack starts");
     let world = World::new(&stack).await;
     let echo = Echo::start(&stack, &app_host(&world).await)
         .await
@@ -166,11 +175,17 @@ async fn a_limit_whose_counter_is_gone_refuses_rather_than_counts_nothing() {
     })
     .await;
     echo.forget();
+    let asked = Instant::now();
     Matrix::new("reading with no counter", Call::get(page.as_str()))
         .refused(pat.client(), Status::SERVICE_UNAVAILABLE, "unavailable")
         .run()
         .await;
+    let waited = asked.elapsed();
     assert!(echo.arrivals().is_empty(), "nothing went through uncounted");
+    assert!(
+        waited < AT_ONCE,
+        "with the cache known to be gone, Pat is refused at once, not after {waited:?}"
+    );
 
     stack.mend(Part::Cache);
     eventually("Pat to get through again", || async {

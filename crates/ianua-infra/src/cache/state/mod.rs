@@ -11,6 +11,7 @@
 //! [`ServerState`], on a cache server every node reaches.
 
 mod memory;
+mod resting;
 mod server;
 
 use std::time::Duration;

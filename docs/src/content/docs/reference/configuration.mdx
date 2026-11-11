@@ -193,7 +193,7 @@ Rate limit counts, cache versions and spent sign-in puzzles are shared through a
 | Variable | Default | What it does |
 | --- | --- | --- |
 | `CACHE_URL` | unset | The cache server, as `redis://` or `rediss://`. It may hold a password, so it is read as a secret. **Required** with `MODE=api` or `worker`, and whenever `BUS_URL` is set. |
-| `CACHE_TIMEOUT_SECONDS` | `5` | Longest one call or connection attempt to the cache may take. |
+| `CACHE_TIMEOUT_SECONDS` | `5` | Longest one call or connection attempt to the cache may take. Once one fails this way, calls fail at once for a second before the cache is tried again. |
 | `CACHE_MEMORY_ENTRIES` | `100000` | Entries the in-process cache holds, from 1 to 100,000,000. |
 | `STORE_CACHE_LIFETIME_SECONDS` | `20` | How long a resolved caller and its access records are kept in front of the database, from 1 to 300. It is how long a revoked grant may still be served. |
 | `STORE_CACHE_CALLERS` | `50000` | Resolved callers kept, from 1 to 10,000,000. |

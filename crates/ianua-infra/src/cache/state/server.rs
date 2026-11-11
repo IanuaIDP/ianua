@@ -8,14 +8,18 @@
 //! needs done at once is one command
 //! or one script the server runs whole, so two nodes never see half of a
 //! step. Every call is held to a deadline: a cache that hangs fails the
-//! call, it never holds a request.
+//! call, it never holds a request. A server found silent rests a moment,
+//! its calls failing at once, so a request making several calls is not
+//! held a deadline for each.
 
+use std::sync::Arc;
 use std::time::Duration;
 
 use async_trait::async_trait;
 use redis::aio::{ConnectionManager, ConnectionManagerConfig};
 use redis::{Client, Cmd, FromRedisValue, Script};
 
+use crate::cache::state::resting::{Attempt, Found, Rests};
 use crate::cache::state::{CacheError, LogCapacity, LogEntry, SharedState};
 use crate::namespace::Namespace;
 
@@ -89,12 +93,17 @@ fn millis(duration: Duration) -> u64 {
         .max(1)
 }
 
+/// How long the server rests after a call finds it silent, before one call
+/// tries it again.
+const REST_AFTER_SILENCE: Duration = Duration::from_secs(1);
+
 /// Shared state on a cache server, every key under one namespace.
 #[derive(Clone)]
 pub struct ServerState {
     connection: ConnectionManager,
     namespace: Namespace,
     deadline: Duration,
+    rests: Arc<Rests>,
 }
 
 impl std::fmt::Debug for ServerState {
@@ -134,15 +143,32 @@ impl ServerState {
             connection,
             namespace: namespace.clone(),
             deadline,
+            rests: Arc::new(Rests::after_each_failure(REST_AFTER_SILENCE)),
         })
     }
 
     async fn run<T: FromRedisValue>(&self, command: &Cmd) -> Result<T, CacheError> {
         let mut connection = self.connection.clone();
-        tokio::time::timeout(self.deadline, command.query_async::<T>(&mut connection))
-            .await
-            .map_err(|_| CacheError::TimedOut)?
-            .map_err(|error| CacheError::Unreachable(Box::new(error)))
+        self.asked(command.query_async::<T>(&mut connection)).await
+    }
+
+    /// What `call` came to, held to the deadline and made only while the
+    /// server is not resting, with what it found of the server taken in.
+    async fn asked<T>(
+        &self,
+        call: impl Future<Output = redis::RedisResult<T>>,
+    ) -> Result<T, CacheError> {
+        let attempt = Attempt::admitted(&self.rests)?;
+        let (outcome, found) = match tokio::time::timeout(self.deadline, call).await {
+            Err(_) => (Err(CacheError::TimedOut), Found::Silent),
+            Ok(Ok(value)) => (Ok(value), Found::Answering),
+            Ok(Err(error)) => {
+                let found = found_by(&error);
+                (Err(CacheError::Unreachable(Box::new(error))), found)
+            }
+        };
+        attempt.settle(found);
+        outcome
     }
 
     async fn script<T: FromRedisValue>(
@@ -157,11 +183,23 @@ impl ServerState {
             invocation.arg(arg);
         }
         let mut connection = self.connection.clone();
-        tokio::time::timeout(self.deadline, invocation.invoke_async::<T>(&mut connection))
+        self.asked(invocation.invoke_async::<T>(&mut connection))
             .await
-            .map_err(|_| CacheError::TimedOut)?
-            .map_err(|error| CacheError::Unreachable(Box::new(error)))
     }
+}
+
+/// What `error` says of the server: silent when it could not be reached,
+/// dropped the connection or timed out, answering when it refused the
+/// command.
+fn found_by(error: &redis::RedisError) -> Found {
+    let silent = error.is_io_error()
+        || error.is_connection_dropped()
+        || error.is_connection_refusal()
+        || error.is_timeout();
+    if silent {
+        return Found::Silent;
+    }
+    Found::Answering
 }
 
 #[async_trait]
