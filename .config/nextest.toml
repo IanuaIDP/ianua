@@ -60,6 +60,13 @@ slow-timeout = { period = "60s", terminate-after = 2 }
 filter = "package(ianua-scenarios) & test(/real_embedding_server/)"
 slow-timeout = { period = "60s", terminate-after = 8 }
 
+# The fuzzing sweep sends well over a thousand hostile requests, one set
+# per endpoint the API description lists, paced under the plan's rate
+# limit.
+[[profile.default.overrides]]
+filter = "package(ianua-scenarios) & test(/^fuzzing::/)"
+slow-timeout = { period = "60s", terminate-after = 15 }
+
 # Compiling the misuse examples builds their dependencies once from nothing,
 # which on a fresh machine takes minutes.
 [[profile.default.overrides]]

@@ -4,6 +4,8 @@
 //!
 //! - `agent_network`: what an agent and its runner reach on the cluster.
 //! - `front_door`: internal endpoints, relay seals, bodies and foreign origins.
+//! - `fuzzing`: hostile bodies and ids sent to every endpoint the API
+//!   description lists break nothing and keep nobody waiting.
 //! - `gateway_door`: obsolete TLS, plaintext, slow headers and SNI boundaries.
 //! - `headers`: security headers and responses that cannot be cached.
 //! - `hosts`: mailed links use the configured address.
@@ -17,6 +19,7 @@
 
 mod agent_network;
 mod front_door;
+mod fuzzing;
 mod gateway_door;
 mod headers;
 mod hosts;
