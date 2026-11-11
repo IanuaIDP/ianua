@@ -491,6 +491,7 @@ async fn a_run_whose_person_may_not_manage_keys_ends_none() {
 /// trail says Pat resumed the key, through the run.
 #[tokio::test]
 async fn pat_s_run_resumes_a_paused_key_once_two_people_say_yes() {
+    let _clock = Clock::controlled();
     let stack = Stack::start(Profile::standard())
         .await
         .expect("the stack starts");

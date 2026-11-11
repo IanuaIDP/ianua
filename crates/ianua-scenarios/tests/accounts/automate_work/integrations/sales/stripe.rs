@@ -9,6 +9,7 @@
 //! customer Stripe refuses fails the run.
 
 use ianua_scenarios::api::workflows;
+use ianua_scenarios::clock::Clock;
 use ianua_scenarios::expect::{eventually, no_secret_leaked};
 use ianua_scenarios::stack::{Profile, Stack};
 use ianua_scenarios::upstreams::{Canned, CannedApp};
@@ -51,6 +52,7 @@ const APPROVAL_STEP: &str = "approve-refund";
 /// the trail.
 #[tokio::test]
 async fn a_refund_reaches_stripe_only_after_two_approvals() {
+    let _clock = Clock::controlled();
     let stripe = stripe_answering(Canned::json(&json!({ "id": "cus_dana" }))).await;
     let stack = Stack::start(profile(&stripe))
         .await

@@ -13,6 +13,7 @@ use ianua_scenarios::agent::external::ExternalAgent;
 use ianua_scenarios::api::agents::approvals;
 use ianua_scenarios::api::{member_factors, routing};
 use ianua_scenarios::authenticators::TotpApp;
+use ianua_scenarios::clock::Clock;
 use ianua_scenarios::expect::{Waiting, eventually_paced};
 use ianua_scenarios::net::Call;
 use ianua_scenarios::stack::Stack;
@@ -162,6 +163,7 @@ async fn held_payment(world: &World<'_>, reporter: &ExternalAgent, app: &App) ->
 /// goes through once; paying again is held anew. The app saw one payment.
 #[tokio::test]
 async fn money_moves_once_two_different_people_approve_it_each_with_a_fresh_code() {
+    let _clock = Clock::controlled();
     let stack = Stack::start(profile()).await.expect("the stack starts");
     let world = World::new(&stack).await;
     let app = opened(&stack, &world, "/payments/*", Vec::new()).await;

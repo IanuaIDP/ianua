@@ -6,6 +6,7 @@
 use ianua_scenarios::actors::Person;
 use ianua_scenarios::api::agents::{delegation, lifecycle};
 use ianua_scenarios::api::{audit, notifications, people, policies, workflows};
+use ianua_scenarios::clock::Clock;
 use ianua_scenarios::expect::eventually;
 use ianua_scenarios::stack::{Profile, Stack};
 use ianua_scenarios::wire::Status;
@@ -213,6 +214,7 @@ async fn a_step_pat_could_not_take_by_hand_fails_and_changes_nothing() {
 /// through the run.
 #[tokio::test]
 async fn pat_s_run_takes_lee_out_of_every_group_once_two_people_say_yes() {
+    let _clock = Clock::controlled();
     let stack = Stack::start(Profile::standard())
         .await
         .expect("the stack starts");

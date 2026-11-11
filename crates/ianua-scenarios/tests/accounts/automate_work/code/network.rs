@@ -11,6 +11,7 @@ use std::sync::Arc;
 
 use ianua_infra::sandbox::{ProxyServing, SandboxProxy, TicketKey, Upstreams};
 use ianua_scenarios::api::workflows;
+use ianua_scenarios::clock::Clock;
 use ianua_scenarios::expect::eventually;
 use ianua_scenarios::stack::{Profile, Stack};
 use ianua_scenarios::wire::workflows::{Edge, Execution, Graph, Node, Step};
@@ -260,6 +261,7 @@ async fn approved_and_ran(world: &World<'_>, graph: Graph) -> Execution {
 /// raises an error, and the run still succeeds with both results.
 #[tokio::test]
 async fn code_reaches_its_allowed_host_and_no_other() {
+    let _clock = Clock::controlled();
     egress_network().await;
     let (stand_in, serving) = stand_in().await;
     let filter = RunningFilter::start(stand_in).await;
@@ -296,6 +298,7 @@ async fn code_reaches_its_allowed_host_and_no_other() {
 /// run. Even after both approvals, the execution fails with `code_not_run`.
 #[tokio::test]
 async fn a_version_naming_hosts_does_not_run_without_a_filter() {
+    let _clock = Clock::controlled();
     let gate = RunningGate::start(None).await;
     let npm = registry(&[], Fingerprints::True).await;
     let socket = gate.socket().display().to_string();

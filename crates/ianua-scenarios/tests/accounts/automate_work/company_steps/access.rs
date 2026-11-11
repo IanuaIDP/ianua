@@ -369,6 +369,7 @@ async fn lee_reads_people(world: &World<'_>, lee: &Person) -> Status {
 /// through the run.
 #[tokio::test]
 async fn pat_s_run_gives_lee_emergency_access_for_five_minutes() {
+    let _clock = Clock::controlled();
     let stack = Stack::start(Profile::standard())
         .await
         .expect("the stack starts");
@@ -402,6 +403,7 @@ async fn pat_s_run_gives_lee_emergency_access_for_five_minutes() {
 /// Bea and Cal said yes, and Lee still may not read people.
 #[tokio::test]
 async fn emergency_access_from_a_run_whose_person_may_not_hand_out_rights_fails() {
+    let _clock = Clock::controlled();
     let stack = Stack::start(Profile::standard())
         .await
         .expect("the stack starts");
