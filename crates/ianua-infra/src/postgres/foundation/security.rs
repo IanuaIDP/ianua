@@ -9,7 +9,6 @@
 
 use ianua_app::tenancy::ScopedTenant;
 use ianua_domain::types::TenantId;
-use sqlx::PgConnection;
 
 /// Which rows a store call may see.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -29,24 +28,18 @@ impl From<&ScopedTenant> for RowScope {
     }
 }
 
-/// Gives the running transaction on `connection` the rows of `scope`, for
-/// this transaction only.
-pub(crate) async fn apply(
-    connection: &mut PgConnection,
-    scope: RowScope,
-) -> Result<(), sqlx::Error> {
+/// The statement that gives the running transaction the rows of `scope`,
+/// for this transaction only. It is sent in the same message as the
+/// statements around it, so setting the scope costs no trip of its own;
+/// its only values are a tenant id and fixed words, never caller text.
+pub(crate) fn setting(scope: RowScope) -> String {
     let (tenant, platform) = match scope {
         RowScope::Tenant(tenant) => (tenant.as_uuid().to_string(), ""),
         RowScope::Platform => (String::new(), "on"),
         RowScope::Unscoped => (String::new(), ""),
     };
-    sqlx::query(
-        "SELECT set_config('app.current_tenant_id', $1, true), \
-                set_config('app.platform_scope', $2, true)",
+    format!(
+        "SELECT set_config('app.current_tenant_id', '{tenant}', true), \
+                set_config('app.platform_scope', '{platform}', true)"
     )
-    .bind(tenant)
-    .bind(platform)
-    .execute(connection)
-    .await?;
-    Ok(())
 }

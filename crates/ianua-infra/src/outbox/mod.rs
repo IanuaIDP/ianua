@@ -118,6 +118,9 @@ impl OutboxRelay {
                         .collect(),
                 )
                 .await;
+            if taken.is_empty() {
+                return Ok(0);
+            }
             sqlx::query_file!("queries/event_outbox/remove.sql", &tenants, &taken)
                 .execute(connection)
                 .await?;
@@ -144,6 +147,9 @@ impl OutboxRelay {
                         .collect(),
                 )
                 .await;
+            if taken.is_empty() {
+                return Ok(0);
+            }
             sqlx::query_file!("queries/platform_event_outbox/remove.sql", &taken)
                 .execute(connection)
                 .await?;

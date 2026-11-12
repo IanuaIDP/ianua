@@ -49,7 +49,7 @@ use std::time::Duration;
 use async_trait::async_trait;
 use ianua_app::ports::runtime::{Settlement, UnitOfWork, UnitWork};
 use ianua_domain::shared::errors::DomainError;
-use sqlx::{PgConnection, PgPool, Postgres, Transaction};
+use sqlx::{Executor, PgConnection, PgPool, Postgres, Transaction};
 use tokio::sync::Mutex as AsyncMutex;
 
 use crate::postgres::foundation::errors::unanswered;
@@ -268,8 +268,9 @@ async fn alone<T>(
     scope: RowScope,
     call: impl AsyncFnOnce(&mut PgConnection) -> Result<T, sqlx::Error>,
 ) -> Result<T, sqlx::Error> {
-    let mut transaction = pool.begin().await?;
-    security::apply(&mut transaction, scope).await?;
+    let mut transaction = pool
+        .begin_with(format!("BEGIN; {}", security::setting(scope)))
+        .await?;
     let answer = call(&mut transaction).await?;
     transaction.commit().await?;
     Ok(answer)
@@ -285,16 +286,15 @@ async fn joined<T>(
     let mut held = tokio::time::timeout(JOIN_TIMEOUT, slot.lock())
         .await
         .map_err(|_| sqlx::Error::PoolTimedOut)?;
-    let transaction = open_call(&mut held, pool, current_nest()).await?;
-    security::apply(transaction, scope).await?;
+    let transaction = open_call(&mut held, pool, current_nest(), scope).await?;
     call(transaction).await
 }
 
 /// Starts a store call, made inside the nested unit at `depth` or `0` for
-/// none, on the unit's transaction: opens the transaction on first use,
-/// settles the previous call, opens a savepoint for each nested unit the
-/// call runs inside that has none on it yet, and opens this call's
-/// savepoint.
+/// none, on the unit's transaction, seeing the rows of `scope`: opens the
+/// transaction on first use, settles the previous call, opens a savepoint
+/// for each nested unit the call runs inside that has none on it yet, and
+/// opens this call's savepoint. All of it goes in one message.
 ///
 /// A call outside a nested unit whose savepoint is open on the slot runs
 /// beside it, and would be undone with it: it is refused instead.
@@ -302,32 +302,57 @@ async fn open_call<'s>(
     slot: &'s mut Slot,
     pool: &PgPool,
     depth: u32,
+    scope: RowScope,
 ) -> Result<&'s mut PgConnection, sqlx::Error> {
     ensure_nesting(slot.nests, depth)?;
-    if slot.transaction.is_none() {
-        slot.transaction = Some(pool.begin().await?);
-    }
+    let opening = call_opening(slot.nests, depth, scope);
     let previous = slot.call;
-    let Some(transaction) = slot.transaction.as_mut() else {
-        return Err(sqlx::Error::Protocol(
-            "the unit's transaction is gone".to_owned(),
-        ));
-    };
-    if previous == Call::Open {
-        settle_call(transaction).await?;
-        slot.call = Call::Settled;
+    match slot.transaction.as_mut() {
+        None => slot.transaction = Some(pool.begin_with(format!("BEGIN; {opening}")).await?),
+        Some(transaction) if previous == Call::Open => {
+            settle_and_open(transaction, &opening).await?;
+        }
+        Some(transaction) => {
+            Executor::execute(&mut **transaction, opening.as_str()).await?;
+        }
     }
-    while slot.nests < depth {
-        sqlx::query("SAVEPOINT unit_nest")
-            .execute(&mut **transaction)
-            .await?;
-        slot.nests = slot.nests.saturating_add(1);
-    }
-    sqlx::query("SAVEPOINT unit_call")
-        .execute(&mut **transaction)
-        .await?;
+    slot.nests = depth;
     slot.call = Call::Open;
-    Ok(&mut **transaction)
+    slot.transaction
+        .as_deref_mut()
+        .ok_or_else(|| sqlx::Error::Protocol("the unit's transaction is gone".to_owned()))
+}
+
+/// The statements that open a call at `depth` on a slot with `nests`
+/// nested savepoints open: one savepoint per nested unit still without
+/// one, the call's own, and the scope it sees.
+fn call_opening(nests: u32, depth: u32, scope: RowScope) -> String {
+    let nest_savepoints: String = (nests..depth).map(|_| "SAVEPOINT unit_nest; ").collect();
+    format!(
+        "{nest_savepoints}SAVEPOINT unit_call; {}",
+        security::setting(scope)
+    )
+}
+
+/// Keeps what the last store call wrote and runs `opening`, in one trip
+/// when that call succeeded. When one of its statements failed, the
+/// release is refused and nothing after it runs, so the call is undone
+/// alone and `opening` sent again.
+async fn settle_and_open(connection: &mut PgConnection, opening: &str) -> Result<(), sqlx::Error> {
+    let settled = format!("RELEASE SAVEPOINT unit_call; {opening}");
+    if Executor::execute(&mut *connection, settled.as_str())
+        .await
+        .is_ok()
+    {
+        return Ok(());
+    }
+    Executor::execute(
+        &mut *connection,
+        "ROLLBACK TO SAVEPOINT unit_call; RELEASE SAVEPOINT unit_call",
+    )
+    .await?;
+    Executor::execute(connection, opening).await?;
+    Ok(())
 }
 
 /// Refuses a call whose rollback would be controlled by a sibling nested unit.

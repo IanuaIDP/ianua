@@ -276,6 +276,9 @@ async fn hold(
     now: OffsetDateTime,
     until: OffsetDateTime,
 ) -> Result<(), sqlx::Error> {
+    if jobs.is_empty() {
+        return Ok(());
+    }
     let columns: Vec<JobColumns<'_>> = jobs.iter().map(JobColumns::of).collect();
     let ids: Vec<Uuid> = columns.iter().map(|job| *job.id).collect();
     let tenants: Vec<Option<Uuid>> = columns.iter().map(|job| job.tenant_id).collect();
