@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Moves a registration's claim on a hostname to the tenant now saving it,\n-- as a handover does; its certificates and its zone follow it. A claim\n-- already the tenant's is left untouched and unlocked.\nUPDATE domain_claims\nSET tenant_id = $2\nWHERE hostname = $1\n    AND domain_id = $3\n    AND tenant_id <> $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "079f04eaba6f4920a9169c5c56aa05330687322f858b23730512e6093017c4d3"
+}

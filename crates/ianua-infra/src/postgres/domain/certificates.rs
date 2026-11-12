@@ -254,6 +254,7 @@ impl CrossTenantCertificateStore for PgCrossTenantCertificateStore {
 #[cfg(test)]
 mod tests {
     use ianua_app::ports::domain::RegisteredDomainStore;
+    use ianua_app::ports::runtime::{Settlement, atomically};
     use ianua_app::test_support::authentication::FakeEncryptor;
     use ianua_domain::domains::tenant::custom_domains::certificate::{
         CertificateBundleRow, Renewal,
@@ -264,6 +265,7 @@ mod tests {
     use super::*;
     use crate::crypto::{AesGcmSecretEncryptor, SealingKey};
     use crate::postgres::domain::PgRegisteredDomainStore;
+    use crate::postgres::foundation::unit::PgUnitOfWork;
     use crate::test_support::TestDb;
     use crate::test_support::rows::domain::{
         certificate_row, proved_domain_row, saved_tenant, uploaded_certificate_row,
@@ -339,6 +341,61 @@ mod tests {
         );
         assert_eq!(current.expires_at(), newer.expires_at());
         assert_eq!(current.renewal(), Renewal::ByPlatform);
+    }
+
+    /// Saves `certificate`, waits at `step` for the other change, and saves
+    /// the domain it serves, as an upload and a provisioning job both do.
+    async fn certificate_then_domain(
+        db: &Fixture,
+        certificate: &CertificateBundle,
+        domain: &RegisteredDomain<ResolvedTenant>,
+        step: &tokio::sync::Barrier,
+    ) -> Result<(), DomainError> {
+        db.store.save(&db.tenant, certificate).await?;
+        step.wait().await;
+        db.domains.save(&db.tenant, domain).await
+    }
+
+    /// Tess uploads a certificate for login.acme.example while the
+    /// platform's job saves one for it too: each saves its certificate,
+    /// then the domain, and both changes are kept rather than one being
+    /// broken off as a deadlock.
+    #[tokio::test]
+    async fn two_changes_saving_a_certificate_and_its_domain_both_commit() {
+        let db = fixture().await;
+        let domain: RegisteredDomain<ResolvedTenant> =
+            RegisteredDomain::reconstitute(proved_domain_row("login.acme.example")).unwrap();
+        db.domains.save(&db.tenant, &domain).await.unwrap();
+        let uploaded = bundle(certificate_row(*domain.id(), 0));
+        let provisioned = bundle(certificate_row(*domain.id(), 10));
+        let step = tokio::sync::Barrier::new(2);
+
+        let (upload, job) = tokio::join!(
+            atomically(
+                &PgUnitOfWork,
+                certificate_then_domain(&db, &uploaded, &domain, &step),
+                settled
+            ),
+            atomically(
+                &PgUnitOfWork,
+                certificate_then_domain(&db, &provisioned, &domain, &step),
+                settled
+            ),
+        );
+
+        assert!(
+            matches!(upload, Ok(Ok(()))),
+            "the upload is kept: {upload:?}"
+        );
+        assert!(matches!(job, Ok(Ok(()))), "the job's save is kept: {job:?}");
+    }
+
+    /// Keeps a change that went through, and drops one that did not.
+    fn settled(outcome: &Result<(), DomainError>) -> Settlement {
+        match outcome {
+            Ok(()) => Settlement::Commit,
+            Err(_) => Settlement::Rollback,
+        }
     }
 
     /// An uploaded certificate reads back with what it says about itself.

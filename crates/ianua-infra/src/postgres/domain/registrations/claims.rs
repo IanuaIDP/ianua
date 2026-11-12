@@ -105,6 +105,7 @@ pub(super) async fn claim(
 ) -> Result<Uniqueness, DomainError> {
     let c = ClaimColumns::of(tenant, domain);
     let written = scoped(databases, RowScope::Platform, async |connection| {
+        move_to_tenant(connection, &c).await?;
         sqlx::query_file!(
             "queries/domain_claims/claim.sql",
             c.hostname,
@@ -123,6 +124,24 @@ pub(super) async fn claim(
         0 => Ok(Uniqueness::Taken),
         _ => Ok(Uniqueness::Kept),
     }
+}
+
+/// Moves the claim `c` describes to its tenant when another holds it, as a
+/// handover does. Kept apart from the claim's own update, which then never
+/// rewrites the key certificates and zones point at the claim by.
+async fn move_to_tenant(
+    connection: &mut PgConnection,
+    c: &ClaimColumns<'_>,
+) -> Result<(), sqlx::Error> {
+    sqlx::query_file!(
+        "queries/domain_claims/move.sql",
+        c.hostname,
+        c.tenant,
+        c.domain_id
+    )
+    .execute(connection)
+    .await?;
+    Ok(())
 }
 
 /// Claims the name of the new registration `domain` for `tenant`, in one
