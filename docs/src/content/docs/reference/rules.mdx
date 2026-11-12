@@ -7315,17 +7315,17 @@ Its moves are read from `try_transition`, at `domains/workflows/design/workflow/
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `* state != self.state` | Forbidden | `domains/workflows/account/connection.rs:270` |
-| `self.expired_at(crate::shared::clock::now())` | Conflict | `domains/workflows/account/connection.rs:353`, through `ensure_live` |
-| `self.stage != ConnectionStage::AwaitingService` | Conflict | `domains/workflows/account/connection.rs:277` |
+| `* state != self.state` | Forbidden | `domains/workflows/account/connection.rs:286`, through `ensure_answerable` |
+| `self.expired_at(crate::shared::clock::now())` | Conflict | `domains/workflows/account/connection.rs:367`, through `ensure_answerable > ensure_live` |
+| `self.stage != ConnectionStage::AwaitingService` | Conflict | `domains/workflows/account/connection.rs:293`, through `ensure_answerable` |
 
 #### `PendingConnection::finish`
 
 | When | Refused with | Where |
 | --- | --- | --- |
-| `&self.stage` is not `ConnectionStage::Answered { credential, code : handed_out, }` | Conflict | `domains/workflows/account/connection.rs:337`, through `answered_with` |
-| `code != handed_out` | Forbidden | `domains/workflows/account/connection.rs:343`, through `answered_with` |
-| `self.expired_at(crate::shared::clock::now())` | Conflict | `domains/workflows/account/connection.rs:353`, through `ensure_live` |
+| `&self.stage` is not `ConnectionStage::Answered { credential, code : handed_out, }` | Conflict | `domains/workflows/account/connection.rs:351`, through `answered_with` |
+| `code != handed_out` | Forbidden | `domains/workflows/account/connection.rs:357`, through `answered_with` |
+| `self.expired_at(crate::shared::clock::now())` | Conflict | `domains/workflows/account/connection.rs:367`, through `ensure_live` |
 
 #### `PendingConnection::start`
 
