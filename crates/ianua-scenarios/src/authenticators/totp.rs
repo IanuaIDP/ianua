@@ -3,9 +3,10 @@
 //!
 //! A phone shows one code per time step, and the platform takes each step
 //! once, so the app never hands out a second code in a step it already
-//! showed one in: it waits for the clock to reach the next. Scenarios
-//! opting into a controlled clock advance the shared application clock
-//! to that step instead, without changing the verifier or its replay rules.
+//! showed one in: it waits for the clock to reach the next. Every
+//! scenario's platform runs on a stepped clock, which the app advances to
+//! that step instead, without changing the verifier or its replay rules.
+//! Only a test with no stack, or on a runtime spread over threads, waits.
 
 use std::fmt;
 use std::time::Duration;

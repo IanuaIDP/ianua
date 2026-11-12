@@ -33,17 +33,17 @@ const FIRST_WORKFLOW_PORT: u16 = 20_000;
 /// How many ports a workflow listener is picked from.
 const WORKFLOW_PORTS: u16 = 10_000;
 
-/// A free loopback address for the gateway's workflow listener, each test
-/// process starting its search at a place of its own.
-fn workflow_listener_address() -> std::io::Result<SocketAddr> {
+/// A free loopback port for the gateway's workflow listener, held open
+/// until the gateway is about to bind it, each test process starting its
+/// search at a place of its own.
+fn workflow_listener() -> std::io::Result<std::net::TcpListener> {
     let start = std::process::id();
     (0..u32::from(WORKFLOW_PORTS))
         .map(|offset| start.wrapping_add(offset) % u32::from(WORKFLOW_PORTS))
         .filter_map(|port| u16::try_from(port).ok())
         .map(|port| FIRST_WORKFLOW_PORT.saturating_add(port))
         .find_map(|port| std::net::TcpListener::bind(("127.0.0.1", port)).ok())
-        .ok_or_else(|| std::io::Error::from(std::io::ErrorKind::AddrInUse))?
-        .local_addr()
+        .ok_or_else(|| std::io::Error::from(std::io::ErrorKind::AddrInUse))
 }
 
 /// The networks tenants' upstreams may be on: loopback, where the
@@ -128,9 +128,17 @@ pub(crate) struct Surroundings<'a> {
 /// The settings, in order: a later one of the same name wins.
 pub(crate) struct Settings {
     pairs: Vec<(String, String)>,
+    workflow_port: Option<std::net::TcpListener>,
 }
 
 impl Settings {
+    /// Lets go of the workflow listener's port, held since it was picked so
+    /// no other stack starting meanwhile can take it, just before the
+    /// gateway binds it.
+    pub(crate) fn release_workflow_port(&mut self) {
+        self.workflow_port = None;
+    }
+
     /// Whether this profile needs the real nested certificate and DNS path.
     pub(crate) fn nested_addresses(&self) -> bool {
         self.pairs
@@ -162,7 +170,10 @@ impl Settings {
         surroundings: &Surroundings<'_>,
         profile: &Profile,
     ) -> Result<Self, StackError> {
-        let mut settings = Self { pairs: Vec::new() };
+        let mut settings = Self {
+            pairs: Vec::new(),
+            workflow_port: None,
+        };
         settings.deployment(surroundings.base_domain);
         settings.listeners();
         settings.jobs();
@@ -249,7 +260,10 @@ impl Settings {
     /// API's internal listener, and every `GATEWAY_*` setting the profile
     /// set. Nothing only the control plane holds is passed on.
     pub(crate) fn gateway(&self, place: &GatewayPlace<'_>) -> Self {
-        let mut gateway = Self { pairs: Vec::new() };
+        let mut gateway = Self {
+            pairs: Vec::new(),
+            workflow_port: None,
+        };
         for (name, value) in &self.pairs {
             if SHARED_WITH_THE_GATEWAY.contains(&name.as_str()) || name.starts_with("GATEWAY_") {
                 gateway.set(name, value);
@@ -278,7 +292,7 @@ impl Settings {
 
     /// The internal links over mutual TLS, with certificates issued for
     /// this stack into `files`: the gateway's workflow listener on a
-    /// loopback port picked now, with the worker's Protected apps steps
+    /// loopback port picked and held now, with the worker's Protected apps steps
     /// pointed at it under the worker's certificate (the worker starts
     /// before the gateway, so the port cannot be the gateway's own pick),
     /// and the API's relay listener, which the gateway calls under its own.
@@ -288,7 +302,9 @@ impl Settings {
     /// [`StackError::Io`] when no port can be picked or a file written.
     fn internal_links(&mut self, files: &Path) -> Result<(), StackError> {
         let io = |what: &'static str| move |cause| StackError::Io { what, cause };
-        let picked = workflow_listener_address().map_err(io("workflow listener port"))?;
+        let held = workflow_listener().map_err(io("workflow listener port"))?;
+        let picked = held.local_addr().map_err(io("workflow listener port"))?;
+        self.workflow_port = Some(held);
         let pki = internal_pki()?;
         let folder = files.join("internal-pki");
         write_internal_pki(&pki, &folder).map_err(io("internal certificates"))?;

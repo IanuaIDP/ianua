@@ -39,6 +39,7 @@ use breaches::Breaches;
 use dns::NameServer;
 use ianua_boot::shutdown::{Shutdown, ShutdownError};
 use ianua_infra::test_support::TestDb;
+use ianua_infra::test_support::clock::stepping::SteppedClock;
 use ianua_server::command::{Command, CommandError};
 use ianua_server::error::ServerError;
 use ianua_server::serve;
@@ -51,6 +52,7 @@ pub use resilience::AuditWrites;
 use resilience::Services;
 use settings::{Settings, Surroundings, apps_domain};
 use tempfile::TempDir;
+use tokio::runtime::{Handle, RuntimeFlavor};
 use url::Url;
 
 use crate::mail::Mailbox;
@@ -228,6 +230,7 @@ pub struct Stack {
     memory_start: MemoryReading,
     _files: TempDir,
     database: TestDb,
+    _clock: Option<SteppedClock>,
 }
 
 impl fmt::Debug for Stack {
@@ -264,8 +267,9 @@ impl Stack {
         process::set_up();
         memory::reset_peak();
         let memory_start = memory::reading();
+        let clock = scenario_clock();
         let shutdown = Shutdown::new(STOP_GRACE);
-        let started = Self::started(profile, &shutdown, memory_start).await;
+        let started = Self::started(profile, &shutdown, memory_start, clock).await;
         if started.is_err() {
             shutdown.stop();
         }
@@ -273,11 +277,12 @@ impl Stack {
     }
 
     /// Starts every part under `shutdown`, counting its memory from
-    /// `memory_start`.
+    /// `memory_start` and holding `clock` until the stack is dropped.
     async fn started(
         profile: Profile,
         shutdown: &Shutdown,
         memory_start: MemoryReading,
+        clock: Option<SteppedClock>,
     ) -> Result<Self, StackError> {
         let prepared = StackSetup::new(shutdown).await?;
         let mut settings = prepared.settings(&profile, shutdown).await?;
@@ -299,6 +304,7 @@ impl Stack {
             profile,
             settings,
             memory_start,
+            clock,
         };
         Ok(Self::assembled(prepared, running, runtime))
     }
@@ -328,6 +334,7 @@ impl Stack {
             memory_start: runtime.memory_start,
             _files: prepared.files,
             database: prepared.database,
+            _clock: runtime.clock,
         }
     }
 
@@ -644,6 +651,19 @@ impl Drop for Stack {
     }
 }
 
+/// The clock a scenario's platform runs on: a stepped one, so an
+/// authenticator app reaches its next code at once instead of waiting up
+/// to a whole time step, unless the scenario installed a clock of its own
+/// first. A runtime whose tasks move between threads keeps the wall clock,
+/// since a stepped clock holds only on the thread that installed it.
+fn scenario_clock() -> Option<SteppedClock> {
+    let flavor = Handle::try_current().ok()?.runtime_flavor();
+    match flavor {
+        RuntimeFlavor::CurrentThread => SteppedClock::unless_installed(),
+        _ => None,
+    }
+}
+
 /// The domain a stack on `base_domain` lets customers bring names under:
 /// its own label under `.example`, which no real name can ever be.
 fn customer_domain(base_domain: &str) -> String {
@@ -812,6 +832,7 @@ impl StackSetup {
             .await
             .map_err(setup_error("ingress"))?;
         let gateway_shutdown = Services(Shutdown::new(STOP_GRACE));
+        settings.release_workflow_port();
         let gateway = self.gateway(settings, relay, &gateway_shutdown.0).await?;
         Ok(RunningStack {
             operator,
@@ -884,4 +905,5 @@ struct StackRuntime {
     profile: Profile,
     settings: Settings,
     memory_start: MemoryReading,
+    clock: Option<SteppedClock>,
 }

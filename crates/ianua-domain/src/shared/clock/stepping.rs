@@ -41,6 +41,17 @@ impl SteppedClock {
             thread: PhantomData,
         }
     }
+
+    /// Starts one when this thread has no test clock yet, or `None` when a
+    /// frozen or stepped clock is already installed and stays in charge.
+    #[must_use]
+    pub fn unless_installed() -> Option<Self> {
+        let installed = test_clock::get().is_some() || OFFSET.with(|offset| offset.get().is_some());
+        match installed {
+            true => None,
+            false => Some(Self::start()),
+        }
+    }
 }
 
 impl Drop for SteppedClock {
@@ -121,6 +132,21 @@ mod tests {
         })
         .join()
         .unwrap();
+    }
+
+    /// A clock the test already installed stays in charge, and a thread
+    /// with none gets a stepped one.
+    #[test]
+    fn a_clock_already_installed_is_left_in_charge() {
+        let held = SteppedClock::start();
+        assert!(SteppedClock::unless_installed().is_none());
+        drop(held);
+        let frozen = crate::shared::clock::freeze(crate::shared::clock::now());
+        assert!(SteppedClock::unless_installed().is_none());
+        drop(frozen);
+        let fresh = SteppedClock::unless_installed();
+        assert!(fresh.is_some());
+        assert!(advance_to(crate::shared::clock::now() + Duration::hours(1)));
     }
 
     /// A panic cannot leave the next test using a previous test's offset.
