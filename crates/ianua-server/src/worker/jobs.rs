@@ -36,7 +36,9 @@ use ianua_app::use_cases::workflows::sandboxes::BUILD_SANDBOX_JOB;
 use ianua_boot::shutdown::Shutdown;
 use ianua_domain::shared::errors::DomainError;
 use ianua_infra::mail::MAIL_JOB;
-use ianua_infra::postgres::scheduling::JobArrivals;
+use ianua_infra::postgres::foundation::workers::announcements::{
+    Announcements, Channel, wait_for_announcement,
+};
 use tokio::sync::watch;
 
 use crate::config::serving::worker::JobConfig;
@@ -194,21 +196,23 @@ fn lanes(
     Ok(built)
 }
 
-/// Starts a loop for each lane, running every handler's jobs.
+/// Starts a loop for each lane, running every handler's jobs, each woken
+/// by `announcements` of a job due as well as by its poll.
 ///
 /// # Errors
 ///
 /// [`ServerError`] when a handler cannot be built, or the lanes or the
 /// backoff are refused.
-pub(super) fn start(parts: &Parts<'_>, shutdown: &Shutdown) -> Result<(), ServerError> {
+pub(super) fn start(
+    parts: &Parts<'_>,
+    announcements: &Announcements,
+    shutdown: &Shutdown,
+) -> Result<(), ServerError> {
     let jobs = &parts.config.worker.jobs;
     let backoff = backoff(jobs).map_err(PlatformError::of("the jobs' backoff"))?;
     let timeouts = Timeouts::of(jobs, longest_drive(&parts.config.agents));
     let lanes =
         lanes(&handlers(parts)?, jobs, timeouts).map_err(PlatformError::of("the job lanes"))?;
-    let arrivals = Arc::new(JobArrivals::new());
-    shutdown
-        .spawn_until_stopped(Arc::clone(&arrivals).listen(Arc::clone(&parts.platform.databases)));
     for LaneOf {
         name,
         lane,
@@ -223,7 +227,7 @@ pub(super) fn start(parts: &Parts<'_>, shutdown: &Shutdown) -> Result<(), Server
             use_case: ProcessJobsUseCase::new(ports, lane, handlers, backoff.clone()),
             auditor: parts.system_auditor(),
             poll: jobs.poll_interval,
-            arrivals: arrivals.watch(),
+            arrivals: announcements.watch(Channel::Jobs),
             name,
         };
         shutdown.spawn(name.task(), processor.run(shutdown.clone()));
@@ -286,14 +290,6 @@ impl Processor {
                 Some(self.poll)
             }
         }
-    }
-}
-
-/// Waits until `arrivals` moves. A listener that has gone for good never
-/// moves it again, so the lane is left to its poll.
-async fn wait_for_announcement(arrivals: &mut watch::Receiver<u64>) {
-    if arrivals.changed().await.is_err() {
-        std::future::pending::<()>().await;
     }
 }
 
@@ -519,7 +515,7 @@ mod tests {
             ),
             auditor: RequestAuditor::system(Arc::new(FakeEventDispatcher::new())),
             poll: Duration::from_millis(10),
-            arrivals: JobArrivals::new().watch(),
+            arrivals: Announcements::new().watch(Channel::Jobs),
             name: LaneName::General,
         }
     }
@@ -531,16 +527,16 @@ mod tests {
     async fn an_announced_job_is_run_before_the_next_poll() {
         let queue = Arc::new(FakeJobQueue::new());
         let handler = Counted::new(0, Duration::ZERO);
-        let arrivals = JobArrivals::new();
+        let announcements = Announcements::new();
         let mut lane = processor(Arc::clone(&queue) as _, &handler, Duration::from_secs(5));
         lane.poll = Duration::from_secs(60);
-        lane.arrivals = arrivals.watch();
+        lane.arrivals = announcements.watch(Channel::Jobs);
         let shutdown = Shutdown::new(Duration::from_secs(2));
         shutdown.spawn("the test lane", lane.run(shutdown.clone()));
         tokio::time::sleep(Duration::from_millis(100)).await;
 
         queued(queue.as_ref(), 3).await;
-        arrivals.count_heard();
+        announcements.count_heard(Channel::Jobs);
         let ran = tokio::time::timeout(Duration::from_secs(2), handler.started.notified()).await;
 
         shutdown.stop();

@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Tells the workers listening on the gateway event channel that events\n-- the gateway kept wait for the trail, once the change that kept them\n-- commits.\nSELECT pg_notify('ianua_gateway_events', '')\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "pg_notify",
+        "type_info": "Void"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "41adc0967a843377c85304ae556a7fbcf4f421a6862fe349c16d72626dc9ba47"
+}

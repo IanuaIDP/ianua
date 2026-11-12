@@ -9,8 +9,8 @@ use ianua_app::ports::workflows::ExecutionLease;
 use ianua_domain::shared::errors::DomainError;
 use ianua_domain::types::WorkflowExecutionId;
 
-use crate::postgres::foundation::leases::{Leased, Leases};
 use crate::postgres::foundation::pool::Databases;
+use crate::postgres::foundation::workers::leases::{Leased, Leases};
 
 /// This worker's leases on workflow executions.
 pub struct PgExecutionLease {

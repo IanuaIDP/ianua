@@ -6,7 +6,8 @@
 //! record's id, so the bus keeps one copy of a record published twice, and
 //! removes those the bus took. A pass that sent anything is followed by
 //! another at once, so a backlog drains; one that sent nothing waits for
-//! the relay interval. A bus that is down delays events and loses none:
+//! the relay interval, or until the event channel says events wait,
+//! whichever comes first. A bus that is down delays events and loses none:
 //! they stay queued until it takes them.
 
 use std::num::NonZeroU32;
@@ -15,12 +16,22 @@ use std::time::Duration;
 
 use ianua_boot::shutdown::Shutdown;
 use ianua_infra::outbox::OutboxRelay;
+use ianua_infra::postgres::foundation::workers::announcements::{
+    Announcements, Channel, wait_for_announcement,
+};
+use tokio::sync::watch;
 
 use crate::config::Config;
 use crate::platform::Platform;
 
-/// Starts the relay of the outboxes to the bus.
-pub(super) fn start(platform: &Platform, config: &Config, shutdown: &Shutdown) {
+/// Starts the relay of the outboxes to the bus, woken by `announcements`
+/// of events recorded as well as by its interval.
+pub(super) fn start(
+    platform: &Platform,
+    config: &Config,
+    announcements: &Announcements,
+    shutdown: &Shutdown,
+) {
     let events = &config.worker.events;
     let relay = Relay {
         outbox: OutboxRelay::new(
@@ -30,6 +41,7 @@ pub(super) fn start(platform: &Platform, config: &Config, shutdown: &Shutdown) {
         ),
         batch: events.relay_batch,
         every: events.relay_interval,
+        recorded: announcements.watch(Channel::Events),
     };
     shutdown.spawn("the outbox relay", relay.run(shutdown.clone()));
 }
@@ -39,20 +51,25 @@ struct Relay {
     outbox: OutboxRelay,
     batch: NonZeroU32,
     every: Duration,
+    /// How many recordings the event channel announced.
+    recorded: watch::Receiver<u64>,
 }
 
 impl Relay {
     /// Relays until `shutdown` stops it. A pass under way when the stop
     /// comes finishes: what it published and did not yet remove goes out
-    /// again on the next start, and the bus keeps one copy.
-    async fn run(self, shutdown: Shutdown) {
+    /// again on the next start, and the bus keeps one copy. Events
+    /// recorded during a pass wake the relay as soon as the pass ends.
+    async fn run(mut self, shutdown: Shutdown) {
         while !shutdown.is_stopping() {
+            self.recorded.borrow_and_update();
             if self.passed().await {
                 continue;
             }
             tokio::select! {
                 () = shutdown.stopping() => return,
                 () = tokio::time::sleep(self.every) => {}
+                () = wait_for_announcement(&mut self.recorded) => {}
             }
         }
     }
@@ -113,6 +130,7 @@ mod tests {
             ),
             batch: NonZeroU32::MIN,
             every: Duration::from_secs(1),
+            recorded: Announcements::new().watch(Channel::Events),
         };
 
         let first = relay.passed().await;

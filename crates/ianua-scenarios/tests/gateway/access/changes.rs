@@ -85,13 +85,15 @@ async fn a_route_closed_or_opened_holds_on_the_next_request() {
     assert_eq!(last_caller(&echo).sub, pat.id(), "the app is told of Pat");
     let refused = Records::of_tenant(world.admin().client(), world.tenant())
         .recorded_where(NOTES_PAGE, "the visitor's refused", |record| {
-            record.subject.kind == "anonymous" && record.decision == "refused"
+            record.subject.kind == "anonymous"
+                && record.decision == "refused"
+                && record.reason.as_deref() == Some("credential_missing")
         })
         .await;
     assert_eq!(
-        refused.reason.as_deref(),
-        Some("sign_in_required"),
-        "the record says the visitor must sign in"
+        refused.status,
+        Status::UNAUTHORIZED,
+        "the record says the visitor was told to sign in"
     );
 
     routing::change_policy(

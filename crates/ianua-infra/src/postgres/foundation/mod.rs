@@ -9,7 +9,6 @@
 pub(crate) mod audit_chain;
 pub(crate) mod envelope;
 pub(crate) mod errors;
-pub(crate) mod leases;
 pub mod migrations;
 pub(crate) mod paging;
 pub mod pool;
@@ -18,3 +17,4 @@ pub(crate) mod security;
 pub(crate) mod stored;
 pub(crate) mod tenant_databases;
 pub mod unit;
+pub mod workers;

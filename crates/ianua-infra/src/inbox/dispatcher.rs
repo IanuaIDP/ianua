@@ -42,7 +42,8 @@ impl InboxEventDispatcher {
         Self { databases, seal }
     }
 
-    /// Keeps `tenant`'s sealed `rows` in its inbox, in one statement.
+    /// Keeps `tenant`'s sealed `rows` in its inbox, in one statement, and
+    /// announces them on the gateway event channel for the worker's drain.
     async fn keep(&self, tenant: TenantId, rows: Vec<Sealed>) -> Result<(), DomainError> {
         let columns = Columns::of(rows);
         scoped(
@@ -59,9 +60,12 @@ impl InboxEventDispatcher {
                     &columns.seals,
                     &columns.occurred_at as &[OffsetDateTime],
                 )
-                .execute(connection)
-                .await
-                .map(|_| ())
+                .execute(&mut *connection)
+                .await?;
+                sqlx::query_file!("queries/gateway_events/announce.sql")
+                    .execute(connection)
+                    .await
+                    .map(|_| ())
             },
         )
         .await

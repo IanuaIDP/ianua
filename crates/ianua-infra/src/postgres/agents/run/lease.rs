@@ -9,8 +9,8 @@ use ianua_app::ports::agents::RunLease;
 use ianua_domain::shared::errors::DomainError;
 use ianua_domain::types::AgentRunId;
 
-use crate::postgres::foundation::leases::{Leased, Leases};
 use crate::postgres::foundation::pool::Databases;
+use crate::postgres::foundation::workers::leases::{Leased, Leases};
 
 /// This worker's leases on agent runs.
 pub struct PgRunLease {

@@ -22,7 +22,10 @@ mod parts;
 mod relay;
 mod sweeps;
 
+use std::sync::Arc;
+
 use ianua_boot::shutdown::Shutdown;
+use ianua_infra::postgres::foundation::workers::announcements::Announcements;
 
 use crate::config::Config;
 use crate::error::ServerError;
@@ -46,11 +49,14 @@ pub async fn run(
     shutdown: &Shutdown,
 ) -> Result<(), ServerError> {
     let parts = Parts::build(platform, config)?;
-    jobs::start(&parts, shutdown)?;
+    let announcements = Arc::new(Announcements::new());
+    shutdown
+        .spawn_until_stopped(Arc::clone(&announcements).listen(Arc::clone(&platform.databases)));
+    jobs::start(&parts, &announcements, shutdown)?;
     sweeps::start(&parts, shutdown)?;
     consumers::start(&parts, shutdown)?;
-    relay::start(platform, config, shutdown);
-    inbox::start(platform, config, shutdown);
+    relay::start(platform, config, &announcements, shutdown);
+    inbox::start(platform, config, &announcements, shutdown);
     if !config.mode().runs_api() {
         listeners::serve_runtime(platform, config, shutdown).await?;
     }

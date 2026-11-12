@@ -9,8 +9,10 @@
 //! in one transaction. An event that does not hold is dropped, counted
 //! and logged, never appended. A pass that took anything is followed by
 //! another at once, so a backlog drains; one that took nothing waits for
-//! the interval. A pass that fails rolls back whole, so its events stay
-//! in the inbox for the next and none is lost or appended twice.
+//! the interval, or until the gateway event channel says events wait,
+//! whichever comes first. A pass that fails rolls back whole, so its
+//! events stay in the inbox for the next and none is lost or appended
+//! twice.
 
 use std::num::NonZeroU32;
 use std::sync::Arc;
@@ -18,12 +20,22 @@ use std::time::Duration;
 
 use ianua_boot::shutdown::Shutdown;
 use ianua_infra::inbox::{Drained, InboxDrain};
+use ianua_infra::postgres::foundation::workers::announcements::{
+    Announcements, Channel, wait_for_announcement,
+};
+use tokio::sync::watch;
 
 use crate::config::Config;
 use crate::platform::Platform;
 
-/// Starts the drain of the gateway's inbox into the trail.
-pub(super) fn start(platform: &Platform, config: &Config, shutdown: &Shutdown) {
+/// Starts the drain of the gateway's inbox into the trail, woken by
+/// `announcements` of events the gateway kept as well as by its interval.
+pub(super) fn start(
+    platform: &Platform,
+    config: &Config,
+    announcements: &Announcements,
+    shutdown: &Shutdown,
+) {
     let events = &config.worker.events;
     let drain = Drain {
         inbox: InboxDrain::new(
@@ -33,6 +45,7 @@ pub(super) fn start(platform: &Platform, config: &Config, shutdown: &Shutdown) {
         ),
         batch: events.inbox_batch,
         every: events.inbox_interval,
+        kept: announcements.watch(Channel::GatewayEvents),
     };
     shutdown.spawn("the gateway's inbox drain", drain.run(shutdown.clone()));
 }
@@ -42,20 +55,25 @@ struct Drain {
     inbox: InboxDrain,
     batch: NonZeroU32,
     every: Duration,
+    /// How many keepings the gateway event channel announced.
+    kept: watch::Receiver<u64>,
 }
 
 impl Drain {
     /// Drains until `shutdown` stops it. A pass under way when the stop
     /// comes finishes: it commits whole or leaves its events for the next
-    /// start.
-    async fn run(self, shutdown: Shutdown) {
+    /// start. Events kept during a pass wake the drain as soon as the pass
+    /// ends.
+    async fn run(mut self, shutdown: Shutdown) {
         while !shutdown.is_stopping() {
+            self.kept.borrow_and_update();
             if self.drained().await.took_any() {
                 continue;
             }
             tokio::select! {
                 () = shutdown.stopping() => return,
                 () = tokio::time::sleep(self.every) => {}
+                () = wait_for_announcement(&mut self.kept) => {}
             }
         }
     }
@@ -133,6 +151,7 @@ mod tests {
             ),
             batch: NonZeroU32::MIN,
             every: Duration::from_secs(1),
+            kept: Announcements::new().watch(Channel::GatewayEvents),
         }
     }
 

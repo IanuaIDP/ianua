@@ -9,8 +9,8 @@ use ianua_app::ports::workflows::{GrantExchangeLease, GrantTurn, TurnHolder};
 use ianua_domain::shared::errors::DomainError;
 use ianua_domain::types::IntegrationAccountId;
 
-use crate::postgres::foundation::leases::{Leased, Leases};
 use crate::postgres::foundation::pool::Databases;
+use crate::postgres::foundation::workers::leases::{Leased, Leases};
 
 /// How often a caller waiting for a turn asks again.
 const ASK_EVERY: Duration = Duration::from_millis(100);

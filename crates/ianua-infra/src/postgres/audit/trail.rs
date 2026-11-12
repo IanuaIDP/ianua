@@ -114,9 +114,9 @@ impl PgEventDispatcher {
                     &batch.ids,
                     &batch.chain_depths
                 )
-                .execute(connection)
+                .execute(&mut *connection)
                 .await?;
-                Ok(())
+                announce_events(connection).await
             },
         )
         .await
@@ -154,12 +154,21 @@ impl PgEventDispatcher {
         scoped(&self.databases, RowScope::Unscoped, async |connection| {
             write_platform(&mut *connection, &batch).await?;
             sqlx::query_file!("queries/platform_event_outbox/add.sql", &batch.ids)
-                .execute(connection)
+                .execute(&mut *connection)
                 .await?;
-            Ok(())
+            announce_events(connection).await
         })
         .await
     }
+}
+
+/// Announces on the event channel that events wait for the bus, heard
+/// once the transaction on `connection` commits.
+async fn announce_events(connection: &mut PgConnection) -> Result<(), sqlx::Error> {
+    sqlx::query_file!("queries/event_outbox/announce.sql")
+        .execute(connection)
+        .await?;
+    Ok(())
 }
 
 /// Reads and validates the link before appending under the chain lock.

@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Tells the workers listening on the event channel that events wait for\n-- the bus, once the change that recorded them commits; a change rolled\n-- back tells nobody.\nSELECT pg_notify('ianua_events', '')\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "pg_notify",
+        "type_info": "Void"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "a85d1b57fbbd9fb7523cec3a8c87b2d1156664987a88c564ffedf5cbca1f3cf7"
+}

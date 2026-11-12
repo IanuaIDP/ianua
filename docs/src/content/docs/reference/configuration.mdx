@@ -530,9 +530,9 @@ Jobs run on five lanes, so a slow kind of work never holds up another: mail, cer
 | `JOB_LONG_CONCURRENCY` | `4` | Long jobs run at once. |
 | `JOB_MAX_ATTEMPTS` | `5` | Tries a job gets before it is given up and left for an operator to see, where the work sets no count of its own. |
 | `JOB_RETRY_BACKOFF_SECONDS` | `300,900,3600,21600,86400` | The waits before each retry, in order. The last one repeats. |
-| `WORKER_OUTBOX_SWEEP_INTERVAL_SECONDS` | `1` | How often recorded events are relayed to the bus. A pass that sent anything is followed by another at once. |
+| `WORKER_OUTBOX_SWEEP_INTERVAL_SECONDS` | `1` | How often recorded events are relayed to the bus, unless the relay hears first that one was recorded. A pass that sent anything is followed by another at once. |
 | `WORKER_OUTBOX_BATCH_SIZE` | `100` | Events relayed from each database in one pass. |
-| `WORKER_INBOX_INTERVAL_SECONDS` | `1` | How often the events the gateway kept are checked and moved onto the audit trail. A pass that took anything is followed by another at once. |
+| `WORKER_INBOX_INTERVAL_SECONDS` | `1` | How often the events the gateway kept are checked and moved onto the audit trail, unless the drain hears first that one was kept. A pass that took anything is followed by another at once. |
 | `WORKER_INBOX_BATCH_SIZE` | `100` | Gateway events taken from each database in one pass, from 1 to 10000. |
 | `WORKER_EVENT_MAX_DELIVER` | `5` | Times an event is handed to a consumer before it is set aside. |
 | `WORKER_EVENT_RETRY_DELAY_SECONDS` | `5` | The wait before a consumer is handed an event again after it failed on it. Must be shorter than the ack wait. |
