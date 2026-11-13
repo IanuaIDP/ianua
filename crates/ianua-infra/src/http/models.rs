@@ -12,12 +12,12 @@
 //!   with room for reasoning on top. The endpoint is the API's base,
 //!   `https://api.openai.com/v1`. See [`chat`].
 //! - **Self-hosted** servers (vLLM, Ollama, TGI) speak the same Chat
-//!   Completions format under their own `/v1` base, the key optional, the
-//!   cap as `max_tokens`, which every one of them reads.
+//!   Completions format under their own `/v1` base, the key optional, with
+//!   no cap: their context window and the call's timeout bound the answer.
 //!
 //! The request's cap is the answer's. A model that thinks or reasons first
-//! counts that against its provider's cap, so the provider is given room
-//! for it on top. The answer says how it ended: finished, or cut off at the
+//! counts that against its provider's cap, so a hosted provider is given
+//! room for it on top, and a self-hosted server is given no cap. The answer says how it ended: finished, or cut off at the
 //! cap, at the end of the context, or for a reason the provider does not
 //! call a finish. The run never uses a cut-off answer.
 //!
@@ -191,7 +191,7 @@ impl WireFormat {
         match kind {
             ModelProviderKind::Anthropic => Self::Messages,
             ModelProviderKind::OpenAi => Self::Chat(TokenCap::MaxCompletionTokens),
-            ModelProviderKind::SelfHosted => Self::Chat(TokenCap::MaxTokens),
+            ModelProviderKind::SelfHosted => Self::Chat(TokenCap::ServerContext),
         }
     }
 

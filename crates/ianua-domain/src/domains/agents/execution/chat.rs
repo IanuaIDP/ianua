@@ -170,7 +170,8 @@ pub struct CompletionRequest {
     pub messages: Vec<ChatMessage>,
     /// Optional cap on the tokens of the answer. A model that thinks before
     /// it answers counts its thinking against its provider's own cap, so
-    /// the adapter gives it room for that on top.
+    /// the adapter gives it room for that on top, or no cap at all where
+    /// a fixed room might not fit the model's context.
     pub max_tokens: Option<u32>,
 }
 

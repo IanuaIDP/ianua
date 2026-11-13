@@ -28,14 +28,21 @@
 //! top of the answer's cap, and the run's spend limit counts what was
 //! really used.
 //!
-//! Self-hosted servers take `max_tokens`: Ollama lists it among the fields
-//! it supports and does not list `max_completion_tokens`
-//! (<https://docs.ollama.com/api/openai-compatibility>); vLLM takes both
-//! and reads its key from `Authorization: Bearer`
+//! Self-hosted servers (Ollama, vLLM, TGI) are sent no cap at all. A model
+//! that thinks first, such as Qwen3 or DeepSeek-R1, would spend a
+//! 512-token cap on its thinking and be cut off, and a fixed room on top
+//! would not fit a small context window, which vLLM and TGI refuse rather
+//! than shorten. So the server's own context window and the call's timeout
+//! bound the answer. vLLM reads its key from `Authorization: Bearer`
 //! (<https://docs.vllm.ai/en/latest/serving/online_serving/openai_compatible_server/>).
 //! A keyless server is sent no `Authorization` header at all. A finish is
 //! `stop`, or TGI's `eos_token` and `stop_sequence`
 //! (<https://pypi.org/project/text-generation/>); `length` is a cut-off.
+//!
+//! A server that sends a thinking model's reasoning in its own field, as
+//! Ollama's `reasoning` and vLLM's `reasoning_content`, leaves it unread.
+//! One that sends it inside the text, as a leading `<think>...</think>`
+//! block, has that block left out, so the run reads only the answer.
 //!
 //! Any other `finish_reason`, or none, is not called a finish, so the
 //! answer counts as cut off and the run does not use it.
@@ -60,14 +67,22 @@ pub(super) const PATH: &str = "/chat/completions";
 /// given on top of the answer's cap.
 const REASONING_ROOM: u32 = 25_000;
 
-/// The field a server reads the cap on generated tokens from.
+/// The tag a thinking model's reasoning opens with when a server sends it
+/// inside the answer's text.
+const THINKING_OPEN: &str = "<think>";
+
+/// The tag that closes that reasoning, after which the answer starts.
+const THINKING_CLOSE: &str = "</think>";
+
+/// How a server is told the most tokens it may generate.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum TokenCap {
     /// `max_completion_tokens`, which OpenAI reads, with room for
     /// reasoning on top.
     MaxCompletionTokens,
-    /// `max_tokens`, which self-hosted servers read, as it is.
-    MaxTokens,
+    /// No cap, for self-hosted servers: their context window and the
+    /// call's timeout bound the answer.
+    ServerContext,
 }
 
 /// `call` carrying `request` for `model`, the cap in the field `cap` names
@@ -97,19 +112,15 @@ fn body<'a>(
     request: &'a CompletionRequest,
     cap: TokenCap,
 ) -> ChatRequest<'a> {
-    let (max_tokens, max_completion_tokens) = match cap {
-        TokenCap::MaxTokens => (request.max_tokens, None),
-        TokenCap::MaxCompletionTokens => (
-            None,
-            request
-                .max_tokens
-                .map(|answer| answer.saturating_add(REASONING_ROOM)),
-        ),
+    let max_completion_tokens = match cap {
+        TokenCap::ServerContext => None,
+        TokenCap::MaxCompletionTokens => request
+            .max_tokens
+            .map(|answer| answer.saturating_add(REASONING_ROOM)),
     };
     ChatRequest {
         model: model.as_str(),
         messages: request.messages.iter().map(ChatTurn::of).collect(),
-        max_tokens,
         max_completion_tokens,
     }
 }
@@ -129,7 +140,21 @@ pub(super) fn completion(body: &[u8]) -> Result<Completion, ModelFailure> {
         return Err(ModelFailure::billed(usage, DomainError::infra_msg(NO_TEXT)));
     };
     let ending = ending_of(&choice);
-    completion_of(choice.message.content.unwrap_or_default(), usage, ending)
+    let content = choice.message.content.unwrap_or_default();
+    completion_of(answer_text(&content).to_owned(), usage, ending)
+}
+
+/// The answer in `content`, without the leading `<think>...</think>` block
+/// a self-hosted server may put a thinking model's reasoning in. Reasoning
+/// that never closed leaves no answer.
+fn answer_text(content: &str) -> &str {
+    let Some(thinking) = content.trim_start().strip_prefix(THINKING_OPEN) else {
+        return content;
+    };
+    let Some((_, answer)) = thinking.split_once(THINKING_CLOSE) else {
+        return "";
+    };
+    answer.trim_start()
 }
 
 /// How `choice` ended: declined when it carries a refusal or was filtered,
@@ -163,8 +188,6 @@ fn usage_of(usage: Option<&ChatUsage>) -> ModelUsage {
 struct ChatRequest<'a> {
     model: &'a str,
     messages: Vec<ChatTurn<'a>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    max_tokens: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     max_completion_tokens: Option<u32>,
 }
@@ -304,17 +327,16 @@ mod tests {
         );
     }
 
-    /// A self-hosted server is sent the cap as `max_tokens`, as it is,
-    /// which Ollama and vLLM both read.
+    /// A self-hosted server is sent no token cap, so a model that thinks
+    /// first is not cut off before it answers.
     #[tokio::test]
-    async fn a_self_hosted_server_is_sent_max_tokens() {
+    async fn a_self_hosted_server_is_sent_no_token_cap() {
         let server = MockServer::start().await;
         Mock::given(method("POST"))
             .and(path("/chat/completions"))
             .and(body_json(json!({
                 "model": "test-model",
-                "messages": [{"role": "user", "content": "ping"}],
-                "max_tokens": 16
+                "messages": [{"role": "user", "content": "ping"}]
             })))
             .respond_with(ResponseTemplate::new(200).set_body_json(documented_answer()))
             .mount(&server)
@@ -396,6 +418,39 @@ mod tests {
             .unwrap();
 
         assert_eq!(completion.ended, AnswerEnd::CutOff);
+    }
+
+    /// A thinking model's reasoning sent inside the text is left out, so
+    /// the tool call after it is the whole answer.
+    #[tokio::test]
+    async fn reasoning_inside_the_text_is_left_out_of_the_answer() {
+        let mut answer = documented_answer();
+        answer["choices"][0]["message"]["content"] =
+            json!("<think>\nThe ledger needs order 42.\n</think>\n\n{\"tool\":\"get_order\"}");
+        let server = answering(ResponseTemplate::new(200).set_body_json(answer)).await;
+
+        let completion = client()
+            .complete(
+                &target(&server, ModelProviderKind::SelfHosted, None),
+                &probe(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(completion.content, r#"{"tool":"get_order"}"#);
+        assert_eq!(completion.ended, AnswerEnd::Finished);
+    }
+
+    /// Reasoning that never closed holds no answer, and text with no
+    /// reasoning block is kept as it came.
+    #[test]
+    fn only_a_closed_leading_reasoning_block_is_left_out() {
+        assert_eq!(answer_text("<think>still going"), "");
+        assert_eq!(answer_text("plain answer"), "plain answer");
+        assert_eq!(
+            answer_text("the tag <think>x</think> mid-answer"),
+            "the tag <think>x</think> mid-answer"
+        );
     }
 
     /// TGI's own words for a finish read as finished.

@@ -35,7 +35,8 @@ use crate::use_cases::agents::runs::driving::keeping::{keep, moved_on};
 use crate::use_cases::agents::runs::driving::toolbox::Toolbox;
 
 /// The most tokens a model step may answer with. A model that thinks
-/// first is given room for its thinking on top by its adapter.
+/// first is given room for its thinking on top by its adapter, or no cap
+/// at all on a self-hosted server.
 const MAX_STEP_TOKENS: u32 = 512;
 
 /// What a run is driven with: the worker's ports, the tools it may reach
