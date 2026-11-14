@@ -145,7 +145,7 @@ A security team can keep its own copy of every record in the SIEM it runs. A ten
 
 A record's details leave out any field named as a secret, as a webhook's do. Every token, key and header value is sealed and never printed. Every address must be on the public internet, so a stream cannot be turned into a way into the platform's own network.
 
-A stream sends every record, or only records of up to 200 named event types, each named once. A worker sends each new tenant record to every stream that wants it. One stream's failure never keeps the record from the others. After ten refusals in a row a stream pauses itself and records `tenant.audit_stream_paused`, so a dead collector is not called forever. An administrator resumes it once it is fixed.
+A stream sends every record, or only records of up to 200 named event types, each named once. A worker sends each new tenant record to every stream that wants it. One stream's failure never keeps the record from the others. After ten refusals in a row a stream pauses itself and records `tenant.audit_stream_paused`, so a dead collector is not called forever. An administrator resumes it once it is fixed. A send writes only how it went, and only when the stream is still as the send read it. Tess pauses a stream, changes where it goes, or removes it while a record is on its way. Her change stays, and that send's result is dropped.
 
 The stream itself belongs to the tenant context. Adding one, or pointing one somewhere else, needs the compliance right and a fresh proof of the person, because it sends the tenant's records out of the platform.
 

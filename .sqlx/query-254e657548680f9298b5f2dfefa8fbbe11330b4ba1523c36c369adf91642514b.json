@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps how a push to a stream went, and nothing else, only while the\n-- stream is still as the push read it: a person's pause, change or removal\n-- since then wins, and no row is touched.\nUPDATE signal_streams\nSET status = $3,\n    consecutive_failures = $4,\n    updated_at = $5\nWHERE tenant_id = $1 AND id = $2 AND updated_at = $6\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Int8",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "254e657548680f9298b5f2dfefa8fbbe11330b4ba1523c36c369adf91642514b"
+}

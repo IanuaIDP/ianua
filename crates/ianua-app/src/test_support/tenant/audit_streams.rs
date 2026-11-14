@@ -18,11 +18,12 @@ use ianua_domain::shared::events::data::EventData;
 use ianua_domain::types::{
     ActorRef, AuditRecordId, AuditStreamId, EventType, Fact, Label, PublicHttpsUrl, TenantId,
 };
+use time::OffsetDateTime;
 
 use crate::ports::TenantScoped;
 use crate::ports::audit::{AuditStreamSender, AuditStreamStore};
 use crate::ports::authentication::SealedFor;
-use crate::ports::shared::RecordedEvents;
+use crate::ports::shared::{DeliveryNote, RecordedEvents};
 use crate::tenancy::ScopedTenant;
 use crate::test_support::Fake;
 use crate::test_support::scheduling::FakeJobQueue;
@@ -76,6 +77,34 @@ impl FakeAuditStreamStore {
             .map(|row| AuditStream::reconstitute(row).expect("a saved stream reads back"))
     }
 
+    /// Keeps `stream` for `tenant`, in place of the one it replaces.
+    fn put(&self, tenant: TenantId, stream: &AuditStream<ResolvedTenant>) {
+        let mut streams = self.streams.lock().unwrap();
+        let row = row_of(stream);
+        match streams
+            .iter_mut()
+            .find(|(owner, kept)| *owner == tenant && kept.id == row.id)
+        {
+            Some(entry) => entry.1 = row,
+            None => streams.push((tenant, row)),
+        }
+    }
+
+    /// Puts every stream of `tenant` into `state`, a second after it last
+    /// changed, as a person's change would.
+    fn change(&self, tenant: TenantId, state: StreamState) {
+        for (_, row) in self
+            .streams
+            .lock()
+            .unwrap()
+            .iter_mut()
+            .filter(|(owner, _)| *owner == tenant)
+        {
+            row.state = state;
+            row.updated_at += time::Duration::seconds(1);
+        }
+    }
+
     /// How many streams `tenant` keeps.
     #[must_use]
     pub fn count(&self, tenant: TenantId) -> usize {
@@ -123,16 +152,26 @@ impl AuditStreamStore for FakeAuditStreamStore {
         tenant_id: &ScopedTenant,
         stream: &AuditStream<ResolvedTenant>,
     ) -> Result<(), DomainError> {
-        let mut streams = self.streams.lock().unwrap();
-        let row = row_of(stream);
-        match streams
-            .iter_mut()
-            .find(|(owner, kept)| owner == &**tenant_id && kept.id == row.id)
-        {
-            Some(entry) => entry.1 = row,
-            None => streams.push((**tenant_id, row)),
-        }
+        self.put(**tenant_id, stream);
         Ok(())
+    }
+
+    async fn note_delivery(
+        &self,
+        tenant_id: &ScopedTenant,
+        stream: &AuditStream<ResolvedTenant>,
+        read_at: OffsetDateTime,
+    ) -> Result<DeliveryNote, DomainError> {
+        let mut streams = self.streams.lock().unwrap();
+        let Some(entry) = streams.iter_mut().find(|(owner, kept)| {
+            owner == &**tenant_id && kept.id == *stream.id() && kept.updated_at == read_at
+        }) else {
+            return Ok(DeliveryNote::Overtaken);
+        };
+        let noted = row_of(stream);
+        entry.1.state = noted.state;
+        entry.1.updated_at = noted.updated_at;
+        Ok(DeliveryNote::Kept)
     }
 
     async fn delete(
@@ -258,6 +297,15 @@ pub fn test_audit_record(tenant: TenantId, event_type: &str) -> AuditRecord {
 pub struct FakeAuditStreamSender {
     sent: Mutex<Vec<AuditRecordId>>,
     refusing: bool,
+    meanwhile: Mutex<Option<Meanwhile>>,
+}
+
+/// A person's change to a tenant's streams, made while a record is being
+/// sent along one.
+struct Meanwhile {
+    store: Arc<FakeAuditStreamStore>,
+    tenant: TenantId,
+    state: StreamState,
 }
 
 impl FakeAuditStreamSender {
@@ -273,6 +321,26 @@ impl FakeAuditStreamSender {
         Self {
             sent: Mutex::new(Vec::new()),
             refusing: true,
+            meanwhile: Mutex::new(None),
+        }
+    }
+
+    /// A sender that refuses the record, while a person puts every stream
+    /// of `tenant` in `store` into `state` as it is being sent.
+    #[must_use]
+    pub fn refusing_while_changed(
+        store: Arc<FakeAuditStreamStore>,
+        tenant: TenantId,
+        state: StreamState,
+    ) -> Self {
+        Self {
+            refusing: true,
+            meanwhile: Mutex::new(Some(Meanwhile {
+                store,
+                tenant,
+                state,
+            })),
+            ..Self::default()
         }
     }
 
@@ -291,6 +359,9 @@ impl AuditStreamSender for FakeAuditStreamSender {
         _: &SealedFor,
         record: &AuditRecord,
     ) -> Result<(), DomainError> {
+        if let Some(change) = self.meanwhile.lock().unwrap().take() {
+            change.store.change(change.tenant, change.state);
+        }
         if self.refusing {
             return Err(DomainError::infra_msg("the collector refused the record"));
         }

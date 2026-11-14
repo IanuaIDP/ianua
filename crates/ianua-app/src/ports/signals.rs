@@ -17,6 +17,7 @@ use time::OffsetDateTime;
 use crate::define_sort_field;
 use crate::listing::{Page, PageRequest, SortKey, SortKeys, SortOrder};
 use crate::ports::TenantScoped;
+use crate::ports::shared::DeliveryNote;
 use crate::tenancy::ScopedTenant;
 
 define_sort_field! {
@@ -168,6 +169,20 @@ pub trait SignalStreamStore: Send + Sync + TenantScoped {
         stream: &SignalStream<ResolvedTenant>,
         challenge: StreamChallenge<'_>,
     ) -> Result<(), DomainError>;
+
+    /// Saves how a push to `stream` went, its status and failures in a
+    /// row, and nothing else, and only while the stored stream is still
+    /// the one last changed at `read_at`, as the push read it.
+    ///
+    /// # Errors
+    ///
+    /// Returns `DomainError::Infrastructure` on persistence failure.
+    async fn note_delivery(
+        &self,
+        tenant_id: &ScopedTenant,
+        stream: &SignalStream<ResolvedTenant>,
+        read_at: OffsetDateTime,
+    ) -> Result<DeliveryNote, DomainError>;
 
     /// Deletes a stream by ID.
     ///

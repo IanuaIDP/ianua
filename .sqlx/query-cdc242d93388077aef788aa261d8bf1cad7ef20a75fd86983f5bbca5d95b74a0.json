@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "-- Keeps how a stream's sends went, and nothing else, only while the stream\n-- is still as the delivery read it: a person's pause, change or removal\n-- since then wins, and no row is touched.\nUPDATE audit_streams\nSET state = $3,\n    state_since = $4,\n    failures = $5,\n    pause_reason = $6,\n    updated_at = $7\nWHERE tenant_id = $1 AND id = $2 AND updated_at = $8\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Timestamptz",
+        "Int4",
+        "Text",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "cdc242d93388077aef788aa261d8bf1cad7ef20a75fd86983f5bbca5d95b74a0"
+}

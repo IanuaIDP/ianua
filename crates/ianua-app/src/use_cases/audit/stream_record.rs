@@ -7,6 +7,10 @@
 //! enough refusals in a row the stream pauses itself, so a dead collector
 //! is not called forever.
 //!
+//! The send takes time, and a person may pause, change or remove the stream
+//! meanwhile. Only how the send went is kept, and only while the stream is
+//! still as it was read, so their change always wins over the note.
+//!
 //! It runs outside any request, for nobody, so no one's rights are asked.
 
 use std::sync::Arc;
@@ -20,7 +24,7 @@ use ianua_domain::types::{ActorRef, AuditRecordId, AuditStreamId, TenantId};
 use crate::auditor::RequestAuditor;
 use crate::error::{AppError, OrInternal};
 use crate::ports::audit::{AuditStreamSender, AuditStreamStore};
-use crate::ports::shared::RecordedEvents;
+use crate::ports::shared::{DeliveryNote, RecordedEvents};
 use crate::tenancy::ScopedTenant;
 use crate::use_case::Command;
 use crate::use_cases::tenant::audit_streams::destination::credentials_place;
@@ -98,7 +102,8 @@ impl StreamRecordUseCase {
     }
 
     /// Sends `record` along `stream`, notes how it went on the stream, and
-    /// saves and records the stream when that changed it.
+    /// keeps and records the note when it changed the stream, unless a
+    /// person changed the stream while the record was being sent.
     async fn stream_one(
         &self,
         tenant: &ScopedTenant,
@@ -107,16 +112,20 @@ impl StreamRecordUseCase {
         auditor: &RequestAuditor,
     ) -> Result<Streamed, AppError> {
         let sent = self.send(tenant, &stream, record).await;
-        let before = stream.state();
+        let (before, read_at) = (stream.state(), stream.updated_at());
         note(&mut stream, sent)?;
         if stream.state() == before {
             return Ok(sent);
         }
-        self.ports
+        let noted = self
+            .ports
             .stream_store
-            .save(tenant, &stream)
+            .note_delivery(tenant, &stream, read_at)
             .await
             .or_internal()?;
+        if noted == DeliveryNote::Overtaken {
+            return Ok(sent);
+        }
         auditor
             .dispatch_by(&ActorRef::System, stream.take_events(tenant))
             .await
@@ -234,6 +243,10 @@ mod tests {
                 test_ctx().tenant_id(),
                 streams,
             ));
+            Self::around(streams, sender)
+        }
+
+        fn around(streams: Arc<FakeAuditStreamStore>, sender: FakeAuditStreamSender) -> Self {
             let record = test_audit_record(test_ctx().tenant_id(), EVENT);
             let record_id = record.id;
             let sender = Arc::new(sender);
@@ -361,6 +374,33 @@ mod tests {
             }
         ));
         assert_eq!(setup.recorded(), vec!["tenant.audit_stream_paused"]);
+    }
+
+    /// The collector has refused every record but one short of the limit.
+    /// Tess pauses the stream while the next one is being sent, and that
+    /// one is refused too. Her pause stays as she made it, and the stream
+    /// is not recorded as pausing itself.
+    #[test]
+    fn a_pause_made_during_a_send_is_kept() {
+        let failing = StreamState::Failing {
+            since: ianua_domain::shared::clock::now(),
+            failures: FAILURES_BEFORE_PAUSE - 1,
+        };
+        let stream = audit_stream_in_state("SIEM", StreamFilter::everything(), failing);
+        let id = *stream.id();
+        let tenant = test_ctx().tenant_id();
+        let paused = StreamState::Paused {
+            reason: PauseReason::ByAdministrator,
+            at: ianua_domain::shared::clock::now(),
+        };
+        let store = Arc::new(FakeAuditStreamStore::holding(tenant, [stream]));
+        let sender = FakeAuditStreamSender::refusing_while_changed(store.clone(), tenant, paused);
+        let setup = Setup::around(store, sender);
+
+        setup.stream_along(id);
+
+        assert_eq!(setup.state_of(&id), paused);
+        assert!(setup.recorded().is_empty());
     }
 
     /// The collector was failing and takes the record again. The stream is

@@ -14,11 +14,13 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use ianua_app::ports::TenantScoped;
 use ianua_app::ports::audit::AuditStreamStore;
+use ianua_app::ports::shared::DeliveryNote;
 use ianua_app::tenancy::ScopedTenant;
 use ianua_domain::domains::tenant::audit_streams::AuditStream;
 use ianua_domain::isolation::scope::ResolvedTenant;
 use ianua_domain::shared::errors::DomainError;
 use ianua_domain::types::AuditStreamId;
+use time::OffsetDateTime;
 
 use self::record::{StreamColumns, StreamRecord};
 use crate::postgres::foundation::pool::Databases;
@@ -116,6 +118,39 @@ impl AuditStreamStore for PgAuditStreamStore {
             },
         )
         .await
+    }
+
+    async fn note_delivery(
+        &self,
+        tenant_id: &ScopedTenant,
+        stream: &AuditStream<ResolvedTenant>,
+        read_at: OffsetDateTime,
+    ) -> Result<DeliveryNote, DomainError> {
+        let columns = StreamColumns::of(stream)?;
+        let touched = scoped(
+            &self.databases,
+            RowScope::from(tenant_id),
+            async |connection| {
+                sqlx::query_file!(
+                    "queries/audit_streams/note_delivery.sql",
+                    tenant_id.as_uuid(),
+                    columns.id,
+                    columns.state,
+                    columns.state_since,
+                    columns.failures,
+                    columns.pause_reason,
+                    columns.updated_at,
+                    read_at,
+                )
+                .execute(connection)
+                .await
+            },
+        )
+        .await?;
+        Ok(match touched.rows_affected() {
+            0 => DeliveryNote::Overtaken,
+            _ => DeliveryNote::Kept,
+        })
     }
 
     async fn delete(
@@ -220,6 +255,110 @@ mod tests {
 
         let found = db.store.find(&db.tenant, splunk.id()).await.unwrap();
         assert_eq!(found.unwrap().state(), paused.state());
+    }
+
+    /// A failing stream as a delivery noted it: `failures` in a row since
+    /// `seconds`, changed then.
+    fn failing(
+        read: &AuditStream<ResolvedTenant>,
+        failures: u32,
+        seconds: i64,
+    ) -> AuditStream<ResolvedTenant> {
+        stream(AuditStreamRow {
+            id: *read.id(),
+            state: StreamState::Failing {
+                since: at(seconds),
+                failures,
+            },
+            updated_at: at(seconds),
+            ..stream_row("Splunk production", 0)
+        })
+    }
+
+    /// A delivery's note on a stream still as it was read is kept, and
+    /// only its state changes.
+    #[tokio::test]
+    async fn a_note_on_an_unchanged_stream_is_kept() {
+        let db = fixture().await;
+        let splunk = stream(stream_row("Splunk production", 0));
+        db.store.save(&db.tenant, &splunk).await.unwrap();
+
+        let noted = db
+            .store
+            .note_delivery(&db.tenant, &failing(&splunk, 1, 5), splunk.updated_at())
+            .await
+            .unwrap();
+
+        assert_eq!(noted, DeliveryNote::Kept);
+        let found = db
+            .store
+            .find(&db.tenant, splunk.id())
+            .await
+            .unwrap()
+            .unwrap();
+        assert!(matches!(
+            found.state(),
+            StreamState::Failing { failures: 1, .. }
+        ));
+        assert_eq!(found.destination(), splunk.destination());
+    }
+
+    /// Tess pauses the stream while a record is being sent along it. The
+    /// failed send's note comes after and is dropped, so her pause stays.
+    #[tokio::test]
+    async fn a_pause_made_during_a_send_is_not_undone() {
+        let db = fixture().await;
+        let splunk = stream(stream_row("Splunk production", 0));
+        db.store.save(&db.tenant, &splunk).await.unwrap();
+        let paused = stream(AuditStreamRow {
+            id: *splunk.id(),
+            state: StreamState::Paused {
+                reason: PauseReason::ByAdministrator,
+                at: at(3),
+            },
+            updated_at: at(3),
+            ..stream_row("Splunk production", 0)
+        });
+        db.store.save(&db.tenant, &paused).await.unwrap();
+
+        let noted = db
+            .store
+            .note_delivery(&db.tenant, &failing(&splunk, 1, 5), splunk.updated_at())
+            .await
+            .unwrap();
+
+        assert_eq!(noted, DeliveryNote::Overtaken);
+        let found = db
+            .store
+            .find(&db.tenant, splunk.id())
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(found.state(), paused.state());
+    }
+
+    /// A stream removed while a record was being sent stays removed.
+    #[tokio::test]
+    async fn a_stream_removed_during_a_send_stays_removed() {
+        let db = fixture().await;
+        let splunk = stream(stream_row("Splunk production", 0));
+        db.store.save(&db.tenant, &splunk).await.unwrap();
+        db.store.delete(&db.tenant, splunk.id()).await.unwrap();
+
+        let noted = db
+            .store
+            .note_delivery(&db.tenant, &failing(&splunk, 1, 5), splunk.updated_at())
+            .await
+            .unwrap();
+
+        assert_eq!(noted, DeliveryNote::Overtaken);
+        assert!(
+            db.store
+                .find(&db.tenant, splunk.id())
+                .await
+                .unwrap()
+                .is_none()
+        );
     }
 
     /// A tenant's streams are listed oldest first, and another tenant's are

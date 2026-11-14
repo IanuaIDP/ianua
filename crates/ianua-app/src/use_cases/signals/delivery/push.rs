@@ -6,6 +6,10 @@
 //! Each stream stands alone. Whatever goes wrong with one receiver is kept
 //! against that stream and logged, and never stops the signal reaching
 //! another.
+//!
+//! A push takes time, and a person may pause, change or remove the stream
+//! meanwhile. Only the stream's count is kept, and only while the stream is
+//! still as it was read, so their change always wins over the count.
 
 use ianua_domain::domains::signals::delivery::{SignalDelivery, SignalDeliveryAttempt};
 use ianua_domain::domains::signals::set::SecurityEventTokenClaims;
@@ -18,13 +22,13 @@ use ianua_domain::shared::events::raised::Raises as _;
 use ianua_domain::types::{
     DeliveryOutcome, DeliveryResult, FailureLimit, FailureOutcome, SignalDeliveryId,
 };
+use time::OffsetDateTime;
 
 use crate::auditor::RequestAuditor;
 use crate::error::{AppError, OrInternal};
 use crate::ports::runtime::UnitOfWork;
-use crate::ports::signals::{
-    SecurityEventToken, SignalDeliveryOutcome, SignalStreamStore, StreamChallenge,
-};
+use crate::ports::shared::DeliveryNote;
+use crate::ports::signals::{SecurityEventToken, SignalDeliveryOutcome, SignalStreamStore};
 use crate::services::kept_together::kept_together;
 use crate::tenancy::ScopedTenant;
 use crate::use_cases::signals::delivery::Dispatched;
@@ -65,8 +69,9 @@ impl Push<'_> {
             outcome.duration_ms,
         );
         record_attempt(self.streams, self.tenant, &attempt).await;
+        let read_at = stream.updated_at();
         let switched_off = counted(&mut stream, outcome.outcome, self.disable_after);
-        let kept = kept_together(self.unit, self.save(&mut stream, switched_off)).await;
+        let kept = kept_together(self.unit, self.save(&mut stream, read_at, switched_off)).await;
         if let Err(error) = kept {
             tracing::warn!(stream_id = %stream.id(), %error, "signal dispatch: stream not saved");
         }
@@ -85,24 +90,28 @@ impl Push<'_> {
         Dispatched::Queued
     }
 
-    /// Saves `stream` with its count, and records it switched off when the
-    /// push did that. Both go in one unit: a stream switched off with no
-    /// record of it would leave its owner nothing to see why.
+    /// Keeps `stream`'s count, read as last changed at `read_at`, and
+    /// records it switched off when the push did that. Both go in one unit:
+    /// a stream switched off with no record of it would leave its owner
+    /// nothing to see why. A stream a person changed during the push keeps
+    /// their change, and nothing is recorded.
     ///
     /// # Errors
     ///
-    /// `AppError::Internal` when the stream cannot be saved or the record
+    /// `AppError::Internal` when the count cannot be kept or the record
     /// kept.
     async fn save(
         &self,
         stream: &mut SignalStream<ResolvedTenant>,
+        read_at: OffsetDateTime,
         switched_off: FailureOutcome,
     ) -> Result<(), AppError> {
-        self.streams
-            .save(self.tenant, stream, StreamChallenge::Kept)
+        let noted = self
+            .streams
+            .note_delivery(self.tenant, stream, read_at)
             .await
             .or_internal()?;
-        if switched_off != FailureOutcome::Disabled {
+        if noted == DeliveryNote::Overtaken || switched_off != FailureOutcome::Disabled {
             return Ok(());
         }
         self.auditor

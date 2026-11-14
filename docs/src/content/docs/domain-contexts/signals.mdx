@@ -253,6 +253,7 @@ Each stream counts how many pushes in a row have failed:
 - A failure adds one. When the count reaches the limit and the stream is active, the stream is disabled, and `signals.stream_disabled` is recorded together with the stream it switched off.
 - A paused stream keeps its status when a failure is counted, so a person can still resume it. A disabled stream stays disabled.
 - The count stops at its highest value instead of wrapping back to zero.
+- A push writes only the count and the status, and only when the stream is still as the push read it. Fay moves a stream to a new receiver, or pauses it, while a push to the old receiver is under way. Her change stays, and that push's count is dropped.
 
 The limit is at least one. A limit of zero is refused. A deployment sets it with `SIGNAL_DISABLE_AFTER_FAILURES`, 20 by default.
 

@@ -19,6 +19,7 @@ use time::OffsetDateTime;
 
 use crate::listing::{Page, PageRequest, SortOrder};
 use crate::ports::TenantScoped;
+use crate::ports::shared::DeliveryNote;
 use crate::ports::signals::{
     ReceiverKeys, SignalStreamStore, StreamChallenge, StreamDeliverySortField, StreamSortField,
 };
@@ -349,6 +350,25 @@ impl SignalStreamStore for FakeSignalStreamStore {
         streams.retain(|held| !held.is(tenant_id, stream.id()));
         streams.push(StoredStream::from_stream(**tenant_id, stream, verification));
         Ok(())
+    }
+
+    async fn note_delivery(
+        &self,
+        tenant_id: &ScopedTenant,
+        stream: &SignalStream<ResolvedTenant>,
+        read_at: OffsetDateTime,
+    ) -> Result<DeliveryNote, DomainError> {
+        let mut streams = self.streams.lock().unwrap();
+        let Some(held) = streams
+            .iter_mut()
+            .find(|held| held.is(tenant_id, stream.id()) && held.updated_at == read_at)
+        else {
+            return Ok(DeliveryNote::Overtaken);
+        };
+        held.status = stream.status();
+        held.consecutive_failures = stream.consecutive_failures();
+        held.updated_at = stream.updated_at();
+        Ok(DeliveryNote::Kept)
     }
 
     async fn delete(

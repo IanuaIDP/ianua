@@ -31,6 +31,7 @@ use crate::define_sort_field;
 use crate::listing::{Page, PageRequest, SortKey, SortKeys, SortOrder};
 use crate::ports::TenantScoped;
 use crate::ports::authentication::SealedFor;
+use crate::ports::shared::DeliveryNote;
 use crate::tenancy::ScopedTenant;
 
 /// Dyn-safe port for verifying a tenant's tamper-evident audit chain.
@@ -334,6 +335,20 @@ pub trait AuditStreamStore: Send + Sync + TenantScoped {
         tenant_id: &ScopedTenant,
         stream: &AuditStream<ResolvedTenant>,
     ) -> Result<(), DomainError>;
+
+    /// Saves how `stream`'s sends went, its state, failure count and
+    /// pause, and nothing else, and only while the stored stream is still
+    /// the one last changed at `read_at`, as the delivery read it.
+    ///
+    /// # Errors
+    ///
+    /// Returns `DomainError::Infrastructure` on persistence failure.
+    async fn note_delivery(
+        &self,
+        tenant_id: &ScopedTenant,
+        stream: &AuditStream<ResolvedTenant>,
+        read_at: OffsetDateTime,
+    ) -> Result<DeliveryNote, DomainError>;
 
     /// Deletes the stream `id`.
     ///

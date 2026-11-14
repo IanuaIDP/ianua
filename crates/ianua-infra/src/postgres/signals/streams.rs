@@ -18,6 +18,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use ianua_app::listing::{Page, PageRequest, SortOrder};
 use ianua_app::ports::TenantScoped;
+use ianua_app::ports::shared::DeliveryNote;
 use ianua_app::ports::signals::{
     SignalStreamStore, StreamChallenge, StreamDeliverySortField, StreamSortField,
 };
@@ -29,6 +30,7 @@ use ianua_domain::message;
 use ianua_domain::shared::errors::DomainError;
 use ianua_domain::types::{SignalStreamId, TenantId};
 use sqlx::PgConnection;
+use time::OffsetDateTime;
 use uuid::Uuid;
 
 use self::deliveries::{DeliveryColumns, DeliveryRecord};
@@ -336,6 +338,37 @@ impl SignalStreamStore for PgSignalStreamStore {
         }
     }
 
+    async fn note_delivery(
+        &self,
+        tenant_id: &ScopedTenant,
+        stream: &SignalStream<ResolvedTenant>,
+        read_at: OffsetDateTime,
+    ) -> Result<DeliveryNote, DomainError> {
+        let columns = StreamColumns::of(stream, None);
+        let touched = scoped(
+            &self.databases,
+            RowScope::from(tenant_id),
+            async |connection| {
+                sqlx::query_file!(
+                    "queries/signal_streams/note_delivery.sql",
+                    tenant_id.as_uuid(),
+                    stream.id().as_uuid(),
+                    columns.status,
+                    columns.consecutive_failures,
+                    columns.updated_at,
+                    read_at,
+                )
+                .execute(connection)
+                .await
+            },
+        )
+        .await?;
+        Ok(match touched.rows_affected() {
+            0 => DeliveryNote::Overtaken,
+            _ => DeliveryNote::Kept,
+        })
+    }
+
     async fn delete(
         &self,
         tenant_id: &ScopedTenant,
@@ -605,6 +638,71 @@ mod tests {
 
         let found = fx.found(registered.id()).await.unwrap();
         assert_eq!(found.verification(), StreamVerificationStatus::Verified);
+    }
+
+    /// A push's count on a stream still as it was read is kept.
+    #[tokio::test]
+    async fn a_push_count_on_an_unchanged_stream_is_kept() {
+        let fx = fixture().await;
+        let read = at_endpoint("https://app.acme.com/sse");
+        fx.store
+            .save(&fx.tenant, &read, StreamChallenge::Kept)
+            .await
+            .unwrap();
+        let counted = stream(SignalStreamRow {
+            id: *read.id(),
+            consecutive_failures: 2,
+            updated_at: crate::test_support::rows::at(5),
+            ..stream_row("https://app.acme.com/sse")
+        });
+
+        let noted = fx
+            .store
+            .note_delivery(&fx.tenant, &counted, read.updated_at())
+            .await
+            .unwrap();
+
+        assert_eq!(noted, DeliveryNote::Kept);
+        assert_eq!(fx.found(read.id()).await.unwrap().consecutive_failures(), 2);
+    }
+
+    /// Fay moves the stream to a new receiver while a push to the old one
+    /// is under way. The push's count comes after and is dropped, so the
+    /// stream keeps her new receiver.
+    #[tokio::test]
+    async fn a_change_made_during_a_push_is_not_undone() {
+        let fx = fixture().await;
+        let read = at_endpoint("https://old.acme.com/sse");
+        fx.store
+            .save(&fx.tenant, &read, StreamChallenge::Kept)
+            .await
+            .unwrap();
+        let moved = stream(SignalStreamRow {
+            id: *read.id(),
+            updated_at: crate::test_support::rows::at(3),
+            ..stream_row("https://new.acme.com/sse")
+        });
+        fx.store
+            .save(&fx.tenant, &moved, StreamChallenge::Kept)
+            .await
+            .unwrap();
+        let counted = stream(SignalStreamRow {
+            id: *read.id(),
+            consecutive_failures: 1,
+            updated_at: crate::test_support::rows::at(5),
+            ..stream_row("https://old.acme.com/sse")
+        });
+
+        let noted = fx
+            .store
+            .note_delivery(&fx.tenant, &counted, read.updated_at())
+            .await
+            .unwrap();
+
+        assert_eq!(noted, DeliveryNote::Overtaken);
+        let found = fx.found(read.id()).await.unwrap();
+        assert_eq!(found.endpoint().as_str(), "https://new.acme.com/sse");
+        assert_eq!(found.consecutive_failures(), 0);
     }
 
     /// Saving a pending stream without an issued or stored challenge
