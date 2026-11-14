@@ -305,22 +305,24 @@ mod tests {
         let edge = pipeline(pipeline_row("edge", 0));
         let unused = pipeline(pipeline_row("unused", 1));
         let omitted = pipeline(pipeline_row("omitted", 2));
-        let foreign = save_counted_routes(&db, [&edge, &unused, &omitted]).await;
-        let ids = [*edge.id(), *edge.id(), *unused.id(), PipelineId::new()];
+        let (foreign, elsewhere) = save_counted_routes(&db, [&edge, &unused, &omitted]).await;
+        let ids = [
+            *edge.id(),
+            *edge.id(),
+            *unused.id(),
+            *elsewhere.id(),
+            PipelineId::new(),
+        ];
 
         let counts = db.store.route_counts(&db.tenant, &ids).await.unwrap();
+        let foreign_counts = db.store.route_counts(&foreign, &ids).await.unwrap();
 
         assert_eq!(counts.get(edge.id()), Some(&2));
         assert_eq!(counts.get(unused.id()).copied().unwrap_or(0), 0);
         assert!(!counts.contains_key(omitted.id()));
-        assert_eq!(
-            db.store
-                .route_counts(&foreign, &ids)
-                .await
-                .unwrap()
-                .get(edge.id()),
-            Some(&1)
-        );
+        assert!(!counts.contains_key(elsewhere.id()));
+        assert_eq!(foreign_counts.get(elsewhere.id()), Some(&1));
+        assert!(!foreign_counts.contains_key(edge.id()));
         assert!(
             db.store
                 .route_counts(&db.tenant, &[])
@@ -330,11 +332,13 @@ mod tests {
         );
     }
 
-    /// Saves routes on the counted and omitted pipelines, plus one foreign route.
+    /// Saves routes on the counted and omitted pipelines, plus another
+    /// tenant's pipeline with one route of its own. Every pipeline id is
+    /// the platform's alone, so the other tenant's pipeline has its own id.
     async fn save_counted_routes(
         db: &Fixture,
         pipelines: [&Pipeline<ResolvedTenant>; 3],
-    ) -> ScopedTenant {
+    ) -> (ScopedTenant, Pipeline<ResolvedTenant>) {
         let [edge, _, omitted] = pipelines;
         for pipeline in pipelines {
             db.store.save(&db.tenant, pipeline).await.unwrap();
@@ -343,9 +347,10 @@ mod tests {
         saved_route_on(&db.db.databases, &db.tenant, *edge.id(), "account").await;
         saved_route_on(&db.db.databases, &db.tenant, *omitted.id(), "other").await;
         let foreign = ScopedTenant::for_background(TenantId::new());
-        db.store.save(&foreign, edge).await.unwrap();
-        saved_route_on(&db.db.databases, &foreign, *edge.id(), "foreign").await;
-        foreign
+        let elsewhere = pipeline(pipeline_row("edge", 3));
+        db.store.save(&foreign, &elsewhere).await.unwrap();
+        saved_route_on(&db.db.databases, &foreign, *elsewhere.id(), "foreign").await;
+        (foreign, elsewhere)
     }
 
     /// Saving a second pipeline named `edge` in the same tenant returns a
