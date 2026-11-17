@@ -55,6 +55,19 @@ flowchart LR
 
 ## 1. Get the charts
 
+Each release publishes both charts to the GitHub container registry, with the same version as the release. Pull the version you want into a `deploy/helm` folder, so the commands below work as written:
+
+```sh
+VERSION=0.1.0
+mkdir -p deploy/helm
+helm pull oci://ghcr.io/ianuaidp/charts/ianua --version $VERSION --untar --untardir deploy/helm
+helm pull oci://ghcr.io/ianuaidp/charts/ianua-front --version $VERSION --untar --untardir deploy/helm
+```
+
+A chart pulled this way installs the images of the same release.
+
+To install from the newest code instead, clone the repository. Those charts install the `latest` images:
+
 ```sh
 git clone https://github.com/IanuaIDP/ianua.git
 cd ianua

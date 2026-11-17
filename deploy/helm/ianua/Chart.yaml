@@ -1,16 +1,40 @@
 apiVersion: v2
 name: ianua
-description: Ianua identity provider — control plane (API + worker) and zero-trust data-plane gateway.
+description: Self-hosted identity provider with a zero-trust gateway and limits for AI agents. Installs the API, the worker and the gateway.
 type: application
+# A published chart takes both versions from its release tag, so a chart
+# version installs the images built from that tag. These values serve
+# installs from a copy of the repository.
 version: 0.1.0
 # Container image tag used when `image.tag` is unset. Pin to an immutable
-# tag (a commit SHA) in production rather than `latest`.
+# tag (a release or a commit SHA) in production rather than `latest`.
 appVersion: "latest"
-home: https://github.com/IanuaIDP/ianua
+home: https://ianuaidp.github.io/ianua/
+icon: https://raw.githubusercontent.com/IanuaIDP/ianua/main/Logo.png
 sources:
   - https://github.com/IanuaIDP/ianua
+keywords:
+  - identity-provider
+  - zero-trust
+  - oauth2
+  - openid-connect
+  - saml
+  - sso
+  - gateway
+  - ai-agents
 maintainers:
   - name: Ianua
+    url: https://github.com/IanuaIDP
+annotations:
+  artifacthub.io/category: security
+  artifacthub.io/license: LicenseRef-Ianua-Source-Use-License
+  artifacthub.io/links: |
+    - name: Documentation
+      url: https://ianuaidp.github.io/ianua/
+    - name: Install on Kubernetes
+      url: https://ianuaidp.github.io/ianua/start/install-on-kubernetes/
+    - name: Security
+      url: https://github.com/IanuaIDP/ianua/blob/main/SECURITY.md
 # Vendored into charts/ (helm dependency update) so a plain `helm upgrade` from
 # the repository still works — Helm refuses a chart whose dependency is
 # missing, even one switched off.

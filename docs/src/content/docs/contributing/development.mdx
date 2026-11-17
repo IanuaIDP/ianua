@@ -104,6 +104,19 @@ docker build -f docker/Dockerfile.dashboard dashboard
 
 `docker/Dockerfile.dev` is for local work only. It holds the full toolchain and `cargo-watch`, runs as root, and rebuilds on change with the source mounted in.
 
+### Releases
+
+Pushing a version tag such as `v0.1.0` tags the images `0.1.0` and `0.1` in the GitHub container registry. Once they are built, the `ianua` and `ianua-front` Helm charts are published to `oci://ghcr.io/ianuaidp/charts` with that version as both the chart version and the app version. Last, a GitHub release is written for the tag, listing the changes since the previous one.
+
+A release starts only from a tag someone pushes:
+
+```sh
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+The tagged commit must not contain `[skip ci]` in its message, or GitHub runs nothing for the tag.
+
 ## Where code goes
 
 - New behaviour starts in the domain and is reached by a use case in `ianua-app` through a port.

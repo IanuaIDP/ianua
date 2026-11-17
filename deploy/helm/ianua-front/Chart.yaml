@@ -1,10 +1,29 @@
 apiVersion: v2
 name: ianua-front
-description: Ianua frontend — Next.js marketing site + dashboard served from the apex.
+description: The web dashboard for Ianua, a self-hosted identity provider with a zero-trust gateway. Install it beside the ianua chart.
 type: application
+# A published chart takes both versions from its release tag, so a chart
+# version installs the image built from that tag. These values serve installs
+# from a copy of the repository.
 version: 0.1.0
-# Pin to an immutable tag (commit SHA) in production rather than "latest".
+# Pin to an immutable tag (a release or a commit SHA) in production rather than "latest".
 appVersion: "latest"
-home: https://github.com/IanuaIDP/ianua-front
+home: https://ianuaidp.github.io/ianua/
+icon: https://raw.githubusercontent.com/IanuaIDP/ianua/main/Logo.png
 sources:
-  - https://github.com/IanuaIDP/ianua-front
+  - https://github.com/IanuaIDP/ianua
+keywords:
+  - identity-provider
+  - dashboard
+  - zero-trust
+maintainers:
+  - name: Ianua
+    url: https://github.com/IanuaIDP
+annotations:
+  artifacthub.io/category: security
+  artifacthub.io/license: LicenseRef-Ianua-Source-Use-License
+  artifacthub.io/links: |
+    - name: Documentation
+      url: https://ianuaidp.github.io/ianua/
+    - name: Install on Kubernetes
+      url: https://ianuaidp.github.io/ianua/start/install-on-kubernetes/
