@@ -3,7 +3,7 @@ export const LEGAL_CONTACT_EMAIL = 'legal@ianua.io';
 // Shown as is in every language, in the format used by the messages.
 export const LEGAL_LAST_UPDATED = '06.08.2026';
 
-export const PRIVACY_LAST_UPDATED = '12.11.2026';
+export const PRIVACY_LAST_UPDATED = '17.11.2026';
 
 // The text of each item is in messages/<language>.json under `legal`.
 export const PRIVACY_DATA_COLLECTED_IDS = [

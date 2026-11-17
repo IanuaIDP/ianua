@@ -3786,7 +3786,7 @@ export const HELP_CENTER_CATEGORIES: HelpCategory[] = [
       article({
         slug: 'cookies-and-analytics',
         title: 'Cookies and analytics',
-        lastUpdated: '2026-11-12',
+        lastUpdated: '2026-11-17',
         intro:
           'The public pages can measure visits, but only if you agree. This article explains what is measured, where, and how to change your choice.',
         sections: [
@@ -3836,7 +3836,7 @@ export const HELP_CENTER_CATEGORIES: HelpCategory[] = [
               },
               {
                 type: 'paragraph',
-                text: 'If you reject after accepting, the cookies are removed from your browser and the page reloads. Your choice is kept in this browser only, so you are asked again in another browser or after clearing site data.',
+                text: 'If you reject after accepting, the cookies set on this site are removed and the page reloads. Cookies that Microsoft sets on its own domains can only be removed in your browser settings. Your choice is kept in this browser only, so you are asked again in another browser or after clearing site data.',
               },
             ],
           },

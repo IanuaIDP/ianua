@@ -8,14 +8,14 @@ import { useLocale, useTranslations } from 'next-intl';
 
 import logo from '@/assets/logo.svg';
 import { LanguageSwitcher } from '@/components/ui/language-switcher';
-import { LEGAL_NAV_ITEMS } from '@/constants/landing';
+import { LEGAL_NAV_ITEMS, type LegalHeaderLinkId } from '@/constants/landing';
 import { DEFAULT_LOCALE } from '@/i18n/config';
 import { cn } from '@/utils/cn';
 
 type LegalHeaderProps = {
   brandSuffix?: string;
   navigationAriaLabel?: string;
-  navItems?: ReadonlyArray<{ href: string; id: string }>;
+  navItems?: ReadonlyArray<{ href: string; id: LegalHeaderLinkId }>;
 };
 
 export function LegalHeader({ brandSuffix, navigationAriaLabel, navItems }: LegalHeaderProps = {}) {

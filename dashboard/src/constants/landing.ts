@@ -114,3 +114,7 @@ export const FAQ_ITEM_IDS = [
 ] as const;
 
 export const BLOG_NAV_ITEMS = [{ id: 'blog', href: '/blog' }] as const;
+
+/** The ids of the links in the legal and blog headers. Their text is under `landing.legalLinks`. */
+export type LegalHeaderLinkId =
+  (typeof LEGAL_NAV_ITEMS)[number]['id'] | (typeof BLOG_NAV_ITEMS)[number]['id'];

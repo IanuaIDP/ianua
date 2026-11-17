@@ -86,6 +86,8 @@ If Google Tag Manager already loads Google Analytics or Clarity as tags, leave t
 | `CookieConsentBanner`  | `analytics/cookie-consent-banner.tsx`  | The banner. Reject and Accept have the same weight. On a phone it spans the width of the screen.                    |
 | `CookieSettingsButton` | `analytics/cookie-settings-button.tsx` | The footer button that reopens the banner. Withdrawing consent removes the providers' cookies and reloads the page. |
 
+When a visitor accepts, the page first sends Google Consent Mode signals: `analytics_storage` is granted, and `ad_storage`, `ad_user_data` and `ad_personalization` are denied. Clarity reads these signals, and it needs them for visitors from the EEA, the UK and Switzerland, or it sets no cookies there. The banner asks about analytics only, which is why the advertising signals stay denied. Cookies that Microsoft sets on its own domains, such as `MUID`, cannot be removed from our site, and the privacy text says so.
+
 The choice is kept in the browser's local storage under `ianua.analytics-consent`, so it is per browser. `Analytics` is placed in the landing, blog, legal and Help Center layouts. The sign-in pages are left out on purpose: their addresses can carry tokens, and a session recording must not see a password field. To measure the signed-in dashboard as well, put `<Analytics />` in `src/app/(dashboard)/layout.tsx`, and update the Privacy Policy, which now says analytics are on public pages only.
 
 ## Legal pages

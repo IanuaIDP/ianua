@@ -134,8 +134,8 @@
             "rest": "shows how people scroll and click, as heatmaps and session recordings, so we can improve the pages"
           }
         },
-        "p3": "These services set cookies and receive your IP address and device details. They may process them outside the EU. If you say no, the site works the same.",
-        "p4": "You can change your mind at any time with “Cookie settings” in the page footer. Withdrawing consent removes these cookies from your browser and reloads the page."
+        "p3": "These services set cookies and receive your IP address and device details. They may process them outside the EU. We tell them not to use this data for advertising. If you say no, the site works the same.",
+        "p4": "You can change your mind at any time with “Cookie settings” in the page footer. Withdrawing consent removes the cookies set on this site and reloads the page. Cookies that Microsoft sets on its own domains are out of our reach, so clear them in your browser settings if you want them gone."
       },
       "retention": {
         "title": "How long we keep it",
