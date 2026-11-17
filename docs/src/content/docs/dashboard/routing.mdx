@@ -12,6 +12,8 @@ src/app
 ├── layout.tsx                 Root layout: fonts, global CSS, AppProviders (React Query and toasts)
 ├── (public)                   No session needed
 │   ├── (landing)              /                         The landing page
+│   ├── (blog)                 /blog, /blog/[slug]       The blog
+│   ├── (blog)                 /blog, /blog/[slug]       The blog
 │   ├── (legal)                /privacy-policy, /terms-of-use
 │   ├── (help-center)          /help-center/[[...slug]]  The Help Center
 │   └── (auth)                 Sign-in, sign-up and emailed-link pages
@@ -29,6 +31,7 @@ Anyone can open these, signed in or not.
 | Address                                                                                                       | What it is                                                                                                                                                                          |
 | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/`                                                                                                           | The landing page (`components/landing`).                                                                                                                                            |
+| `/blog`, `/blog/{article}` | The blog. Each article is an MDX file in `content/blog/{language}/`, and the file name is its address. A self-hosted installation sends these addresses to `/login`, as it does `/`. |
 | `/privacy-policy`, `/terms-of-use`                                                                            | The legal pages. Their text is in `constants/legal.ts`.                                                                                                                             |
 | `/help-center`, `/help-center/{category}/{article}[/{sub-article}]`                                           | The Help Center. The path picks an article from `constants/help-center.ts`.                                                                                                         |
 | `/login`                                                                                                      | Sign-in for the organization's team.                                                                                                                                                |

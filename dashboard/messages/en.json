@@ -88,8 +88,8 @@
             "why": "Because an identity system that cannot say who did what is not worth demonstrating"
           }
         },
-        "p1": "We collect nothing else. There is no analytics, no advertising, no tracking across other sites, and no profiling. We do not sell data — there is no mechanism to do so and no intention.",
-        "p2": "The legal basis is your consent, given by choosing to create a demo account, together with our legitimate interest in keeping the demo secure. You can withdraw consent at any time by asking us to delete your account."
+        "p1": "We collect nothing else, with one optional exception: if you agree in the cookie banner, we measure how the public pages are used (see Cookies and analytics). There is no advertising, no tracking across other sites, and no profiling. We do not sell data — there is no mechanism to do so and no intention.",
+        "p2": "The legal basis is your consent, given by choosing to create a demo account, together with our legitimate interest in keeping the demo secure. For analytics, the legal basis is your consent in the cookie banner. You can withdraw consent at any time by asking us to delete your account, or for analytics by using Cookie settings in the page footer."
       },
       "recipients": {
         "title": "Who else sees it",
@@ -106,10 +106,36 @@
           "monitoring": {
             "label": "Error monitoring",
             "rest": "so we find out when something breaks"
+          },
+          "analytics": {
+            "label": "Analytics",
+            "rest": "only on the public pages and only if you agree, as described under Cookies and analytics"
           }
         },
         "p1": "Each processes data only to provide that function. We do not share your data with anyone else, and nobody has bought or been given access to it.",
         "p2": "We are based in Ukraine, so data is accessed from outside the EU when we administer the system."
+      },
+      "cookies": {
+        "title": "Cookies and analytics",
+        "p1": "The sign-in pages and the dashboard set only the cookies needed to keep you signed in. They do not load analytics.",
+        "p2": "The public pages (the home page, the blog, the Help Center, this Privacy Policy and the Terms of Use) can measure visits, but only if you agree in the cookie banner. Until you choose, nothing is loaded.",
+        "intro": "If you agree, we use:",
+        "items": {
+          "googleAnalytics": {
+            "label": "Google Analytics",
+            "rest": "counts visits and shows which pages are read"
+          },
+          "tagManager": {
+            "label": "Google Tag Manager",
+            "rest": "loads the measurement tags"
+          },
+          "clarity": {
+            "label": "Microsoft Clarity",
+            "rest": "shows how people scroll and click, as heatmaps and session recordings, so we can improve the pages"
+          }
+        },
+        "p3": "These services set cookies and receive your IP address and device details. They may process them outside the EU. If you say no, the site works the same.",
+        "p4": "You can change your mind at any time with “Cookie settings” in the page footer. Withdrawing consent removes these cookies from your browser and reloads the page."
       },
       "retention": {
         "title": "How long we keep it",
@@ -230,7 +256,8 @@
       "helpCenter": "Help Center",
       "privacyPolicy": "Privacy Policy",
       "termsOfUse": "Terms of Use",
-      "contactSupport": "Contact Support"
+      "contactSupport": "Contact Support",
+      "blog": "Blog"
     },
     "footer": {
       "homeAriaLabel": "Ianua.io home",
@@ -635,6 +662,34 @@
         "messageRequired": "Message is required"
       }
     }
+  },
+  "cookieConsent": {
+    "ariaLabel": "Cookie consent",
+    "title": "Can we measure visits?",
+    "description": "We would like to use Google Analytics, Google Tag Manager and Microsoft Clarity on our public pages to see how they are used. They set cookies and collect usage data. Nothing is loaded unless you agree, and the site works the same either way.",
+    "learnMore": "Read how we use your data.",
+    "accept": "Accept",
+    "reject": "Reject",
+    "close": "Close",
+    "settings": "Cookie settings",
+    "currentGranted": "You have agreed to analytics. Rejecting now removes the cookies and reloads the page.",
+    "currentDenied": "You have rejected analytics."
+  },
+  "blog": {
+    "brandSuffix": "Blog",
+    "navigationAriaLabel": "Blog navigation",
+    "meta": {
+      "title": "Blog | ianua",
+      "description": "Articles from the ianua team about identity, access control and governed automation."
+    },
+    "heading": "Blog",
+    "subtitle": "Articles from the ianua team about identity, access control and governed automation.",
+    "empty": "No articles yet. Check back soon.",
+    "by": "By {author}",
+    "minutesToRead": "{minutes} min read",
+    "back": "All articles",
+    "englishOnly": "This article is available in English only.",
+    "tagsAriaLabel": "Tags"
   },
   "auth": {
     "layout": {

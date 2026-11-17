@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+import { Analytics } from '@/components/analytics/analytics';
 import { LandingFooter } from '@/components/landing/footer/landing-footer';
 import { LegalHeader } from '@/components/legal/legal-header';
 
@@ -11,6 +12,7 @@ export default function LegalLayout({ children }: { children: ReactNode }) {
         {children}
         <LandingFooter showSectionNav={false} />
       </main>
+      <Analytics />
     </div>
   );
 }

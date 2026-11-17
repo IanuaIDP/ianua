@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-These components draw the pages anyone can open without signing in: the landing page, the legal pages, the Help Center and the sign-in screens.
+These components draw the pages anyone can open without signing in: the landing page, the blog, the legal pages, the Help Center and the sign-in screens.
 
 ## Landing page
 
@@ -31,7 +31,7 @@ The landing page is `src/app/(public)/page.tsx`, and its parts are in `src/compo
 | `FaqSection`                       | `faq/faq-section.tsx`                            | Common questions that open one at a time.                                                                                                                                                                                  |
 | `ContactSection`                   | `contact/contact-section.tsx`                    | A contact form (name, email, company, message), checked with `createContactSchema` in `schemas/contact-schema.ts` in the visitor's language. **Sending is not built yet**: `handleMockSubmit` only shows the "sent" state. |
 | `LandingFooter`                    | `footer/landing-footer.tsx`                      | The footer: logo, optional links to the sections, and the legal bar.                                                                                                                                                       |
-| `FooterLegalBar`                   | `footer/footer-legal-bar.tsx`                    | The legal and Help Center links, from `LANDING_LEGAL_LINKS`. The landing, legal and sign-in footers share it. Links open in a new tab, except on a legal page.                                                             |
+| `FooterLegalBar`                   | `footer/footer-legal-bar.tsx`                    | The blog, Help Center and legal links, from `LANDING_LEGAL_LINKS`, and the Cookie settings button where analytics are on. The landing, blog, legal and sign-in footers share it. Links open in a new tab, except on a legal or blog page.                                                             |
 | `LandingSectionLink`               | `shared/landing-section-link.tsx`                | A link that scrolls smoothly to a section, leaving room for the top bar.                                                                                                                                                   |
 | `LandingHorizontalScrollContainer` | `shared/landing-horizontal-scroll-container.tsx` | Rows of cards that scroll sideways on small screens.                                                                                                                                                                       |
 | `ScrollReveal`                     | `shared/scroll-reveal.tsx`                       | Fades or slides its content in as it comes on screen, after an optional delay.                                                                                                                                             |
@@ -39,13 +39,62 @@ The landing page is `src/app/(public)/page.tsx`, and its parts are in `src/compo
 | `SectionBadge`                     | `shared/section-badge.tsx`                       | A small label with an icon, above a section's heading.                                                                                                                                                                     |
 | `StatusDivider`                    | `shared/status-divider.tsx`                      | A line between sections with a label on it.                                                                                                                                                                                |
 
+## Blog
+
+The blog is at `/blog` and `/blog/{article}`, and its parts are in `src/components/blog` and `src/lib/blog`. It has no link in the landing header. The footer links to it.
+
+An article is one MDX file in `content/blog/{language}/`. The file name is the address, so it uses lowercase letters, digits and single hyphens. A file starts with a block of fields, and the page refuses an article that lacks a required one.
+
+| Field         | Needed | What it is                                                                           |
+| ------------- | ------ | ------------------------------------------------------------------------------------ |
+| `title`       | yes    | The heading and the page title.                                                      |
+| `description` | yes    | One sentence, shown in the list and as the page description.                         |
+| `date`        | yes    | `YYYY-MM-DD`. The list shows the newest first.                                       |
+| `author`      | yes    | The name shown under the title.                                                      |
+| `tags`        | no     | A list of short labels shown on the card.                                            |
+| `draft`       | no     | `true` hides the article on a production build. A development server still shows it. |
+
+A visitor sees the article in their language, or the English one with a note when there is no translation. Add `content/blog/uk/{same-file-name}.mdx` to translate one. The reading time is counted from the text at 200 words a minute.
+
+| Piece                   | File                           | What it does                                                                                              |
+| ----------------------- | ------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| `blogPosts`, `blogPost` | `lib/blog/posts.ts`            | Read and check the files. `blogPost` refuses a name that is not a plain slug, so no path can be reached. |
+| `BlogPostCard`          | `blog/blog-post-card.tsx`      | One article in the list.                                                                                  |
+| `BlogPostMeta`          | `blog/blog-post-meta.tsx`      | The date, author and reading time.                                                                        |
+| `blogMdxComponents`     | `blog/blog-mdx-components.tsx` | How headings, links, lists, code, tables and images look in every article.                                |
+
+The pages read the files on every request, so the production image carries `content/blog` (see `outputFileTracingIncludes` in `next.config.ts`). The text around the articles is in the message files under `blog`.
+
+## Analytics and cookie consent
+
+The public pages can load Google Analytics, Google Tag Manager and Microsoft Clarity. Nothing loads until the visitor accepts the cookie banner. The code is in `src/components/analytics`, `src/lib/analytics` and `src/store/analytics-consent-store.ts`.
+
+| Setting                 | What it turns on                                                   |
+| ----------------------- | ------------------------------------------------------------------ |
+| `GOOGLE_ANALYTICS_ID`   | Google Analytics. Looks like `G-XXXXXXXXXX`.                       |
+| `GOOGLE_TAG_MANAGER_ID` | Google Tag Manager. Looks like `GTM-XXXXXXX`.                      |
+| `MICROSOFT_CLARITY_ID`  | Microsoft Clarity. A short string of lowercase letters and digits. |
+
+The server reads these when it runs, so they can change without a new build. An id that does not match its format is ignored, because the id is written into a script. With no valid id there is no banner and nothing loads.
+
+If Google Tag Manager already loads Google Analytics or Clarity as tags, leave their own settings empty, or visits are counted twice.
+
+| Component              | File                                   | What it does                                                                                                        |
+| ---------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `Analytics`            | `analytics/analytics.tsx`              | Put it in a layout to turn analytics on for the pages under it. It draws nothing when no id is set.                 |
+| `AnalyticsScripts`     | `analytics/analytics-scripts.tsx`      | Adds the provider scripts once the visitor has accepted.                                                            |
+| `CookieConsentBanner`  | `analytics/cookie-consent-banner.tsx`  | The banner. Reject and Accept have the same weight. On a phone it spans the width of the screen.                    |
+| `CookieSettingsButton` | `analytics/cookie-settings-button.tsx` | The footer button that reopens the banner. Withdrawing consent removes the providers' cookies and reloads the page. |
+
+The choice is kept in the browser's local storage under `ianua.analytics-consent`, so it is per browser. `Analytics` is placed in the landing, blog, legal and Help Center layouts. The sign-in pages are left out on purpose: their addresses can carry tokens, and a session recording must not see a password field. To measure the signed-in dashboard as well, put `<Analytics />` in `src/app/(dashboard)/layout.tsx`, and update the Privacy Policy, which now says analytics are on public pages only.
+
 ## Legal pages
 
 These are in `src/components/legal`.
 
 | Component                                                                                   | File               | What it does                                                                                                                                                                                                                                                                                                                                     |
 | ------------------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `LegalHeader`                                                                               | `legal-header.tsx` | The top bar of `/privacy-policy` and `/terms-of-use`, with links between them and a phone menu. The pages' text is in `messages/<language>.json` under `legal`.                                                                                                                                                                                  |
+| `LegalHeader`                                                                               | `legal-header.tsx` | The top bar of `/privacy-policy` and `/terms-of-use`, with links between them and a phone menu. The blog uses it too, with its own `navItems`, `brandSuffix` and `navigationAriaLabel`. The pages' text is in `messages/<language>.json` under `legal`.                                                                                                                                                                                  |
 | `LegalSection`, `LegalParagraph`, `LegalProse`, `LegalList`, `LegalBullet`, `legalRichTags` | `legal-prose.tsx`  | The parts both legal pages are made of. `legalRichTags` are the tags used in the legal messages: `<mail>`, `<privacy>`, `<highlight>` and `<brand>`. `constants/legal.ts` keeps the contact address, the date of the last change, and the ids of the table rows and lists. A translated page says the English version applies if the two differ. |
 
 ## Help Center

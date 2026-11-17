@@ -3784,6 +3784,65 @@ export const HELP_CENTER_CATEGORIES: HelpCategory[] = [
         ],
       }),
       article({
+        slug: 'cookies-and-analytics',
+        title: 'Cookies and analytics',
+        lastUpdated: '2026-11-12',
+        intro:
+          'The public pages can measure visits, but only if you agree. This article explains what is measured, where, and how to change your choice.',
+        sections: [
+          {
+            id: 'where-it-applies',
+            heading: 'Where it applies',
+            blocks: [
+              {
+                type: 'paragraph',
+                text: 'The cookie banner and the measurement tools are on the public pages only: the home page, the blog, the Help Center, the Privacy Policy and the Terms of Use. The sign-in pages and the dashboard do not load them.',
+              },
+              {
+                type: 'callout',
+                tone: 'info',
+                text: 'The banner shows only on an installation where the measurement tools are set up. If you do not see it, nothing is being measured.',
+              },
+            ],
+          },
+          {
+            id: 'what-is-measured',
+            heading: 'What is measured',
+            blocks: [
+              {
+                type: 'list',
+                items: [
+                  'Google Analytics and Google Tag Manager count visits and show which pages are read.',
+                  'Microsoft Clarity shows how people scroll and click, as heatmaps and session recordings.',
+                ],
+              },
+              {
+                type: 'paragraph',
+                text: 'Nothing is loaded until you choose Accept. If you choose Reject, the site works the same.',
+              },
+            ],
+          },
+          {
+            id: 'changing-your-choice',
+            heading: 'Changing your choice',
+            blocks: [
+              {
+                type: 'steps',
+                items: [
+                  'Scroll to the footer of any public page.',
+                  'Click Cookie settings. The banner opens and says what you chose before.',
+                  'Choose Accept or Reject.',
+                ],
+              },
+              {
+                type: 'paragraph',
+                text: 'If you reject after accepting, the cookies are removed from your browser and the page reloads. Your choice is kept in this browser only, so you are asked again in another browser or after clearing site data.',
+              },
+            ],
+          },
+        ],
+      }),
+      article({
         slug: 'notification-preferences',
         title: 'Notification preferences',
         lastUpdated: '2026-10-03',
