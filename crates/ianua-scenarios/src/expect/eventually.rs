@@ -9,11 +9,14 @@ use tokio::time::{Instant, MissedTickBehavior};
 /// How long [`eventually`] waits.
 const PATIENCE: Duration = Duration::from_secs(20);
 
-/// How often it asks again.
-const ASK_EVERY: Duration = Duration::from_millis(100);
+/// How often it asks again. Most checks call the API, and a tenant may make
+/// 200 requests a minute: asking twice a second leaves room for the
+/// scenario's other calls however long the wait lasts, where ten times a
+/// second spent the whole allowance on a run that took twenty seconds.
+const ASK_EVERY: Duration = Duration::from_millis(500);
 
-/// What `check` answers once it answers something, asking again every
-/// tenth of a second for up to twenty seconds.
+/// What `check` answers once it answers something, asking again twice a
+/// second for up to twenty seconds.
 ///
 /// # Panics
 ///
@@ -27,8 +30,8 @@ where
     eventually_within(what, PATIENCE, check).await
 }
 
-/// What `check` answers once it answers something, asking again every
-/// tenth of a second for up to `patience`.
+/// What `check` answers once it answers something, asking again twice a
+/// second for up to `patience`.
 ///
 /// # Panics
 ///
