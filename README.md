@@ -36,6 +36,21 @@ Most teams cover this with an identity provider for sign-in, a proxy in front of
 
 With Ianua, every caller goes through one gateway and one set of rules, and each request leaves one record. The assistant gets its own identity and only the part of your access you lend it. If the person who lent it leaves the company, the assistant is refused on its next request.
 
+## How it works
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/readme/architecture-dark.svg">
+  <img alt="People and AI agents reach your apps only through the Ianua gateway. The gateway works out who is calling, asks the platform for a decision, forwards allowed requests, refuses the rest and records every decision." src=".github/readme/architecture-light.svg" width="100%">
+</picture>
+
+Ianua has two main parts.
+
+The **gateway** takes every request. It works out who is calling, asks the platform whether they may, then forwards the request or refuses it. A missing answer, an error or a slow answer counts as a no. Identity headers sent by the caller are removed before the gateway adds its own.
+
+The **platform** keeps the users, groups, roles, policy, agents and workflows in Postgres. The dashboard and the API both use it.
+
+[How it works](https://ianuaidp.github.io/ianua/start/how-it-works/) in the docs follows one request through every step.
+
 ## Features
 
 | | |
@@ -86,21 +101,6 @@ curl "${auth[@]}" -X POST $T/routes -d "{\"name\":\"private\", \"path_pattern\":
 
 Now a request to `/private/` without a session gets `401`, and your app never sees it.
 
-## How it works
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/readme/architecture-dark.svg">
-  <img alt="People and AI agents reach your apps only through the Ianua gateway. The gateway works out who is calling, asks the platform for a decision, forwards allowed requests, refuses the rest and records every decision." src=".github/readme/architecture-light.svg" width="100%">
-</picture>
-
-Ianua has two main parts.
-
-The **gateway** takes every request. It works out who is calling, asks the platform whether they may, then forwards the request or refuses it. A missing answer, an error or a slow answer counts as a no. Identity headers sent by the caller are removed before the gateway adds its own.
-
-The **platform** keeps the users, groups, roles, policy, agents and workflows in Postgres. The dashboard and the API both use it.
-
-[How it works](https://ianuaidp.github.io/ianua/start/how-it-works/) in the docs follows one request through every step.
-
 ## How it is tested
 
 Most of the work on Ianua goes into tests.
@@ -117,9 +117,10 @@ Most of the work on Ianua goes into tests.
 | Keycloak, Auth0, Okta | Signing people in | A gateway that checks every request, and agents with limited, borrowed access |
 | Pomerium, oauth2-proxy | Guarding internal apps | Its own identity provider, and the same rules for services and agents |
 | Kong, Traefik, NGINX | Routing, load balancing, rate limits | Identity and policy built in rather than added as plugins, and a refusal whenever a check cannot run |
+| Zapier, n8n, Make | Connecting apps with little effort | Runs that act with only the rights of the person they are for, approvals by people, and code in sandboxes, on your own servers |
 | API keys, copied tokens | Being quick to set up | Knowing who allowed what, and stopping an agent mid-task |
 
-If you only need single sign-on for software you buy, a hosted identity provider is less to run. Ianua fits best when you have your own apps and APIs, and people, services and agents all call them. The docs have a [longer comparison](https://ianuaidp.github.io/ianua/start/the-problem/).
+If you only need single sign-on for software you buy, a hosted identity provider is less to run. If you want to connect thousands of apps, Zapier has far more than Ianua's 27. Ianua fits best when you have your own apps and APIs, and people, services and agents all call them. The docs have a [longer comparison](https://ianuaidp.github.io/ianua/start/the-problem/).
 
 ## Project layout
 
