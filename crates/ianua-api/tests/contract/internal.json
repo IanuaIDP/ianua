@@ -175,11 +175,11 @@
           "challenge": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ChallengeCode",
                 "description": "The challenge to solve before signing in again, on\n`challenge_required` when one can be set. Absent when none can: only\na trusted device or single sign-on gets in until the pressure eases."
+              },
+              {
+                "type": "null"
               }
             ]
           },

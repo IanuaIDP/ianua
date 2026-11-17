@@ -2367,10 +2367,10 @@
               "schema": {
                 "oneOf": [
                   {
-                    "type": "null"
+                    "$ref": "#/components/schemas/CreateOperatorKeyBody"
                   },
                   {
-                    "$ref": "#/components/schemas/CreateOperatorKeyBody"
+                    "type": "null"
                   }
                 ]
               }
@@ -40227,10 +40227,10 @@
               "schema": {
                 "oneOf": [
                   {
-                    "type": "null"
+                    "$ref": "#/components/schemas/RotatePushSecretBody"
                   },
                   {
-                    "$ref": "#/components/schemas/RotatePushSecretBody"
+                    "type": "null"
                   }
                 ]
               }
@@ -53175,10 +53175,10 @@
               "schema": {
                 "oneOf": [
                   {
-                    "type": "null"
+                    "$ref": "#/components/schemas/PollBody"
                   },
                   {
-                    "$ref": "#/components/schemas/PollBody"
+                    "type": "null"
                   }
                 ]
               }
@@ -53631,10 +53631,10 @@
               "schema": {
                 "oneOf": [
                   {
-                    "type": "null"
+                    "$ref": "#/components/schemas/VerifyStreamBody"
                   },
                   {
-                    "$ref": "#/components/schemas/VerifyStreamBody"
+                    "type": "null"
                   }
                 ]
               }
@@ -59406,10 +59406,10 @@
               "schema": {
                 "oneOf": [
                   {
-                    "type": "null"
+                    "$ref": "#/components/schemas/RotateSecretBody"
                   },
                   {
-                    "$ref": "#/components/schemas/RotateSecretBody"
+                    "type": "null"
                   }
                 ]
               }
@@ -68824,11 +68824,11 @@
           "answered_by": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/OwnerDto",
                 "description": "The account that approved or denied it, absent until answered."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -69578,11 +69578,11 @@
           "attestation_policy": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/AttestationPolicyResponse",
                 "description": "The attestation policy accepted for secret-zero bootstrap, if\nconfigured."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -69618,11 +69618,11 @@
           "offered_to": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/OwnerDto",
                 "description": "The person the agent was offered to, while the offer stands."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -69959,22 +69959,22 @@
           "app_sign_in": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/AppSignInSettings",
                 "description": "The service's own app sign-in, or `null` for none."
+              },
+              {
+                "type": "null"
               }
             ]
           },
           "delivery": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/SignInDeliveryBody",
                 "description": "How that sign-in reaches this service. Defaults to `same_host`."
+              },
+              {
+                "type": "null"
               }
             ]
           }
@@ -70114,11 +70114,11 @@
           "call": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/HeldCallDto",
                 "description": "The exact call a run is holding, when a run raised the request."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -70221,11 +70221,11 @@
           "decided_by": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/OwnerDto",
                 "description": "Who decided, once a decision was made. `null` while pending, and for\na request that lapsed undecided."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -70253,11 +70253,11 @@
           "first_approved_by": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/OwnerDto",
                 "description": "Who gave the first of two approvals, while the second is awaited."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -71131,11 +71131,11 @@
           "format": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/AuditExportFormatBody",
                 "description": "`csv` (the default) or `json`."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -71261,11 +71261,11 @@
           "acted_through": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ActedThroughResponse",
                 "description": "Whom or what the actor acted through; `null` when they acted in\ntheir own name."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -71875,11 +71875,11 @@
           "form_post": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/FormPostReply",
                 "description": "The form the browser posts the answer with, for a client that asked\nfor `form_post`."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -72329,11 +72329,11 @@
           "findings": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/FindingsResponse",
                 "description": "What scanning a company's image found below critical, once it is\nready."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -72949,11 +72949,11 @@
           "pricing": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ModelPricingDto",
                 "description": "What the new model charges. Left out when unknown."
+              },
+              {
+                "type": "null"
               }
             ]
           }
@@ -72987,11 +72987,11 @@
           "assurance_trust": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/AssuranceTrustBody",
                 "description": "Whether its report of factors is taken on its word."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -73005,11 +73005,11 @@
           "email_trust": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/EmailTrustBody",
                 "description": "Whether its addresses are taken on its word."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -73085,11 +73085,11 @@
           "quota": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/QuotaBody",
                 "description": "The new allowance; `null` or left out removes it."
+              },
+              {
+                "type": "null"
               }
             ]
           }
@@ -73741,11 +73741,11 @@
           "access_token_format": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/TokenFormatChoice",
                 "description": "The form of its access tokens."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -73763,11 +73763,11 @@
           "consent": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ConsentChoice",
                 "description": "Whether people are asked to consent."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -73799,22 +73799,22 @@
           "sender_constraint": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/SenderChoice",
                 "description": "What its tokens are bound to."
+              },
+              {
+                "type": "null"
               }
             ]
           },
           "token_lifetimes": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/TokenLifetimesBody",
                 "description": "How long its tokens last."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -74012,11 +74012,11 @@
           "proof": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ReenteredProofBody",
                 "description": "The signed-in person's proof of who they are, or nothing for a\nsign-in waiting for the factor."
+              },
+              {
+                "type": "null"
               }
             ]
           }
@@ -74306,11 +74306,11 @@
           "pricing": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ModelPricingDto",
                 "description": "What the provider charges, so runs can be held to a spend limit.\nLeft out when unknown: a run under a spend limit then stops as\n`over_budget` after its first model call, since its spend cannot be\ncounted."
+              },
+              {
+                "type": "null"
               }
             ]
           }
@@ -74459,11 +74459,11 @@
           "group_mapping": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/GroupMappingBody",
                 "description": "The provider's groups mapped to roles and groups here, if mapping\nis on."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -74498,11 +74498,11 @@
           "saml": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/SamlSettingsResponse",
                 "description": "A SAML connection's own settings; `null` for OIDC."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -74804,11 +74804,11 @@
           "quota": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/QuotaBody",
                 "description": "Its own allowance; left out, unlimited."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -74958,22 +74958,22 @@
           "previous_credential": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/PreviousCredentialResponse",
                 "description": "The credential it replaced, while that one still works; `null`\notherwise."
+              },
+              {
+                "type": "null"
               }
             ]
           },
           "quota": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/QuotaBody",
                 "description": "Its own request allowance; `null` when it has none."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -75056,11 +75056,11 @@
           "key": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/EnrolledKeyDto",
                 "description": "The public key the agent made for itself, when it will sign in with\na durable key. Left out for an agent that will bootstrap from a\nplatform attestation instead."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -75109,11 +75109,11 @@
           "credential": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/CredentialResponse",
                 "description": "The credential enrolled from the key the agent brought. `null` for\nan agent that brought none and will bootstrap from an attestation."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -75381,11 +75381,11 @@
               "quota": {
                 "oneOf": [
                   {
-                    "type": "null"
-                  },
-                  {
                     "$ref": "#/components/schemas/QuotaBody",
                     "description": "Its own request allowance. Left out, it has none of its own; route\nrate limits still apply."
+                  },
+                  {
+                    "type": "null"
                   }
                 ]
               }
@@ -76069,11 +76069,11 @@
           "health_check": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/HealthCheckBody",
                 "description": "How this service's backends are probed. Omit for the platform default."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -76084,11 +76084,11 @@
           "tls": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/UpstreamTlsBody",
                 "description": "How the gateway opens TLS to the upstream. Omit to check it against\nthe public roots with no client certificate."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -76538,11 +76538,11 @@
           "attestation": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/CredentialAttestationResponse",
                 "description": "The attestation this credential is bound to, for one issued by\nbootstrap. `null` for an enrolled credential, which attests nothing."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -77124,11 +77124,11 @@
           "budget": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/BudgetDto",
                 "description": "Optional request budget: caps how many times the token may be used."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -77297,11 +77297,11 @@
           "budget": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/BudgetDto",
                 "description": "The request budget, if any."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -77337,11 +77337,11 @@
           "intent": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/IntentSummaryDto",
                 "description": "The bound intent and drift policy, if any."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -78015,11 +78015,11 @@
               "certificate": {
                 "oneOf": [
                   {
-                    "type": "null"
-                  },
-                  {
                     "$ref": "#/components/schemas/CertificateResponse",
                     "description": "The certificate it serves; `null` when it was never given one or\nthe tenant removed it."
+                  },
+                  {
+                    "type": "null"
                   }
                 ]
               }
@@ -78137,11 +78137,11 @@
           "after": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/DraftAfterBody",
                 "description": "The step of a draft the steps come after; left out for a whole new\nworkflow."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -78810,11 +78810,11 @@
           "challenge": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ChallengeCode",
                 "description": "The challenge to solve before signing in again, on\n`challenge_required` when one can be set. Absent when none can: only\na trusted device or single sign-on gets in until the pressure eases."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -79268,11 +79268,11 @@
           "pass": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/PassResponse",
                 "description": "The loop it runs one pass of; left out for a run that is no pass."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -79946,11 +79946,11 @@
               "intent": {
                 "oneOf": [
                   {
-                    "type": "null"
-                  },
-                  {
                     "$ref": "#/components/schemas/IntentGrantDto",
                     "description": "Optional intent, compiled and bound for drift monitoring."
+                  },
+                  {
+                    "type": "null"
                   }
                 ]
               },
@@ -80981,11 +80981,11 @@
           "picker": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/PickerResponse",
                 "description": "What fills a `picker` or `multi_picker` block, through\n`.../operations/{integration}/{operation}/inputs/{input}/choices`."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -81117,11 +81117,11 @@
           "act": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ActorClaim",
                 "description": "Who acts for its subject."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -81146,11 +81146,11 @@
           "cnf": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ConfirmationClaim",
                 "description": "What it is bound to."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -82280,11 +82280,11 @@
           "mailgun_region": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/MailgunRegionBody",
                 "description": "The API location serving the domain, `us` or `eu`, when using Mailgun."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -82307,11 +82307,11 @@
           "security": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/SmtpSecurityBody",
                 "description": "How the SMTP connection is encrypted."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -82712,11 +82712,11 @@
           "proof": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ReenteredProofBody",
                 "description": "The signed-in person's proof of who they are, or nothing for a\nsign-in waiting for the factor."
+              },
+              {
+                "type": "null"
               }
             ]
           }
@@ -82929,11 +82929,11 @@
           "pricing": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ModelPricingDto",
                 "description": "What the provider charges, or `null` when nobody set a price."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -83762,11 +83762,11 @@
           "form": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/InputFormResponse",
                 "description": "How the builder asks for it; left out when its integration does not\nexplain it, and the builder asks with a plain text box."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -83854,11 +83854,11 @@
           "preview": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/PreviewResponse",
                 "description": "How its inputs are previewed, shaped like the product it acts in;\nleft out when it has no preview."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -84306,11 +84306,11 @@
           "proof": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ReenteredProofBody",
                 "description": "The member's password typed again, when they are signed in."
+              },
+              {
+                "type": "null"
               }
             ]
           }
@@ -84434,11 +84434,11 @@
               "access": {
                 "oneOf": [
                   {
-                    "type": "null"
-                  },
-                  {
                     "$ref": "#/components/schemas/OrgUserAccessResponse",
                     "description": "What this member reaches: their org role, the tenants they can\nenter, and their permissions in each.\n\n`null` while `mfa_required` is `true`: a session that proved only\na password has not finished authenticating, and must not read\nthe organization's tenant layout. Call `…/me/access` once it has."
+                  },
+                  {
+                    "type": "null"
                   }
                 ]
               },
@@ -84877,11 +84877,11 @@
           "proof": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ReenteredProofBody",
                 "description": "The member's password typed again, when they are signed in. A\nsign-in waiting for its second factor sends none."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -85523,11 +85523,11 @@
                 "answered_by": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/OwnerDto",
                       "description": "The account that approved or denied it, absent until answered."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
@@ -85979,11 +85979,11 @@
                 "attestation_policy": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/AttestationPolicyResponse",
                       "description": "The attestation policy accepted for secret-zero bootstrap, if\nconfigured."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
@@ -86019,11 +86019,11 @@
                 "offered_to": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/OwnerDto",
                       "description": "The person the agent was offered to, while the offer stands."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
@@ -86201,11 +86201,11 @@
                 "acted_through": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/ActedThroughResponse",
                       "description": "Whom or what the actor acted through; `null` when they acted in\ntheir own name."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
@@ -86568,11 +86568,11 @@
                 "group_mapping": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/GroupMappingBody",
                       "description": "The provider's groups mapped to roles and groups here, if mapping\nis on."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
@@ -86607,11 +86607,11 @@
                 "saml": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/SamlSettingsResponse",
                       "description": "A SAML connection's own settings; `null` for OIDC."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
@@ -86713,22 +86713,22 @@
                 "previous_credential": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/PreviousCredentialResponse",
                       "description": "The credential it replaced, while that one still works; `null`\notherwise."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
                 "quota": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/QuotaBody",
                       "description": "Its own request allowance; `null` when it has none."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
@@ -87353,11 +87353,11 @@
                 "pass": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/PassResponse",
                       "description": "The loop it runs one pass of; left out for a run that is no pass."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
@@ -88236,11 +88236,11 @@
                 "closed": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/ConnectionCloseResponse",
                       "description": "How the gateway closed the connection this request upgraded, when\nit closed it because the caller's access ended, a check of it failed\nor the credential ran out. Absent for any other connection."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
@@ -88252,11 +88252,11 @@
                 "decided_by": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/DecidedByResponse",
                       "description": "What refused it, `null` when nothing did."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
@@ -88464,22 +88464,22 @@
                 "choice": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/ReviewChoiceBody",
                       "description": "`keep` or `remove`, absent while nobody decided."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
                 "decided_by": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/OwnerDto",
                       "description": "The reviewer who decided, absent while nobody did."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
@@ -88496,11 +88496,11 @@
                 "suggestion": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/ReviewSuggestionResponse",
                       "description": "What is suggested beside the holder, absent while nothing is. The\nreviewer still decides."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 }
@@ -88979,11 +88979,11 @@
                 "spend_check": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/SpendCheckDto",
                       "description": "Where the run waits for a person before spending more, or `null`\nwhen it never does."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
@@ -89275,11 +89275,11 @@
                 "agent": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/HeldAgentBody",
                       "description": "The agent it holds and the rules it works under, its code the check\nof every answer; absent when its program is the step's work."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
@@ -89327,11 +89327,11 @@
                 "imported_from": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/ImportedFromResponse",
                       "description": "The file its code was imported from; absent for code written here."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
@@ -89540,11 +89540,11 @@
                 "app_sign_in": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/AppSignInView",
                       "description": "Where and how people sign in on the service's hosts; `null` for none."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
@@ -89556,11 +89556,11 @@
                 "health_check": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/HealthCheckBody",
                       "description": "`null` when probing is off: every backend always eligible."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
@@ -89576,11 +89576,11 @@
                 "sign_in_delivery": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/SignInDeliveryBody",
                       "description": "How that sign-in reaches this service; `null` when it accepts none."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
@@ -89594,11 +89594,11 @@
                 "tls": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/UpstreamTlsView",
                       "description": "How the gateway opens TLS to the upstream, or `null` for the public\nroots with no client certificate."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
@@ -90375,11 +90375,11 @@
                 "invited_role": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/UserRoleInfo",
                       "description": "The role an invited person gets when they accept. `null` for\neveryone else: a joined member's roles are in `roles`, and an\ninvitation only grants its role on acceptance."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
@@ -90536,11 +90536,11 @@
                 "needs_account": {
                   "oneOf": [
                     {
-                      "type": "null"
-                    },
-                    {
                       "$ref": "#/components/schemas/NeedsAccountResponse",
                       "description": "The account this version in service needs, when it is held because\nan account it acts through can no longer be used for its publisher:\nnothing starts it until a next version is published. Left out while\nnothing holds it."
+                    },
+                    {
+                      "type": "null"
                     }
                   ]
                 },
@@ -90796,11 +90796,11 @@
           "proof": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ReenteredProofBody",
                 "description": "The signed-in person's proof of who they are. A sign-in waiting for\nthis passkey as its second factor sends none."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -91377,11 +91377,11 @@
           "price": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/PlanPriceResponse",
                 "description": "What it costs, or `null` when the price is negotiated."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -91890,11 +91890,11 @@
           "trigger": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ProposedTriggerResponse",
                 "description": "What starts a new workflow; left out for steps after a step."
+              },
+              {
+                "type": "null"
               }
             ]
           }
@@ -91930,11 +91930,11 @@
           "budget": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/BudgetDto",
                 "description": "The most the agent may spend."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -92337,11 +92337,11 @@
           "residency": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ResidencyBody",
                 "description": "Where this tenant's data should live.\n\nOmit it and the tenant lands on the platform's shared database in\nthe deployment's default region."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -93066,11 +93066,11 @@
           "password_breach": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/PasswordBreachResponse",
                 "description": "What the breach lookup said about the password set, when one was."
+              },
+              {
+                "type": "null"
               }
             ]
           }
@@ -93767,11 +93767,11 @@
           "closed": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ConnectionCloseResponse",
                 "description": "How the gateway closed the connection this request upgraded, when\nit closed it because the caller's access ended, a check of it failed\nor the credential ran out. Absent for any other connection."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -93783,11 +93783,11 @@
           "decided_by": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/DecidedByResponse",
                 "description": "What refused it, `null` when nothing did."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -94298,22 +94298,22 @@
           "choice": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ReviewChoiceBody",
                 "description": "`keep` or `remove`, absent while nobody decided."
+              },
+              {
+                "type": "null"
               }
             ]
           },
           "decided_by": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/OwnerDto",
                 "description": "The reviewer who decided, absent while nobody did."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -94330,11 +94330,11 @@
           "suggestion": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ReviewSuggestionResponse",
                 "description": "What is suggested beside the holder, absent while nothing is. The\nreviewer still decides."
+              },
+              {
+                "type": "null"
               }
             ]
           }
@@ -95404,11 +95404,11 @@
           "spend_check": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/SpendCheckDto",
                 "description": "Where the run waits for a person before spending more, or `null`\nwhen it never does."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -95600,11 +95600,11 @@
           "spend_check": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/SpendCheckDto",
                 "description": "Where the run waits for a person before spending more, or `null`\nwhen it never does."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -96047,11 +96047,11 @@
           "agent": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/HeldAgentBody",
                 "description": "The agent it holds and the rules it works under, its code the check\nof every answer; absent when its program is the step's work."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -96099,11 +96099,11 @@
           "imported_from": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ImportedFromResponse",
                 "description": "The file its code was imported from; absent for code written here."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -96193,11 +96193,11 @@
           "agent": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/HeldAgentBody",
                 "description": "An agent the version holds, with the rules it works under; the code\nis then the check each of its answers must pass. Left out when the\ncode is the step's work. Not taken with an image."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -96225,11 +96225,11 @@
           "import": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ImportBody",
                 "description": "A repository's file the code is read from instead, at the commit its\nref points to now. Left out when `code` is given."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -96608,11 +96608,11 @@
           "settings": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ScimSettingsResponse",
                 "description": "What SCIM does with users, once set up."
+              },
+              {
+                "type": "null"
               }
             ]
           }
@@ -96669,22 +96669,22 @@
           "name": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ScimName",
                 "description": "The person's name parts."
+              },
+              {
+                "type": "null"
               }
             ]
           },
           "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ScimEnterpriseUser",
                 "description": "The enterprise extension: department, manager and employee number."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -96885,11 +96885,11 @@
           "app_sign_in": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/AppSignInSettings",
                 "description": "Sign-in on the hosts it is served on. Omitted means none."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -96921,11 +96921,11 @@
           "sign_in_delivery": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/SignInDeliveryBody",
                 "description": "How that sign-in reaches this service. Defaults to `same_host`."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -96960,11 +96960,11 @@
           "health_check": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/HealthCheckBody",
                 "description": "How the backends are probed; `null` when probing is off."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -97005,11 +97005,11 @@
           "app_sign_in": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/AppSignInView",
                 "description": "Where and how people sign in on the service's hosts; `null` for none."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -97021,11 +97021,11 @@
           "health_check": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/HealthCheckBody",
                 "description": "`null` when probing is off: every backend always eligible."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -97041,11 +97041,11 @@
           "sign_in_delivery": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/SignInDeliveryBody",
                 "description": "How that sign-in reaches this service; `null` when it accepts none."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -97059,11 +97059,11 @@
           "tls": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/UpstreamTlsView",
                 "description": "How the gateway opens TLS to the upstream, or `null` for the public\nroots with no client certificate."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -98776,11 +98776,11 @@
               "slack": {
                 "oneOf": [
                   {
-                    "type": "null"
-                  },
-                  {
                     "$ref": "#/components/schemas/SlackAskBody",
                     "description": "A Slack channel it also asks in, through a connected Slack\naccount. The message's buttons only open the approval in ianua."
+                  },
+                  {
+                    "type": "null"
                   }
                 ]
               },
@@ -98819,11 +98819,11 @@
               "working_hours": {
                 "oneOf": [
                   {
-                    "type": "null"
-                  },
-                  {
                     "$ref": "#/components/schemas/WorkingHoursBody",
                     "description": "The working hours it waits for, going on at once while they are\non; left out when it waits a set time."
+                  },
+                  {
+                    "type": "null"
                   }
                 ]
               }
@@ -99034,11 +99034,11 @@
           "failure": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/StepFailureResponse",
                 "description": "Why a failed step failed."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -99067,11 +99067,11 @@
           "passes": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/LoopProgressResponse",
                 "description": "How far a loop step's passes got, while it runs or when its run\nended under it."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -99753,11 +99753,11 @@
               "header": {
                 "oneOf": [
                   {
-                    "type": "null"
-                  },
-                  {
                     "$ref": "#/components/schemas/StreamHeaderBody",
                     "description": "A header each request carries to show where it came from."
+                  },
+                  {
+                    "type": "null"
                   }
                 ]
               },
@@ -100083,22 +100083,22 @@
           "approved_by": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/OwnerDto",
                 "description": "Who approved it, once someone has."
+              },
+              {
+                "type": "null"
               }
             ]
           },
           "budget": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/BudgetDto",
                 "description": "The most the agent may spend, if capped."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -100184,11 +100184,11 @@
           "draft": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/UpdateEmailTemplateBody",
                 "description": "A version not saved yet, as the editor holds it; the saved one\n(or the platform's, when the tenant keeps none) when omitted or\n`null`."
+              },
+              {
+                "type": "null"
               }
             ]
           }
@@ -101301,11 +101301,11 @@
           "bare_domain": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/TrafficRecordResponse",
                 "description": "For a bare domain, such as `acme.com`, which may not hold a `CNAME`.\nAbsent when no proxy address is configured, and when delegated."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -101319,11 +101319,11 @@
           "subdomain": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/TrafficRecordResponse",
                 "description": "For a subdomain, such as `hello.acme.com`. Absent when delegated."
+              },
+              {
+                "type": "null"
               }
             ]
           }
@@ -101458,11 +101458,11 @@
           "failure": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/StepFailureResponse",
                 "description": "Why it failed, once it failed: `code_raised` with the end of its\nerror, `code_timed_out`, `code_out_of_memory`,\n`code_output_unreadable` or `code_not_run`, as a code step fails."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -102067,11 +102067,11 @@
           "assurance_trust": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/AssuranceTrustBody",
                 "description": "Whether the provider's report of factors is taken on its word."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -102105,11 +102105,11 @@
           "email_trust": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/EmailTrustBody",
                 "description": "Whether the provider's addresses are taken on its word."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -102123,11 +102123,11 @@
           "provisioning": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ProvisioningBody",
                 "description": "Whether a first sign-in makes an account, and with which role."
+              },
+              {
+                "type": "null"
               }
             ]
           }
@@ -102619,11 +102619,11 @@
           "path_rewrite": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/PathRewriteBody",
                 "description": "Change what path the upstream sees."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -102716,11 +102716,11 @@
           "name_id_format": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/NameIdFormatBody",
                 "description": "A new way of naming people."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -102734,11 +102734,11 @@
           "signing": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/SignedPartsBody",
                 "description": "A new choice of what is signed."
+              },
+              {
+                "type": "null"
               }
             ]
           }
@@ -102751,11 +102751,11 @@
           "health_check": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/HealthCheckBody",
                 "description": "Replace the probe settings. Omit to leave them as they are."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -102871,22 +102871,22 @@
           "sni": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/StreamSniBody",
                 "description": "New server-name restriction. Send `{\"mode\":\"any\"}` to clear one."
+              },
+              {
+                "type": "null"
               }
             ]
           },
           "timeouts": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/StreamTimeoutsBody",
                 "description": "New timeouts."
+              },
+              {
+                "type": "null"
               }
             ]
           }
@@ -103064,11 +103064,11 @@
           "client_certificate": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ClientCertificateBody",
                 "description": "The certificate the gateway presents when the upstream asks for\none, with its private key. Omit for none."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -103454,11 +103454,11 @@
           "invited_role": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/UserRoleInfo",
                 "description": "The role an invited person gets when they accept. `null` for\neveryone else: a joined member's roles are in `roles`, and an\ninvitation only grants its role on acceptance."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -103773,11 +103773,11 @@
           "needs_account": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/NeedsAccountResponse",
                 "description": "The account this version in service needs, when it is held because\nan account it acts through can no longer be used for its publisher:\nnothing starts it until a next version is published. Left out while\nnothing holds it."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -103885,11 +103885,11 @@
           "fix": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/FixBody",
                 "description": "Code that failed when tried, for the model to fix; left out to write\nafresh."
+              },
+              {
+                "type": "null"
               }
             ]
           },

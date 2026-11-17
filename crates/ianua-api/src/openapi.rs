@@ -3,10 +3,10 @@
 //!
 //! Served at `/api/v1/docs` (Swagger UI) and `/api/v1/reference` (Scalar).
 
-use utoipa::openapi::Required;
 use utoipa::openapi::path::{ParameterBuilder, ParameterIn};
 use utoipa::openapi::schema::{ObjectBuilder, Schema, Type};
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
+use utoipa::openapi::{RefOr, Required};
 use utoipa::{Modify, OpenApi};
 
 /// Registers the bearer-token security scheme so Swagger UI shows an
@@ -42,10 +42,13 @@ impl Modify for PathParamsAddon {
         for (path, item) in openapi.paths.paths.iter_mut() {
             let mut params = item.parameters.take().unwrap_or_default();
             for name in path_param_names(path) {
-                if params.iter().any(|p| p.name == name) {
+                if params
+                    .iter()
+                    .any(|p| matches!(p, RefOr::T(param) if param.name == name))
+                {
                     continue;
                 }
-                params.push(
+                params.push(RefOr::T(
                     ParameterBuilder::new()
                         .name(name)
                         .parameter_in(ParameterIn::Path)
@@ -54,7 +57,7 @@ impl Modify for PathParamsAddon {
                             ObjectBuilder::new().schema_type(Type::String).build(),
                         )))
                         .build(),
-                );
+                ));
             }
             if !params.is_empty() {
                 item.parameters = Some(params);

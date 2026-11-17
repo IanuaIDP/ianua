@@ -23,10 +23,6 @@ ignore = [
     # trait — a real code change, not a version bump. Tracked as a
     # follow-up, not blocking this pass.
     "RUSTSEC-2025-0134",
-    # paste: unmaintained proc-macro, but stable/frozen and widely used
-    # as a transitive dependency with no drop-in replacement. Not a
-    # vulnerability — just no longer actively developed.
-    "RUSTSEC-2024-0436",
     # crypto-bigint 0.5: timing issues fixed only in 0.7. It comes through
     # elliptic-curve 0.13 for p256, and no stable p256 uses a fixed version
     # yet. Revisit when one ships.
@@ -34,13 +30,10 @@ ignore = [
     # unsafe-libyaml: unmaintained, no vulnerability. It comes through
     # serde_yaml in kube-client and reads only our own cluster settings.
     "RUSTSEC-2024-0449",
-    # zip 3: only utoipa-swagger-ui still needs it, in its build script, to
-    # unpack the Swagger UI archive it ships. Nothing untrusted reaches it,
-    # and our own use of zip is on a fixed version.
-    "RUSTSEC-2026-0367",
-    "RUSTSEC-2026-0368",
-    "RUSTSEC-2026-0369",
-    "RUSTSEC-2026-0429",
+    # chrono: unmaintained, no vulnerability. None of our crates use it; it
+    # comes through k8s-openapi and other libraries, and no release of them
+    # has moved off it yet.
+    "RUSTSEC-2026-0543",
 ]
 
 [licenses]
