@@ -12,7 +12,7 @@ GATEWAY_IMAGE := ianua-local/ianua-zero:local
 API := http://127.0.0.1:8080/api/v1
 
 .DEFAULT_GOAL := help
-.PHONY: help doctor env images up owner credentials install dev start stop down reset logs status test scenarios lint fmt audit check
+.PHONY: help doctor env images up owner credentials install dev start stop down reset logs status test coverage scenarios lint fmt audit check
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  make %-13s %s\n", $$1, $$2}'
@@ -118,6 +118,9 @@ status: ## Show what is running
 
 test: ## Run the tests, without the end-to-end scenarios
 	SQLX_OFFLINE=true cargo nextest run --workspace --exclude ianua-scenarios
+
+coverage: ## Measure test coverage, report in target/llvm-cov/html
+	SQLX_OFFLINE=true cargo llvm-cov nextest --workspace --exclude ianua-scenarios --html
 
 scenarios: ## Run the end-to-end scenarios
 	SQLX_OFFLINE=true cargo nextest run -p ianua-server -p ianua-scenarios

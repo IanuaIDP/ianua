@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 440" width="900" height="440" role="img" aria-labelledby="title desc">
+  <title id="title">How Ianua works</title>
+  <desc id="desc">People and AI agents reach your apps only through the Ianua gateway. The gateway works out who is calling, asks the platform for a decision, forwards allowed requests, refuses the rest and records every decision. Your own directory connects to the platform.</desc>
+  <style>
+    .bg { fill: #161b22; stroke: #30363d; }
+    .card { fill: #0d1117; stroke: #30363d; }
+    .frame { fill: #1c1830; stroke: #a78bfa; }
+    .title { fill: #e6edf3; font: 600 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .text { fill: #e6edf3; font: 400 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .muted { fill: #9198a1; font: 400 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .label { fill: #9198a1; font: 400 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .brand { fill: #a78bfa; font: 700 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .step { fill: #8b5cf6; }
+    .stepnum { fill: #ffffff; font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .pill { fill: #161b22; stroke: #30363d; }
+    .flow { stroke: #9198a1; fill: none; stroke-width: 1.75; }
+    .allow { stroke: #3fb950; fill: none; stroke-width: 2; }
+    .allowtext { fill: #3fb950; font: 600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .deny { stroke: #f85149; fill: none; stroke-width: 1.75; stroke-dasharray: 5 4; }
+    .denycard { fill: #2d1517; stroke: #f85149; }
+    .denytext { fill: #ff7b72; font: 600 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .link { stroke: #9198a1; fill: none; stroke-width: 1.5; stroke-dasharray: 4 4; }
+    .head { fill: #9198a1; }
+    .headallow { fill: #3fb950; }
+    .headdeny { fill: #f85149; }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0 0 L10 5 L0 10 z"/></marker>
+    <marker id="arrow-allow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="headallow" d="M0 0 L10 5 L0 10 z"/></marker>
+    <marker id="arrow-deny" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="headdeny" d="M0 0 L10 5 L0 10 z"/></marker>
+  </defs>
+
+  <rect class="bg" x="0.5" y="0.5" width="899" height="439" rx="16"/>
+
+  <rect class="card" x="24" y="80" width="180" height="96" rx="12"/>
+  <text class="title" x="114" y="122" text-anchor="middle">People</text>
+  <text class="muted" x="114" y="146" text-anchor="middle">browser, phone, CLI</text>
+
+  <rect class="card" x="24" y="232" width="180" height="96" rx="12"/>
+  <text class="title" x="114" y="274" text-anchor="middle">AI agents</text>
+  <text class="muted" x="114" y="298" text-anchor="middle">and workflow runs</text>
+
+  <rect class="frame" x="248" y="24" width="400" height="392" rx="14" stroke-width="2"/>
+  <text class="brand" x="268" y="52">Ianua</text>
+
+  <rect class="card" x="272" y="68" width="352" height="168" rx="12"/>
+  <text class="title" x="292" y="98">Gateway</text>
+  <text class="label" x="604" y="98" text-anchor="end">every request</text>
+  <circle class="step" cx="302" cy="125" r="10"/><text class="stepnum" x="302" y="129" text-anchor="middle">1</text>
+  <text class="text" x="322" y="130">Work out who is calling</text>
+  <circle class="step" cx="302" cy="151" r="10"/><text class="stepnum" x="302" y="155" text-anchor="middle">2</text>
+  <text class="text" x="322" y="156">Ask the platform for a decision</text>
+  <circle class="step" cx="302" cy="177" r="10"/><text class="stepnum" x="302" y="181" text-anchor="middle">3</text>
+  <text class="text" x="322" y="182">Forward, or refuse by default</text>
+  <circle class="step" cx="302" cy="203" r="10"/><text class="stepnum" x="302" y="207" text-anchor="middle">4</text>
+  <text class="text" x="322" y="208">Record who, what and the decision</text>
+
+  <rect class="card" x="272" y="272" width="352" height="120" rx="12"/>
+  <text class="title" x="292" y="302">Platform</text>
+  <rect class="pill" x="532" y="285" width="76" height="24" rx="12"/>
+  <text class="label" x="570" y="301" text-anchor="middle">Postgres</text>
+  <text class="text" x="292" y="330">Users, groups, roles and policy</text>
+  <text class="text" x="292" y="352">Agents, workflows and approvals</text>
+  <text class="text" x="292" y="374">Dashboard, API and one audit log</text>
+
+  <path class="flow" d="M448 238 V270" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <text class="label" x="458" y="258">asks and gets an answer</text>
+
+  <path class="flow" d="M204 128 H270" marker-end="url(#arrow)"/>
+  <path class="flow" d="M204 280 H236 V196 H270" marker-end="url(#arrow)"/>
+
+  <rect class="card" x="712" y="80" width="164" height="96" rx="12"/>
+  <text class="title" x="794" y="122" text-anchor="middle">Your apps</text>
+  <text class="muted" x="794" y="146" text-anchor="middle">internal tools, APIs</text>
+  <path class="allow" d="M624 128 H710" marker-end="url(#arrow-allow)"/>
+  <text class="allowtext" x="680" y="118" text-anchor="middle">allowed</text>
+
+  <rect class="denycard" x="712" y="190" width="164" height="36" rx="18"/>
+  <text class="denytext" x="794" y="213" text-anchor="middle">Refused</text>
+  <path class="deny" d="M624 208 H710" marker-end="url(#arrow-deny)"/>
+
+  <rect class="card" x="712" y="290" width="164" height="88" rx="12"/>
+  <text class="title" x="794" y="326" text-anchor="middle">Your directory</text>
+  <text class="muted" x="794" y="350" text-anchor="middle">OIDC, SAML, SCIM</text>
+  <path class="link" d="M710 334 H626" marker-end="url(#arrow)"/>
+</svg>

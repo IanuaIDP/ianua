@@ -44,6 +44,10 @@ To run without network access, use the committed query metadata:
 SQLX_OFFLINE=true CARGO_NET_OFFLINE=true cargo nextest run --offline --workspace --no-fail-fast
 ```
 
+### Test coverage
+
+`just coverage` runs the workspace tests with line coverage and writes an HTML report to `target/llvm-cov/html`. It needs [`cargo-llvm-cov`](https://github.com/taiki-e/cargo-llvm-cov). The instrumented build is kept apart from the normal one, so it takes extra disk space. The end-to-end scenarios are not counted, because they run the platform as separate processes.
+
 ### See agent limits at work
 
 ```sh

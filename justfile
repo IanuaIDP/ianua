@@ -36,6 +36,11 @@ test:
 test-scenarios:
     cargo nextest run -p ianua-scenarios --profile {{scenarios_profile}}
 
+# Line coverage of the workspace tests, as an HTML report in target/llvm-cov/html (needs `cargo-llvm-cov`).
+[group('test')]
+coverage:
+    cargo llvm-cov nextest --workspace --exclude ianua-scenarios --html
+
 # Everything: workspace tests, then the scenarios.
 [group('test')]
 test-all: test test-scenarios
