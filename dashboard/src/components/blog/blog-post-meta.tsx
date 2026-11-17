@@ -12,7 +12,7 @@ export async function BlogPostMeta({ post }: BlogPostMetaProps) {
   const format = await getFormatter();
 
   return (
-    <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-textGray">
+    <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-textGray">
       <time dateTime={post.date}>
         {format.dateTime(new Date(post.date), { dateStyle: 'long', timeZone: 'UTC' })}
       </time>
