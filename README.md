@@ -1,7 +1,5 @@
 <div align="center">
 
-<img src=".github/readme/social-preview.png" alt="Ianua: sign-in, a gateway in front of your apps, and limits for AI agents, on your own servers. People and AI agents pass the gateway, which works out who is calling, asks the policy, forwards or refuses by default, and records every decision." width="100%">
-
 [![CI](https://github.com/IanuaIDP/ianua/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/IanuaIDP/ianua/actions/workflows/ci.yml)
 [![Dashboard](https://github.com/IanuaIDP/ianua/actions/workflows/dashboard.yml/badge.svg?branch=main)](https://github.com/IanuaIDP/ianua/actions/workflows/dashboard.yml)
 [![Docs](https://github.com/IanuaIDP/ianua/actions/workflows/docs.yml/badge.svg?branch=main)](https://ianuaidp.github.io/ianua/)
@@ -11,6 +9,8 @@
 [![Next.js](https://img.shields.io/badge/dashboard-Next.js-black?logo=nextdotjs)](dashboard/)
 [![License: source available](https://img.shields.io/badge/license-source%20available-blue)](LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/IanuaIDP/ianua/main)](https://github.com/IanuaIDP/ianua/commits/main)
+
+<img src=".github/readme/social-preview.png" alt="Ianua: sign-in, a gateway in front of your apps, and limits for AI agents, on your own servers. People and AI agents pass the gateway, which works out who is calling, asks the policy, forwards or refuses by default, and records every decision." width="100%">
 
 [Documentation](https://ianuaidp.github.io/ianua/) ·
 [Quick start](#quick-start) ·
