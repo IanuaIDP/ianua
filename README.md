@@ -1,10 +1,6 @@
 <div align="center">
 
-<img src="Logo.png" alt="Ianua logo" width="110">
-
-# Ianua
-
-**Sign-in, a gateway in front of your apps, and limits for AI agents. One platform, on your own servers.**
+<img src=".github/readme/social-preview.png" alt="Ianua: sign-in, a gateway in front of your apps, and limits for AI agents, on your own servers. People and AI agents pass the gateway, which works out who is calling, asks the policy, forwards or refuses by default, and records every decision." width="100%">
 
 [![CI](https://github.com/IanuaIDP/ianua/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/IanuaIDP/ianua/actions/workflows/ci.yml)
 [![Dashboard](https://github.com/IanuaIDP/ianua/actions/workflows/dashboard.yml/badge.svg?branch=main)](https://github.com/IanuaIDP/ianua/actions/workflows/dashboard.yml)
