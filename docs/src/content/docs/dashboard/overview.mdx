@@ -90,6 +90,7 @@ The language comes from the `ianua-locale` cookie, not from the address. That wa
 - Dashboard text lives under `dashboard.*`. Navigation items, statuses and actions keep English names, because tabs and routes are matched by them. `useNavLabels`, `dashboard.status.<Status>` and `dashboard.actions.labels.<Action>` give the visible words.
 - Zod schemas name each error as a `validation.<key>` instead of writing the text. The form shows it through `useFieldError`. A message that is not such a key, such as one from the platform, is shown as it came.
 - Headings use Space Grotesk, which has no Cyrillic letters. So every heading font list puts Manrope before the generic fallback.
+- The fonts are served by the app, not by Google. Manrope and Space Grotesk are files in `src/app/fonts`, declared in `fonts/fonts.css` and imported by `globals.css`, with their licences beside them. Only the Latin and Cyrillic parts are kept, which is what English and Ukrainian need. A new language that needs other letters needs those parts added. A page that asked Google for fonts would send the visitor's address to Google before the cookie banner could ask.
 - To add a language, add it to `LOCALES`, `LOCALE_NATIVE_NAMES` and the platform map in `src/i18n/config.ts`. Then add `messages/<language>.json`.
 
 ## Two ways into a tenant

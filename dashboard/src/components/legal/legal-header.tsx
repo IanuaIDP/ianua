@@ -8,12 +8,20 @@ import { useLocale, useTranslations } from 'next-intl';
 
 import logo from '@/assets/logo.svg';
 import { LanguageSwitcher } from '@/components/ui/language-switcher';
-import { LEGAL_NAV_ITEMS } from '@/constants/landing';
+import { LEGAL_NAV_ITEMS, type LegalHeaderLinkId } from '@/constants/landing';
 import { DEFAULT_LOCALE } from '@/i18n/config';
 import { cn } from '@/utils/cn';
 
-export function LegalHeader() {
+type LegalHeaderProps = {
+  brandSuffix?: string;
+  navigationAriaLabel?: string;
+  navItems?: ReadonlyArray<{ href: string; id: LegalHeaderLinkId }>;
+};
+
+export function LegalHeader({ brandSuffix, navigationAriaLabel, navItems }: LegalHeaderProps = {}) {
   const t = useTranslations('legal.header');
+  const items = navItems ?? LEGAL_NAV_ITEMS;
+  const ariaLabel = navigationAriaLabel ?? t('navigationAriaLabel');
   const tCommon = useTranslations('common');
   const tLegalLinks = useTranslations('landing.legalLinks');
   const tHeader = useTranslations('landing.header');
@@ -46,16 +54,13 @@ export function LegalHeader() {
             <Image src={logo} alt="ianua.io" className="h-auto w-25 object-contain" priority />
           </Link>
           <span className="hidden border-l border-white/10 pl-3 text-sm text-white sm:inline">
-            {t('brandSuffix')}
+            {brandSuffix ?? t('brandSuffix')}
           </span>
         </div>
 
-        <nav
-          className={cn('hidden items-center gap-8', showFromDesktop)}
-          aria-label={t('navigationAriaLabel')}
-        >
-          {LEGAL_NAV_ITEMS.map((item) => {
-            const isActive = pathname === item.href;
+        <nav className={cn('hidden items-center gap-8', showFromDesktop)} aria-label={ariaLabel}>
+          {items.map((item) => {
+            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
             return (
               <Link
@@ -133,9 +138,9 @@ export function LegalHeader() {
             hideFromDesktop,
           )}
         >
-          <nav className="grid gap-0.5" aria-label={t('navigationAriaLabel')}>
-            {LEGAL_NAV_ITEMS.map((item) => {
-              const isActive = pathname === item.href;
+          <nav className="grid gap-0.5" aria-label={ariaLabel}>
+            {items.map((item) => {
+              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
               return (
                 <Link

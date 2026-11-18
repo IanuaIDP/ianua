@@ -15,6 +15,7 @@ export const LANDING_NAV_ITEMS = [
 ] as const;
 
 export const LANDING_LEGAL_LINKS = [
+  { id: 'blog', href: '/blog' },
   { id: 'helpCenter', href: '/help-center' },
   { id: 'privacyPolicy', href: '/privacy-policy' },
   { id: 'termsOfUse', href: '/terms-of-use' },
@@ -111,3 +112,9 @@ export const FAQ_ITEM_IDS = [
   'separation',
   'changeApps',
 ] as const;
+
+export const BLOG_NAV_ITEMS = [{ id: 'blog', href: '/blog' }] as const;
+
+/** The ids of the links in the legal and blog headers. Their text is under `landing.legalLinks`. */
+export type LegalHeaderLinkId =
+  (typeof LEGAL_NAV_ITEMS)[number]['id'] | (typeof BLOG_NAV_ITEMS)[number]['id'];

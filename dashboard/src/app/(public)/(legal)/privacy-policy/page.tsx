@@ -11,8 +11,9 @@ import {
 } from '@/components/legal/legal-prose';
 import {
   LEGAL_CONTACT_EMAIL,
-  LEGAL_LAST_UPDATED,
+  PRIVACY_LAST_UPDATED,
   PRIVACY_DATA_COLLECTED_IDS,
+  PRIVACY_COOKIE_PROVIDER_IDS,
   PRIVACY_DATA_RECIPIENT_IDS,
 } from '@/constants/legal';
 import { DEFAULT_LOCALE } from '@/i18n/config';
@@ -35,7 +36,7 @@ export default async function PrivacyPolicyPage() {
         {t.rich('heading', legalRichTags)}
       </h1>
       <p className="mt-4 text-sm text-textGray">
-        {tLegal('lastUpdated', { date: LEGAL_LAST_UPDATED })}
+        {tLegal('lastUpdated', { date: PRIVACY_LAST_UPDATED })}
       </p>
       {locale !== DEFAULT_LOCALE ? (
         <p className="mt-4 rounded-lg border border-borderGray bg-cardBg px-4 py-3 text-sm text-textGray">
@@ -112,6 +113,29 @@ export default async function PrivacyPolicyPage() {
           <LegalProse>
             <p>{t('recipients.p1')}</p>
             <p>{t('recipients.p2')}</p>
+          </LegalProse>
+        </LegalSection>
+
+        <LegalSection title={t('cookies.title')}>
+          <LegalProse>
+            <p>{t('cookies.p1')}</p>
+            <p>{t('cookies.p2')}</p>
+          </LegalProse>
+
+          <LegalParagraph>{t('cookies.intro')}</LegalParagraph>
+
+          <LegalList>
+            {PRIVACY_COOKIE_PROVIDER_IDS.map((id) => (
+              <LegalBullet key={id}>
+                <span className="font-semibold text-white">{t(`cookies.items.${id}.label`)}</span>{' '}
+                &mdash; {t(`cookies.items.${id}.rest`)}
+              </LegalBullet>
+            ))}
+          </LegalList>
+
+          <LegalProse>
+            <p>{t('cookies.p3')}</p>
+            <p>{t('cookies.p4')}</p>
           </LegalProse>
         </LegalSection>
 

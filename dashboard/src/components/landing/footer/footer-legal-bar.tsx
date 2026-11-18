@@ -4,14 +4,17 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
+import { CookieSettingsButton } from '@/components/analytics/cookie-settings-button';
 import { LANDING_LEGAL_LINKS } from '@/constants/landing';
 
-const LEGAL_PAGE_PATHS = new Set(['/privacy-policy', '/terms-of-use']);
+const IN_TAB_PATH_PREFIXES = ['/privacy-policy', '/terms-of-use', '/blog'];
 
 export function FooterLegalBar() {
   const t = useTranslations('landing');
   const pathname = usePathname();
-  const isOnLegalPage = LEGAL_PAGE_PATHS.has(pathname);
+  const isOnLegalPage = IN_TAB_PATH_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
 
   return (
     <div className="border-t border-borderGray px-8.75 py-4">
@@ -37,6 +40,7 @@ export function FooterLegalBar() {
               </Link>
             );
           })}
+          <CookieSettingsButton className="transition-colors duration-200 hover:text-white" />
         </nav>
 
         <p>
