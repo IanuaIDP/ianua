@@ -6,9 +6,9 @@ changes are held to a high bar. Read this page before opening a pull request.
 ## Before you start
 
 - **Outside contributions need a signed [contributor agreement](CLA.md).** We
-  cannot merge outside code until you have signed it, because Ianua is
-  [fair-code](README.md#license) and the agreement is what lets us offer it under
-  commercial terms. You keep your copyright. A bot asks you to sign on your first
+  cannot merge outside code until you have signed it. Ianua is open source under
+  the [AGPL](README.md#license), and the agreement is what lets us also offer it
+  under commercial terms. You keep your copyright. A bot asks you to sign on your first
   pull request.
 - For anything larger than a small fix, open an issue first so we can agree on
   the approach.

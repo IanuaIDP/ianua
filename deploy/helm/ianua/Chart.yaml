@@ -27,7 +27,7 @@ maintainers:
     url: https://github.com/IanuaIDP
 annotations:
   artifacthub.io/category: security
-  artifacthub.io/license: LicenseRef-Ianua-Source-Use-License
+  artifacthub.io/license: AGPL-3.0-only
   artifacthub.io/links: |
     - name: Documentation
       url: https://ianuaidp.github.io/ianua/

@@ -4,8 +4,8 @@
     "title": "ianua-api",
     "description": "",
     "license": {
-      "name": "LicenseRef-Ianua-Source-Use-1.0",
-      "identifier": "LicenseRef-Ianua-Source-Use-1.0"
+      "name": "AGPL-3.0-only",
+      "identifier": "AGPL-3.0-only"
     },
     "version": "0.1.0"
   },

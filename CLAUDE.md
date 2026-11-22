@@ -1,6 +1,6 @@
 # ianua
 
-ianua is a source-available identity provider with zero-trust access. A gateway
+ianua is an open source identity provider with zero-trust access. A gateway
 terminates traffic and forwards it under policy. Workflows and agents act for
 people under the same rules.
 

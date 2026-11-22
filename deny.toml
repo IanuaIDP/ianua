@@ -38,7 +38,7 @@ ignore = [
 
 [licenses]
 version = 2
-# Allow-list of licenses compatible with this proprietary codebase.
+# Allow-list of licenses compatible with this AGPL-3.0-only codebase.
 # Anything not listed here fails CI — a new transitive dependency
 # introducing an unreviewed license is exactly the kind of thing this
 # check exists to catch before it merges.
@@ -62,7 +62,7 @@ allow = [
     # not code; standard for anything doing TLS in Rust.
     "CDLA-Permissive-2.0",
     # This workspace's own crates, under the LICENSE file at the root.
-    "LicenseRef-Ianua-Source-Use-1.0",
+    "AGPL-3.0-only",
 ]
 confidence-threshold = 0.8
 

@@ -7,7 +7,7 @@
 <br>
 [![Rust 1.99](https://img.shields.io/badge/rust-1.99-orange?logo=rust)](rust-toolchain.toml)
 [![Next.js](https://img.shields.io/badge/dashboard-Next.js-black?logo=nextdotjs)](dashboard/)
-[![License: source available](https://img.shields.io/badge/license-source%20available-blue)](LICENSE)
+[![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/IanuaIDP/ianua/main)](https://github.com/IanuaIDP/ianua/commits/main)
 
 <img src=".github/readme/social-preview.png" alt="Ianua: sign-in, a gateway in front of your apps, and limits for AI agents, on your own servers. People and AI agents pass the gateway, which works out who is calling, asks the policy, forwards or refuses by default, and records every decision." width="100%">
@@ -130,9 +130,9 @@ If you only need single sign-on for software you buy, a hosted identity provider
 
 ## License
 
-Ianua is source available under the [Ianua Source Use License](LICENSE). It is not an open source license.
+Ianua is open source under the [GNU Affero General Public License, version 3](LICENSE) (`AGPL-3.0-only`).
 
-You may read, change and self-host it for your own organization. That includes signing your own customers in to your own products. You may not sell Ianua itself or host it for others without a commercial license. Third-party material is listed in [NOTICE](NOTICE).
+You may use, change, self-host and share it for any purpose. If you change Ianua and let people use your changed version over a network, you must offer them its source under the same license. A commercial license without these terms is also available. Third-party material is listed in [NOTICE](NOTICE).
 
 ## Contributing and security
 

@@ -8,7 +8,7 @@ members = ["crates/ianua-domain", "crates/ianua-app", "crates/ianua-api", "crate
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.99"
-license = "LicenseRef-Ianua-Source-Use-1.0"
+license = "AGPL-3.0-only"
 
 # The shape every crate keeps: short functions with few inputs, no crash
 # shortcuts outside tests, nothing public that need not be, and the plain

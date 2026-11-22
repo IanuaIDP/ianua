@@ -1,3 +1,8 @@
+Copyright (c) 2026 Maurice Schilpp and Giorgi Zoidze
+
+ianua is licensed under the GNU Affero General Public License, version 3
+only (AGPL-3.0-only); the full text is in the LICENSE file.
+
 ianua includes third-party material under the licenses below.
 
 crates/ianua-infra/src/bundled/passwords.txt

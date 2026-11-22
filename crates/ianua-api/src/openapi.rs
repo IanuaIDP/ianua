@@ -92,7 +92,7 @@ struct LicenseAddon;
 impl Modify for LicenseAddon {
     fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
         if let Some(license) = openapi.info.license.as_mut() {
-            license.identifier = Some("LicenseRef-Proprietary".to_owned());
+            license.identifier = Some("AGPL-3.0-only".to_owned());
         }
     }
 }
@@ -205,7 +205,7 @@ Endpoints under the **Real-time** tag are **WebSocket** upgrades (documented wit
 response). Connect with a WebSocket client and the same bearer token to receive live
 notification and dashboard streams.
 "#,
-        license(name = "Proprietary")
+        license(name = "GNU Affero General Public License v3.0 only")
     ),
     security(("bearer_auth" = [])),
     tags(
