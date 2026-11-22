@@ -35,6 +35,13 @@ unnecessary_wraps = "warn"
 [profile.dev]
 debug = "line-tables-only"
 
+# Every outside library compiled lightly optimized even in dev/test builds:
+# the scenarios run whole platforms on TLS, HTTP, the database driver and
+# JSON, which run several times slower unoptimized. The workspace's own
+# crates stay unoptimized, so rebuilding them while working stays quick.
+[profile.dev.package."*"]
+opt-level = 1
+
 # Compile the pure-Rust crypto crates optimized even in dev/test builds.
 #
 # RSA-2048 keygen (rsa + num-bigint-dig) and argon2id (argon2 + blake2) are
